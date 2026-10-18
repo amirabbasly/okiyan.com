@@ -1,0 +1,406 @@
+---
+/**
+ * Signature homepage section: a shipment followed from documents to delivery.
+ * - Stage content is semantic HTML (readable without JS, indexable).
+ * - The scene is a decorative SVG driven by native scroll (no hijacking).
+ * - The client script is bundled only on pages that render this component.
+ */
+import JourneyScene from './JourneyScene.astro';
+import { journeyStages } from './stages';
+import { toFa } from '~/lib/format';
+import Icon from '~/components/ui/Icon.astro';
+
+export interface Props {
+  headingId?: string;
+}
+const { headingId = 'journey-title' } = Astro.props;
+const total = journeyStages.length;
+const pad = (n: number) => toFa(String(n).padStart(2, '0'));
+---
+
+<section class="journey section section--dark" aria-labelledby={headingId} data-journey>
+  <div class="container">
+    <header class="section-head section-head--split journey__head">
+      <div>
+        <span class="eyebrow">مسیر یک محموله</span>
+        <h2 id={headingId}>از بررسی اسناد تا تحویل در انبار</h2>
+      </div>
+      <p class="lead">
+        واردات و ترخیص کالا زنجیره‌ای از کارهای به‌هم‌پیوسته است. اینجا یک محموله را در پنج مرحلهٔ اصلی دنبال کنید و ببینید در هر مرحله چه
+        چیزی اهمیت دارد.
+      </p>
+    </header>
+
+    <div class="journey__grid">
+      <ol class="journey__steps" data-steps>
+        {
+          journeyStages.map((stage, i) => (
+            <li class:list={['j-step', { 'is-active': i === 0 }]} id={stage.id} data-step={i}>
+              <div class="j-step__inner">
+                <p class="j-step__num" aria-hidden="true">
+                  {pad(i + 1)}
+                  <span>/ {pad(total)}</span>
+                </p>
+                <h3>
+                  <span class="sr-only">مرحلهٔ {toFa(i + 1)}: </span>
+                  {stage.title}
+                </h3>
+                <p>{stage.body}</p>
+                <ul class="j-step__points">
+                  {stage.points.map((pt) => (
+                    <li>{pt}</li>
+                  ))}
+                </ul>
+                {stage.link && (
+                  <a class="arrow-link" href={stage.link.href}>
+                    {stage.link.label}
+                    <Icon name="arrow" />
+                  </a>
+                )}
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+
+      <div class="journey__scene-col">
+        <div class="j-sticky" data-scene>
+          <div class="j-frame">
+            <JourneyScene initialP={0} />
+            <div class="j-hud" aria-hidden="true">
+              <p class="j-hud__label">
+                <span class="j-hud__count" data-hud-count>{pad(1)} / {pad(total)}</span>
+                <span data-hud-title>{journeyStages[0].title}</span>
+              </p>
+              <div class="j-hud__bar">
+                {journeyStages.map(() => <span><i /></span>)}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="notice journey__note">
+      <Icon name="info" />
+      <p>
+        <strong>این مسیر نمایشی است.</strong> ترتیب کارها، مدارک، مدت‌زمان و هزینهٔ هر محموله به نوع کالا، کشور مبدأ، رویهٔ گمرکی و مقررات جاری بستگی
+        دارد و ممکن است با این نمایش تفاوت داشته باشد.
+      </p>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { initJourney } from './journey-client';
+  document.querySelectorAll<HTMLElement>('[data-journey]').forEach(initJourney);
+</script>
+
+<style>
+  .journey {
+    background-color: var(--navy-900);
+    background-image:
+      radial-gradient(60rem 30rem at 85% 0%, rgb(201 162 74 / 0.08), transparent 60%),
+      radial-gradient(50rem 40rem at 0% 100%, rgb(42 76 122 / 0.45), transparent 60%);
+  }
+  .journey__head h2 {
+    color: var(--ivory-50);
+  }
+  .journey__grid {
+    --scene-h: min(34rem, calc((100vh - var(--header-h)) * 0.78));
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: clamp(2rem, 4vw, 4.5rem);
+    align-items: stretch;
+  }
+
+  /* ---------- Steps ---------- */
+  .journey__steps {
+    list-style: none;
+    padding: 0;
+    /* Keeps the sticky scene fully in view until the final stage completes. */
+    padding-bottom: calc((var(--header-h) + var(--scene-h)) / 2);
+  }
+  .j-step {
+    min-height: 62vh;
+    display: grid;
+    align-content: center;
+    padding-block: 2rem;
+  }
+  .j-step:first-child {
+    min-height: 48vh;
+    align-content: start;
+    padding-top: 4rem;
+  }
+  .j-step:last-child {
+    min-height: 50vh;
+  }
+  .j-step__inner {
+    display: grid;
+    gap: 0.9rem;
+    padding-inline-start: 1.5rem;
+    border-inline-start: 2px solid var(--rule);
+    transition: border-color var(--dur-med) ease;
+  }
+  .j-step__num {
+    font-size: var(--step-2);
+    font-weight: 800;
+    color: var(--navy-300);
+    line-height: 1;
+    transition: color var(--dur-med) ease;
+  }
+  .j-step__num span {
+    font-size: var(--step--1);
+    font-weight: 600;
+    opacity: 0.7;
+  }
+  .j-step h3 {
+    font-size: var(--step-3);
+    color: var(--ivory-50);
+    line-height: 1.35;
+  }
+  .j-step p {
+    color: #c3cddc;
+  }
+  .j-step__points {
+    list-style: none;
+    display: grid;
+    gap: 0.4rem;
+    font-size: var(--step--1);
+    color: #b9c4d6;
+  }
+  .j-step__points li {
+    position: relative;
+    padding-inline-start: 1.2rem;
+  }
+  .j-step__points li::before {
+    content: '';
+    position: absolute;
+    inset-inline-start: 0;
+    top: 0.85em;
+    inline-size: 0.45rem;
+    block-size: 2px;
+    background: var(--gold-400);
+  }
+  .js .j-step:not(.is-active) .j-step__inner {
+    border-color: rgb(247 241 228 / 0.08);
+  }
+  .js .j-step.is-active .j-step__inner {
+    border-color: var(--gold-400);
+  }
+  .js .j-step.is-active .j-step__num {
+    color: var(--gold-300);
+  }
+  .js .j-step:not(.is-active) h3 {
+    color: #c9d2e0;
+  }
+
+  /* ---------- Scene ---------- */
+  .journey__scene-col {
+    position: relative;
+    container-type: inline-size;
+  }
+  .j-sticky {
+    /* Match the scene's 10:7 aspect where the column allows it. */
+    --frame-h: min(var(--scene-h), 70cqi);
+    position: sticky;
+    top: calc(var(--header-h) + (100vh - var(--header-h) - var(--frame-h)) / 2);
+    z-index: 2;
+  }
+  .no-js .j-sticky {
+    position: static;
+  }
+  .j-frame {
+    position: relative;
+    height: var(--frame-h, var(--scene-h));
+    border-radius: var(--radius-l);
+    overflow: hidden;
+    background: #0d2242;
+    border: 1px solid rgb(247 241 228 / 0.12);
+    box-shadow:
+      0 30px 60px -30px rgb(0 0 0 / 0.55),
+      inset 0 1px 0 rgb(247 241 228 / 0.06);
+  }
+  .j-frame :global(.j-svg) {
+    width: 100%;
+    height: 100%;
+  }
+  .j-frame::after {
+    /* soft vignette + inner hairline for a lens-like depth */
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: radial-gradient(120% 90% at 50% 40%, transparent 55%, rgb(3 10 24 / 0.55));
+    box-shadow: inset 0 0 0 1px rgb(247 241 228 / 0.06);
+  }
+  .j-frame :global(text) {
+    font-family: var(--font-sans);
+  }
+  .j-frame :global(.j-marker circle) {
+    fill: #0a1c38;
+    stroke: rgb(247 241 228 / 0.45);
+    stroke-width: 1.5;
+    transition:
+      fill 300ms ease,
+      stroke 300ms ease;
+  }
+  .j-frame :global(.j-marker text) {
+    fill: #c9d2e0;
+    transition: fill 300ms ease;
+  }
+  .j-frame :global(.j-marker .j-marker__halo) {
+    fill: var(--gold-400);
+    stroke: none;
+    opacity: 0;
+    transition: opacity 300ms ease;
+  }
+  .j-frame :global(.j-marker.is-active .j-marker__halo) {
+    fill: var(--gold-400);
+    stroke: none;
+    opacity: 0.22;
+  }
+  .j-frame :global(.j-marker.is-active circle:not(.j-marker__halo)) {
+    fill: var(--gold-400);
+    stroke: var(--gold-300);
+  }
+  .j-frame :global(.j-marker.is-active text) {
+    fill: var(--navy-950);
+  }
+
+  .j-hud {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    padding: 2.2rem 1.25rem 1rem;
+    background: linear-gradient(to top, rgb(6 18 38 / 0.92), rgb(6 18 38 / 0));
+    pointer-events: none;
+    z-index: 1;
+  }
+  .j-hud__label {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    font-weight: 700;
+    color: var(--ivory-50);
+    font-size: var(--step-0);
+    line-height: 1.5;
+  }
+  .j-hud__count {
+    font-size: var(--step--1);
+    color: var(--gold-300);
+    white-space: nowrap;
+  }
+  .j-hud__bar {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 4px;
+    margin-top: 0.6rem;
+  }
+  .j-hud__bar span {
+    display: block;
+    height: 3px;
+    border-radius: 3px;
+    background: rgb(247 241 228 / 0.18);
+    overflow: hidden;
+  }
+  .j-hud__bar i {
+    display: block;
+    height: 100%;
+    background: var(--gold-400);
+    transform-origin: right center;
+    transform: scaleX(var(--fill, 0));
+  }
+  .no-js .j-hud {
+    display: none;
+  }
+
+  /* Independent swell loop: only while the section is on screen. */
+  .j-frame :global(.j-waves) {
+    animation: j-swell 7s linear infinite;
+    animation-play-state: paused;
+  }
+  .journey:global(.is-running) .j-frame :global(.j-waves) {
+    animation-play-state: running;
+  }
+  @keyframes j-swell {
+    to {
+      transform: translateX(-80px);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .j-frame :global(.j-waves) {
+      animation: none;
+    }
+  }
+
+  .journey__note {
+    margin-top: clamp(2rem, 4vw, 3rem);
+    max-width: 52rem;
+  }
+
+  /* ---------- Compact stacked layout ---------- */
+  @media (max-width: 900px) {
+    .journey__grid {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0;
+      --scene-h: min(62.5vw, 38svh);
+    }
+    .journey__scene-col {
+      order: -1;
+      position: sticky;
+      top: var(--header-h);
+      z-index: 2;
+      /* Solid backdrop so steps scroll cleanly underneath */
+      background: var(--navy-900);
+      padding-block: 0.5rem;
+      margin-inline: calc(-1 * var(--gutter));
+      padding-inline: var(--gutter);
+    }
+    .no-js .journey__scene-col {
+      position: static;
+    }
+    .j-sticky {
+      position: static;
+    }
+    .j-frame {
+      border-radius: var(--radius-m);
+    }
+    .j-hud {
+      padding: 1.6rem 0.9rem 0.7rem;
+    }
+    .j-hud__label {
+      font-size: var(--step--1);
+    }
+    .j-step,
+    .j-step:last-child {
+      min-height: 58svh;
+      align-content: start;
+      padding-block: 2.25rem 1rem;
+    }
+    .j-step:first-child {
+      min-height: 50svh;
+      padding-top: 2.25rem;
+    }
+    .j-step h3 {
+      font-size: var(--step-2);
+    }
+    .journey__steps {
+      padding-bottom: 0;
+    }
+  }
+
+  /* Short landscape screens: no sticky scene, so nothing gets covered. */
+  @media (max-height: 520px) {
+    .journey__scene-col,
+    .j-sticky {
+      position: static;
+    }
+    .j-step,
+    .j-step:first-child,
+    .j-step:last-child {
+      min-height: auto;
+    }
+  }
+</style>

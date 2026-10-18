@@ -1,0 +1,83 @@
+---
+import { toFa } from '~/lib/format';
+/** Numbered process with a connecting rule. Semantic ordered list. */
+export interface Props {
+  items: Array<{ title: string; text: string; note?: string }>;
+}
+const { items } = Astro.props;
+---
+
+<ol class="steps">
+  {
+    items.map((item, i) => (
+      <li class="steps__item reveal">
+        <span class="steps__n" aria-hidden="true">
+          {toFa(i + 1)}
+        </span>
+        <div class="steps__body">
+          <h3>{item.title}</h3>
+          <p>{item.text}</p>
+          {item.note && <p class="steps__note">{item.note}</p>}
+        </div>
+      </li>
+    ))
+  }
+</ol>
+
+<style>
+  .steps {
+    list-style: none;
+    display: grid;
+    gap: 0;
+    counter-reset: none;
+  }
+  .steps__item {
+    position: relative;
+    display: grid;
+    grid-template-columns: 3.25rem minmax(0, 1fr);
+    gap: 1.25rem;
+    padding-bottom: 2.25rem;
+  }
+  .steps__item:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    inset-inline-start: calc(1.625rem - 1px);
+    top: 3.25rem;
+    bottom: 0.25rem;
+    width: 2px;
+    background: linear-gradient(var(--gold-400), var(--rule));
+  }
+  .steps__n {
+    display: grid;
+    place-items: center;
+    inline-size: 3.25rem;
+    block-size: 3.25rem;
+    border-radius: 50%;
+    border: 2px solid var(--gold-400);
+    background: var(--bg);
+    font-weight: 800;
+    font-size: var(--step-1);
+    color: var(--navy-900);
+  }
+  .steps__body {
+    display: grid;
+    gap: 0.4rem;
+    padding-top: 0.55rem;
+    max-width: 44rem;
+  }
+  .steps__body h3 {
+    font-size: var(--step-1);
+    font-weight: 800;
+  }
+  .steps__body p {
+    color: var(--text-muted);
+  }
+  .steps__note {
+    font-size: var(--step--1);
+    padding-inline-start: 0.9rem;
+    border-inline-start: 2px solid var(--gold-300);
+  }
+  .section--alt .steps__n {
+    background: var(--bg-alt);
+  }
+</style>

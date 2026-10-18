@@ -1,0 +1,19 @@
+---
+/**
+ * Marks missing business information. Renders only in non-production builds,
+ * so placeholders can never ship to the live site.
+ */
+import { isProduction } from '~/config/site';
+export interface Props {
+  field: string;
+}
+const { field } = Astro.props;
+---
+
+{
+  !isProduction && (
+    <span class="placeholder" role="note">
+      اطلاعات تکمیل‌نشده: {field} — در src/config/site.ts وارد کنید.
+    </span>
+  )
+}

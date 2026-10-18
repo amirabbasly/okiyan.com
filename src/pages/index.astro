@@ -1,0 +1,737 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import HeroRoute from '~/components/illustrations/HeroRoute.astro';
+import ShipmentJourney from '~/components/journey/ShipmentJourney.astro';
+import Icon from '~/components/ui/Icon.astro';
+import Faq from '~/components/ui/Faq.astro';
+import CtaBand from '~/components/ui/CtaBand.astro';
+import { services } from '~/data/services';
+import { site, contactCta } from '~/config/site';
+import { toFa } from '~/lib/format';
+import { getCollection } from 'astro:content';
+
+const guides = (await getCollection('guides')).sort((a, b) => a.data.order - b.data.order);
+
+const principles = [
+  {
+    title: 'اول بررسی، بعد برآورد',
+    text: 'پیش از اعلام هزینه، اسناد و مشخصات کالا را می‌بینیم. برآورد را مکتوب و تفکیک‌شده می‌دهیم و اقلامی را که هنوز قطعی نیستند جدا مشخص می‌کنیم.',
+  },
+  {
+    title: 'مرز مسئولیت‌ها از ابتدا روشن است',
+    text: 'می‌گوییم چه کاری بر عهدهٔ ماست، چه چیزی را صاحب کالا باید فراهم کند و کدام تصمیم با گمرک یا دستگاه صادرکنندهٔ مجوز است.',
+  },
+  {
+    title: 'به‌جای وعده، ریسک‌ها را می‌گوییم',
+    text: 'زمان و نتیجهٔ ترخیص به عوامل بیرونی بستگی دارد. به‌جای تضمین غیرواقعی، نقاط احتمالی توقف را پیش از شروع کار توضیح می‌دهیم.',
+  },
+  {
+    title: 'گزارش روشن از هر مرحله',
+    text: 'در هر مرحله می‌دانید پرونده کجاست، منتظر چه چیزی است و اقدام بعدی با چه کسی است.',
+  },
+];
+
+const prepare = [
+  'شرح دقیق کالا و کاربرد آن (در صورت امکان کاتالوگ یا برگهٔ مشخصات فنی)',
+  'کد تعرفهٔ پیشنهادی، اگر از قبل دارید',
+  'کشور مبدأ، ارزش تقریبی و شرط تحویل (مثلاً FOB یا CFR)',
+  'پیش‌فاکتور و وضعیت ثبت سفارش',
+  'مرحلهٔ فعلی محموله: پیش از خرید، در حال حمل یا رسیده به گمرک',
+  'گمرک یا بندری که کالا وارد آن می‌شود',
+];
+
+const faqs = [
+  {
+    q: 'ترخیص کالا معمولاً چقدر طول می‌کشد؟',
+    a: 'زمان ثابتی وجود ندارد. کامل بودن اسناد، نیاز کالا به مجوز یا آزمایش، مسیر رسیدگی در گمرک و حجم کار گمرک مقصد همه اثر دارند. پس از دیدن اسناد، برآوردی واقع‌بینانه و عواملی را که ممکن است باعث تأخیر شوند اعلام می‌کنیم.',
+  },
+  {
+    q: 'آیا هزینهٔ ترخیص را پیش از شروع کار اعلام می‌کنید؟',
+    a: 'بله، پس از بررسی اسناد یک برآورد مکتوب و تفکیک‌شده ارائه می‌شود. بخشی از مبالغ، مانند حقوق ورودی، به ارزش و تعرفهٔ نهایی پذیرفته‌شده در گمرک بستگی دارد؛ این اقلام در برآورد جدا مشخص می‌شوند. توضیح بیشتر در <a href="/guides/customs-clearance-cost/">راهنمای هزینه ترخیص کالا</a>.',
+  },
+  {
+    q: 'کالا به گمرک رسیده و اسناد کامل نیست؛ چه کنیم؟',
+    a: 'هرچه زودتر پرونده را بررسی کنیم بهتر است، چون هزینهٔ انبارداری معمولاً با گذشت زمان بیشتر می‌شود. اسنادی را که در دست دارید بفرستید تا کمبودها و راه‌های تکمیل آن‌ها مشخص شود.',
+  },
+  {
+    q: 'برای واردات حتماً باید کارت بازرگانی داشت؟',
+    a: 'در بیشتر واردات تجاری، کارت بازرگانی معتبر لازم است؛ اما برخی رویه‌ها قواعد متفاوتی دارند. پیش از خرید، وضعیت خود را بررسی کنید. در <a href="/guides/import-process/">راهنمای مراحل واردات کالا</a> این موضوع را توضیح داده‌ایم.',
+  },
+  {
+    q: 'در کدام گمرکات و بنادر خدمات می‌دهید؟',
+    a:
+      site.serviceAreas.length > 0
+        ? `در حال حاضر در ${site.serviceAreas.join('، ')} خدمات ارائه می‌دهیم. برای سایر گمرکات، در فرم مشاوره مشخص کنید تا امکان همکاری بررسی شود.`
+        : 'گمرک یا بندر ورود کالا را در فرم مشاوره بنویسید تا امکان همکاری در همان محل را بررسی و اعلام کنیم.',
+  },
+];
+---
+
+<BaseLayout
+  title={`ترخیص کالا و واردات کالا | ${site.name}`}
+  fullTitle
+  description="ترخیص کالا از گمرک و همراهی در مراحل واردات کالا؛ از بررسی اسناد و کد تعرفه تا اظهارنامه، ارزیابی و تحویل. برآورد شفاف هزینه پس از بررسی پرونده."
+  includeWebsiteLd
+>
+  <!-- ============ HERO ============ -->
+  <section class="hero section--grain">
+    <svg class="hero__motif" viewBox="0 0 1440 760" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+      <path d="M1500 120C1240 160 1120 420 860 470S420 380 160 600-60 760-60 760" fill="none" stroke="#c9a24a" stroke-opacity="0.35" stroke-width="1.5" stroke-dasharray="4 10" vector-effect="non-scaling-stroke"></path>
+      <path d="M1500 40C1300 70 1180 250 980 300" fill="none" stroke="#0a1c38" stroke-opacity="0.08" stroke-width="1" vector-effect="non-scaling-stroke"></path>
+    </svg>
+    <div class="container hero__grid">
+      <div class="hero__text">
+        <span class="eyebrow">ترخیص و واردات کالا در ایران</span>
+        <h1 class="hero__title">
+          <span class="hero__l1">ترخیص کالا و واردات،</span>
+          <span class="hero__l2">با مسیر روشن</span>
+        </h1>
+        <p class="lead hero__lead">
+          از بررسی اسناد پیش از خرید تا خروج کالا از گمرک و تحویل در انبار، کنارتان هستیم تا در هر مرحله بدانید چه چیزی لازم است، چه هزینه‌هایی در
+          راه است و قدم بعدی چیست.
+        </p>
+        <div class="hero__actions">
+          <a class="btn" href={contactCta.href}>
+            {contactCta.label}
+            <Icon name="arrow" class="btn__icon" />
+          </a>
+          <a class="btn btn--ghost" href="#services">آشنایی با خدمات</a>
+        </div>
+      </div>
+      <div class="hero__art">
+        <HeroRoute />
+      </div>
+    </div>
+
+    <nav class="container hero__paths" aria-label="انتخاب خدمت">
+      {
+        [
+          { s: services.clearance, icon: 'stamp' as const },
+          { s: services.import, icon: 'ship' as const },
+        ].map(({ s, icon }) => (
+          <div class="path-link stretch">
+            <span class="path-link__icon" aria-hidden="true">
+              <Icon name={icon} />
+            </span>
+            <span class="path-link__text">
+              <span class="path-link__q">{s.question}</span>
+              <a class="path-link__name stretch__link" href={s.href}>
+                {s.name}
+                <Icon name="arrow" />
+              </a>
+            </span>
+          </div>
+        ))
+      }
+    </nav>
+  </section>
+
+  <!-- ============ SERVICES ============ -->
+  <section class="section" id="services" aria-labelledby="services-title">
+    <div class="container">
+      <header class="section-head section-head--split reveal">
+        <div>
+          <span class="eyebrow">خدمات</span>
+          <h2 id="services-title">دو خدمت، دو نقطهٔ شروع متفاوت</h2>
+        </div>
+        <p class="lead">
+          اگر کالا خریداری شده و در راه گمرک است، با <a href="/customs-clearance/">ترخیص کالا</a> شروع کنید. اگر هنوز در حال تصمیم‌گیری برای خرید هستید،
+          <a href="/import-services/">خدمات واردات کالا</a> از مرحلهٔ برنامه‌ریزی همراه شماست.
+        </p>
+      </header>
+
+      <div class="services">
+        {
+          [services.clearance, services.import].map((s, i) => (
+            <article class="service reveal" aria-labelledby={`service-${i}`}>
+              <div class="service__top" aria-hidden="true">
+                <p class="service__num">{toFa(`0${i + 1}`)}</p>
+                <span class="service__icon">
+                  <Icon name={i === 0 ? 'stamp' : 'route'} />
+                </span>
+              </div>
+              <h3 id={`service-${i}`}>
+                <a href={s.href}>{s.name}</a>
+              </h3>
+              <p class="service__summary">{s.summary}</p>
+              <ul class="checklist">
+                {s.includes.map((item) => (
+                  <li>{item}</li>
+                ))}
+              </ul>
+              <p class="service__fit">{s.fit}</p>
+              <a class="arrow-link" href={s.href} aria-label={`جزئیات خدمات ${s.name}`}>
+                جزئیات خدمت
+                <Icon name="arrow" />
+              </a>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SIGNATURE: SHIPMENT JOURNEY ============ -->
+  <ShipmentJourney />
+
+  <!-- ============ PRINCIPLES ============ -->
+  <section class="section section--alt section--grain" aria-labelledby="principles-title">
+    <div class="container principles">
+      <header class="section-head principles__head reveal">
+        <span class="eyebrow">روش کار</span>
+        <h2 id="principles-title">چیزی که از همکاری با ما انتظار دارید</h2>
+        <p class="lead">در کار گمرکی، بیشتر هزینه‌های پیش‌بینی‌نشده از ابهام می‌آید. روش کار ما برای کم کردن همین ابهام است.</p>
+      </header>
+      <ol class="principles__list">
+        {
+          principles.map((p, i) => (
+            <li class="reveal">
+              <span class="principles__n" aria-hidden="true">
+                {toFa(i + 1)}
+              </span>
+              <h3>{p.title}</h3>
+              <p>{p.text}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <!-- ============ PREPARE ============ -->
+  <section class="section" aria-labelledby="prepare-title">
+    <div class="container prepare">
+      <div class="prepare__text reveal">
+        <span class="eyebrow">پیش از تماس</span>
+        <h2 id="prepare-title">این اطلاعات را آماده کنید</h2>
+        <p class="lead">با این اطلاعات، بررسی اولیه دقیق‌تر و سریع‌تر انجام می‌شود. اگر بخشی از آن را ندارید، نگران نباشید؛ همان را که دارید بفرستید.</p>
+        <ul class="checklist">
+          {prepare.map((item) => <li>{item}</li>)}
+        </ul>
+      </div>
+      <aside class="prepare__card on-dark reveal" aria-labelledby="prepare-card-title">
+        <h3 id="prepare-card-title">بررسی اولیهٔ پرونده</h3>
+        <p>فرم کوتاه مشاوره را تکمیل کنید. پس از بررسی، دربارهٔ مدارک لازم، هزینه‌های قابل انتظار و قدم بعدی با شما صحبت می‌کنیم.</p>
+        <a class="btn btn--gold" href={contactCta.href}>
+          تکمیل فرم مشاوره
+          <Icon name="arrow" class="btn__icon" />
+        </a>
+        <a class="arrow-link" href="/guides/customs-clearance-documents/">
+          فهرست مدارک ترخیص کالا
+          <Icon name="arrow" />
+        </a>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ============ GUIDES ============ -->
+  <section class="section section--alt" aria-labelledby="guides-title">
+    <div class="container">
+      <header class="section-head guides-head reveal">
+        <span class="eyebrow">راهنماها</span>
+        <h2 id="guides-title">پیش از واردات، این‌ها را بدانید</h2>
+        <a class="arrow-link" href="/guides/">
+          همهٔ راهنماها
+          <Icon name="arrow" />
+        </a>
+      </header>
+      <ol class="guide-rows">
+        {
+          guides.map((g, i) => (
+            <li class="reveal">
+              <div class="guide-row stretch">
+                <span class="guide-row__n" aria-hidden="true">
+                  {toFa(`0${i + 1}`)}
+                </span>
+                <span class="guide-row__body">
+                  <a class="guide-row__title stretch__link" href={`/guides/${g.id}/`}>
+                    {g.data.title}
+                  </a>
+                  <span class="guide-row__desc">{g.data.description}</span>
+                </span>
+                <Icon name="arrow" class="guide-row__arrow" />
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <!-- ============ FAQ ============ -->
+  <section class="section" aria-labelledby="faq-title">
+    <div class="container faq-wrap">
+      <header class="section-head reveal">
+        <span class="eyebrow">پرسش‌های رایج</span>
+        <h2 id="faq-title">پرسش‌هایی که پیش از شروع می‌پرسند</h2>
+      </header>
+      <Faq items={faqs} />
+    </div>
+  </section>
+
+  <CtaBand />
+</BaseLayout>
+
+<style>
+  /* ---------- Hero ---------- */
+  .hero {
+    position: relative;
+    padding-block: clamp(2.5rem, 2rem + 4vw, 6rem) clamp(2rem, 1.5rem + 2vw, 3rem);
+    background-color: var(--ivory-50);
+    background-image:
+      radial-gradient(56rem 32rem at 100% 0%, rgb(201 162 74 / 0.14), transparent 62%),
+      radial-gradient(40rem 30rem at 0% 80%, rgb(42 76 122 / 0.08), transparent 60%),
+      var(--grain);
+    overflow: hidden;
+  }
+  .hero::after {
+    /* Fine survey lines: a quiet nod to charts and routes */
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(90deg, rgb(10 28 56 / 0.035) 0 1px, transparent 1px 96px);
+    mask-image: linear-gradient(to bottom, black, transparent 85%);
+    pointer-events: none;
+  }
+  .hero__grid {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: clamp(2rem, 4vw, 4rem);
+    align-items: center;
+  }
+  .hero__text {
+    display: grid;
+    gap: 1.5rem;
+    justify-items: start;
+  }
+  .hero__title {
+    display: grid;
+    gap: 0.1em;
+    color: var(--navy-950);
+    line-height: 1.2;
+  }
+  .hero__l1 {
+    font-size: clamp(1.9rem, 1.2rem + 2.5vw, 3.55rem);
+    font-weight: 800;
+    color: var(--navy-900);
+  }
+  .hero__l2 {
+    position: relative;
+    width: fit-content;
+    font-size: clamp(3rem, 1.6rem + 5.6vw, 6.4rem);
+    line-height: 1.12;
+    color: var(--navy-700);
+    padding-bottom: 0.08em;
+  }
+  .hero__l2::after {
+    /* a drawn route under the display line */
+    content: '';
+    position: absolute;
+    inset-inline: 0 4%;
+    bottom: -0.04em;
+    height: 0.22em;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 24' preserveAspectRatio='none'%3E%3Cpath d='M398 16C300 4 220 22 140 12S30 6 2 14' fill='none' stroke='%23c9a24a' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E")
+      center / 100% 100% no-repeat;
+    z-index: -1;
+  }
+  .hero__l2::before {
+    content: '';
+    position: absolute;
+    inset-inline-end: 1.5%;
+    bottom: 0.02em;
+    inline-size: 0.14em;
+    block-size: 0.14em;
+    border-radius: 50%;
+    background: var(--gold-500);
+  }
+  .hero__motif {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  .hero__lead {
+    max-width: 34em;
+  }
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.85rem;
+    margin-top: 0.5rem;
+  }
+  .hero__art {
+    max-width: 34rem;
+    justify-self: end;
+    width: 100%;
+  }
+  .hero__paths {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    margin-top: clamp(2.5rem, 2rem + 3vw, 4.5rem);
+    border-top: 1px solid var(--rule-strong);
+  }
+  .path-link {
+    display: flex;
+    align-items: center;
+    gap: 1.1rem;
+    padding: 1.4rem 0.25rem 0.5rem;
+    text-decoration: none;
+    border-radius: var(--radius-s);
+  }
+  .path-link__text {
+    display: grid;
+    gap: 0.2rem;
+  }
+  .path-link__icon {
+    display: grid;
+    place-items: center;
+    flex: none;
+    inline-size: 3.25rem;
+    block-size: 3.25rem;
+    border-radius: 50%;
+    border: 1px solid var(--rule-strong);
+    background: var(--ivory-50);
+    color: var(--navy-800);
+    transition:
+      background-color var(--dur-med) var(--ease-out),
+      color var(--dur-med) var(--ease-out),
+      border-color var(--dur-med) var(--ease-out);
+  }
+  .path-link__icon :global(svg) {
+    inline-size: 1.5rem;
+    block-size: 1.5rem;
+  }
+  .path-link:hover .path-link__icon {
+    background: var(--navy-900);
+    border-color: var(--navy-900);
+    color: var(--gold-300);
+  }
+  .path-link + .path-link {
+    padding-inline-start: 2rem;
+    border-inline-start: 1px solid var(--rule);
+  }
+  .path-link__q {
+    color: var(--text-muted);
+    font-size: var(--step--1);
+  }
+  .path-link__name {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: var(--step-2);
+    font-weight: 800;
+    color: var(--navy-900);
+  }
+  .path-link__name :global(svg) {
+    inline-size: 1.1em;
+    block-size: 1.1em;
+    color: var(--gold-500);
+    transition: transform var(--dur-med) var(--ease-out);
+  }
+  .path-link:hover .path-link__name :global(svg) {
+    transform: translateX(-6px);
+  }
+  .path-link:hover .path-link__name {
+    color: var(--navy-700);
+  }
+
+  /* ---------- Services ---------- */
+  .section-head .lead a {
+    color: var(--navy-800);
+    font-weight: 700;
+    text-decoration-color: var(--gold-400);
+    text-decoration-thickness: 2px;
+  }
+  .services {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-top: 2px solid var(--navy-900);
+  }
+  .service {
+    display: grid;
+    gap: 1.2rem;
+    align-content: start;
+    padding: 2.25rem 0 0.5rem;
+  }
+  .service + .service {
+    padding-inline-start: clamp(1.5rem, 4vw, 4rem);
+    border-inline-start: 1px solid var(--rule);
+  }
+  .service:first-child {
+    padding-inline-end: clamp(1.5rem, 4vw, 4rem);
+  }
+  .service__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .service__num {
+    font-size: var(--step-4);
+    font-weight: 800;
+    line-height: 1;
+    color: var(--gold-500);
+  }
+  .service__icon {
+    display: grid;
+    place-items: center;
+    inline-size: 3.5rem;
+    block-size: 3.5rem;
+    border-radius: 1rem;
+    background: var(--navy-900);
+    color: var(--gold-300);
+    box-shadow: 0 14px 30px -18px rgb(6 18 38 / 0.7);
+    transition: transform var(--dur-med) var(--ease-out);
+  }
+  .service__icon :global(svg) {
+    inline-size: 1.7rem;
+    block-size: 1.7rem;
+  }
+  .service {
+    position: relative;
+    transition: background-color var(--dur-med) ease;
+  }
+  .service::before {
+    /* gold rule that draws in on hover */
+    content: '';
+    position: absolute;
+    top: -2px;
+    inset-inline-start: 0;
+    height: 2px;
+    width: 0;
+    background: var(--gold-400);
+    transition: width 500ms var(--ease-out);
+  }
+  .service:hover::before {
+    width: 100%;
+  }
+  .service:hover .service__icon {
+    transform: translateY(-3px) rotate(-4deg);
+  }
+  .service h3 {
+    font-size: var(--step-3);
+  }
+  .service h3 a {
+    text-decoration: none;
+  }
+  .service h3 a:hover {
+    text-decoration: underline;
+    text-decoration-color: var(--gold-400);
+  }
+  .service__summary {
+    font-size: var(--step-1);
+    color: var(--ink-700);
+  }
+  .service__fit {
+    font-size: var(--step--1);
+    color: var(--text-muted);
+    padding-top: 1rem;
+    border-top: 1px dashed var(--rule-strong);
+  }
+
+  /* ---------- Principles ---------- */
+  .principles {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
+    gap: 2rem 4rem;
+  }
+  .principles__head {
+    align-self: start;
+    position: sticky;
+    top: calc(var(--header-h) + 2rem);
+  }
+  .principles__list {
+    list-style: none;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 2.5rem;
+  }
+  .principles__list li {
+    display: grid;
+    gap: 0.6rem;
+    align-content: start;
+    padding-block: 1.75rem;
+    border-top: 1px solid var(--rule-strong);
+  }
+  .principles__n {
+    display: grid;
+    place-items: center;
+    inline-size: 2.4rem;
+    block-size: 2.4rem;
+    border-radius: 50%;
+    background: var(--navy-900);
+    color: var(--gold-300);
+    font-weight: 800;
+  }
+  .principles__list h3 {
+    font-size: var(--step-1);
+    font-weight: 800;
+  }
+  .principles__list p {
+    color: var(--text-muted);
+  }
+
+  /* ---------- Prepare ---------- */
+  .prepare {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    gap: clamp(2rem, 5vw, 5rem);
+    align-items: center;
+  }
+  .prepare__text {
+    display: grid;
+    gap: 1.25rem;
+  }
+  .prepare__card {
+    display: grid;
+    gap: 1.25rem;
+    justify-items: start;
+    padding: clamp(1.75rem, 4vw, 2.75rem);
+    border-radius: var(--radius-l);
+    background:
+      radial-gradient(30rem 16rem at 100% 0%, rgb(201 162 74 / 0.18), transparent 70%),
+      var(--navy-900);
+    color: #c3cddc;
+    box-shadow: 0 40px 70px -40px rgb(6 18 38 / 0.6);
+  }
+  .prepare__card h3 {
+    color: var(--ivory-50);
+    font-size: var(--step-2);
+  }
+  .prepare__card .arrow-link {
+    color: var(--gold-300);
+  }
+
+  /* ---------- Guides ---------- */
+  .guides-head {
+    max-width: none;
+    grid-template-columns: 1fr auto;
+    align-items: end;
+  }
+  .guides-head .eyebrow,
+  .guides-head h2 {
+    grid-column: 1;
+  }
+  .guides-head .arrow-link {
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: end;
+  }
+  .guide-rows {
+    list-style: none;
+    border-top: 2px solid var(--navy-900);
+  }
+  .guide-row {
+    display: grid;
+    grid-template-columns: 4.5rem minmax(0, 1fr) auto;
+    gap: 1.5rem;
+    align-items: center;
+    padding: 1.75rem 0.5rem;
+    border-bottom: 1px solid var(--rule-strong);
+    text-decoration: none;
+    transition: background-color var(--dur-med) ease;
+  }
+  .guide-row:hover {
+    background: var(--ivory-50);
+  }
+  .guide-row__n {
+    font-size: var(--step-3);
+    font-weight: 800;
+    color: var(--gold-500);
+    line-height: 1;
+  }
+  .guide-row__body {
+    display: grid;
+    gap: 0.3rem;
+  }
+  .guide-row__title {
+    font-size: var(--step-2);
+    font-weight: 800;
+    line-height: 1.5;
+  }
+  .guide-row__desc {
+    color: var(--text-muted);
+    font-size: var(--step--1);
+  }
+  .guide-row :global(.guide-row__arrow) {
+    inline-size: 1.6rem;
+    block-size: 1.6rem;
+    color: var(--navy-700);
+    transition: transform var(--dur-med) var(--ease-out);
+  }
+  .guide-row:hover :global(.guide-row__arrow) {
+    transform: translateX(-6px);
+  }
+
+  .faq-wrap {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+    gap: 2rem 4rem;
+    align-items: start;
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 980px) {
+    .principles,
+    .faq-wrap {
+      grid-template-columns: 1fr;
+    }
+    .principles__head {
+      position: static;
+    }
+  }
+  @media (max-width: 860px) {
+    .hero__grid {
+      grid-template-columns: 1fr;
+    }
+    .hero__art {
+      justify-self: center;
+      max-width: 26rem;
+    }
+    .services,
+    .prepare {
+      grid-template-columns: 1fr;
+    }
+    .service + .service {
+      padding-inline-start: 0;
+      border-inline-start: 0;
+      border-top: 1px solid var(--rule);
+      margin-top: 1.5rem;
+    }
+    .service:first-child {
+      padding-inline-end: 0;
+    }
+  }
+  @media (max-width: 640px) {
+    .hero__paths {
+      grid-template-columns: 1fr;
+    }
+    .path-link + .path-link {
+      padding-inline-start: 0.25rem;
+      border-inline-start: 0;
+      border-top: 1px solid var(--rule);
+    }
+    .principles__list {
+      grid-template-columns: 1fr;
+    }
+    .guide-row {
+      grid-template-columns: 2.75rem minmax(0, 1fr);
+      gap: 1rem;
+    }
+    .guide-row :global(.guide-row__arrow) {
+      display: none;
+    }
+    .guides-head {
+      grid-template-columns: 1fr;
+    }
+    .guides-head .arrow-link {
+      grid-column: 1;
+      grid-row: auto;
+      justify-self: start;
+    }
+  }
+</style>

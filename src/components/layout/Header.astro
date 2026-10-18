@@ -1,0 +1,232 @@
+---
+import { nav, contactCta } from '~/config/site';
+import Logo from '~/components/ui/Logo.astro';
+import Icon from '~/components/ui/Icon.astro';
+
+const path = Astro.url.pathname;
+const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
+---
+
+<header class="site-header">
+  <div class="container site-header__inner">
+    <a href="/" class="site-header__brand">
+      <Logo />
+      <span class="sr-only">— صفحه اصلی</span>
+    </a>
+
+    <nav class="site-nav" aria-label="ناوبری اصلی">
+      <ul>
+        {
+          nav.map((item) => (
+            <li>
+              <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <a href={contactCta.href} class="btn site-header__cta" aria-current={isCurrent(contactCta.href) ? 'page' : undefined}>
+      {contactCta.label}
+    </a>
+
+    <!-- Native popover: works without JavaScript, closes with Esc / outside click. -->
+    <button class="menu-toggle" type="button" popovertarget="mobile-menu" aria-controls="mobile-menu">
+      <Icon name="menu" />
+      <span>منو</span>
+    </button>
+  </div>
+
+  <div id="mobile-menu" class="mobile-menu" popover>
+    <div class="mobile-menu__top">
+      <Logo />
+      <button class="menu-close" type="button" popovertarget="mobile-menu" popovertargetaction="hide">
+        <Icon name="close" />
+        <span class="sr-only">بستن منو</span>
+      </button>
+    </div>
+    <nav aria-label="ناوبری موبایل">
+      <ul>
+        <li><a href="/" aria-current={path === '/' ? 'page' : undefined}>صفحه اصلی</a></li>
+        {
+          nav.map((item) => (
+            <li>
+              <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+    <a href={contactCta.href} class="btn btn--gold mobile-menu__cta">
+      {contactCta.label}
+      <Icon name="arrow" class="btn__icon" />
+    </a>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    /* Solid (no backdrop-filter): cheaper to composite while scrolling and overscrolling. */
+    background: var(--ivory-50);
+    border-bottom: 1px solid var(--rule);
+  }
+  .site-header__inner {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    min-height: var(--header-h);
+  }
+  .site-header__brand {
+    text-decoration: none;
+    margin-inline-end: auto;
+    border-radius: var(--radius-s);
+  }
+  .site-nav ul {
+    display: flex;
+    gap: 0.25rem;
+    list-style: none;
+  }
+  .site-nav a {
+    position: relative;
+    display: block;
+    padding: 0.4rem 0.85rem;
+    font-weight: 600;
+    font-size: 0.97rem;
+    color: var(--ink-700);
+    text-decoration: none;
+    border-radius: 999px;
+    transition:
+      color var(--dur-fast) ease,
+      background-color var(--dur-fast) ease;
+  }
+  .site-nav a:hover {
+    color: var(--navy-900);
+    background: var(--ivory-200);
+  }
+  .site-nav a[aria-current='page'] {
+    color: var(--navy-900);
+  }
+  .site-nav a[aria-current='page']::after {
+    content: '';
+    position: absolute;
+    inset-inline: 0.85rem;
+    bottom: 0.15rem;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--gold-400);
+  }
+  .site-header__cta {
+    min-height: 2.6rem;
+    padding-inline: 1.15rem;
+    font-size: 0.95rem;
+  }
+
+  .menu-toggle,
+  .menu-close {
+    display: none;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 2.75rem;
+    padding: 0.35rem 0.85rem;
+    border: 1px solid var(--rule-strong);
+    border-radius: 999px;
+    background: transparent;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .menu-toggle svg,
+  .menu-close svg {
+    inline-size: 1.3rem;
+    block-size: 1.3rem;
+  }
+
+  .mobile-menu {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    max-height: none;
+    margin: 0;
+    padding: 1rem var(--gutter) 2rem;
+    border: 0;
+    background: var(--ivory-50) var(--grain);
+    color: var(--text);
+    overflow-y: auto;
+  }
+  .mobile-menu:popover-open {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .mobile-menu__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: calc(var(--header-h) - 1rem);
+  }
+  .mobile-menu .menu-close {
+    display: inline-flex;
+    min-width: 2.75rem;
+    justify-content: center;
+  }
+  .mobile-menu ul {
+    list-style: none;
+    border-top: 1px solid var(--rule);
+  }
+  .mobile-menu li a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 0.25rem;
+    border-bottom: 1px solid var(--rule);
+    font-size: var(--step-2);
+    font-weight: 800;
+    text-decoration: none;
+  }
+  .mobile-menu li a[aria-current='page'] {
+    color: var(--gold-600);
+  }
+  .mobile-menu__cta {
+    align-self: stretch;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .mobile-menu {
+      transition:
+        opacity 220ms var(--ease-out),
+        transform 220ms var(--ease-out),
+        overlay 220ms allow-discrete,
+        display 220ms allow-discrete;
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    .mobile-menu:popover-open {
+      opacity: 1;
+      transform: none;
+    }
+    @starting-style {
+      .mobile-menu:popover-open {
+        opacity: 0;
+        transform: translateY(-8px);
+      }
+    }
+  }
+
+  @media (max-width: 860px) {
+    .site-nav,
+    .site-header__cta {
+      display: none;
+    }
+    .menu-toggle {
+      display: inline-flex;
+    }
+  }
+</style>

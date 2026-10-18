@@ -1,0 +1,176 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import PageHero from '~/components/layout/PageHero.astro';
+import ConsultForm from '~/components/forms/ConsultForm.astro';
+import Icon from '~/components/ui/Icon.astro';
+import Placeholder from '~/components/ui/Placeholder.astro';
+import { breadcrumbLd } from '~/lib/schema';
+import { site, contactChannels } from '~/config/site';
+
+const crumbs = [
+  { name: 'خانه', path: '/' },
+  { name: 'درخواست مشاوره', path: '/contact/' },
+];
+const channels = contactChannels();
+const iconFor = { phone: 'phone', whatsapp: 'chat', telegram: 'send', email: 'mail' } as const;
+---
+
+<BaseLayout
+  title="درخواست مشاوره ترخیص و واردات کالا"
+  description="مشخصات کالا و مرحلهٔ فعلی محموله را بفرستید تا دربارهٔ مدارک لازم، هزینه‌های قابل انتظار و قدم بعدی ترخیص یا واردات کالا با شما صحبت کنیم."
+  jsonLd={[breadcrumbLd(crumbs, Astro.site)]}
+>
+  <PageHero
+    eyebrow="مشاوره"
+    title="درخواست مشاوره"
+    lead="چند پرسش کوتاه دربارهٔ کالا و وضعیت محموله. با این اطلاعات، بررسی اولیه را انجام می‌دهیم و دربارهٔ قدم بعدی با شما صحبت می‌کنیم."
+    crumbs={crumbs}
+  />
+
+  <section class="section">
+    <div class="container contact">
+      <div class="contact__form">
+        <h2 class="sr-only">فرم درخواست مشاوره</h2>
+        <ConsultForm />
+      </div>
+
+      <aside class="contact__aside" aria-label="راه‌های تماس و روند پاسخ‌گویی">
+        <section class="side-card" aria-labelledby="direct-title">
+          <h2 id="direct-title">تماس مستقیم</h2>
+          {
+            channels.length > 0 ? (
+              <ul class="channels">
+                {channels.map((c) => (
+                  <li>
+                    <a href={c.href} class="channel" rel={c.channel === 'whatsapp' || c.channel === 'telegram' ? 'noopener' : undefined}>
+                      <Icon name={iconFor[c.channel]} />
+                      <span>
+                        <span class="channel__label">{c.label}</span>
+                        <span class="channel__value" dir={c.channel === 'phone' || c.channel === 'email' ? 'ltr' : undefined}>
+                          {c.value}
+                        </span>
+                      </span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p class="muted">در حال حاضر، فرم همین صفحه راه ارسال درخواست است.</p>
+            )
+          }
+          {site.contact.hours && <p class="muted">ساعات پاسخ‌گویی: {site.contact.hours}</p>}
+          <Placeholder field="تلفن، واتس‌اپ، تلگرام، ایمیل و ساعات پاسخ‌گویی (contact)" />
+        </section>
+
+        <section class="side-card side-card--dark on-dark" aria-labelledby="next-title">
+          <h2 id="next-title">بعد از ارسال چه می‌شود؟</h2>
+          <ol class="next">
+            <li><strong>بررسی اطلاعات</strong> — مشخصات کالا و مرحلهٔ محموله را بررسی می‌کنیم.</li>
+            <li><strong>پرسش‌های تکمیلی</strong> — اگر سند یا اطلاعاتی لازم باشد، از راه ارتباطی شما می‌پرسیم.</li>
+            <li><strong>برآورد و پیشنهاد</strong> — برآورد هزینه و دامنهٔ کار را دریافت می‌کنید؛ تصمیم با شماست.</li>
+          </ol>
+        </section>
+
+        <section class="side-card" aria-labelledby="privacy-title">
+          <h2 id="privacy-title">حریم خصوصی</h2>
+          <p class="muted">
+            اطلاعات این فرم فقط برای بررسی و پاسخ به درخواست شما استفاده می‌شود. اسناد محرمانه را در این فرم نفرستید؛ پس از تماس، راه امن ارسال اسناد را هماهنگ
+            می‌کنیم.
+          </p>
+        </section>
+      </aside>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .contact {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    gap: clamp(2rem, 5vw, 5rem);
+    align-items: start;
+  }
+  .contact__form {
+    padding: clamp(1.25rem, 3vw, 2.5rem);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-l);
+    background: var(--ivory-100);
+  }
+  .contact__aside {
+    display: grid;
+    gap: 1.25rem;
+    position: sticky;
+    top: calc(var(--header-h) + 1.5rem);
+  }
+  .side-card {
+    display: grid;
+    gap: 0.9rem;
+    padding: 1.5rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-l);
+  }
+  .side-card h2 {
+    font-size: var(--step-1);
+    font-weight: 800;
+  }
+  .side-card--dark {
+    background: var(--navy-900);
+    color: #c3cddc;
+    border-color: var(--navy-900);
+  }
+  .side-card--dark h2,
+  .side-card--dark strong {
+    color: var(--ivory-50);
+  }
+  .channels {
+    list-style: none;
+    display: grid;
+    gap: 0.5rem;
+  }
+  .channel {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.7rem 0.85rem;
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius-m);
+    text-decoration: none;
+    transition: border-color var(--dur-fast) ease, background-color var(--dur-fast) ease;
+  }
+  .channel:hover {
+    border-color: var(--navy-900);
+    background: var(--ivory-100);
+  }
+  .channel :global(svg) {
+    color: var(--gold-500);
+  }
+  .channel > span {
+    display: grid;
+    line-height: 1.5;
+  }
+  .channel__label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+  .channel__value {
+    font-weight: 700;
+  }
+  .next {
+    padding-inline-start: 1.2rem;
+    display: grid;
+    gap: 0.7rem;
+    font-size: var(--step--1);
+  }
+  .next li::marker {
+    color: var(--gold-300);
+    font-weight: 800;
+  }
+  @media (max-width: 960px) {
+    .contact {
+      grid-template-columns: 1fr;
+    }
+    .contact__aside {
+      position: static;
+    }
+  }
+</style>

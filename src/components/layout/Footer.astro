@@ -1,0 +1,177 @@
+---
+import { site, contactChannels, socialLinks, isProduction, contactCta } from '~/config/site';
+import Logo from '~/components/ui/Logo.astro';
+import Icon from '~/components/ui/Icon.astro';
+import { persianYear } from '~/lib/format';
+import { getCollection } from 'astro:content';
+
+const channels = contactChannels();
+const socials = socialLinks();
+const guides = (await getCollection('guides')).sort((a, b) => a.data.order - b.data.order);
+const year = persianYear();
+---
+
+<footer class="site-footer on-dark">
+  <div class="container site-footer__grid">
+    <div class="site-footer__brand">
+      <Logo tone="light" />
+      <p>{site.description}</p>
+      <a class="btn btn--gold" href={contactCta.href}>
+        {contactCta.label}
+        <Icon name="arrow" class="btn__icon" />
+      </a>
+    </div>
+
+    <nav aria-labelledby="footer-services">
+      <h2 id="footer-services">خدمات</h2>
+      <ul>
+        <li><a href="/customs-clearance/">ترخیص کالا</a></li>
+        <li><a href="/import-services/">خدمات واردات کالا</a></li>
+        <li><a href="/contact/">مشاوره پیش از واردات</a></li>
+      </ul>
+    </nav>
+
+    <nav aria-labelledby="footer-guides">
+      <h2 id="footer-guides">راهنماها</h2>
+      <ul>
+        {guides.map((g) => <li><a href={`/guides/${g.id}/`}>{g.data.navTitle}</a></li>)}
+        <li><a href="/guides/">همه راهنماها</a></li>
+      </ul>
+    </nav>
+
+    <div>
+      <h2 id="footer-contact">ارتباط</h2>
+      {
+        channels.length > 0 ? (
+          <ul aria-labelledby="footer-contact">
+            {channels.map((c) => (
+              <li>
+                <a href={c.href} dir={c.channel === 'email' ? 'ltr' : undefined}>
+                  {c.label}: {c.value}
+                </a>
+              </li>
+            ))}
+          </ul>
+        ) : isProduction ? (
+          <p>
+            برای گفت‌وگو، <a href="/contact/">فرم درخواست مشاوره</a> را تکمیل کنید.
+          </p>
+        ) : (
+          <span class="placeholder">راه‌های تماس هنوز در src/config/site.ts تنظیم نشده‌اند.</span>
+        )
+      }
+      {site.contact.address && <p class="site-footer__address">{site.contact.address.addressLocality}، {site.contact.address.streetAddress}</p>}
+      {
+        socials.length > 0 && (
+          <ul class="site-footer__social">
+            {socials.map((s) => (
+              <li>
+                <a href={s.href} rel="me noopener">
+                  {s.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+  </div>
+
+  <p class="site-footer__mark" aria-hidden="true">OKIYAN</p>
+
+  <div class="container site-footer__base">
+    <p>© {year} {site.name}. محتوای این وب‌سایت جنبهٔ آموزشی و عمومی دارد و جایگزین بررسی پرونده یا استعلام رسمی نیست.</p>
+    <a href="/about/">درباره {site.name}</a>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--navy-950);
+    color: #c4cddb;
+    padding-block: clamp(3.5rem, 3rem + 3vw, 6rem) 2rem;
+    font-size: var(--step--1);
+  }
+  .site-footer__grid {
+    display: grid;
+    grid-template-columns: 1.6fr repeat(3, 1fr);
+    gap: 2.5rem;
+  }
+  .site-footer__brand {
+    display: grid;
+    gap: 1.25rem;
+    justify-items: start;
+    max-width: 24rem;
+  }
+  .site-footer h2 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--gold-300);
+    margin-bottom: 1rem;
+  }
+  .site-footer ul {
+    list-style: none;
+    display: grid;
+    gap: 0.55rem;
+  }
+  .site-footer a:not(.btn) {
+    color: var(--ivory-100);
+    text-decoration: none;
+    background-image: linear-gradient(var(--gold-400), var(--gold-400));
+    background-size: 0 1px;
+    background-position: 100% 100%;
+    background-repeat: no-repeat;
+    transition: background-size var(--dur-med) var(--ease-out);
+  }
+  .site-footer a:not(.btn):hover {
+    background-size: 100% 1px;
+  }
+  .site-footer__address {
+    margin-top: 1rem;
+  }
+  .site-footer__social {
+    margin-top: 1rem;
+  }
+  .site-footer__mark {
+    margin: clamp(3rem, 6vw, 5rem) 0 0;
+    direction: ltr;
+    text-align: center;
+    font-weight: 800;
+    font-size: clamp(4rem, 17vw, 15rem);
+    line-height: 0.85;
+    letter-spacing: 0.12em;
+    color: transparent;
+    background: linear-gradient(180deg, rgb(201 162 74 / 0.16), rgb(201 162 74 / 0.02) 80%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    user-select: none;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .site-footer__base {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 0;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgb(247 241 228 / 0.12);
+    color: #9aa8bd;
+  }
+  .site-footer__base p {
+    max-width: 48rem;
+  }
+  @media (max-width: 900px) {
+    .site-footer__grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .site-footer__brand {
+      grid-column: 1 / -1;
+    }
+  }
+  @media (max-width: 520px) {
+    .site-footer__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

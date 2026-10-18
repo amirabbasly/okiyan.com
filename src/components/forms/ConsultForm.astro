@@ -1,0 +1,426 @@
+---
+/**
+ * Consultation form.
+ * - With PUBLIC_FORM_ENDPOINT set: posts FormData to it (fetch with JS, native POST without JS)
+ *   and shows success ONLY when the endpoint responds 2xx.
+ * - Without it: clearly labelled demonstration mode; nothing is sent and no success is shown.
+ */
+import { PUBLIC_FORM_ENDPOINT } from 'astro:env/server';
+import Icon from '~/components/ui/Icon.astro';
+
+const endpoint = PUBLIC_FORM_ENDPOINT?.trim() || '';
+const demo = endpoint === '';
+
+const methods = [
+  { value: 'phone', label: 'تماس تلفنی' },
+  { value: 'whatsapp', label: 'واتس‌اپ' },
+  { value: 'telegram', label: 'تلگرام' },
+  { value: 'email', label: 'ایمیل' },
+];
+const stages = [
+  { value: 'planning', label: 'هنوز خرید نکرده‌ام' },
+  { value: 'ordered', label: 'سفارش داده‌ام' },
+  { value: 'in-transit', label: 'کالا در حال حمل است' },
+  { value: 'at-customs', label: 'کالا به گمرک رسیده' },
+  { value: 'unsure', label: 'مطمئن نیستم' },
+];
+---
+
+<div class="consult" data-consult data-endpoint={endpoint} data-demo={demo ? 'true' : 'false'}>
+  {
+    demo && (
+      <div class="notice consult__demo" role="note">
+        <Icon name="alert" />
+        <p>
+          <strong>فرم در حالت نمایشی است.</strong> این فرم هنوز به سامانهٔ دریافت درخواست متصل نشده و با ارسال آن، اطلاعاتی برای ما فرستاده نمی‌شود.
+        </p>
+      </div>
+    )
+  }
+
+  <div class="consult__summary" data-error-summary tabindex="-1" hidden role="alert" aria-labelledby="err-sum-title">
+    <p class="consult__summary-title" id="err-sum-title">لطفاً این موارد را اصلاح کنید:</p>
+    <ul data-error-list></ul>
+  </div>
+
+  <form class="form" method="post" action={demo ? undefined : endpoint} accept-charset="UTF-8" data-form>
+    <fieldset class="form__group">
+      <legend>مشخصات شما</legend>
+      <div class="field">
+        <label for="f-name">نام و نام خانوادگی <span class="req" aria-hidden="true">*</span></label>
+        <input id="f-name" name="name" type="text" autocomplete="name" required maxlength="80" aria-describedby="f-name-err" />
+        <p class="field__error" id="f-name-err" data-error-for="name"></p>
+      </div>
+      <div class="field">
+        <label for="f-company">نام شرکت <span class="optional">(اختیاری)</span></label>
+        <input id="f-company" name="company" type="text" autocomplete="organization" maxlength="120" />
+      </div>
+    </fieldset>
+
+    <fieldset class="form__group" aria-describedby="f-method-err">
+      <legend>راه ارتباطی ترجیحی <span class="req" aria-hidden="true">*</span></legend>
+      <div class="chips">
+        {
+          methods.map((m, i) => (
+            <label class="chip">
+              <input type="radio" name="contactMethod" value={m.value} required checked={i === 0} />
+              <span>{m.label}</span>
+            </label>
+          ))
+        }
+      </div>
+      <p class="field__error" id="f-method-err" data-error-for="contactMethod"></p>
+      <div class="field">
+        <label for="f-contact" data-contact-label>شمارهٔ تماس <span class="req" aria-hidden="true">*</span></label>
+        <input
+          id="f-contact"
+          name="contact"
+          type="tel"
+          inputmode="tel"
+          autocomplete="tel"
+          dir="ltr"
+          required
+          maxlength="80"
+          aria-describedby="f-contact-hint f-contact-err"
+        />
+        <p class="field__hint" id="f-contact-hint" data-contact-hint>مثلاً ۰۹۱۲۱۲۳۴۵۶۷ — ارقام فارسی یا انگلیسی پذیرفته می‌شود.</p>
+        <p class="field__error" id="f-contact-err" data-error-for="contact"></p>
+      </div>
+    </fieldset>
+
+    <fieldset class="form__group">
+      <legend>دربارهٔ کالا</legend>
+      <div class="field">
+        <label for="f-service">به کدام خدمت نیاز دارید؟</label>
+        <select id="f-service" name="service">
+          <option value="clearance">ترخیص کالا</option>
+          <option value="import">خدمات واردات کالا</option>
+          <option value="unsure">هنوز مطمئن نیستم</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="f-goods">شرح کالا <span class="req" aria-hidden="true">*</span></label>
+        <textarea
+          id="f-goods"
+          name="goods"
+          rows="3"
+          required
+          minlength="10"
+          maxlength="1500"
+          aria-describedby="f-goods-hint f-goods-err"></textarea>
+        <p class="field__hint" id="f-goods-hint">نوع کالا، کاربرد و در صورت امکان کد تعرفه یا مقدار تقریبی.</p>
+        <p class="field__error" id="f-goods-err" data-error-for="goods"></p>
+      </div>
+      <div class="field" role="group" aria-labelledby="f-stage-label" aria-describedby="f-stage-err">
+        <p class="field__label" id="f-stage-label">محموله الان در چه مرحله‌ای است؟ <span class="req" aria-hidden="true">*</span></p>
+        <div class="chips">
+          {
+            stages.map((s) => (
+              <label class="chip">
+                <input type="radio" name="stage" value={s.value} required />
+                <span>{s.label}</span>
+              </label>
+            ))
+          }
+        </div>
+        <p class="field__error" id="f-stage-err" data-error-for="stage"></p>
+      </div>
+      <div class="form__row">
+        <div class="field">
+          <label for="f-origin">کشور مبدأ <span class="optional">(اختیاری)</span></label>
+          <input id="f-origin" name="origin" type="text" maxlength="60" />
+        </div>
+        <div class="field">
+          <label for="f-port">گمرک یا بندر ورود <span class="optional">(اختیاری)</span></label>
+          <input id="f-port" name="port" type="text" maxlength="60" />
+        </div>
+      </div>
+      <div class="field">
+        <label for="f-message">توضیحات بیشتر <span class="optional">(اختیاری)</span></label>
+        <textarea id="f-message" name="message" rows="3" maxlength="2000"></textarea>
+      </div>
+    </fieldset>
+
+    <!-- Honeypot: hidden from people and assistive tech -->
+    <div class="hp" aria-hidden="true">
+      <label for="f-website">وب‌سایت</label>
+      <input id="f-website" name="website" type="text" tabindex="-1" autocomplete="off" />
+    </div>
+
+    <div class="field field--consent">
+      <label class="check">
+        <input type="checkbox" name="consent" value="yes" required aria-describedby="f-consent-err" />
+        <span>موافقم این اطلاعات فقط برای بررسی و پاسخ به همین درخواست استفاده شود.</span>
+      </label>
+      <p class="field__error" id="f-consent-err" data-error-for="consent"></p>
+    </div>
+
+    <div class="form__submit">
+      <button class="btn" type="submit" data-submit>
+        <span data-submit-label>{demo ? 'بررسی فرم (حالت نمایشی)' : 'ارسال درخواست'}</span>
+        <Icon name="send" class="btn__icon" />
+      </button>
+      <p class="form__status" data-status role="status" aria-live="polite"></p>
+    </div>
+    <noscript>
+      <p class="notice">
+        {
+          demo
+            ? 'این فرم در حالت نمایشی است و بدون جاوااسکریپت نیز اطلاعاتی ارسال نمی‌کند.'
+            : 'جاوااسکریپت غیرفعال است؛ با ارسال فرم، به صفحهٔ دریافت‌کنندهٔ درخواست منتقل می‌شوید.'
+        }
+      </p>
+    </noscript>
+  </form>
+</div>
+
+<script>
+  import { initConsultForm } from './consult-form';
+  document.querySelectorAll<HTMLElement>('[data-consult]').forEach(initConsultForm);
+</script>
+
+<style>
+  .consult {
+    display: grid;
+    gap: 1.5rem;
+  }
+  .consult__demo {
+    border-color: var(--gold-400);
+    background: #fbf3df;
+  }
+  .consult__summary {
+    padding: 1.1rem 1.3rem;
+    border: 2px solid var(--danger);
+    border-radius: var(--radius-m);
+    background: #fdf1ef;
+  }
+  .consult__summary-title {
+    font-weight: 800;
+    font-size: var(--step-0);
+    color: var(--danger);
+    margin-bottom: 0.4rem;
+  }
+  .consult__summary ul {
+    padding-inline-start: 1.2rem;
+  }
+  .consult__summary a {
+    color: var(--danger);
+    font-weight: 700;
+  }
+
+  .form {
+    display: grid;
+    gap: 2rem;
+  }
+  .form__group {
+    display: grid;
+    gap: 1.25rem;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+  }
+  .form__group legend {
+    padding: 0;
+    margin-bottom: 1.1rem;
+    font-weight: 800;
+    font-size: var(--step-1);
+  }
+  .form__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+  }
+  .field {
+    display: grid;
+    gap: 0.4rem;
+    min-width: 0;
+  }
+  .field label,
+  .field__label {
+    font-weight: 700;
+    font-size: var(--step--1);
+  }
+  .req {
+    color: var(--danger);
+  }
+  .optional {
+    font-weight: 400;
+    color: var(--text-muted);
+  }
+  input[type='text'],
+  input[type='tel'],
+  input[type='email'],
+  select,
+  textarea {
+    width: 100%;
+    min-height: 3rem;
+    padding: 0.65rem 0.9rem;
+    border: 1.5px solid var(--rule-strong);
+    border-radius: var(--radius-s);
+    background: #fff;
+    font-size: 1rem;
+    line-height: 1.6;
+    transition:
+      border-color var(--dur-fast) ease,
+      box-shadow var(--dur-fast) ease;
+  }
+  input[dir='ltr'] {
+    text-align: left;
+  }
+  input[dir='ltr']::placeholder {
+    text-align: right;
+  }
+  textarea {
+    resize: vertical;
+    min-height: 6rem;
+  }
+  input:hover,
+  select:hover,
+  textarea:hover {
+    border-color: var(--navy-600);
+  }
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: none;
+    border-color: var(--focus);
+    box-shadow: 0 0 0 3px rgb(29 95 209 / 0.25);
+  }
+  [aria-invalid='true'] {
+    border-color: var(--danger) !important;
+    background: #fffafa;
+  }
+  .field__hint {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+  }
+  .field__error {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--danger);
+    line-height: 1.7;
+  }
+  .field__error:empty {
+    display: none;
+  }
+  .field__error::before {
+    content: '⚠ ';
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .chip {
+    position: relative;
+    cursor: pointer;
+  }
+  .chip input {
+    position: absolute;
+    opacity: 0;
+    inset: 0;
+    margin: 0;
+    cursor: pointer;
+  }
+  .chip span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: 0.4rem 1rem;
+    border: 1.5px solid var(--rule-strong);
+    border-radius: 999px;
+    background: #fff;
+    font-size: var(--step--1);
+    font-weight: 700;
+    transition:
+      background-color var(--dur-fast) ease,
+      border-color var(--dur-fast) ease,
+      color var(--dur-fast) ease;
+  }
+  .chip:hover span {
+    border-color: var(--navy-600);
+  }
+  .chip input:checked + span {
+    background: var(--navy-900);
+    border-color: var(--navy-900);
+    color: var(--ivory-50);
+  }
+  .chip input:focus-visible + span {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+  }
+  .chips:has([aria-invalid='true']) .chip span {
+    border-color: var(--danger);
+  }
+
+  .check {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.75rem;
+    align-items: start;
+    font-weight: 400 !important;
+    font-size: var(--step--1);
+    line-height: 1.8;
+    cursor: pointer;
+  }
+  .check input {
+    inline-size: 1.25rem;
+    block-size: 1.25rem;
+    margin-top: 0.25rem;
+    accent-color: var(--navy-900);
+  }
+
+  .hp {
+    position: absolute;
+    inset-inline-start: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  .form__submit {
+    display: grid;
+    gap: 1rem;
+    justify-items: start;
+  }
+  .form__submit .btn[aria-busy='true'] {
+    opacity: 0.7;
+    cursor: progress;
+  }
+  .form__status:empty {
+    display: none;
+  }
+  .form__status {
+    width: 100%;
+    padding: 1rem 1.2rem;
+    border-radius: var(--radius-m);
+    font-size: var(--step--1);
+    line-height: 1.9;
+  }
+  .form__status[data-tone='success'] {
+    background: #ecf6f0;
+    border: 1.5px solid var(--success);
+    color: #134d31;
+  }
+  .form__status[data-tone='error'] {
+    background: #fdf1ef;
+    border: 1.5px solid var(--danger);
+    color: #7c1c16;
+  }
+  .form__status[data-tone='demo'] {
+    background: #fbf3df;
+    border: 1.5px solid var(--gold-500);
+    color: #5b4614;
+  }
+  @media (max-width: 600px) {
+    .form__row {
+      grid-template-columns: 1fr;
+    }
+    .form__submit .btn {
+      width: 100%;
+    }
+  }
+</style>

@@ -1,0 +1,330 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import PageHero from '~/components/layout/PageHero.astro';
+import CtaBand from '~/components/ui/CtaBand.astro';
+import Icon from '~/components/ui/Icon.astro';
+import { articleLd, breadcrumbLd } from '~/lib/schema';
+import { formatFaDate, readingMinutes, toFa } from '~/lib/format';
+import { services } from '~/data/services';
+import { isProduction } from '~/config/site';
+
+export async function getStaticPaths() {
+  const guides = await getCollection('guides');
+  return guides.map((entry) => ({ params: { id: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content, headings } = await render(entry);
+const all = await getCollection('guides');
+const related = entry.data.relatedGuides.map((id) => all.find((g) => g.id === id)).filter((g): g is NonNullable<typeof g> => Boolean(g));
+const service = entry.data.relatedService === 'customs-clearance' ? services.clearance : services.import;
+const path = `/guides/${entry.id}/`;
+const crumbs = [
+  { name: 'خانه', path: '/' },
+  { name: 'راهنماها', path: '/guides/' },
+  { name: entry.data.navTitle, path },
+];
+const updated = entry.data.updatedDate ?? entry.data.publishDate;
+const minutes = readingMinutes(entry.body ?? '');
+const toc = headings.filter((h) => h.depth === 2);
+---
+
+<BaseLayout
+  title={entry.data.title}
+  description={entry.data.description}
+  ogType="article"
+  publishedTime={entry.data.publishDate}
+  modifiedTime={updated}
+  jsonLd={[
+    breadcrumbLd(crumbs, Astro.site),
+    articleLd(
+      { title: entry.data.title, description: entry.data.description, path, published: entry.data.publishDate, modified: entry.data.updatedDate },
+      Astro.site,
+    ),
+  ]}
+>
+  <PageHero eyebrow="راهنما" title={entry.data.title} lead={entry.data.description} crumbs={crumbs}>
+    <p class="guide-meta">
+      <span>به‌روزرسانی: <time datetime={updated.toISOString().slice(0, 10)}>{formatFaDate(updated)}</time></span>
+      <span>زمان مطالعه: حدود {toFa(minutes)} دقیقه</span>
+    </p>
+  </PageHero>
+
+  <div class="container guide">
+    <aside class="guide__aside" aria-label="خلاصه و فهرست مطالب">
+      <div class="guide__summary">
+        <h2>خلاصه در چند خط</h2>
+        <ul class="checklist">
+          {entry.data.summary.map((s) => <li>{s}</li>)}
+        </ul>
+      </div>
+      {
+        toc.length > 2 && (
+          <nav class="guide__toc" aria-labelledby="toc-title">
+            <h2 id="toc-title">در این راهنما</h2>
+            <ol>
+              {toc.map((h) => (
+                <li>
+                  <a href={`#${h.slug}`}>{h.text}</a>
+                </li>
+              ))}
+            </ol>
+          </nav>
+        )
+      }
+    </aside>
+
+    <article class="guide__body">
+      <div class="prose">
+        <Content />
+      </div>
+
+      <div class="notice guide__disclaimer">
+        <Icon name="info" />
+        <p>
+          <strong>محتوای آموزشی، نه نظر حقوقی.</strong> مقررات واردات و گمرک ممکن است تغییر کند و الزامات هر کالا به کد تعرفه و شرایط معامله بستگی دارد.
+          پیش از اقدام، وضعیت پروندهٔ خود را با منابع رسمی یا یک متخصص بررسی کنید.
+        </p>
+      </div>
+
+      {
+        entry.data.sources.length > 0 && (
+          <section class="guide__sources" aria-labelledby="sources-title">
+            <h2 id="sources-title">منابع و مراجع رسمی</h2>
+            <ol>
+              {entry.data.sources.map((s) => (
+                <li>
+                  <a href={s.url} rel="noopener" target="_blank">
+                    {s.title}
+                    <Icon name="external" />
+                    <span class="sr-only">(در پنجرهٔ جدید)</span>
+                  </a>
+                  <span class="muted"> — {s.publisher}</span>
+                  {s.note && <p class="muted">{s.note}</p>}
+                </li>
+              ))}
+            </ol>
+          </section>
+        )
+      }
+
+      {
+        !isProduction && entry.data.reviewNotes.length > 0 && (
+          <section class="placeholder guide__review" aria-label="موارد نیازمند بازبینی">
+            <strong>پیش از انتشار بازبینی شود (فقط در نسخهٔ آزمایشی نمایش داده می‌شود):</strong>
+            <ul>
+              {entry.data.reviewNotes.map((n) => (
+                <li>{n}</li>
+              ))}
+            </ul>
+          </section>
+        )
+      }
+
+      <section class="guide__next" aria-labelledby="next-title">
+        <h2 id="next-title">قدم بعدی</h2>
+        <div class="next-card next-card--service stretch">
+          <span class="next-card__kicker">خدمت مرتبط</span>
+          <a class="next-card__title stretch__link" href={service.href}>{service.name}</a>
+          <span class="next-card__text">{service.summary}</span>
+          <Icon name="arrow" class="next-card__arrow" />
+        </div>
+        {
+          related.map((g) => (
+            <div class="next-card stretch">
+              <span class="next-card__kicker">راهنمای مرتبط</span>
+              <a class="next-card__title stretch__link" href={`/guides/${g.id}/`}>
+                {g.data.navTitle}
+              </a>
+              <span class="next-card__text">{g.data.description}</span>
+              <Icon name="arrow" class="next-card__arrow" />
+            </div>
+          ))
+        }
+      </section>
+    </article>
+  </div>
+
+  <CtaBand />
+</BaseLayout>
+
+<style>
+  .guide-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.5rem;
+    font-size: var(--step--1);
+    color: var(--text-muted);
+  }
+  .guide-meta span + span::before {
+    content: '';
+    display: inline-block;
+    inline-size: 4px;
+    block-size: 4px;
+    border-radius: 50%;
+    background: var(--gold-500);
+    margin-inline-end: 1.5rem;
+    vertical-align: middle;
+    margin-inline-start: -1rem;
+  }
+  .guide {
+    display: grid;
+    grid-template-columns: minmax(0, 17rem) minmax(0, 46rem);
+    justify-content: space-between;
+    gap: 3rem 4rem;
+    padding-block: clamp(2.5rem, 2rem + 3vw, 5rem);
+  }
+  .guide__aside {
+    display: grid;
+    gap: 2rem;
+    align-content: start;
+    position: sticky;
+    top: calc(var(--header-h) + 1.5rem);
+    align-self: start;
+  }
+  .guide__aside h2 {
+    font-size: var(--step-0);
+    font-weight: 800;
+    margin-bottom: 0.9rem;
+  }
+  .guide__summary {
+    padding: 1.4rem;
+    border-radius: var(--radius-m);
+    background: var(--ivory-100);
+    border: 1px solid var(--rule);
+    font-size: var(--step--1);
+    line-height: 1.85;
+  }
+  .guide__summary .checklist li::before {
+    margin-top: 0.25rem;
+  }
+  .guide__toc ol {
+    list-style: none;
+    border-inline-start: 2px solid var(--rule);
+    display: grid;
+    gap: 0.15rem;
+    font-size: var(--step--1);
+  }
+  .guide__toc a {
+    display: block;
+    padding: 0.35rem 1rem;
+    margin-inline-start: -2px;
+    border-inline-start: 2px solid transparent;
+    color: var(--text-muted);
+    text-decoration: none;
+    line-height: 1.7;
+    transition:
+      color var(--dur-fast) ease,
+      border-color var(--dur-fast) ease;
+  }
+  .guide__toc a:hover {
+    color: var(--navy-900);
+    border-color: var(--gold-400);
+  }
+  .guide__body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 3rem;
+    align-content: start;
+  }
+  .guide__body .prose > :global(:first-child) {
+    margin-top: 0;
+  }
+  .guide__body .prose :global(h2) {
+    scroll-margin-top: calc(var(--header-h) + 1.5rem);
+  }
+  .guide__sources h2,
+  .guide__next h2 {
+    font-size: var(--step-2);
+    margin-bottom: 1rem;
+  }
+  .guide__sources ol {
+    padding-inline-start: 1.3rem;
+    display: grid;
+    gap: 0.9rem;
+    font-size: var(--step--1);
+  }
+  .guide__sources a {
+    font-weight: 700;
+    color: var(--navy-800);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+  .guide__sources a :global(svg) {
+    inline-size: 0.95em;
+    block-size: 0.95em;
+  }
+  .guide__review ul {
+    margin-top: 0.5rem;
+    padding-inline-start: 1.2rem;
+  }
+  .guide__next {
+    display: grid;
+    gap: 1rem;
+  }
+  .next-card {
+    position: relative;
+    display: grid;
+    gap: 0.35rem;
+    padding: 1.4rem 1.5rem 1.4rem 4rem;
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius-m);
+    text-decoration: none;
+    transition:
+      border-color var(--dur-fast) ease,
+      background-color var(--dur-fast) ease,
+      transform var(--dur-med) var(--ease-out);
+  }
+  .next-card:hover {
+    border-color: var(--navy-900);
+    background: var(--ivory-100);
+  }
+  .next-card--service {
+    background: var(--navy-900);
+    color: #c3cddc;
+    border-color: var(--navy-900);
+  }
+  .next-card--service:hover {
+    background: var(--navy-800);
+  }
+  .next-card--service .next-card__title {
+    color: var(--ivory-50);
+  }
+  .next-card--service .next-card__kicker {
+    color: var(--gold-300);
+  }
+  .next-card__kicker {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--gold-600);
+  }
+  .next-card__title {
+    font-size: var(--step-1);
+    font-weight: 800;
+  }
+  .next-card__text {
+    font-size: var(--step--1);
+    color: inherit;
+    opacity: 0.9;
+  }
+  .next-card :global(.next-card__arrow) {
+    position: absolute;
+    inset-inline-end: 1.4rem;
+    top: 50%;
+    translate: 0 -50%;
+    transition: transform var(--dur-med) var(--ease-out);
+  }
+  .next-card:hover :global(.next-card__arrow) {
+    transform: translateX(-5px);
+  }
+  @media (max-width: 960px) {
+    .guide {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .guide__aside {
+      position: static;
+    }
+  }
+</style>

@@ -1,0 +1,468 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import PageHero from '~/components/layout/PageHero.astro';
+import ClearanceArt from '~/components/illustrations/ClearanceArt.astro';
+import Steps from '~/components/ui/Steps.astro';
+import Faq from '~/components/ui/Faq.astro';
+import CtaBand from '~/components/ui/CtaBand.astro';
+import Icon from '~/components/ui/Icon.astro';
+import Placeholder from '~/components/ui/Placeholder.astro';
+import { breadcrumbLd, serviceLd } from '~/lib/schema';
+import { services } from '~/data/services';
+import { site, contactCta } from '~/config/site';
+
+const path = '/customs-clearance/';
+const crumbs = [
+  { name: 'خانه', path: '/' },
+  { name: 'ترخیص کالا', path },
+];
+const description =
+  'ترخیص کالا از گمرک: بررسی اسناد و کد تعرفه، برآورد مکتوب هزینه، ثبت اظهارنامه و پیگیری تا خروج کالا؛ همراه با مراحل، مدارک و عوامل هزینه.';
+
+const responsibilities = [
+  {
+    title: 'کارهایی که ما انجام می‌دهیم',
+    tone: 'ours',
+    items: [
+      'بررسی اسناد و تطبیق اطلاعات آن‌ها با یکدیگر',
+      'بررسی کد تعرفهٔ پیشنهادی و مجوزهای احتمالی',
+      'برآورد مکتوب و تفکیک‌شدهٔ هزینه‌ها',
+      'تنظیم و ثبت اظهارنامه و پیگیری پرونده در گمرک',
+      'همراهی در ارزیابی و پاسخ به پرسش‌های کارشناس',
+      'گزارش وضعیت هر مرحله و اقدام بعدی',
+    ],
+  },
+  {
+    title: 'آنچه صاحب کالا فراهم می‌کند',
+    tone: 'yours',
+    items: [
+      'اسناد اصلی خرید و حمل، مانند سیاههٔ خرید و بارنامه',
+      'اطلاعات دقیق و فنی کالا',
+      'کارت بازرگانی یا مجوز فعالیت معتبر',
+      'پرداخت حقوق، عوارض و هزینه‌های قانونی',
+      'وکالت یا مجوزهای لازم برای اقدام از طرف شما',
+    ],
+  },
+  {
+    title: 'آنچه با گمرک و نهادهای مسئول است',
+    tone: 'theirs',
+    items: [
+      'تعیین مسیر رسیدگی و تصمیم دربارهٔ بازرسی',
+      'پذیرش نهایی کد تعرفه و ارزش گمرکی',
+      'صدور مجوزها، گواهی‌ها و نتیجهٔ آزمایش‌ها',
+      'زمان رسیدگی در هر نهاد',
+    ],
+  },
+];
+
+const steps = [
+  {
+    title: 'بررسی اولیهٔ اسناد و کالا',
+    text: 'اسناد موجود، شرح کالا و کد تعرفهٔ پیشنهادی بررسی می‌شود تا مغایرت‌ها، کمبودها و مجوزهای احتمالی پیش از هر اقدام مشخص شود.',
+  },
+  {
+    title: 'برآورد هزینه و توافق دربارهٔ دامنهٔ کار',
+    text: 'برآوردی مکتوب از اقلام هزینه ارائه می‌شود که اقلام قطعی و برآوردی را جدا نشان می‌دهد. دامنهٔ خدمت و مسئولیت‌ها پیش از شروع کار توافق می‌شود.',
+  },
+  {
+    title: 'آماده‌سازی پیش از رسیدن کالا',
+    text: 'اگر کالا هنوز در راه است، اسناد تکمیل و هم‌خوان می‌شوند و مجوزهایی که پیش از ترخیص لازم است پیگیری می‌شود تا زمان انتظار در انبار کمتر شود.',
+  },
+  {
+    title: 'تحویل انبار و تنظیم اظهارنامه',
+    text: 'پس از تخلیه و صدور قبض انبار، اظهارنامه بر پایهٔ اسناد تنظیم و در سامانهٔ گمرک ثبت می‌شود.',
+  },
+  {
+    title: 'ارزیابی و رسیدگی',
+    text: 'پرونده بسته به ارزیابی ریسک، ممکن است با کنترل اسنادی یا بازرسی فیزیکی کالا بررسی شود. در این مرحله در ارزیابی حاضر می‌شویم و به پرسش‌ها پاسخ می‌دهیم.',
+    note: 'اینکه پرونده در کدام مسیر رسیدگی قرار بگیرد، تصمیم گمرک است و از پیش قابل تعیین نیست.',
+  },
+  {
+    title: 'پرداخت‌ها و تکمیل مجوزها',
+    text: 'حقوق ورودی، مالیات و عوارض بر اساس ارزیابی نهایی پرداخت می‌شود و مجوزهای باقی‌مانده، مانند نتیجهٔ آزمایش یا تأیید استاندارد، تکمیل می‌شود.',
+  },
+  {
+    title: 'خروج کالا و تحویل اسناد',
+    text: 'پس از صدور اجازهٔ خروج، کالا از انبار خارج و برای حمل داخلی آماده می‌شود. نسخه‌ای از اسناد پرونده برای سوابق شما تحویل داده می‌شود.',
+  },
+];
+
+const costFactors = [
+  { title: 'ارزش و کد تعرفهٔ کالا', text: 'مبنای حقوق ورودی و مالیات‌ها؛ تغییر هرکدام در ارزیابی، مبلغ نهایی را تغییر می‌دهد.' },
+  { title: 'مدت ماندن کالا در انبار', text: 'هزینهٔ انبارداری و در برخی موارد دموراژ کانتینر با زمان بیشتر می‌شود.' },
+  { title: 'مجوزها و آزمایش‌ها', text: 'نوع کالا تعیین می‌کند چه مجوزهایی لازم است و هرکدام چه هزینه و زمانی دارد.' },
+  { title: 'مسیر رسیدگی', text: 'بازرسی فیزیکی، جابه‌جایی و زمان بیشتری نسبت به کنترل اسنادی لازم دارد.' },
+  { title: 'پیچیدگی پرونده', text: 'تعداد اقلام، کامل بودن اسناد و نیاز به اصلاحات، بر دامنهٔ کار اثر دارد.' },
+  { title: 'حمل داخلی', text: 'مسافت، نوع بار و وسیلهٔ حمل تا مقصد نهایی.' },
+];
+
+const faqs = [
+  {
+    q: 'آیا می‌توانید زمان ترخیص را تضمین کنید؟',
+    a: 'خیر. بخش مهمی از زمان ترخیص به تصمیم و زمان رسیدگی گمرک و دستگاه‌های صادرکنندهٔ مجوز بستگی دارد. کاری که انجام می‌دهیم این است که اسناد را پیش از رسیدن کالا آماده کنیم، عوامل احتمالی تأخیر را از قبل بگوییم و پرونده را پیوسته پیگیری کنیم.',
+  },
+  {
+    q: 'کالا هنوز در راه است؛ الان زود نیست؟',
+    a: 'بهترین زمان برای شروع، پیش از رسیدن کالاست. در این فاصله می‌توان مغایرت اسناد را برطرف و مجوزهای لازم را پیگیری کرد تا کالا کمترین زمان را در انبار بماند.',
+  },
+  {
+    q: 'آیا برای کالای ارسال‌شده توسط شخص دیگری هم کار می‌کنید؟',
+    a: 'پرونده باید به نام واردکننده‌ای باشد که اسناد و ثبت سفارش به نام اوست و بتواند برای اقدام از طرف خود وکالت یا مجوز لازم را بدهد. جزئیات پروندهٔ خود را بفرستید تا امکان کار بررسی شود.',
+  },
+  {
+    q: 'برآورد هزینه چقدر با هزینهٔ نهایی فاصله دارد؟',
+    a: 'اقلامی مثل دستمزد خدمات پس از توافق قطعی‌اند. اقلامی مثل حقوق ورودی و انبارداری به ارزیابی نهایی و مدت ترخیص بستگی دارند؛ این اقلام در برآورد با مبنای محاسبه‌شان جدا مشخص می‌شوند تا بدانید کدام بخش ممکن است تغییر کند.',
+  },
+];
+---
+
+<BaseLayout
+  title="ترخیص کالا از گمرک؛ مراحل، مدارک و برآورد هزینه"
+  description={description}
+  jsonLd={[
+    breadcrumbLd(crumbs, Astro.site),
+    serviceLd({ name: 'ترخیص کالا از گمرک', description, path, serviceType: 'Customs clearance' }, Astro.site),
+  ]}
+>
+  <PageHero
+    eyebrow="خدمات"
+    title="ترخیص کالا از گمرک"
+    lead="تشریفات گمرکی کالای وارداتی شما را از بررسی اسناد و کد تعرفه تا ثبت اظهارنامه، همراهی در ارزیابی و خروج کالا از گمرک پیگیری می‌کنیم؛ با برآورد مکتوب هزینه و گزارش روشن از هر مرحله."
+    crumbs={crumbs}
+  >
+    <div class="hero-actions">
+      <a class="btn" href={contactCta.href}>
+        {contactCta.label}
+        <Icon name="arrow" class="btn__icon" />
+      </a>
+      <a class="btn btn--ghost" href="#process">مراحل ترخیص کالا</a>
+    </div>
+    <ClearanceArt slot="art" />
+  </PageHero>
+
+  <!-- What it is -->
+  <section class="section" aria-labelledby="what-title">
+    <div class="container split">
+      <div class="stack prose-lite reveal" style="--stack: 1.1rem">
+        <h2 id="what-title">ترخیص کالا یعنی چه و این خدمت شامل چیست؟</h2>
+        <p>
+          ترخیص کالا مجموعه کارهایی است که باید انجام شود تا کالای وارداتی پس از رسیدن به گمرک، با رعایت مقررات اجازهٔ خروج بگیرد: ارائه و تطبیق اسناد،
+          اعلام کالا در اظهارنامه، ارزیابی گمرک، تأمین مجوزهای لازم و پرداخت حقوق و عوارض.
+        </p>
+        <p>
+          خدمت ترخیص کالای {site.name} برای این است که این مسیر را با کمترین ابهام طی کنید. پیش از شروع، اسناد را بررسی می‌کنیم و می‌گوییم چه چیزی کم است،
+          چه هزینه‌هایی در راه است و کدام بخش‌ها به تصمیم گمرک یا دستگاه‌های دیگر بستگی دارد.
+        </p>
+        <Placeholder field="گمرکات و بنادری که خدمات ترخیص در آن‌ها ارائه می‌شود (serviceAreas) و پروانهٔ حق‌العمل‌کاری (company.licences)" />
+      </div>
+      <aside class="fit-card reveal" aria-labelledby="fit-title">
+        <h3 id="fit-title">این خدمت برای شماست اگر…</h3>
+        <ul class="checklist">
+          <li>کالا را خریده‌اید و در راه گمرک است یا به آن رسیده است؛</li>
+          <li>اسناد را دارید اما از هم‌خوانی آن‌ها مطمئن نیستید؛</li>
+          <li>می‌خواهید پیش از رسیدن کالا هزینه‌ها را بدانید؛</li>
+          <li>کالا در گمرک مانده و نمی‌دانید مشکل کجاست.</li>
+        </ul>
+        <p class="muted">
+          هنوز خرید نکرده‌اید؟ <a href={services.import.href}>خدمات واردات کالا</a> از مرحلهٔ برنامه‌ریزی شروع می‌شود.
+        </p>
+      </aside>
+    </div>
+  </section>
+
+  <!-- Responsibilities -->
+  <section class="section section--alt section--grain" aria-labelledby="resp-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="eyebrow">مرز مسئولیت‌ها</span>
+        <h2 id="resp-title">چه کاری با ماست، چه کاری با شما</h2>
+        <p class="lead">بیشتر سوءتفاهم‌ها در ترخیص از روشن نبودن همین مرزهاست. پیش از شروع کار، این تقسیم را با هم مرور می‌کنیم.</p>
+      </header>
+      <div class="resp">
+        {
+          responsibilities.map((r) => (
+            <section class:list={['resp__col reveal', `resp__col--${r.tone}`]} aria-label={r.title}>
+              <h3>{r.title}</h3>
+              <ul>
+                {r.items.map((it) => (
+                  <li>{it}</li>
+                ))}
+              </ul>
+            </section>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Process -->
+  <section class="section" id="process" aria-labelledby="process-title">
+    <div class="container split split--wide">
+      <header class="section-head sticky-head reveal">
+        <span class="eyebrow">فرایند</span>
+        <h2 id="process-title">مراحل ترخیص کالا</h2>
+        <p class="lead">ترتیب کلی کار در یک پروندهٔ معمول. بسته به کالا و رویهٔ گمرکی، ممکن است برخی مراحل هم‌زمان انجام شوند یا مرحله‌ای اضافه شود.</p>
+        <a class="arrow-link" href="/guides/import-process/">
+          مراحل کامل واردات کالا
+          <Icon name="arrow" />
+        </a>
+      </header>
+      <Steps items={steps} />
+    </div>
+  </section>
+
+  <!-- Required information -->
+  <section class="section section--dark" aria-labelledby="docs-title">
+    <div class="container split">
+      <div class="stack reveal" style="--stack: 1.1rem">
+        <span class="eyebrow">شروع کار</span>
+        <h2 id="docs-title">اطلاعات و مدارکی که برای شروع لازم است</h2>
+        <p class="lead">برای بررسی اولیه لازم نیست همهٔ اسناد کامل باشد. همان چیزی را که دارید بفرستید؛ کمبودها را با هم مشخص می‌کنیم.</p>
+        <a class="arrow-link" href="/guides/customs-clearance-documents/">
+          فهرست کامل مدارک لازم برای ترخیص کالا
+          <Icon name="arrow" />
+        </a>
+      </div>
+      <div class="docs-cols reveal">
+        <div>
+          <h3>برای بررسی اولیه</h3>
+          <ul class="checklist">
+            <li>شرح کالا و کاربرد آن</li>
+            <li>سیاههٔ خرید یا پیش‌فاکتور</li>
+            <li>کشور مبدأ و گمرک ورود</li>
+            <li>مرحلهٔ فعلی محموله</li>
+          </ul>
+        </div>
+        <div>
+          <h3>برای انجام ترخیص</h3>
+          <ul class="checklist">
+            <li>بارنامه و فهرست عدل‌بندی</li>
+            <li>گواهی مبدأ و بیمه‌نامه</li>
+            <li>اطلاعات ثبت سفارش</li>
+            <li>کارت بازرگانی و مجوزهای کالا</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Cost factors -->
+  <section class="section" aria-labelledby="cost-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="eyebrow">هزینه</span>
+        <h2 id="cost-title">هزینه ترخیص کالا به چه عواملی بستگی دارد؟</h2>
+        <p class="lead">
+          هزینهٔ ترخیص مجموع چند قلم با مبناهای متفاوت است. پس از دیدن اسناد، برآوردی مکتوب می‌دهیم که اقلام قطعی و برآوردی را جدا نشان می‌دهد.
+        </p>
+      </header>
+      <dl class="factors">
+        {
+          costFactors.map((f) => (
+            <div class="factors__item reveal">
+              <dt>{f.title}</dt>
+              <dd>{f.text}</dd>
+            </div>
+          ))
+        }
+      </dl>
+      <p class="factors__more">
+        <a class="arrow-link" href="/guides/customs-clearance-cost/">
+          راهنمای کامل هزینه ترخیص کالا
+          <Icon name="arrow" />
+        </a>
+      </p>
+    </div>
+  </section>
+
+  <!-- Enquiry process -->
+  <section class="section section--alt" aria-labelledby="enquiry-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="eyebrow">درخواست</span>
+        <h2 id="enquiry-title">از درخواست تا شروع کار</h2>
+      </header>
+      <ol class="enquiry">
+        <li class="reveal">
+          <h3>ارسال اطلاعات</h3>
+          <p>فرم کوتاه مشاوره را با مشخصات کالا و مرحلهٔ فعلی محموله تکمیل کنید.</p>
+        </li>
+        <li class="reveal">
+          <h3>بررسی و پرسش‌های تکمیلی</h3>
+          <p>اطلاعات را بررسی می‌کنیم و اگر چیزی لازم باشد، از راه ارتباطی که انتخاب کرده‌اید می‌پرسیم.</p>
+        </li>
+        <li class="reveal">
+          <h3>برآورد مکتوب و توافق</h3>
+          <p>برآورد هزینه و دامنهٔ کار را دریافت می‌کنید. کار فقط پس از توافق شما شروع می‌شود.</p>
+        </li>
+      </ol>
+      <a class="btn enquiry__cta" href={contactCta.href}>
+        {contactCta.label}
+        <Icon name="arrow" class="btn__icon" />
+      </a>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section" aria-labelledby="faq-title">
+    <div class="container split split--wide">
+      <header class="section-head reveal">
+        <span class="eyebrow">پرسش‌های رایج</span>
+        <h2 id="faq-title">پرسش‌های رایج دربارهٔ ترخیص کالا</h2>
+      </header>
+      <Faq items={faqs} />
+    </div>
+  </section>
+
+  <CtaBand />
+</BaseLayout>
+
+<style>
+
+  .resp {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+  .resp__col {
+    padding: 1.75rem;
+    border-radius: var(--radius-l);
+    border: 1px solid var(--rule);
+    background: var(--ivory-50);
+  }
+  .resp__col h3 {
+    font-size: var(--step-1);
+    font-weight: 800;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .resp__col ul {
+    list-style: none;
+    display: grid;
+    gap: 0.65rem;
+  }
+  .resp__col li {
+    position: relative;
+    padding-inline-start: 1.4rem;
+    line-height: 1.8;
+  }
+  .resp__col li::before {
+    content: '';
+    position: absolute;
+    inset-inline-start: 0;
+    top: 0.65em;
+    inline-size: 0.6rem;
+    block-size: 0.6rem;
+    border-radius: 50%;
+    background: var(--dot, var(--gold-400));
+  }
+  .resp__col--ours {
+    background: var(--navy-900);
+    color: #d3dbe7;
+    border-color: var(--navy-900);
+  }
+  .resp__col--ours h3 {
+    color: var(--ivory-50);
+    border-color: rgb(247 241 228 / 0.15);
+  }
+  .resp__col--yours {
+    --dot: var(--navy-600);
+  }
+  .resp__col--theirs {
+    --dot: transparent;
+    background: transparent;
+    border-style: dashed;
+    border-color: var(--rule-strong);
+  }
+  .resp__col--theirs li::before {
+    border: 2px solid var(--navy-600);
+  }
+
+  .docs-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+  .docs-cols h3 {
+    font-size: var(--step-1);
+    color: var(--gold-300);
+    margin-bottom: 1rem;
+  }
+
+  .factors {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0 2.5rem;
+    margin: 0;
+  }
+  .factors__item {
+    padding-block: 1.6rem;
+    border-top: 1px solid var(--rule-strong);
+  }
+  .factors dt {
+    font-weight: 800;
+    font-size: var(--step-1);
+    margin-bottom: 0.4rem;
+  }
+  .factors dd {
+    margin: 0;
+    color: var(--text-muted);
+  }
+  .factors__more {
+    margin-top: 1.5rem;
+  }
+
+  .enquiry {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+    counter-reset: enq;
+  }
+  .enquiry li {
+    counter-increment: enq;
+    position: relative;
+    padding: 4.25rem 1.75rem 1.75rem;
+    border-radius: var(--radius-l);
+    background: var(--ivory-50);
+    border: 1px solid var(--rule);
+  }
+  .enquiry li::before {
+    content: counter(enq, persian);
+    position: absolute;
+    top: 1.5rem;
+    inset-inline-start: 1.75rem;
+    font-size: var(--step-3);
+    font-weight: 800;
+    line-height: 1;
+    color: var(--gold-500);
+  }
+  .enquiry h3 {
+    font-size: var(--step-1);
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+  }
+  .enquiry p {
+    color: var(--text-muted);
+  }
+  .enquiry__cta {
+    margin-top: 2rem;
+  }
+
+  @media (max-width: 960px) {
+    .resp,
+    .enquiry {
+      grid-template-columns: 1fr;
+    }
+    .factors {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (max-width: 600px) {
+    .factors,
+    .docs-cols {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

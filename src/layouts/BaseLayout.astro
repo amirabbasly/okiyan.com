@@ -1,0 +1,38 @@
+---
+import '~/styles/global.css';
+import BaseHead, { type Props as HeadProps } from '~/components/seo/BaseHead.astro';
+import Header from '~/components/layout/Header.astro';
+import Footer from '~/components/layout/Footer.astro';
+import { organizationLd, websiteLd } from '~/lib/schema';
+import { warnMissingOnce } from '~/config/site';
+
+warnMissingOnce();
+
+export interface Props extends HeadProps {
+  /** Adds WebSite markup (homepage only). */
+  includeWebsiteLd?: boolean;
+}
+
+const { includeWebsiteLd = false, jsonLd = [], ...head } = Astro.props;
+const graph = [organizationLd(Astro.site), ...(includeWebsiteLd ? [websiteLd(Astro.site)] : []), ...jsonLd];
+---
+
+<!doctype html>
+<html lang="fa" dir="rtl" class="no-js">
+  <head>
+    <script is:inline>document.documentElement.classList.replace('no-js', 'js');</script>
+    <BaseHead {...head} jsonLd={graph} />
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">پرش به محتوای اصلی</a>
+    <Header />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <Footer />
+    <script>
+      import '~/scripts/reveal';
+    </script>
+  </body>
+</html>

@@ -1,0 +1,88 @@
+---
+import Breadcrumbs from '~/components/seo/Breadcrumbs.astro';
+import type { Crumb } from '~/lib/schema';
+export interface Props {
+  eyebrow?: string;
+  title: string;
+  lead?: string;
+  crumbs: Crumb[];
+}
+const { eyebrow, title, lead, crumbs } = Astro.props;
+const hasArt = Astro.slots.has('art');
+---
+
+<section class:list={['page-hero section--grain', { 'page-hero--art': hasArt }]}>
+  <svg class="page-hero__motif" viewBox="0 0 1440 480" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+    <path d="M1500 60C1260 90 1150 300 900 330S420 250 180 420-60 520-60 520" fill="none" stroke="#c9a24a" stroke-opacity="0.32" stroke-width="1.5" stroke-dasharray="4 10" vector-effect="non-scaling-stroke"></path>
+  </svg>
+  <div class="container page-hero__inner">
+    <div class="page-hero__text">
+      <Breadcrumbs items={crumbs} />
+      {eyebrow && <span class="eyebrow">{eyebrow}</span>}
+      <h1>{title}</h1>
+      {lead && <p class="lead">{lead}</p>}
+      <slot />
+    </div>
+    {
+      hasArt && (
+        <div class="page-hero__art">
+          <slot name="art" />
+        </div>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .page-hero__motif {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  .page-hero__inner {
+    position: relative;
+  }
+  .page-hero {
+    position: relative;
+    overflow: hidden;
+    padding-block: clamp(2rem, 1.5rem + 2vw, 3rem) clamp(3rem, 2rem + 4vw, 5.5rem);
+    background-color: var(--ivory-100);
+    border-bottom: 1px solid var(--rule);
+    background-image:
+      radial-gradient(48rem 26rem at 8% 0%, rgb(201 162 74 / 0.13), transparent 65%),
+      var(--grain);
+  }
+  .page-hero__inner {
+    display: grid;
+    gap: 2.5rem;
+    align-items: center;
+  }
+  .page-hero--art .page-hero__inner {
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  }
+  .page-hero__text {
+    display: grid;
+    gap: 1.25rem;
+    justify-items: start;
+  }
+  .page-hero h1 {
+    font-size: var(--step-5);
+    max-width: 22ch;
+  }
+  .page-hero__art {
+    max-width: 30rem;
+    justify-self: end;
+    width: 100%;
+  }
+  @media (max-width: 860px) {
+    .page-hero--art .page-hero__inner {
+      grid-template-columns: 1fr;
+    }
+    .page-hero__art {
+      max-width: 24rem;
+      justify-self: center;
+    }
+  }
+</style>

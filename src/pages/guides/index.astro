@@ -1,0 +1,156 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import PageHero from '~/components/layout/PageHero.astro';
+import CtaBand from '~/components/ui/CtaBand.astro';
+import Icon from '~/components/ui/Icon.astro';
+import { breadcrumbLd } from '~/lib/schema';
+import { formatFaDate, toFa } from '~/lib/format';
+import { services } from '~/data/services';
+
+const guides = (await getCollection('guides')).sort((a, b) => a.data.order - b.data.order);
+const crumbs = [
+  { name: 'خانه', path: '/' },
+  { name: 'راهنماها', path: '/guides/' },
+];
+const groups = [
+  { service: services.clearance, items: guides.filter((g) => g.data.relatedService === 'customs-clearance') },
+  { service: services.import, items: guides.filter((g) => g.data.relatedService === 'import-services') },
+];
+---
+
+<BaseLayout
+  title="راهنمای ترخیص و واردات کالا"
+  description="راهنماهای کاربردی دربارهٔ هزینه ترخیص کالا، مدارک لازم برای ترخیص و مراحل واردات کالا به ایران؛ به زبان ساده و با ارجاع به منابع رسمی."
+  jsonLd={[breadcrumbLd(crumbs, Astro.site)]}
+>
+  <PageHero
+    eyebrow="راهنماها"
+    title="راهنمای ترخیص و واردات کالا"
+    lead="پیش از خرید یا پیش از رسیدن کالا به گمرک، این راهنماها کمک می‌کنند تصویر روشنی از مراحل، مدارک و هزینه‌ها داشته باشید. هر راهنما به منابع رسمی ارجاع می‌دهد و جای بررسی پرونده را نمی‌گیرد."
+    crumbs={crumbs}
+  />
+
+  <section class="section" aria-label="فهرست راهنماها">
+    <div class="container guide-groups">
+      {
+        groups.map((group) => (
+          <section class="guide-group" aria-labelledby={`g-${group.service.href.replace(/\//g, '')}`}>
+            <header class="guide-group__head">
+              <h2 id={`g-${group.service.href.replace(/\//g, '')}`}>دربارهٔ {group.service.name}</h2>
+              <a class="arrow-link" href={group.service.href}>
+                صفحهٔ خدمات {group.service.name}
+                <Icon name="arrow" />
+              </a>
+            </header>
+            <ul class="guide-list">
+              {group.items.map((g) => (
+                <li>
+                  <article class="guide-item">
+                    <p class="guide-item__meta">
+                      <time datetime={(g.data.updatedDate ?? g.data.publishDate).toISOString().slice(0, 10)}>
+                        {formatFaDate(g.data.updatedDate ?? g.data.publishDate)}
+                      </time>
+                      <span aria-hidden="true">·</span>
+                      <span>{toFa(g.data.summary.length)} نکتهٔ کلیدی</span>
+                    </p>
+                    <h3>
+                      <a href={`/guides/${g.id}/`}>{g.data.title}</a>
+                    </h3>
+                    <p>{g.data.description}</p>
+                    <ul class="guide-item__points">
+                      {g.data.summary.slice(0, 2).map((s) => (
+                        <li>{s}</li>
+                      ))}
+                    </ul>
+                  </article>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))
+      }
+    </div>
+  </section>
+
+  <CtaBand title="سؤال شما در راهنماها نبود؟" text="مشخصات کالا و پرسش خود را بفرستید. پس از بررسی، پاسخ متناسب با پروندهٔ شما را می‌دهیم." />
+</BaseLayout>
+
+<style>
+  .guide-groups {
+    display: grid;
+    gap: clamp(3rem, 6vw, 5rem);
+  }
+  .guide-group__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 2px solid var(--navy-900);
+  }
+  .guide-group__head h2 {
+    font-size: var(--step-3);
+  }
+  .guide-list {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));
+    gap: 0 3rem;
+  }
+  .guide-item {
+    position: relative;
+    display: grid;
+    gap: 0.75rem;
+    padding-block: 2rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .guide-item__meta {
+    display: flex;
+    gap: 0.6rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+  .guide-item h3 {
+    font-size: var(--step-2);
+    line-height: 1.5;
+  }
+  .guide-item h3 a {
+    text-decoration: none;
+  }
+  /* Whole item clickable, while the link text stays the accessible name */
+  .guide-item h3 a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+  .guide-item:hover h3 a {
+    text-decoration: underline;
+    text-decoration-color: var(--gold-400);
+    text-decoration-thickness: 2px;
+  }
+  .guide-item > p:not(.guide-item__meta) {
+    color: var(--text-muted);
+  }
+  .guide-item__points {
+    list-style: none;
+    display: grid;
+    gap: 0.35rem;
+    font-size: var(--step--1);
+    color: var(--ink-700);
+  }
+  .guide-item__points li {
+    padding-inline-start: 1rem;
+    position: relative;
+  }
+  .guide-item__points li::before {
+    content: '';
+    position: absolute;
+    inset-inline-start: 0;
+    top: 0.85em;
+    inline-size: 0.4rem;
+    block-size: 2px;
+    background: var(--gold-500);
+  }
+</style>

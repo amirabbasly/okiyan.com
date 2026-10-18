@@ -1,0 +1,465 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import PageHero from '~/components/layout/PageHero.astro';
+import ImportArt from '~/components/illustrations/ImportArt.astro';
+import Faq from '~/components/ui/Faq.astro';
+import CtaBand from '~/components/ui/CtaBand.astro';
+import Icon from '~/components/ui/Icon.astro';
+import Placeholder from '~/components/ui/Placeholder.astro';
+import { breadcrumbLd, serviceLd } from '~/lib/schema';
+import { services } from '~/data/services';
+import { contactCta } from '~/config/site';
+import { toFa } from '~/lib/format';
+
+const path = '/import-services/';
+const crumbs = [
+  { name: 'خانه', path: '/' },
+  { name: 'واردات کالا', path },
+];
+const description =
+  'خدمات واردات کالا از پیش از خرید: امکان‌سنجی و کد تعرفه، برآورد هزینهٔ تمام‌شده، هماهنگی اسناد با تأمین‌کننده، حمل و ترخیص. دامنه و مرزهای خدمت را ببینید.';
+
+// REVIEW: confirm every phase and exclusion with the business owner (site.scopeConfirmed).
+const phases = [
+  {
+    title: 'برنامه‌ریزی و امکان‌سنجی',
+    text: 'پیش از سفارش بررسی می‌کنیم واردات این کالا با چه شرایطی ممکن است.',
+    items: ['بررسی کد تعرفهٔ کالا بر اساس مشخصات فنی', 'شناسایی محدودیت‌ها و مجوزهای احتمالی', 'برآورد هزینهٔ تمام‌شدهٔ تقریبی تا انبار'],
+  },
+  {
+    title: 'هماهنگی با تأمین‌کننده',
+    text: 'تأمین‌کننده را شما انتخاب می‌کنید؛ ما کمک می‌کنیم اسناد و شرایط معامله برای واردات درست تنظیم شود.',
+    items: ['بررسی پیش‌فاکتور و شرح فنی کالا', 'پیشنهاد شرط تحویل مناسب (اینکوترمز)', 'فهرست اسنادی که فروشنده باید همراه کالا بفرستد'],
+  },
+  {
+    title: 'ثبت سفارش و اسناد',
+    text: 'اطلاعات معامله باید از ابتدا تا ترخیص هم‌خوان بماند.',
+    items: ['همراهی در تکمیل اطلاعات ثبت سفارش', 'تطبیق ثبت سفارش با پیش‌فاکتور', 'پیگیری مجوزهایی که پیش از حمل لازم است'],
+  },
+  {
+    title: 'هماهنگی حمل',
+    text: 'مسیر و روش حمل را با زمان‌بندی ترخیص هماهنگ می‌کنیم.',
+    items: ['هماهنگی با شرکت حمل و فرستنده', 'بررسی پیش‌نویس بارنامه پیش از صدور', 'پیگیری زمان تقریبی رسیدن'],
+  },
+  {
+    title: 'ترخیص و تحویل',
+    text: 'وقتی کالا می‌رسد، اسناد آماده است و ترخیص بدون انتظار برای تکمیل مدارک شروع می‌شود.',
+    items: ['ترخیص کالا از گمرک', 'هماهنگی حمل داخلی تا انبار', 'تحویل اسناد نهایی پرونده'],
+  },
+];
+
+const exclusions = [
+  { title: 'تأمین یا تولید کالا', text: 'ما سازنده یا فروشندهٔ کالا نیستیم و کیفیت محصول تأمین‌کننده را تضمین نمی‌کنیم.' },
+  { title: 'انتقال ارز و پرداخت به فروشنده', text: 'پرداخت از مسیرهای مجاز و به نام واردکننده انجام می‌شود؛ ما اسناد مرتبط را هماهنگ می‌کنیم.' },
+  { title: 'صدور مجوزها', text: 'مجوزها را دستگاه‌های مسئول صادر می‌کنند؛ کار ما آماده‌سازی مدارک و پیگیری است.' },
+  { title: 'تضمین زمان یا نتیجهٔ ترخیص', text: 'تصمیم دربارهٔ ارزیابی، مسیر رسیدگی و پذیرش اسناد با گمرک است.' },
+];
+
+const supplierChecks = [
+  'شرح کالا در پیش‌فاکتور به‌اندازهٔ کافی فنی و دقیق است تا کد تعرفه با آن سازگار باشد.',
+  'کشور سازنده مشخص است و فروشنده می‌تواند گواهی مبدأ ارائه کند.',
+  'شرط تحویل و محل تحویل روشن نوشته شده است.',
+  'فروشنده می‌تواند اسناد فنی، گواهی‌ها یا نمونه‌هایی را که برای مجوزها لازم است فراهم کند.',
+  'وزن، بسته‌بندی و تعداد اقلام با اسناد حمل قابل تطبیق است.',
+];
+
+const faqs = [
+  {
+    q: 'تأمین‌کننده را هم پیدا می‌کنید؟',
+    a: 'تمرکز ما بر واردات و ترخیص است: بررسی امکان واردات، اسناد معامله و هماهنگی مسیر. اگر چند تأمین‌کننده را در نظر دارید، می‌توانیم پیش‌فاکتورها و اسناد آن‌ها را از نظر الزامات واردات مقایسه کنیم؛ انتخاب نهایی تأمین‌کننده با شماست.',
+  },
+  {
+    q: 'برای اولین واردات از کجا شروع کنم؟',
+    a: 'از مشخصات فنی کالا. با داشتن شرح دقیق کالا می‌توان کد تعرفه، مجوزها و هزینه‌ها را بررسی کرد. خلاصهٔ مسیر را در <a href="/guides/import-process/">راهنمای مراحل واردات کالا</a> بخوانید.',
+  },
+  {
+    q: 'برآورد هزینهٔ تمام‌شده چقدر دقیق است؟',
+    a: 'برآورد پیش از خرید بر پایهٔ اطلاعات آن زمان است و اقلامی مثل حقوق ورودی، نرخ‌ها و هزینهٔ حمل ممکن است تا زمان ترخیص تغییر کنند. این اقلام و مبنای محاسبه‌شان در برآورد جدا مشخص می‌شوند.',
+  },
+];
+---
+
+<BaseLayout
+  title="خدمات واردات کالا؛ از امکان‌سنجی تا ترخیص"
+  description={description}
+  jsonLd={[
+    breadcrumbLd(crumbs, Astro.site),
+    serviceLd({ name: 'خدمات واردات کالا', description, path, serviceType: 'Import coordination' }, Astro.site),
+  ]}
+>
+  <PageHero
+    eyebrow="خدمات"
+    title="خدمات واردات کالا"
+    lead="پیش از اینکه سفارش بدهید، بدانید واردات کالای شما چه الزامات و هزینه‌هایی دارد. از امکان‌سنجی و کد تعرفه تا هماهنگی اسناد با تأمین‌کننده، حمل و ترخیص، مسیر را با شما برنامه‌ریزی و پیگیری می‌کنیم."
+    crumbs={crumbs}
+  >
+    <div class="hero-actions">
+      <a class="btn" href={contactCta.href}>
+        {contactCta.label}
+        <Icon name="arrow" class="btn__icon" />
+      </a>
+      <a class="btn btn--ghost" href="#scope">دامنهٔ خدمات</a>
+    </div>
+    <ImportArt slot="art" />
+  </PageHero>
+
+  <!-- Intro -->
+  <section class="section" aria-labelledby="intro-title">
+    <div class="container split">
+      <div class="stack prose-lite reveal" style="--stack: 1.1rem">
+        <h2 id="intro-title">واردات کالا، پیش از خرید شروع می‌شود</h2>
+        <p>
+          بسیاری از مشکلاتی که در گمرک دیده می‌شوند، ریشه در تصمیم‌های پیش از خرید دارند: شرح کالایی که با کد تعرفه سازگار نیست، مجوزی که دیر شناسایی شده
+          یا شرط تحویلی که هزینه و ریسک را به شکل پیش‌بینی‌نشده‌ای جابه‌جا کرده است.
+        </p>
+        <p>
+          در خدمات واردات کالا، این تصمیم‌ها را پیش از سفارش با شما مرور می‌کنیم و سپس مسیر را تا <a href={services.clearance.href}>ترخیص کالا</a> و تحویل در
+          انبار پیگیری می‌کنیم.
+        </p>
+      </div>
+      <aside class="fit-card reveal" aria-labelledby="fit-title">
+        <h3 id="fit-title">مناسب برای</h3>
+        <ul class="checklist">
+          <li>شرکت‌هایی که اولین واردات خود را برنامه‌ریزی می‌کنند؛</li>
+          <li>واردکنندگانی که کالای تازه‌ای به سبد خود اضافه می‌کنند؛</li>
+          <li>تیم‌های خریدی که پیش از سفارش، هزینهٔ تمام‌شده را می‌خواهند؛</li>
+          <li>کسب‌وکارهایی که می‌خواهند یک طرف پاسخ‌گو برای کل مسیر داشته باشند.</li>
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  <!-- Scope: phases as a route -->
+  <section class="section section--dark" id="scope" aria-labelledby="scope-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="eyebrow">دامنهٔ همراهی</span>
+        <h2 id="scope-title">از برنامه‌ریزی تا تحویل، در پنج بخش</h2>
+        <p class="lead">می‌توانید همهٔ مسیر یا فقط بخش‌هایی را که لازم دارید به ما بسپارید.</p>
+      </header>
+      <Placeholder field="تأیید دامنهٔ خدمات واردات توسط مدیریت (scopeConfirmed در src/config/site.ts)" />
+      <ol class="phases">
+        {
+          phases.map((ph, i) => (
+            <li class="phase reveal">
+              <span class="phase__n" aria-hidden="true">
+                {toFa(i + 1)}
+              </span>
+              <h3>{ph.title}</h3>
+              <p>{ph.text}</p>
+              <ul>
+                {ph.items.map((it) => (
+                  <li>{it}</li>
+                ))}
+              </ul>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <!-- Boundaries -->
+  <section class="section section--alt section--grain" aria-labelledby="bounds-title">
+    <div class="container split split--wide">
+      <header class="section-head sticky-head reveal">
+        <span class="eyebrow">مرزهای خدمت</span>
+        <h2 id="bounds-title">آنچه در این خدمت نیست</h2>
+        <p class="lead">روشن بودن مرزها به اندازهٔ دامنهٔ کار اهمیت دارد. این موارد را انجام نمی‌دهیم یا تصمیم آن با ما نیست:</p>
+      </header>
+      <dl class="bounds">
+        {
+          exclusions.map((e) => (
+            <div class="bounds__item reveal">
+              <dt>
+                <Icon name="close" />
+                {e.title}
+              </dt>
+              <dd>{e.text}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </section>
+
+  <!-- Supplier checks -->
+  <section class="section" aria-labelledby="supplier-title">
+    <div class="container split">
+      <div class="stack reveal" style="--stack: 1.1rem">
+        <span class="eyebrow">هماهنگی تأمین</span>
+        <h2 id="supplier-title">پیش از نهایی کردن خرید، این‌ها را از تأمین‌کننده بخواهید</h2>
+        <p class="lead">این فهرست، نکاتی است که در بررسی اسناد تأمین‌کننده از نظر الزامات واردات به آن‌ها نگاه می‌کنیم.</p>
+        <ul class="checklist">
+          {supplierChecks.map((c) => <li>{c}</li>)}
+        </ul>
+      </div>
+      <aside class="compare reveal" aria-labelledby="compare-title">
+        <h3 id="compare-title">از کدام خدمت شروع کنم؟</h3>
+        <div class="compare__row">
+          <p class="compare__label">هنوز خرید نکرده‌اید</p>
+          <p>
+            <a href={services.import.href} aria-current="page">خدمات واردات کالا</a>
+          </p>
+        </div>
+        <div class="compare__row">
+          <p class="compare__label">سفارش داده‌اید یا کالا در راه است</p>
+          <p>
+            <a href={services.clearance.href}>ترخیص کالا</a>، با بررسی اسناد پیش از رسیدن
+          </p>
+        </div>
+        <div class="compare__row">
+          <p class="compare__label">کالا به گمرک رسیده است</p>
+          <p>
+            <a href={services.clearance.href}>ترخیص کالا</a>
+          </p>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- Related guides -->
+  <section class="section section--alt" aria-labelledby="read-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="eyebrow">برای مطالعه</span>
+        <h2 id="read-title">پیش از اولین سفارش بخوانید</h2>
+      </header>
+      <div class="reads">
+        <div class="read reveal stretch">
+          <a class="read__t stretch__link" href="/guides/import-process/">مراحل واردات کالا</a>
+          <span class="read__d">از امکان‌سنجی و کد تعرفه تا ثبت سفارش، حمل و ترخیص</span>
+          <Icon name="arrow" />
+        </div>
+        <div class="read reveal stretch">
+          <a class="read__t stretch__link" href="/guides/customs-clearance-cost/">هزینه ترخیص کالا</a>
+          <span class="read__d">اقلام هزینه و آنچه برآورد را دقیق‌تر می‌کند</span>
+          <Icon name="arrow" />
+        </div>
+        <div class="read reveal stretch">
+          <a class="read__t stretch__link" href="/guides/customs-clearance-documents/">مدارک لازم برای ترخیص کالا</a>
+          <span class="read__d">اسناد پایه و مجوزهای وابسته به نوع کالا</span>
+          <Icon name="arrow" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="faq-title">
+    <div class="container split split--wide">
+      <header class="section-head reveal">
+        <span class="eyebrow">پرسش‌های رایج</span>
+        <h2 id="faq-title">پرسش‌های رایج دربارهٔ واردات کالا</h2>
+      </header>
+      <Faq items={faqs} />
+    </div>
+  </section>
+
+  <CtaBand title="کالایی را در نظر دارید؟" text="مشخصات کالا و کشور تأمین را بفرستید تا پیش از سفارش، الزامات و هزینه‌های تقریبی واردات آن را بررسی کنیم." />
+</BaseLayout>
+
+<style>
+  .phases {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0;
+    margin-top: 1rem;
+    position: relative;
+  }
+  .phase {
+    position: relative;
+    display: grid;
+    gap: 0.75rem;
+    align-content: start;
+    padding: 0 0 0 1.25rem;
+    padding-inline: 0 1.5rem;
+  }
+  .phase::before {
+    /* the route line joining phases */
+    content: '';
+    position: absolute;
+    top: 1.5rem;
+    inset-inline: 3rem 0;
+    height: 2px;
+    background: repeating-linear-gradient(90deg, var(--gold-400) 0 6px, transparent 6px 12px);
+    opacity: 0.6;
+  }
+  .phase:last-child::before {
+    display: none;
+  }
+  .phase__n {
+    position: relative;
+    display: grid;
+    place-items: center;
+    inline-size: 3rem;
+    block-size: 3rem;
+    border-radius: 50%;
+    background: var(--gold-400);
+    color: var(--navy-950);
+    font-weight: 800;
+    font-size: var(--step-1);
+  }
+  .phase h3 {
+    font-size: var(--step-1);
+    color: var(--ivory-50);
+    margin-top: 0.5rem;
+  }
+  .phase > p {
+    color: #b9c4d6;
+    font-size: var(--step--1);
+  }
+  .phase ul {
+    list-style: none;
+    display: grid;
+    gap: 0.45rem;
+    padding-top: 0.8rem;
+    border-top: 1px solid rgb(247 241 228 / 0.12);
+    font-size: var(--step--1);
+    color: #d3dbe7;
+  }
+  .phase ul li {
+    position: relative;
+    padding-inline-start: 1rem;
+    line-height: 1.8;
+  }
+  .phase ul li::before {
+    content: '';
+    position: absolute;
+    inset-inline-start: 0;
+    top: 0.8em;
+    inline-size: 0.4rem;
+    block-size: 2px;
+    background: var(--gold-400);
+  }
+
+  .bounds {
+    margin: 0;
+    display: grid;
+  }
+  .bounds__item {
+    padding-block: 1.5rem;
+    border-top: 1px solid var(--rule-strong);
+  }
+  .bounds dt {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 800;
+    font-size: var(--step-1);
+  }
+  .bounds dt :global(svg) {
+    flex: none;
+    inline-size: 1.75rem;
+    block-size: 1.75rem;
+    padding: 0.35rem;
+    border-radius: 50%;
+    background: var(--navy-900);
+    color: var(--gold-300);
+  }
+  .bounds dd {
+    margin: 0.4rem 0 0;
+    padding-inline-start: 2.5rem;
+    color: var(--text-muted);
+  }
+
+  .compare {
+    display: grid;
+    padding: clamp(1.5rem, 3vw, 2.25rem);
+    border-radius: var(--radius-l);
+    background: var(--navy-900);
+    color: #c3cddc;
+  }
+  .compare h3 {
+    color: var(--ivory-50);
+    font-size: var(--step-2);
+    margin-bottom: 0.75rem;
+  }
+  .compare__row {
+    padding-block: 1rem;
+    border-top: 1px solid rgb(247 241 228 / 0.14);
+  }
+  .compare__label {
+    font-size: var(--step--1);
+    color: #9fb0c8;
+  }
+  .compare a {
+    color: var(--gold-300);
+    font-weight: 800;
+  }
+
+  .reads {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+  .read {
+    position: relative;
+    display: grid;
+    gap: 0.4rem;
+    padding: 1.6rem 1.6rem 3.5rem;
+    border-radius: var(--radius-l);
+    border: 1px solid var(--rule-strong);
+    background: var(--ivory-50);
+    text-decoration: none;
+    transition:
+      border-color var(--dur-fast) ease,
+      transform var(--dur-med) var(--ease-out);
+  }
+  .read:hover {
+    border-color: var(--navy-900);
+    transform: translateY(-2px);
+  }
+  .read__t {
+    font-weight: 800;
+    font-size: var(--step-1);
+  }
+  .read__d {
+    color: var(--text-muted);
+    font-size: var(--step--1);
+  }
+  .read :global(svg) {
+    position: absolute;
+    bottom: 1.4rem;
+    inset-inline-end: 1.6rem;
+    color: var(--gold-500);
+    transition: transform var(--dur-med) var(--ease-out);
+  }
+  .read:hover :global(svg) {
+    transform: translateX(-5px);
+  }
+
+  @media (max-width: 1080px) {
+    .phases {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0;
+    }
+    .phase {
+      grid-template-columns: 3rem minmax(0, 1fr);
+      column-gap: 1.25rem;
+      padding: 0 0 2rem;
+    }
+    .phase > :not(.phase__n) {
+      grid-column: 2;
+    }
+    .phase__n {
+      grid-row: 1 / span 3;
+    }
+    .phase h3 {
+      margin-top: 0.4rem;
+    }
+    .phase::before {
+      top: 3rem;
+      bottom: 0;
+      inset-inline: 1.5rem auto;
+      width: 2px;
+      height: auto;
+      background: repeating-linear-gradient(180deg, var(--gold-400) 0 6px, transparent 6px 12px);
+    }
+  }
+  @media (max-width: 860px) {
+    .reads {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
