@@ -1,0 +1,188 @@
+---
+/**
+ * پروژه‌های خاص — SAMPLE CONTENT. The case studies are placeholders.
+ * Replace with real projects, then remove '/special-projects/' from src/data/sample-pages.json.
+ */
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import PageHero from '~/components/layout/PageHero.astro';
+import CtaBand from '~/components/ui/CtaBand.astro';
+import Icon from '~/components/ui/Icon.astro';
+import { breadcrumbLd } from '~/lib/schema';
+
+const crumbs = [
+  { name: 'خانه', path: '/' },
+  { name: 'پروژه‌های خاص', path: '/special-projects/' },
+];
+
+const kinds = [
+  { icon: 'cube' as const, title: 'محموله‌های سنگین و فوق‌ابعاد', text: 'ماشین‌آلات، سازه‌ها و تجهیزاتی که برای تخلیه، نگهداری و حمل جاده‌ای برنامهٔ ویژه می‌خواهند.' },
+  { icon: 'briefcase' as const, title: 'خطوط تولید و تجهیزات کارخانه', text: 'واردات چندمرحله‌ای قطعات یک خط تولید، با تفکیک اقلام و هماهنگی با برنامهٔ نصب.' },
+  { icon: 'clock' as const, title: 'کالای حساس به زمان و دما', text: 'محموله‌های یخچالی، دارویی یا فاسدشدنی که هر روز توقف در گمرک برایشان هزینه دارد.' },
+  { icon: 'alert' as const, title: 'کالای خطرناک', text: 'مواد شیمیایی و کالاهای دارای الزامات ویژهٔ بسته‌بندی، برچسب‌گذاری و مجوز.' },
+  { icon: 'route' as const, title: 'واردات پروژه‌ای و مرحله‌ای', text: 'پروژه‌هایی که کالای آن‌ها در چند محموله و از چند مبدأ می‌رسد و باید یکپارچه مدیریت شود.' },
+];
+
+const cases = [
+  {
+    title: 'انتقال ترانسفورماتور ۱۲۰ تنی',
+    challenge: 'ابعاد و وزن محموله، تخلیه از کشتی و عبور از مسیرهای محدود جاده‌ای را دشوار می‌کرد.',
+    solution: 'برنامه‌ریزی تخلیه با جرثقیل ویژه، اخذ مجوز حمل ترافیکی و هماهنگی اسکورت در طول مسیر.',
+    result: 'تحویل در محل پروژه طبق برنامهٔ نصب.',
+  },
+  {
+    title: 'خط تولید در ۳۲ کانتینر',
+    challenge: 'رسیدن قطعات یک خط تولید در چند محموله و نیاز به تعرفه‌گذاری دقیق صدها قلم کالا.',
+    solution: 'تهیهٔ فهرست یکپارچهٔ اقلام پیش از حمل و ترخیص مرحله‌ای هم‌زمان با رسیدن محموله‌ها.',
+    result: 'شروع نصب بدون انتظار برای رسیدن آخرین محموله.',
+  },
+  {
+    title: 'محمولهٔ دارویی یخچالی',
+    challenge: 'حساسیت دمایی کالا و محدودیت زمان نگهداری در انبار فرودگاه.',
+    solution: 'آماده‌سازی اسناد و مجوزها پیش از پرواز و هماهنگی حمل یخچالی از لحظهٔ ترخیص.',
+    result: 'ترخیص و تحویل بدون قطع زنجیرهٔ سرما.',
+  },
+];
+
+const differences = [
+  'برنامه‌ریزی از پیش از بارگیری، نه از زمان رسیدن کالا',
+  'یک مدیر پرونده برای همهٔ محموله‌های پروژه',
+  'هماهنگی هم‌زمان با حمل‌کننده، بندر، گمرک و محل پروژه',
+  'گزارش منظم وضعیت هر محموله و برنامهٔ قدم بعدی',
+];
+---
+
+<BaseLayout
+  title="پروژه‌های خاص؛ محموله‌های سنگین و حساس"
+  description="ترخیص و واردات پروژه‌های خاص با اوکیان: محموله‌های سنگین و فوق‌ابعاد، خطوط تولید، کالای یخچالی و خطرناک و واردات چندمرحله‌ای."
+  jsonLd={[breadcrumbLd(crumbs, Astro.site)]}
+>
+  <PageHero
+    eyebrow="خدمات"
+    title="پروژه‌های خاص"
+    lead="بعضی محموله‌ها با روال معمول پیش نمی‌روند. برای کالاهای سنگین، حساس یا چندمرحله‌ای، از پیش از بارگیری برنامه می‌ریزیم."
+    crumbs={crumbs}
+  >
+    <div class="hero-actions">
+      <a class="btn" href="/contact/">
+        طرح پروژه
+        <Icon name="arrow" class="btn__icon" />
+      </a>
+      <a class="btn btn--ghost" href="#cases">نمونه پروژه‌ها</a>
+    </div>
+  </PageHero>
+
+  <section class="section" aria-labelledby="kinds-title">
+    <div class="container">
+      <header class="section-head section-head--split reveal">
+        <div>
+          <span class="eyebrow">چه پروژه‌هایی</span>
+          <h2 id="kinds-title">پروژه‌هایی که برنامهٔ ویژه می‌خواهند</h2>
+        </div>
+        <p class="lead">اگر محمولهٔ شما در یکی از این دسته‌ها قرار می‌گیرد، هرچه زودتر برنامه‌ریزی را شروع کنیم، هزینهٔ کمتری خواهد داشت.</p>
+      </header>
+      <ul class="tiles">
+        {
+          kinds.map((k) => (
+            <li class="tile reveal">
+              <span class="tile__icon">
+                <Icon name={k.icon} />
+              </span>
+              <h3>{k.title}</h3>
+              <p>{k.text}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section--alt section--grain" id="cases" aria-labelledby="cases-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="eyebrow">نمونه پروژه‌ها</span>
+        <h2 id="cases-title">چالش، راه‌حل، نتیجه</h2>
+      </header>
+      <div class="cases">
+        {
+          cases.map((c) => (
+            <article class="case reveal">
+              <h3>{c.title}</h3>
+              <dl>
+                <div>
+                  <dt>چالش</dt>
+                  <dd>{c.challenge}</dd>
+                </div>
+                <div>
+                  <dt>راه‌حل</dt>
+                  <dd>{c.solution}</dd>
+                </div>
+                <div class="case__result">
+                  <dt>نتیجه</dt>
+                  <dd>{c.result}</dd>
+                </div>
+              </dl>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--dark" aria-labelledby="diff-title">
+    <div class="container split">
+      <div class="stack reveal" style="--stack: 1rem">
+        <span class="eyebrow">تفاوت کار</span>
+        <h2 id="diff-title">پروژه‌های خاص را چطور مدیریت می‌کنیم؟</h2>
+        <p class="lead">تفاوت اصلی، زمان شروع برنامه‌ریزی است: پیش از آنکه کالا بارگیری شود.</p>
+      </div>
+      <ul class="checklist reveal">
+        {differences.map((d) => <li>{d}</li>)}
+      </ul>
+    </div>
+  </section>
+
+  <CtaBand title="پروژهٔ خاصی در پیش دارید؟" text="مشخصات کالا، ابعاد و وزن تقریبی و زمان مورد نیاز را بفرستید تا دربارهٔ مسیر و الزامات آن با شما صحبت کنیم." />
+</BaseLayout>
+
+<style>
+  .cases {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+    gap: 1.25rem;
+  }
+  .case {
+    display: grid;
+    gap: 1.1rem;
+    align-content: start;
+    padding: clamp(1.5rem, 3vw, 2rem);
+    border-radius: var(--radius-l);
+    background: var(--white);
+    border: 1px solid var(--rule);
+    border-top: 4px solid var(--petrol-600);
+  }
+  .case h3 {
+    font-size: var(--step-2);
+  }
+  .case dl {
+    margin: 0;
+    display: grid;
+    gap: 0.9rem;
+  }
+  .case dt {
+    font-size: var(--step--1);
+    font-weight: 800;
+    color: var(--petrol-600);
+  }
+  .case dd {
+    margin: 0.2rem 0 0;
+    color: var(--slate-700);
+  }
+  .case__result {
+    padding-top: 0.9rem;
+    border-top: 1px dashed var(--rule-strong);
+  }
+  .case__result dd {
+    font-weight: 700;
+    color: var(--navy-900);
+  }
+</style>

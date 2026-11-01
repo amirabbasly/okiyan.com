@@ -1,0 +1,132 @@
+---
+/**
+ * خدمات بازرگانی — SAMPLE CONTENT. Confirm the real scope of these services,
+ * then remove '/commercial-services/' from src/data/sample-pages.json.
+ */
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import PageHero from '~/components/layout/PageHero.astro';
+import CtaBand from '~/components/ui/CtaBand.astro';
+import Steps from '~/components/ui/Steps.astro';
+import Faq from '~/components/ui/Faq.astro';
+import Icon from '~/components/ui/Icon.astro';
+import { breadcrumbLd } from '~/lib/schema';
+
+const crumbs = [
+  { name: 'خانه', path: '/' },
+  { name: 'خدمات بازرگانی', path: '/commercial-services/' },
+];
+
+const services = [
+  { icon: 'users' as const, title: 'یافتن و ارزیابی تأمین‌کننده', text: 'معرفی چند تأمین‌کنندهٔ مناسب، مقایسهٔ پیشنهادها و بررسی سابقه و اعتبار آن‌ها.' },
+  { icon: 'doc' as const, title: 'مذاکره و تنظیم قرارداد خرید', text: 'روشن کردن شرایط تحویل، پرداخت، بسته‌بندی و اسناد لازم پیش از امضای قرارداد.' },
+  { icon: 'stamp' as const, title: 'ثبت سفارش و پیگیری مجوزها', text: 'آماده‌سازی اطلاعات ثبت سفارش و پیگیری مجوزهایی که کالا پیش از ورود به آن‌ها نیاز دارد.' },
+  { icon: 'briefcase' as const, title: 'هماهنگی پرداخت و اسناد', text: 'هماهنگی زمان‌بندی پرداخت با ارسال کالا و بررسی تطابق اسناد بانکی و تجاری.' },
+  { icon: 'check' as const, title: 'بازرسی پیش از حمل', text: 'هماهنگی بازرسی کمّی و کیفی کالا در مبدأ تا پیش از بارگیری از درستی سفارش مطمئن شوید.' },
+  { icon: 'route' as const, title: 'مشاورهٔ ساختار واردات', text: 'بررسی روش مناسب واردات بر اساس نوع کالا، حجم سفارش و برنامهٔ فروش شما.' },
+];
+
+const steps = [
+  { title: 'شناخت نیاز', text: 'مشخصات کالا، حجم، بودجه و زمان مورد نیاز را با هم مرور می‌کنیم.' },
+  { title: 'پیشنهاد تأمین‌کننده', text: 'چند گزینه را با مقایسهٔ قیمت، کیفیت و شرایط تحویل معرفی می‌کنیم.' },
+  { title: 'قرارداد و ثبت سفارش', text: 'شرایط قرارداد نهایی و اطلاعات ثبت سفارش هماهنگ می‌شود.' },
+  { title: 'پیگیری تولید و حمل', text: 'وضعیت آماده‌سازی و حمل کالا را پیگیری و گزارش می‌کنیم.' },
+  { title: 'تحویل به تیم ترخیص', text: 'پرونده با اسناد کامل برای ترخیص و تحویل آماده می‌شود.' },
+];
+
+const faqs = [
+  { q: 'آیا خرید کالا را هم انجام می‌دهید؟', a: 'نقش ما هماهنگی و مشاوره است. قرارداد خرید میان شما و تأمین‌کننده بسته می‌شود و ما در انتخاب، مذاکره و پیگیری همراهتان هستیم.' },
+  { q: 'برای ثبت سفارش، کارت بازرگانی لازم است؟', a: 'در بیشتر واردات تجاری بله. اگر کارت بازرگانی ندارید، دربارهٔ گزینه‌های قانونی موجود با شما صحبت می‌کنیم.' },
+  { q: 'هزینهٔ خدمات بازرگانی چطور محاسبه می‌شود؟', a: 'بسته به دامنهٔ کار، به‌صورت مبلغ ثابت یا درصدی از ارزش سفارش و پیش از شروع کار به‌صورت مکتوب اعلام می‌شود.' },
+];
+---
+
+<BaseLayout
+  title="خدمات بازرگانی؛ تأمین‌کننده، قرارداد و ثبت سفارش"
+  description="خدمات بازرگانی اوکیان: یافتن و ارزیابی تأمین‌کننده، مذاکره و قرارداد خرید، ثبت سفارش، هماهنگی پرداخت و بازرسی پیش از حمل کالا."
+  jsonLd={[breadcrumbLd(crumbs, Astro.site)]}
+>
+  <PageHero
+    eyebrow="خدمات"
+    title="خدمات بازرگانی"
+    lead="پیش از آنکه کالا به گمرک برسد، تصمیم‌های مهمی گرفته می‌شود. در انتخاب تأمین‌کننده، قرارداد و ثبت سفارش کنارتان هستیم تا مسیر واردات از ابتدا درست شروع شود."
+    crumbs={crumbs}
+  >
+    <div class="hero-actions">
+      <a class="btn" href="/contact/">
+        درخواست مشاوره
+        <Icon name="arrow" class="btn__icon" />
+      </a>
+      <a class="btn btn--ghost" href="#process">روند کار</a>
+    </div>
+  </PageHero>
+
+  <section class="section" aria-labelledby="services-title">
+    <div class="container">
+      <header class="section-head section-head--split reveal">
+        <div>
+          <span class="eyebrow">دامنهٔ خدمات</span>
+          <h2 id="services-title">از انتخاب تأمین‌کننده تا آماده شدن پرونده</h2>
+        </div>
+        <p class="lead">می‌توانید همهٔ این خدمات را بسپارید یا فقط بخشی را که به آن نیاز دارید.</p>
+      </header>
+      <ul class="tiles">
+        {
+          services.map((s) => (
+            <li class="tile reveal">
+              <span class="tile__icon">
+                <Icon name={s.icon} />
+              </span>
+              <h3>{s.title}</h3>
+              <p>{s.text}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section--alt section--grain" id="process" aria-labelledby="process-title">
+    <div class="container split split--wide">
+      <div class="stack sticky-head reveal" style="--stack: 1rem">
+        <span class="eyebrow">روند کار</span>
+        <h2 id="process-title">خدمات بازرگانی در پنج قدم</h2>
+        <p class="lead">هر قدم با یک خروجی مشخص تمام می‌شود تا همیشه بدانید پرونده کجاست.</p>
+      </div>
+      <Steps items={steps} />
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="fit-title">
+    <div class="container split">
+      <div class="stack prose-lite reveal" style="--stack: 1.1rem">
+        <span class="eyebrow">برای چه کسانی</span>
+        <h2 id="fit-title">این خدمات برای شماست اگر…</h2>
+        <p>
+          اولین بار است که واردات انجام می‌دهید، تأمین‌کنندهٔ مطمئنی در کشور مبدأ نمی‌شناسید، یا می‌خواهید پیش از پرداخت، از درستی سفارش و اسناد مطمئن شوید.
+          برای پرونده‌هایی که کالا خریداری شده و در راه است، <a href="/customs-clearance/">خدمات ترخیص کالا</a> مناسب‌تر است.
+        </p>
+      </div>
+      <aside class="fit-card reveal" aria-labelledby="bring-title">
+        <h3 id="bring-title">برای شروع، این‌ها را آماده کنید</h3>
+        <ul class="checklist">
+          <li>شرح کالا و مشخصات فنی</li>
+          <li>حجم تقریبی سفارش و بودجه</li>
+          <li>زمان مورد نیاز برای رسیدن کالا</li>
+          <li>تأمین‌کننده‌هایی که تا امروز بررسی کرده‌اید</li>
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section section--alt" aria-labelledby="faq-title">
+    <div class="container split split--wide">
+      <header class="stack reveal" style="--stack: 1rem">
+        <span class="eyebrow">پرسش‌های رایج</span>
+        <h2 id="faq-title">دربارهٔ خدمات بازرگانی</h2>
+      </header>
+      <Faq items={faqs} />
+    </div>
+  </section>
+
+  <CtaBand />
+</BaseLayout>

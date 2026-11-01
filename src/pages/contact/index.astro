@@ -2,10 +2,11 @@
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import PageHero from '~/components/layout/PageHero.astro';
 import ConsultForm from '~/components/forms/ConsultForm.astro';
+import ContactArt from '~/components/illustrations/ContactArt.astro';
 import Icon from '~/components/ui/Icon.astro';
 import Placeholder from '~/components/ui/Placeholder.astro';
 import { breadcrumbLd } from '~/lib/schema';
-import { site, contactChannels } from '~/config/site';
+import { site, contactChannels, formattedAddress } from '~/config/site';
 
 const crumbs = [
   { name: 'خانه', path: '/' },
@@ -25,7 +26,9 @@ const iconFor = { phone: 'phone', whatsapp: 'chat', telegram: 'send', email: 'ma
     title="درخواست مشاوره"
     lead="چند پرسش کوتاه دربارهٔ کالا و وضعیت محموله. با این اطلاعات، بررسی اولیه را انجام می‌دهیم و دربارهٔ قدم بعدی با شما صحبت می‌کنیم."
     crumbs={crumbs}
-  />
+  >
+    <ContactArt slot="art" />
+  </PageHero>
 
   <section class="section">
     <div class="container contact">
@@ -59,8 +62,20 @@ const iconFor = { phone: 'phone', whatsapp: 'chat', telegram: 'send', email: 'ma
             )
           }
           {site.contact.hours && <p class="muted">ساعات پاسخ‌گویی: {site.contact.hours}</p>}
-          <Placeholder field="تلفن، واتس‌اپ، تلگرام، ایمیل و ساعات پاسخ‌گویی (contact)" />
+          <Placeholder field="واتس‌اپ، تلگرام، ایمیل و ساعات پاسخ‌گویی (contact)" />
         </section>
+
+        {
+          formattedAddress() && (
+            <section class="side-card" aria-labelledby="office-title">
+              <h2 id="office-title">نشانی دفتر</h2>
+              <address class="office">
+                <Icon name="pin" />
+                <span>{formattedAddress()}</span>
+              </address>
+            </section>
+          )
+        }
 
         <section class="side-card side-card--dark on-dark" aria-labelledby="next-title">
           <h2 id="next-title">بعد از ارسال چه می‌شود؟</h2>
@@ -94,7 +109,7 @@ const iconFor = { phone: 'phone', whatsapp: 'chat', telegram: 'send', email: 'ma
     padding: clamp(1.25rem, 3vw, 2.5rem);
     border: 1px solid var(--rule);
     border-radius: var(--radius-l);
-    background: var(--ivory-100);
+    background: var(--mist-100);
   }
   .contact__aside {
     display: grid;
@@ -115,12 +130,12 @@ const iconFor = { phone: 'phone', whatsapp: 'chat', telegram: 'send', email: 'ma
   }
   .side-card--dark {
     background: var(--navy-900);
-    color: #c3cddc;
+    color: #c5cbd2;
     border-color: var(--navy-900);
   }
   .side-card--dark h2,
   .side-card--dark strong {
-    color: var(--ivory-50);
+    color: var(--white);
   }
   .channels {
     list-style: none;
@@ -139,10 +154,10 @@ const iconFor = { phone: 'phone', whatsapp: 'chat', telegram: 'send', email: 'ma
   }
   .channel:hover {
     border-color: var(--navy-900);
-    background: var(--ivory-100);
+    background: var(--mist-100);
   }
   .channel :global(svg) {
-    color: var(--gold-500);
+    color: var(--petrol-500);
   }
   .channel > span {
     display: grid;
@@ -155,6 +170,18 @@ const iconFor = { phone: 'phone', whatsapp: 'chat', telegram: 'send', email: 'ma
   .channel__value {
     font-weight: 700;
   }
+  .office {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.75rem;
+    align-items: start;
+    font-style: normal;
+    line-height: 1.9;
+  }
+  .office :global(svg) {
+    margin-top: 0.3rem;
+    color: var(--petrol-500);
+  }
   .next {
     padding-inline-start: 1.2rem;
     display: grid;
@@ -162,7 +189,7 @@ const iconFor = { phone: 'phone', whatsapp: 'chat', telegram: 'send', email: 'ma
     font-size: var(--step--1);
   }
   .next li::marker {
-    color: var(--gold-300);
+    color: var(--petrol-200);
     font-weight: 800;
   }
   @media (max-width: 960px) {

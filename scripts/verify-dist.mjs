@@ -4,6 +4,7 @@ import { readFile, readdir, stat } from 'node:fs/promises';
 import { join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { gzipSync } from 'node:zlib';
+import samplePages from '../src/data/sample-pages.json' with { type: 'json' };
 
 const dist = fileURLToPath(new URL('../dist/', import.meta.url));
 const errors = [];
@@ -45,6 +46,8 @@ for (const file of htmlFiles) {
   const page = pathOf(file);
   const html = await readFile(file, 'utf8');
   const is404 = page === '/404/';
+  // Pages still holding sample content: labelled, noindex and outside the sitemap.
+  const isSample = samplePages.pages.includes(page);
 
   if (!/<html lang="fa" dir="rtl"/.test(html)) err(page, 'missing <html lang="fa" dir="rtl">');
   const title = html.match(/<title>([^<]*)<\/title>/)?.[1];
@@ -79,6 +82,10 @@ for (const file of htmlFiles) {
   if (is404) {
     if (canonical) err(page, '404 page should not declare a canonical');
     if (!robotsMeta.includes('noindex')) err(page, '404 page must be noindex');
+  } else if (isSample) {
+    if (!robotsMeta.includes('noindex')) err(page, 'sample-content page must be noindex');
+    if (sitemapUrls.includes(origin + page)) err(page, 'sample-content page must not be in the sitemap');
+    if (!html.includes('class="sample-notice"')) err(page, 'sample-content page is missing its notice');
   } else {
     if (canonical !== origin + page) err(page, `canonical ${canonical} ≠ ${origin + page}`);
     if (!sitemapUrls.includes(origin + page)) err(page, 'missing from sitemap');

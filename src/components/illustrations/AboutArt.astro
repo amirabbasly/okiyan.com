@@ -1,0 +1,42 @@
+---
+/** About plate: the brand mark as a compass over a charted route. Decorative. */
+import { MARK, BRAND } from '~/data/brand';
+---
+
+<svg class="plate" direction="ltr" viewBox="0 0 420 360" width="420" height="360" aria-hidden="true" focusable="false">
+  <defs>
+    <radialGradient id="ab-glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#dbe8ef" stop-opacity="0.22"></stop>
+      <stop offset="1" stop-color="#dbe8ef" stop-opacity="0"></stop>
+    </radialGradient>
+  </defs>
+  <rect x="20" y="20" width="380" height="320" rx="26" fill="#162c47"></rect>
+  <circle cx="210" cy="180" r="150" fill="url(#ab-glow)"></circle>
+  <!-- chart rings and bearings -->
+  <g fill="none" stroke="#e8ecee">
+    <circle cx="210" cy="180" r="128" stroke-opacity="0.08"></circle>
+    <circle cx="210" cy="180" r="98" stroke-opacity="0.12" stroke-dasharray="2 6"></circle>
+    <path d="M210 40V320M70 180H350" stroke-opacity="0.08"></path>
+  </g>
+  <g stroke="#b9d1de" stroke-opacity="0.6" stroke-width="2">
+    <path d="M210 52v12M210 296v12M82 180h12M326 180h12"></path>
+  </g>
+  <!-- the OKIYAN mark (on-dark: light grey + light petrol) -->
+  <svg x="132" y="104" width="156" height="152" viewBox={MARK.viewBox}>
+    <path fill={BRAND.mist} d={MARK.left}></path>
+    <path fill={BRAND.petrolLight} d={MARK.right}></path>
+  </svg>
+  <!-- route along the lower chart -->
+  <path d="M84 290C150 300 150 250 210 250S300 300 350 270" fill="none" stroke="#b9d1de" stroke-opacity="0.5" stroke-width="2" stroke-dasharray="3 8" stroke-linecap="round"></path>
+  <circle cx="350" cy="270" r="7" fill="#8fb4c9"></circle>
+  <circle cx="84" cy="290" r="7" fill="none" stroke="#e8ecee" stroke-width="2.5"></circle>
+  <!-- north marker -->
+  <path d="M210 66l7 16h-14z" fill="#8fb4c9"></path>
+</svg>
+
+<style>
+  .plate {
+    width: 100%;
+    height: auto;
+  }
+</style>

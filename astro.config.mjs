@@ -4,13 +4,14 @@ import sitemap from '@astrojs/sitemap';
 import { loadEnv } from 'vite';
 import indexing from './integrations/indexing.mjs';
 import { guideLastmod } from './integrations/lastmod.mjs';
+import samplePages from './src/data/sample-pages.json' with { type: 'json' };
 
 const env = loadEnv(process.env.NODE_ENV ?? 'production', process.cwd(), '');
 
 /**
- * The canonical production origin. Set SITE_URL in the deployment environment.
- * The fallback uses the reserved `.example` TLD so a misconfigured build can never
- * point canonicals at somebody else's real domain.
+ * The canonical production origin (the domain in the OKIYAN.IR logo).
+ * Override with SITE_URL, e.g. for a staging host. Pick one host for production
+ * and 301-redirect the other (www.okiyan.ir → okiyan.ir) at the hosting level.
  */
 const RANGES = {
   arabic: 'U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+0897-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC',
@@ -18,14 +19,14 @@ const RANGES = {
 };
 
 /** One self-hosted Vazirmatn face (files copied from @fontsource/vazirmatn, OFL-1.1). */
-const face = (/** @type {400 | 800} */ weight, /** @type {'arabic' | 'latin'} */ subset) => ({
+const face = (/** @type {400 | 700 | 800} */ weight, /** @type {'arabic' | 'latin'} */ subset) => ({
   weight,
   style: /** @type {const} */ ('normal'),
   src: /** @type {[string]} */ ([`./src/assets/fonts/vazirmatn-${subset}-${weight}-normal.woff2`]),
   unicodeRange: /** @type {[string]} */ ([RANGES[subset]]),
 });
 
-const SITE_URL = (env.SITE_URL || 'https://okiyan.example').replace(/\/$/, '');
+const SITE_URL = (env.SITE_URL || 'https://okiyan.ir').replace(/\/$/, '');
 const IS_PRODUCTION = env.SITE_ENV === 'production';
 
 export default defineConfig({
@@ -37,8 +38,8 @@ export default defineConfig({
   prefetch: { prefetchAll: false, defaultStrategy: 'hover' },
   integrations: [
     sitemap({
-      // 404 and other utility routes never belong in the sitemap.
-      filter: (page) => !page.includes('/404'),
+      // 404 and pages still holding sample content (src/data/sample-pages.json) stay out.
+      filter: (page) => !page.includes('/404') && !samplePages.pages.includes(new URL(page).pathname),
       // lastmod only where we know the real edit date (guide front matter).
       serialize(item) {
         const date = guideLastmod(new URL(item.url).pathname);
@@ -60,13 +61,20 @@ export default defineConfig({
   },
   fonts: [
     {
-      // Self-hosted Vazirmatn (OFL): two weights × Arabic/Latin subsets, ~74 KB total.
+      // Self-hosted Vazirmatn (OFL): 400/700/800 × Arabic/Latin subsets (~112 KB, only 400+800 preloaded).
       provider: fontProviders.local(),
       name: 'Vazirmatn',
       cssVariable: '--font-vazirmatn',
       fallbacks: ['Tahoma', 'sans-serif'],
       options: {
-        variants: [face(400, 'arabic'), face(400, 'latin'), face(800, 'arabic'), face(800, 'latin')],
+        variants: [
+          face(400, 'arabic'),
+          face(400, 'latin'),
+          face(700, 'arabic'),
+          face(700, 'latin'),
+          face(800, 'arabic'),
+          face(800, 'latin'),
+        ],
       },
     },
   ],

@@ -5,6 +5,7 @@ import Header from '~/components/layout/Header.astro';
 import Footer from '~/components/layout/Footer.astro';
 import { organizationLd, websiteLd } from '~/lib/schema';
 import { warnMissingOnce } from '~/config/site';
+import { isSamplePage } from '~/lib/sample';
 
 warnMissingOnce();
 
@@ -13,7 +14,9 @@ export interface Props extends HeadProps {
   includeWebsiteLd?: boolean;
 }
 
-const { includeWebsiteLd = false, jsonLd = [], ...head } = Astro.props;
+const { includeWebsiteLd = false, jsonLd = [], noindex, ...head } = Astro.props;
+// Pages still holding dummy text are labelled and kept out of search (src/lib/sample.ts).
+const sample = isSamplePage(Astro.url.pathname);
 const graph = [organizationLd(Astro.site), ...(includeWebsiteLd ? [websiteLd(Astro.site)] : []), ...jsonLd];
 ---
 
@@ -21,12 +24,19 @@ const graph = [organizationLd(Astro.site), ...(includeWebsiteLd ? [websiteLd(Ast
 <html lang="fa" dir="rtl" class="no-js">
   <head>
     <script is:inline>document.documentElement.classList.replace('no-js', 'js');</script>
-    <BaseHead {...head} jsonLd={graph} />
+    <BaseHead {...head} noindex={noindex || sample} jsonLd={graph} />
     <slot name="head" />
   </head>
   <body>
     <a class="skip-link" href="#main">پرش به محتوای اصلی</a>
     <Header />
+    {
+      sample && (
+        <p class="sample-notice" role="note">
+          <strong>محتوای نمونه:</strong> متن و اعداد این صفحه موقت‌اند و به‌زودی با اطلاعات واقعی اوکیان جایگزین می‌شوند.
+        </p>
+      )
+    }
     <main id="main" tabindex="-1">
       <slot />
     </main>

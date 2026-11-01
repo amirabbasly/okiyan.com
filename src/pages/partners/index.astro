@@ -1,0 +1,182 @@
+---
+/**
+ * همکاران — SAMPLE CONTENT. Partner names below are placeholders («همکار نمونه»).
+ * Replace with real partners (and logos, with their permission), then remove
+ * '/partners/' from src/data/sample-pages.json.
+ */
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import PageHero from '~/components/layout/PageHero.astro';
+import CtaBand from '~/components/ui/CtaBand.astro';
+import Icon from '~/components/ui/Icon.astro';
+import { breadcrumbLd } from '~/lib/schema';
+
+const crumbs = [
+  { name: 'خانه', path: '/' },
+  { name: 'همکاران', path: '/partners/' },
+];
+
+const groups = [
+  {
+    title: 'خطوط کشتیرانی و فورواردرها',
+    text: 'برای رزرو فضا، پیگیری زمان حرکت و دریافت به‌موقع اسناد حمل.',
+    partners: ['همکار نمونهٔ ۱', 'همکار نمونهٔ ۲', 'همکار نمونهٔ ۳'],
+  },
+  {
+    title: 'حمل‌ونقل داخلی',
+    text: 'برای حمل کالا از بندر یا فرودگاه تا انبار، از کامیون معمولی تا حمل ترافیکی.',
+    partners: ['همکار نمونهٔ ۴', 'همکار نمونهٔ ۵'],
+  },
+  {
+    title: 'بیمه',
+    text: 'برای پوشش بیمهٔ باربری و مشاوره دربارهٔ شرایط بیمه‌نامه.',
+    partners: ['همکار نمونهٔ ۶', 'همکار نمونهٔ ۷'],
+  },
+  {
+    title: 'بازرسی و آزمایشگاه',
+    text: 'برای بازرسی پیش از حمل و آزمون‌های لازم در فرایند استاندارد.',
+    partners: ['همکار نمونهٔ ۸', 'همکار نمونهٔ ۹'],
+  },
+  {
+    title: 'انبارداری',
+    text: 'برای نگهداری کالا پیش و پس از ترخیص و تحویل مرحله‌ای.',
+    partners: ['همکار نمونهٔ ۱۰'],
+  },
+  {
+    title: 'مشاوران حقوقی و مالی',
+    text: 'برای بررسی قراردادهای خرید و موضوعات مالیاتی پرونده.',
+    partners: ['همکار نمونهٔ ۱۱', 'همکار نمونهٔ ۱۲'],
+  },
+];
+
+const principles = [
+  { icon: 'check' as const, title: 'انتخاب بر اساس سابقه', text: 'با شرکت‌هایی کار می‌کنیم که سابقهٔ کارشان را دیده‌ایم و پاسخ‌گویی‌شان را آزموده‌ایم.' },
+  { icon: 'doc' as const, title: 'شفافیت در هزینه', text: 'هزینهٔ خدمات همکاران جدا از کارمزد ما و با جزئیات اعلام می‌شود.' },
+  { icon: 'route' as const, title: 'یک نقطهٔ تماس', text: 'هماهنگی با همهٔ طرف‌ها را ما انجام می‌دهیم و شما فقط با یک نفر در ارتباطید.' },
+];
+
+const initial = (name: string) => name.replace('همکار نمونهٔ ', '');
+---
+
+<BaseLayout
+  title="همکاران؛ شبکهٔ حمل، بیمه و بازرسی"
+  description="همکاران اوکیان در حمل بین‌المللی و داخلی، بیمه، بازرسی و انبارداری؛ شبکه‌ای که کمک می‌کند ترخیص و واردات کالا بدون وقفه پیش برود."
+  jsonLd={[breadcrumbLd(crumbs, Astro.site)]}
+>
+  <PageHero
+    eyebrow="همکاران"
+    title="همکاران اوکیان"
+    lead="ترخیص و واردات کالا کار یک نفر نیست. برای هر مرحله، با شرکت‌هایی کار می‌کنیم که کیفیت کارشان را می‌شناسیم."
+    crumbs={crumbs}
+  />
+
+  <section class="section" aria-labelledby="groups-title">
+    <div class="container">
+      <header class="section-head section-head--split reveal">
+        <div>
+          <span class="eyebrow">شبکهٔ همکاری</span>
+          <h2 id="groups-title">در هر مرحله، با چه کسانی کار می‌کنیم؟</h2>
+        </div>
+        <p class="lead">همکاران ما بر اساس نوع کالا، مسیر حمل و نیاز هر پرونده انتخاب می‌شوند.</p>
+      </header>
+      <ul class="tiles">
+        {
+          groups.map((g) => (
+            <li class="tile reveal">
+              <h3>{g.title}</h3>
+              <p>{g.text}</p>
+              <ul class="partners">
+                {g.partners.map((p) => (
+                  <li>
+                    <span class="partners__logo" aria-hidden="true">
+                      {initial(p)}
+                    </span>
+                    {p}
+                  </li>
+                ))}
+              </ul>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section--alt section--grain" aria-labelledby="how-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="eyebrow">روش همکاری</span>
+        <h2 id="how-title">همکاران را چطور انتخاب می‌کنیم؟</h2>
+      </header>
+      <div class="tiles">
+        {
+          principles.map((p) => (
+            <div class="tile reveal">
+              <span class="tile__icon">
+                <Icon name={p.icon} />
+              </span>
+              <h3>{p.title}</h3>
+              <p>{p.text}</p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="join-title">
+    <div class="container split">
+      <div class="stack prose-lite reveal" style="--stack: 1.1rem">
+        <span class="eyebrow">همکاری با اوکیان</span>
+        <h2 id="join-title">می‌خواهید همکار ما شوید؟</h2>
+        <p>
+          اگر در حمل، بیمه، بازرسی، انبارداری یا خدمات بازرگانی فعالیت می‌کنید و به کیفیت و پاسخ‌گویی اهمیت می‌دهید، خوشحال می‌شویم با شما آشنا شویم.
+          معرفی کوتاهی از شرکت، حوزهٔ فعالیت و نمونه‌ای از سوابق خود را برای ما بفرستید.
+        </p>
+      </div>
+      <aside class="fit-card reveal" aria-labelledby="join-card-title">
+        <h3 id="join-card-title">برای شروع گفت‌وگو</h3>
+        <ul class="checklist">
+          <li>معرفی شرکت و حوزهٔ فعالیت</li>
+          <li>مسیرها، بنادر یا خدماتی که پوشش می‌دهید</li>
+          <li>یک راه تماس مستقیم</li>
+        </ul>
+        <a class="btn" href="/contact/">
+          تماس با ما
+          <Icon name="arrow" class="btn__icon" />
+        </a>
+      </aside>
+    </div>
+  </section>
+
+  <CtaBand />
+</BaseLayout>
+
+<style>
+  .partners {
+    list-style: none;
+    display: grid;
+    gap: 0.6rem;
+    margin-top: 0.25rem;
+    padding-top: 1rem;
+    border-top: 1px dashed var(--rule-strong);
+  }
+  .partners li {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 700;
+    color: var(--navy-900);
+  }
+  .partners__logo {
+    display: grid;
+    place-items: center;
+    inline-size: 2.5rem;
+    block-size: 2.5rem;
+    flex: none;
+    border-radius: 0.7rem;
+    background: var(--mist-100);
+    border: 1px solid var(--rule);
+    font-weight: 800;
+    color: var(--petrol-600);
+  }
+</style>

@@ -1,0 +1,32 @@
+---
+/**
+ * The OKIYAN mark: two interlocking crescents traced from the master logo.
+ * tone="color"   – deep navy + petrol blue, for light backgrounds
+ * tone="on-dark" – light grey + light petrol, for navy backgrounds
+ */
+import { MARK, BRAND } from '~/data/brand';
+
+export interface Props {
+  tone?: 'color' | 'on-dark';
+  class?: string;
+  /** Accessible name; omit when the mark sits next to the brand name. */
+  label?: string;
+}
+const { tone = 'color', class: className, label } = Astro.props;
+const left = tone === 'on-dark' ? BRAND.mist : BRAND.navy;
+const right = tone === 'on-dark' ? BRAND.petrolLight : BRAND.petrol;
+---
+
+<svg
+  class={className}
+  viewBox={MARK.viewBox}
+  width={MARK.width}
+  height={MARK.height}
+  role={label ? 'img' : undefined}
+  aria-label={label}
+  aria-hidden={label ? undefined : 'true'}
+  focusable="false"
+>
+  <path fill={left} d={MARK.left}></path>
+  <path fill={right} d={MARK.right}></path>
+</svg>

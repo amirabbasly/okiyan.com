@@ -21,8 +21,8 @@ const { initialP = 0 } = Astro.props;
 const f = computeFrame(initialP);
 const C = WORLD.container;
 
-// Palette (scene-local; brand navy / ivory / gold with warm lamp light)
-const LIT = '#f3d58f';
+// Palette (scene-local): brand navy and petrol at night, cool white lamp light
+const LIT = '#dbe8ef';
 const STEEL = '#c9d3e2';
 const STEEL_HI = '#e6ecf4';
 
@@ -41,20 +41,20 @@ const rnd = () => ((seed = (seed * 9301 + 49297) % 233280) / 233280);
 const windows = (x0: number, y: number, n: number, gap: number, w = 10, h = 7) =>
   Array.from({ length: n }, (_, i) => {
     const lit = rnd() > 0.3;
-    return `<rect x="${x0 + i * gap}" y="${y}" width="${w}" height="${h}" rx="1" fill="${lit ? LIT : '#0b1f3d'}" fill-opacity="${lit ? (0.55 + rnd() * 0.35).toFixed(2) : 0.9}"/>`;
+    return `<rect x="${x0 + i * gap}" y="${y}" width="${w}" height="${h}" rx="1" fill="${lit ? LIT : '#112237'}" fill-opacity="${lit ? (0.55 + rnd() * 0.35).toFixed(2) : 0.9}"/>`;
   }).join('');
 
 /** Quay-side lamp post with a soft pool of light. */
 const lamp = (x: number, h = 52, dir: 1 | -1 = -1) => `
   <circle cx="${x + dir * 9}" cy="${470 - h + 4}" r="34" fill="url(#j-lamp)"/>
-  <path d="M${x} 470V${470 - h}h${dir * 9}" fill="none" stroke="#7f93b0" stroke-width="2"/>
+  <path d="M${x} 470V${470 - h}h${dir * 9}" fill="none" stroke="#8a95a3" stroke-width="2"/>
   <rect x="${x + dir * 9 - 4}" y="${470 - h}" width="8" height="4" rx="1" fill="${LIT}"/>`;
 
 // Stars in the upper sky (view space).
-const stars = Array.from({ length: 26 }, () => ({ x: rnd() * 800, y: rnd() * 170, r: 0.6 + rnd() * 0.9, o: 0.25 + rnd() * 0.45 }));
+const stars = Array.from({ length: 44 }, () => ({ x: -500 + rnd() * 1800, y: rnd() * 170, r: 0.6 + rnd() * 0.9, o: 0.25 + rnd() * 0.45 }));
 
 const markers = [
-  { x: 2545, y: 214 },
+  { x: 2565, y: 208 },
   { x: 2120, y: 214 },
   { x: 1188, y: 118 },
   { x: 700, y: 296 },
@@ -62,7 +62,8 @@ const markers = [
 ];
 
 const sheetLabels = ['پیش‌فاکتور', 'کد تعرفه', 'مجوزها'];
-const docsAnchor = { x: 2545, y: 296 };
+/** Centre of the document board on the origin office roof. */
+const docsAnchor = { x: 2565, y: 298 };
 const craneCables = (tx: number, boomY: number, hookY: number) => ({
   l1: { x: tx - 30, y1: boomY + 10, y2: hookY },
   l2: { x: tx + 30, y1: boomY + 10, y2: hookY },
@@ -84,53 +85,55 @@ const lattice = (x0: number, x1: number, y: number, hgt: number) => {
   direction="ltr"
   viewBox="0 0 800 560"
   preserveAspectRatio="xMidYMid slice"
+  data-base-w="800"
+  data-base-h="560"
   aria-hidden="true"
   focusable="false"
   data-j="svg"
 >
   <defs>
     <linearGradient id="j-sky" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#061329"></stop>
-      <stop offset="0.38" stop-color="#0f2547"></stop>
-      <stop offset="0.5" stop-color="#22406a"></stop>
-      <stop offset="0.56" stop-color="#5a5f72"></stop>
-      <stop offset="0.6" stop-color="#3b4c6c"></stop>
-      <stop offset="1" stop-color="#16305a"></stop>
+      <stop offset="0" stop-color="#0b1727"></stop>
+      <stop offset="0.38" stop-color="#13263d"></stop>
+      <stop offset="0.5" stop-color="#1e3c58"></stop>
+      <stop offset="0.56" stop-color="#3f6278"></stop>
+      <stop offset="0.6" stop-color="#2d4c64"></stop>
+      <stop offset="1" stop-color="#183450"></stop>
     </linearGradient>
     <linearGradient id="j-sea" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#2b4a73"></stop>
-      <stop offset="0.12" stop-color="#1a3a64"></stop>
-      <stop offset="0.5" stop-color="#112c52"></stop>
-      <stop offset="1" stop-color="#081c3a"></stop>
+      <stop offset="0" stop-color="#2b5068"></stop>
+      <stop offset="0.12" stop-color="#1f415b"></stop>
+      <stop offset="0.5" stop-color="#16324a"></stop>
+      <stop offset="1" stop-color="#0f1e33"></stop>
     </linearGradient>
     <linearGradient id="j-horizon" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#f3d58f" stop-opacity="0.28"></stop>
-      <stop offset="1" stop-color="#f3d58f" stop-opacity="0"></stop>
+      <stop offset="0" stop-color="#dbe8ef" stop-opacity="0.28"></stop>
+      <stop offset="1" stop-color="#dbe8ef" stop-opacity="0"></stop>
     </linearGradient>
     <linearGradient id="j-quay" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#1b385f"></stop>
-      <stop offset="0.12" stop-color="#132c4f"></stop>
-      <stop offset="1" stop-color="#0a1d3a"></stop>
+      <stop offset="0" stop-color="#1f3b57"></stop>
+      <stop offset="0.12" stop-color="#172f47"></stop>
+      <stop offset="1" stop-color="#101f35"></stop>
     </linearGradient>
     <linearGradient id="j-bld" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#26497a"></stop>
-      <stop offset="1" stop-color="#1a375f"></stop>
+      <stop offset="0" stop-color="#284b66"></stop>
+      <stop offset="1" stop-color="#1c3953"></stop>
     </linearGradient>
     <radialGradient id="j-sun" cx="0.5" cy="0.5" r="0.5">
-      <stop offset="0" stop-color="#f6dc9c" stop-opacity="0.55"></stop>
-      <stop offset="0.35" stop-color="#e2b866" stop-opacity="0.18"></stop>
-      <stop offset="1" stop-color="#e2b866" stop-opacity="0"></stop>
+      <stop offset="0" stop-color="#d6e4ec" stop-opacity="0.55"></stop>
+      <stop offset="0.35" stop-color="#a9c6d6" stop-opacity="0.18"></stop>
+      <stop offset="1" stop-color="#a9c6d6" stop-opacity="0"></stop>
     </radialGradient>
     <radialGradient id="j-lamp" cx="0.5" cy="0.5" r="0.5">
-      <stop offset="0" stop-color="#f3d58f" stop-opacity="0.38"></stop>
-      <stop offset="1" stop-color="#f3d58f" stop-opacity="0"></stop>
+      <stop offset="0" stop-color="#dbe8ef" stop-opacity="0.38"></stop>
+      <stop offset="1" stop-color="#dbe8ef" stop-opacity="0"></stop>
     </radialGradient>
     <linearGradient id="j-beam" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#f3d58f" stop-opacity="0"></stop>
-      <stop offset="1" stop-color="#f3d58f" stop-opacity="0.5"></stop>
+      <stop offset="0" stop-color="#dbe8ef" stop-opacity="0"></stop>
+      <stop offset="1" stop-color="#dbe8ef" stop-opacity="0.5"></stop>
     </linearGradient>
     <pattern id="j-grid" width="40" height="40" patternUnits="userSpaceOnUse">
-      <path d="M40 0H0V40" fill="none" stroke="#f7f1e4" stroke-opacity="0.035" stroke-width="1"></path>
+      <path d="M40 0H0V40" fill="none" stroke="#e8ecee" stroke-opacity="0.035" stroke-width="1"></path>
     </pattern>
     <g id="j-box">
       <rect width={C.w} height={C.h} rx="1.5"></rect>
@@ -142,17 +145,17 @@ const lattice = (x0: number, x1: number, y: number, hgt: number) => {
   </defs>
 
   <!-- ===== Sky (static, view space) ===== -->
-  <rect width="800" height="560" fill="url(#j-sky)"></rect>
-  <g fill="#f7f1e4">
+  <rect x="-800" width="2400" height="560" fill="url(#j-sky)"></rect>
+  <g fill="#e8ecee">
     {stars.map((s) => <circle cx={s.x.toFixed(1)} cy={s.y.toFixed(1)} r={s.r.toFixed(2)} opacity={s.o.toFixed(2)} />)}
   </g>
-  <rect width="800" height="560" fill="url(#j-grid)"></rect>
+  <rect x="-800" width="2400" height="560" fill="url(#j-grid)"></rect>
 
   <!-- ===== Parallax backdrop: sun, skyline, cloud streaks (view space, shifted) ===== -->
   <g data-j="bg" transform={`translate(${bgShift.toFixed(1)} 0)`}>
     <circle cx="420" cy="292" r="150" fill="url(#j-sun)"></circle>
-    <circle cx="420" cy="296" r="26" fill="#f2d391"></circle>
-    <g fill="#f7f1e4">
+    <circle cx="420" cy="296" r="26" fill="#c9dce6"></circle>
+    <g fill="#e8ecee">
       <rect x="-520" y="118" width="210" height="4" rx="2" opacity="0.07"></rect>
       <rect x="-470" y="128" width="120" height="3" rx="1.5" opacity="0.05"></rect>
       <rect x="150" y="214" width="260" height="4" rx="2" opacity="0.1"></rect>
@@ -161,9 +164,9 @@ const lattice = (x0: number, x1: number, y: number, hgt: number) => {
       <rect x="900" y="132" width="230" height="4" rx="2" opacity="0.06"></rect>
     </g>
     <path
-      d="M-1100 330 L-1100 292 Q-980 268 -860 284 T-600 278 T-340 288 L-300 330Z M-260 330 L-260 300 Q-120 274 20 292 T300 286 T560 294 L600 330Z M700 330 L700 296 Q860 276 1000 290 T1300 288 L1300 330Z"
-      fill="#173359"></path>
-    <g fill="#1b3a63">
+      d="M-1100 330 L-1100 292 Q-980 268 -860 284 T-600 278 T-340 288 L-300 330Z M-260 330 L-260 300 Q-120 274 20 292 T300 286 T560 294 L600 330Z M700 330 L700 296 Q860 276 1000 290 T1300 288 T1700 292 L1700 330Z"
+      fill="#1b3650"></path>
+    <g fill="#1d3c57">
       <rect x="-760" y="258" width="22" height="74"></rect><rect x="-732" y="242" width="16" height="90"></rect><rect x="-710" y="266" width="28" height="66"></rect>
       <rect x="-200" y="256" width="18" height="76"></rect><rect x="-176" y="238" width="12" height="94"></rect><rect x="-158" y="264" width="30" height="68"></rect><rect x="-122" y="250" width="16" height="82"></rect>
       <rect x="200" y="262" width="24" height="70"></rect><rect x="230" y="248" width="14" height="84"></rect>
@@ -177,23 +180,24 @@ const lattice = (x0: number, x1: number, y: number, hgt: number) => {
     </g>
   </g>
 
+
   <!-- ===== World (camera space) ===== -->
   <g data-j="camera" transform={cameraTransform(f.camera)}>
     <!-- Sea, horizon glow -->
     <rect x="-400" y={WORLD.horizon} width="3600" height="420" fill="url(#j-sea)"></rect>
     <rect x="-400" y={WORLD.horizon} width="3600" height="46" fill="url(#j-horizon)"></rect>
-    <line x1="-400" y1={WORLD.horizon} x2="3200" y2={WORLD.horizon} stroke="#f3d58f" stroke-opacity="0.35"></line>
+    <line x1="-400" y1={WORLD.horizon} x2="3200" y2={WORLD.horizon} stroke="#dbe8ef" stroke-opacity="0.35"></line>
 
     <!-- Far shores with a few lights -->
-    <path d="M-400 372 L-400 352 Q-200 340 0 350 T420 346 T820 352 T1240 362 L1300 372Z" fill="#1a365e"></path>
-    <path d="M2000 372 L2060 360 Q2300 342 2520 352 T2900 344 T3200 352 L3200 372Z" fill="#1a365e"></path>
+    <path d="M-400 372 L-400 352 Q-200 340 0 350 T420 346 T820 352 T1240 362 L1300 372Z" fill="#1c3953"></path>
+    <path d="M2000 372 L2060 360 Q2300 342 2520 352 T2900 344 T3200 352 L3200 372Z" fill="#1c3953"></path>
     <g fill={LIT} opacity="0.65">
       <circle cx="60" cy="356" r="1.4"></circle><circle cx="230" cy="352" r="1.4"></circle><circle cx="520" cy="352" r="1.4"></circle>
       <circle cx="860" cy="357" r="1.4"></circle><circle cx="2330" cy="352" r="1.4"></circle><circle cx="2600" cy="353" r="1.4"></circle><circle cx="2950" cy="351" r="1.4"></circle>
     </g>
 
     <!-- Swell (independent loop; paused offscreen and for reduced motion) -->
-    <g class="j-waves" fill="none" stroke="#f7f1e4" stroke-linecap="round">
+    <g class="j-waves" fill="none" stroke="#e8ecee" stroke-linecap="round">
       <path d={wave(388, 1.2)} stroke-opacity="0.1" stroke-width="1"></path>
       <path d={wave(404, 1.6)} stroke-opacity="0.1" stroke-width="1"></path>
       <path d={wave(426, 2)} stroke-opacity="0.11" stroke-width="1.2"></path>
@@ -202,20 +206,20 @@ const lattice = (x0: number, x1: number, y: number, hgt: number) => {
       <path d={wave(540, 3.8)} stroke-opacity="0.1" stroke-width="1.8"></path>
     </g>
     <!-- Sun glitter on the water -->
-    <g fill="#f3d58f" opacity="0.22">
+    <g fill="#dbe8ef" opacity="0.22">
       <rect x="1500" y="380" width="60" height="2" rx="1"></rect><rect x="1470" y="392" width="40" height="2" rx="1"></rect>
       <rect x="1560" y="400" width="34" height="2" rx="1"></rect><rect x="1520" y="414" width="52" height="2" rx="1"></rect>
       <rect x="1600" y="388" width="24" height="2" rx="1"></rect>
     </g>
 
     <!-- Sea route: planned (dashed) and travelled (drawn) -->
-    <path d={ROUTE_D} fill="none" stroke="#dfc17f" stroke-opacity="0.45" stroke-width="2" stroke-dasharray="2 9" stroke-linecap="round"></path>
+    <path d={ROUTE_D} fill="none" stroke="#b9d1de" stroke-opacity="0.45" stroke-width="2" stroke-dasharray="2 9" stroke-linecap="round"></path>
     <path
       data-j="route"
       d={ROUTE_D}
       pathLength="1"
       fill="none"
-      stroke="#c9a24a"
+      stroke="#8fb4c9"
       stroke-width="3"
       stroke-linecap="round"
       stroke-dasharray="1 1"
@@ -223,23 +227,23 @@ const lattice = (x0: number, x1: number, y: number, hgt: number) => {
 
     <!-- ===== Destination land: road, warehouse, customs, port ===== -->
     <rect x="-400" y={WORLD.ground} width="1560" height="200" fill="url(#j-quay)"></rect>
-    <rect x="-400" y={WORLD.ground} width="1560" height="3" fill="#3a5f8f"></rect>
-    <path d="M1160 470V640" stroke="#f7f1e4" stroke-opacity="0.22" stroke-width="2"></path>
-    <path d="M-400 520H1160M-400 572H1160M-300 474V640M-100 474V640M100 474V640M300 474V640M500 474V640M700 474V640M900 474V640" stroke="#f7f1e4" stroke-opacity="0.035"></path>
-    <path d="M1080 471.5H1158" stroke="#c9a24a" stroke-width="3" stroke-dasharray="10 8"></path>
+    <rect x="-400" y={WORLD.ground} width="1560" height="3" fill="#3a6480"></rect>
+    <path d="M1160 470V640" stroke="#e8ecee" stroke-opacity="0.22" stroke-width="2"></path>
+    <path d="M-400 520H1160M-400 572H1160M-300 474V640M-100 474V640M100 474V640M300 474V640M500 474V640M700 474V640M900 474V640" stroke="#e8ecee" stroke-opacity="0.035"></path>
+    <path d="M1080 471.5H1158" stroke="#8fb4c9" stroke-width="3" stroke-dasharray="10 8"></path>
         <g fill={STEEL} fill-opacity="0.55">
       <rect x="1140" y="463" width="8" height="7" rx="2"></rect><rect x="1070" y="463" width="8" height="7" rx="2"></rect>
     </g>
 
     <!-- Road -->
-    <rect x="-400" y="473" width="1060" height="13" fill="#071731"></rect>
-    <path d="M-400 479.5H660" stroke="#f7f1e4" stroke-opacity="0.28" stroke-width="1.5" stroke-dasharray="14 12"></path>
+    <rect x="-400" y="473" width="1060" height="13" fill="#0c192b"></rect>
+    <path d="M-400 479.5H660" stroke="#e8ecee" stroke-opacity="0.28" stroke-width="1.5" stroke-dasharray="14 12"></path>
     <path
       data-j="trail"
       d="M600 479.5H250"
       pathLength="1"
       fill="none"
-      stroke="#c9a24a"
+      stroke="#8fb4c9"
       stroke-width="3"
       stroke-linecap="round"
       stroke-dasharray="1 1"
@@ -248,34 +252,34 @@ const lattice = (x0: number, x1: number, y: number, hgt: number) => {
     <!-- Destination warehouse -->
     <g>
       <path d="M30 470V384L145 344L262 384V470Z" fill="url(#j-bld)"></path>
-      <path d="M22 388L145 342L270 388" fill="none" stroke="#dfc17f" stroke-opacity="0.75" stroke-width="3" stroke-linejoin="round"></path>
-      <path d="M30 392H262" stroke="#f7f1e4" stroke-opacity="0.08"></path>
-      <rect x="138" y="402" width="102" height="68" fill="#061226"></rect>
-      <rect x="140" y="440" width="98" height="30" fill="#f3d58f" fill-opacity="0.18"></rect>
+      <path d="M22 388L145 342L270 388" fill="none" stroke="#b9d1de" stroke-opacity="0.75" stroke-width="3" stroke-linejoin="round"></path>
+      <path d="M30 392H262" stroke="#e8ecee" stroke-opacity="0.08"></path>
+      <rect x="138" y="402" width="102" height="68" fill="#0d1a2c"></rect>
+      <rect x="140" y="440" width="98" height="30" fill="#dbe8ef" fill-opacity="0.18"></rect>
       <g data-j="door" style={`transform: scaleY(${(1 - f.door * 0.86).toFixed(4)}); transform-origin: 189px 402px;`}>
-        <rect x="140" y="402" width="98" height="68" fill="#2f5583"></rect>
-        <path d="M140 412H238M140 422H238M140 432H238M140 442H238M140 452H238M140 462H238" stroke="#f7f1e4" stroke-opacity="0.2"></path>
+        <rect x="140" y="402" width="98" height="68" fill="#2e6282"></rect>
+        <path d="M140 412H238M140 422H238M140 432H238M140 442H238M140 452H238M140 462H238" stroke="#e8ecee" stroke-opacity="0.2"></path>
       </g>
       <g set:html={windows(48, 404, 3, 28, 16, 10)}></g>
-      <rect x="132" y="396" width="114" height="6" rx="1" fill="#2d5282"></rect>
-      <text x="189" y="376" text-anchor="middle" font-size="11" font-weight="800" fill="#dfc17f" opacity="0.9">انبار مقصد</text>
+      <rect x="132" y="396" width="114" height="6" rx="1" fill="#2b5170"></rect>
+      <text x="189" y="376" text-anchor="middle" font-size="11" font-weight="800" fill="#b9d1de" opacity="0.9">انبار مقصد</text>
     </g>
     <g set:html={lamp(300, 54, 1) + lamp(420, 54, -1)}></g>
     <g data-j="done" opacity={f.done > 0 ? 1 : 0}>
       <circle cx="236" cy="322" r="34" fill="url(#j-lamp)"></circle>
-      <circle cx="236" cy="322" r="20" fill="#0a1c38" stroke="#c9a24a" stroke-width="3" pathLength="1" stroke-dasharray="1 1" stroke-dashoffset={(1 - f.done).toFixed(4)} transform="rotate(-90 236 322)"></circle>
-      <path d="M227 322.5l6.5 6.5 12-13" fill="none" stroke="#dfc17f" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" pathLength="1" stroke-dasharray="1 1" stroke-dashoffset={(1 - f.done).toFixed(4)}></path>
+      <circle cx="236" cy="322" r="20" fill="#162c47" stroke="#8fb4c9" stroke-width="3" pathLength="1" stroke-dasharray="1 1" stroke-dashoffset={(1 - f.done).toFixed(4)} transform="rotate(-90 236 322)"></circle>
+      <path d="M227 322.5l6.5 6.5 12-13" fill="none" stroke="#b9d1de" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" pathLength="1" stroke-dasharray="1 1" stroke-dashoffset={(1 - f.done).toFixed(4)}></path>
     </g>
 
     <!-- Customs house -->
     <g>
       <rect x="440" y="384" width="310" height="86" fill="url(#j-bld)"></rect>
-      <rect x="430" y="376" width="330" height="10" rx="1" fill="#2d5282"></rect>
-      <rect x="430" y="376" width="330" height="2" fill="#dfc17f" fill-opacity="0.5"></rect>
-      <path d="M470 392V470M520 392V470M670 392V470M720 392V470" stroke="#f7f1e4" stroke-opacity="0.13" stroke-width="7"></path>
+      <rect x="430" y="376" width="330" height="10" rx="1" fill="#2b5170"></rect>
+      <rect x="430" y="376" width="330" height="2" fill="#b9d1de" fill-opacity="0.5"></rect>
+      <path d="M470 392V470M520 392V470M670 392V470M720 392V470" stroke="#e8ecee" stroke-opacity="0.13" stroke-width="7"></path>
       <g set:html={windows(538, 400, 4, 30, 16, 12) + windows(538, 424, 4, 30, 16, 12)}></g>
-      <rect x="548" y="346" width="96" height="28" rx="3" fill="#0a1c38" stroke="#dfc17f" stroke-width="1.5"></rect>
-      <text x="596" y="366" text-anchor="middle" font-size="15" font-weight="800" fill="#f3d58f">گمرک</text>
+      <rect x="548" y="346" width="96" height="28" rx="3" fill="#162c47" stroke="#b9d1de" stroke-width="1.5"></rect>
+      <text x="596" y="366" text-anchor="middle" font-size="15" font-weight="800" fill="#dbe8ef">گمرک</text>
     </g>
     <g set:html={lamp(790, 50, -1)}></g>
 
@@ -283,15 +287,15 @@ const lattice = (x0: number, x1: number, y: number, hgt: number) => {
     <g data-j="stamp-card" opacity={f.stamp.card.toFixed(3)}>
       <g transform="translate(560 250)">
         <rect x="3" y="5" width="72" height="88" rx="4" fill="#000" fill-opacity="0.25"></rect>
-        <rect width="72" height="88" rx="4" fill="#f4eee0"></rect>
-        <rect width="72" height="14" rx="4" fill="#2a4c7a"></rect>
-        <path d="M12 26H60M12 38H52M12 50H58M12 62H40" stroke="#0a1c38" stroke-opacity="0.35" stroke-width="3" stroke-linecap="round"></path>
+        <rect width="72" height="88" rx="4" fill="#e8ecee"></rect>
+        <rect width="72" height="14" rx="4" fill="#2e6282"></rect>
+        <path d="M12 26H60M12 38H52M12 50H58M12 62H40" stroke="#162c47" stroke-opacity="0.35" stroke-width="3" stroke-linecap="round"></path>
         <g data-j="stamp-mark" opacity={f.stamp.mark.toFixed(3)}>
-          <circle cx="48" cy="70" r="13" fill="none" stroke="#a8832f" stroke-width="2.5"></circle>
-          <path d="M42 70.5l4.2 4.2 7.8-8.6" fill="none" stroke="#a8832f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
+          <circle cx="48" cy="70" r="13" fill="none" stroke="#2e6282" stroke-width="2.5"></circle>
+          <path d="M42 70.5l4.2 4.2 7.8-8.6" fill="none" stroke="#2e6282" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
         </g>
         <g data-j="stamp" transform={`translate(0 ${(-34 + 30 * f.stamp.press).toFixed(2)})`} opacity={f.stamp.press > 0.02 ? 1 : 0}>
-          <rect x="36" y="46" width="24" height="8" rx="2" fill="#c9a24a"></rect>
+          <rect x="36" y="46" width="24" height="8" rx="2" fill="#8fb4c9"></rect>
           <rect x="44" y="30" width="8" height="16" rx="3" fill={STEEL_HI}></rect>
           <circle cx="48" cy="28" r="6" fill={STEEL_HI}></circle>
         </g>
@@ -300,9 +304,9 @@ const lattice = (x0: number, x1: number, y: number, hgt: number) => {
 
     <!-- Container stacks on the quay (other cargo) -->
     <g>
-      <use href="#j-box" x="800" y="428" fill="#2f5583"></use>
-      <use href="#j-box" x="898" y="428" fill="#3f6b78"></use>
-      <use href="#j-box" x="849" y="386" fill="#6b4f45"></use>
+      <use href="#j-box" x="800" y="428" fill="#2e6282"></use>
+      <use href="#j-box" x="898" y="428" fill="#234d66"></use>
+      <use href="#j-box" x="849" y="386" fill="#5a6472"></use>
     </g>
 
     <!-- Scanner arch (back posts + beam) -->
@@ -310,7 +314,7 @@ const lattice = (x0: number, x1: number, y: number, hgt: number) => {
       <rect x="643" y="392" width="7" height="78" fill={STEEL}></rect>
       <rect x="643" y="386" width="122" height="8" rx="1" fill={STEEL}></rect>
       <circle cx="652" cy="390" r="2" fill={LIT}></circle><circle cx="756" cy="390" r="2" fill={LIT}></circle>
-      <rect data-j="scan-beam" x="650" y="394" width="108" height="76" fill="#dfc17f" opacity={(f.scan.beam * 0.16).toFixed(3)}></rect>
+      <rect data-j="scan-beam" x="650" y="394" width="108" height="76" fill="#b9d1de" opacity={(f.scan.beam * 0.16).toFixed(3)}></rect>
     </g>
 
     <!-- Destination STS crane -->
@@ -319,39 +323,39 @@ const lattice = (x0: number, x1: number, y: number, hgt: number) => {
       <path d="M1010 330H1120M1010 330L1120 400M1120 330L1010 400M1010 260H1120M1010 260L1120 300M1120 260L1010 300" stroke-width="2.5"></path>
       <path d="M1010 216L1065 132L1120 216M1065 132L895 220M1065 132L1480 220" stroke-width="2.5"></path>
     </g>
-    <rect x="1000" y="462" width="30" height="8" rx="2" fill="#7f93b0"></rect>
-    <rect x="1100" y="462" width="30" height="8" rx="2" fill="#7f93b0"></rect>
+    <rect x="1000" y="462" width="30" height="8" rx="2" fill="#8a95a3"></rect>
+    <rect x="1100" y="462" width="30" height="8" rx="2" fill="#8a95a3"></rect>
     <rect x="895" y="214" width="590" height="14" rx="1" fill={STEEL}></rect>
-    <path d={lattice(900, 1478, 215, 12)} fill="none" stroke="#0a1c38" stroke-opacity="0.28" stroke-width="1.2"></path>
+    <path d={lattice(900, 1478, 215, 12)} fill="none" stroke="#162c47" stroke-opacity="0.28" stroke-width="1.2"></path>
     <rect x="1030" y="194" width="70" height="20" rx="2" fill={STEEL_HI}></rect>
-    <rect x="1038" y="199" width="54" height="6" rx="1" fill="#1b3961"></rect>
-    <circle cx="1065" cy="132" r="3" fill="#f2a65a"></circle>
+    <rect x="1038" y="199" width="54" height="6" rx="1" fill="#234d66"></rect>
+    <circle cx="1065" cy="132" r="3" fill="#b9d1de"></circle>
     <circle cx="1482" cy="221" r="2.5" fill={LIT}></circle><circle cx="897" cy="221" r="2.5" fill={LIT}></circle>
     <g data-j="dc-rig">
       <line data-j="dc-l1" x1={dc.l1.x} y1={dc.l1.y1} x2={dc.l1.x} y2={dc.l1.y2} stroke={STEEL_HI} stroke-width="1.6"></line>
       <line data-j="dc-l2" x1={dc.l2.x} y1={dc.l2.y1} x2={dc.l2.x} y2={dc.l2.y2} stroke={STEEL_HI} stroke-width="1.6"></line>
-      <rect data-j="dc-trolley" x={f.destCrane.tx - 38} y="228" width="76" height="12" rx="2" fill="#f4eee0"></rect>
-      <rect data-j="dc-spreader" x={f.destCrane.tx - 50} y={f.destCrane.hookY} width="100" height="5" rx="1" fill="#dfc17f"></rect>
+      <rect data-j="dc-trolley" x={f.destCrane.tx - 38} y="228" width="76" height="12" rx="2" fill="#e8ecee"></rect>
+      <rect data-j="dc-spreader" x={f.destCrane.tx - 50} y={f.destCrane.hookY} width="100" height="5" rx="1" fill="#b9d1de"></rect>
     </g>
 
     <!-- ===== Origin land: yard, crane, office ===== -->
     <rect x="2150" y={WORLD.ground} width="1100" height="200" fill="url(#j-quay)"></rect>
-    <rect x="2150" y={WORLD.ground} width="1100" height="3" fill="#3a5f8f"></rect>
-    <path d="M2150 470V640" stroke="#f7f1e4" stroke-opacity="0.22" stroke-width="2"></path>
-    <path d="M2150 520H3250M2150 572H3250M2300 474V640M2500 474V640M2700 474V640M2900 474V640" stroke="#f7f1e4" stroke-opacity="0.035"></path>
-    <path d="M2152 471.5H2230" stroke="#c9a24a" stroke-width="3" stroke-dasharray="10 8"></path>
+    <rect x="2150" y={WORLD.ground} width="1100" height="3" fill="#3a6480"></rect>
+    <path d="M2150 470V640" stroke="#e8ecee" stroke-opacity="0.22" stroke-width="2"></path>
+    <path d="M2150 520H3250M2150 572H3250M2300 474V640M2500 474V640M2700 474V640M2900 474V640" stroke="#e8ecee" stroke-opacity="0.035"></path>
+    <path d="M2152 471.5H2230" stroke="#8fb4c9" stroke-width="3" stroke-dasharray="10 8"></path>
     <g>
       <rect x="2420" y="372" width="270" height="98" fill="url(#j-bld)"></rect>
-      <path d="M2420 372l45-24v24l45-24v24l45-24v24l45-24v24l45-24v24l45-24v24" fill="#2d5282"></path>
-      <path d="M2420 372l45-24M2465 372l45-24M2510 372l45-24M2555 372l45-24M2600 372l45-24M2645 372l45-24" stroke="#dfc17f" stroke-opacity="0.5" stroke-width="2"></path>
+      <path d="M2420 372l45-24v24l45-24v24l45-24v24l45-24v24l45-24v24l45-24v24" fill="#2b5170"></path>
+      <path d="M2420 372l45-24M2465 372l45-24M2510 372l45-24M2555 372l45-24M2600 372l45-24M2645 372l45-24" stroke="#b9d1de" stroke-opacity="0.5" stroke-width="2"></path>
       <g set:html={windows(2440, 390, 8, 20, 12, 9)}></g>
-      <rect x="2600" y="420" width="60" height="50" fill="#061226"></rect>
-      <rect x="2600" y="446" width="60" height="24" fill="#f3d58f" fill-opacity="0.16"></rect>
+      <rect x="2600" y="420" width="60" height="50" fill="#0d1a2c"></rect>
+      <rect x="2600" y="446" width="60" height="24" fill="#dbe8ef" fill-opacity="0.16"></rect>
     </g>
     <g set:html={lamp(2365, 56, 1) + lamp(2720, 50, -1)}></g>
     <g>
-      <use href="#j-box" x="2330" y="428" fill="#2f5583"></use>
-      <use href="#j-box" x="2330" y="386" fill="#3f6b78"></use>
+      <use href="#j-box" x="2330" y="428" fill="#2e6282"></use>
+      <use href="#j-box" x="2330" y="386" fill="#234d66"></use>
     </g>
 
     <!-- Origin crane -->
@@ -360,41 +364,62 @@ const lattice = (x0: number, x1: number, y: number, hgt: number) => {
       <path d="M2190 360H2300M2190 360L2300 430M2300 360L2190 430M2190 300H2300M2190 300L2300 330M2300 300L2190 330" stroke-width="2.2"></path>
     </g>
     <rect x="1925" y="255" width="425" height="11" rx="1" fill={STEEL}></rect>
-    <path d={lattice(1930, 2346, 256, 9)} fill="none" stroke="#0a1c38" stroke-opacity="0.28" stroke-width="1.1"></path>
+    <path d={lattice(1930, 2346, 256, 9)} fill="none" stroke="#162c47" stroke-opacity="0.28" stroke-width="1.1"></path>
     <rect x="2212" y="237" width="66" height="18" rx="2" fill={STEEL_HI}></rect>
-    <rect x="2219" y="242" width="52" height="5" rx="1" fill="#1b3961"></rect>
+    <rect x="2219" y="242" width="52" height="5" rx="1" fill="#234d66"></rect>
     <circle cx="1927" cy="260" r="2.5" fill={LIT}></circle>
     <g data-j="oc-rig">
       <line data-j="oc-l1" x1={oc.l1.x} y1={oc.l1.y1} x2={oc.l1.x} y2={oc.l1.y2} stroke={STEEL_HI} stroke-width="1.6"></line>
       <line data-j="oc-l2" x1={oc.l2.x} y1={oc.l2.y1} x2={oc.l2.x} y2={oc.l2.y2} stroke={STEEL_HI} stroke-width="1.6"></line>
-      <rect data-j="oc-trolley" x={f.originCrane.tx - 38} y="266" width="76" height="10" rx="2" fill="#f4eee0"></rect>
-      <rect data-j="oc-spreader" x={f.originCrane.tx - 50} y={f.originCrane.hookY} width="100" height="5" rx="1" fill="#dfc17f"></rect>
+      <rect data-j="oc-trolley" x={f.originCrane.tx - 38} y="266" width="76" height="10" rx="2" fill="#e8ecee"></rect>
+      <rect data-j="oc-spreader" x={f.originCrane.tx - 50} y={f.originCrane.hookY} width="100" height="5" rx="1" fill="#b9d1de"></rect>
     </g>
 
-    <!-- Documents (stage 1) -->
+    <!-- Documents (stage 1): a lit board on the office roof with three pinned sheets -->
     <g data-j="docs" opacity={f.docs.dim.toFixed(3)} transform={`translate(${docsAnchor.x} ${docsAnchor.y})`}>
-      <circle cx="0" cy="0" r="110" fill="url(#j-lamp)" opacity="0.7"></circle>
+      <circle cx="0" cy="10" r="130" fill="url(#j-lamp)" opacity="0.55"></circle>
+      <path d="M-78 52V76M78 52V76" stroke="#8a95a3" stroke-width="5" stroke-linecap="round"></path>
+      <path d="M-78 64H78" stroke="#8a95a3" stroke-width="2.5"></path>
+      <rect x="-114" y="-58" width="228" height="112" rx="6" fill="#183450" stroke="#3a6480" stroke-width="2"></rect>
+      <rect x="-114" y="-58" width="228" height="4" rx="2" fill="#8fb4c9" fill-opacity="0.8"></rect>
+      <g fill={LIT}>
+        <rect x="-66" y="53" width="14" height="4" rx="1.5"></rect>
+        <rect x="52" y="53" width="14" height="4" rx="1.5"></rect>
+      </g>
       {
         f.docs.sheets.map((s, i) => (
-          <g data-j={`sheet-${i}`} opacity={s.o.toFixed(3)} transform={`translate(${(s.dx + (i - 1) * SHEET_SPREAD).toFixed(2)} ${s.dy.toFixed(2)}) rotate(${s.r.toFixed(2)})`}>
+          <g data-j={`sheet-${i}`} opacity={s.o.toFixed(3)} transform={`translate(${(s.dx + (i - 1) * SHEET_SPREAD).toFixed(2)} ${s.dy.toFixed(2)}) rotate(${s.r.toFixed(2)} 0 -40)`}>
             <rect x="-27" y="-36" width="60" height="78" rx="4" fill="#000" fill-opacity="0.22" />
-            <rect x="-30" y="-40" width="60" height="78" rx="4" fill="#f7f2e6" />
-            <rect x="-30" y="-40" width="60" height="15" rx="4" fill={i === 1 ? '#c9a24a' : '#2a4c7a'} />
-            <text x="0" y="-29" text-anchor="middle" font-size="9" font-weight="800" fill={i === 1 ? '#0a1c38' : '#f7f1e4'}>
+            <rect x="-30" y="-40" width="60" height="78" rx="4" fill="#ffffff" />
+            <rect x="-30" y="-40" width="60" height="15" rx="4" fill={i === 1 ? '#8fb4c9' : '#2e6282'} />
+            <text x="0" y="-29" text-anchor="middle" font-size="9" font-weight="800" fill={i === 1 ? '#162c47' : '#e8ecee'}>
               {sheetLabels[i]}
             </text>
-            <path d="M-20 -12H20M-20 -2H14M-20 8H20M-20 18H6" stroke="#0a1c38" stroke-opacity="0.3" stroke-width="2.5" stroke-linecap="round" />
-            <rect x="8" y="22" width="14" height="10" rx="2" fill="none" stroke="#0a1c38" stroke-opacity="0.25" stroke-width="1.5" />
+            <path d="M-20 -12H20M-20 -2H14M-20 8H20M-20 18H6" stroke="#162c47" stroke-opacity="0.3" stroke-width="2.5" stroke-linecap="round" />
+            <rect x="8" y="21" width="14" height="12" rx="2" fill="none" stroke="#162c47" stroke-opacity="0.3" stroke-width="1.5" />
+            <path
+              data-j={`sheet-tick-${i}`}
+              d="M10.5 27l3 3.2 6.5-7"
+              fill="none"
+              stroke="#234d66"
+              stroke-width="2.6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              pathLength="1"
+              stroke-dasharray="1 1"
+              stroke-dashoffset={(1 - s.tick).toFixed(4)}
+            />
+            <circle cx="0" cy="-40" r="3.4" fill="#8fb4c9" stroke="#162c47" stroke-opacity="0.4" />
           </g>
         ))
       }
       <g data-j="docs-check" opacity={f.docs.check > 0 ? 1 : 0}>
-        <circle cx="86" cy="32" r="17" fill="#0a1c38" stroke="#c9a24a" stroke-width="2.5"></circle>
+        <circle cx="104" cy="44" r="17" fill="#162c47" stroke="#8fb4c9" stroke-width="2.5"></circle>
         <path
           data-j="docs-check-path"
-          d="M78 32.5l5.5 5.5 10-11"
+          d="M96 44.5l5.5 5.5 10-11"
           fill="none"
-          stroke="#dfc17f"
+          stroke="#b9d1de"
           stroke-width="3"
           stroke-linecap="round"
           stroke-linejoin="round"
@@ -408,32 +433,32 @@ const lattice = (x0: number, x1: number, y: number, hgt: number) => {
     <g data-j="ship" transform={`translate(${f.ship.x.toFixed(2)} ${f.ship.y.toFixed(2)}) rotate(${f.ship.a.toFixed(3)}) scale(${f.ship.s.toFixed(4)})`}>
       <!-- reflection + wake (wake fades in at sea) -->
       <ellipse cx="0" cy="12" rx="150" ry="7" fill="#000" fill-opacity="0.22"></ellipse>
-      <g data-j="wake" opacity={(f.atSea * 0.9).toFixed(3)} fill="none" stroke="#f7f1e4" stroke-linecap="round">
+      <g data-j="wake" opacity={(f.atSea * 0.9).toFixed(3)} fill="none" stroke="#e8ecee" stroke-linecap="round">
         <path d="M142 4 Q190 10 250 6" stroke-opacity="0.45" stroke-width="2.5"></path>
         <path d="M150 9 Q210 16 300 12" stroke-opacity="0.25" stroke-width="2"></path>
         <path d="M-150 2 Q-170 8 -190 5" stroke-opacity="0.4" stroke-width="2"></path>
       </g>
-      <rect x="-148" y="-72" width="58" height="42" rx="1.5" fill="#2f5583"></rect>
-      <rect x="18" y="-72" width="52" height="42" rx="1.5" fill="#3f6b78"></rect>
+      <rect x="-148" y="-72" width="58" height="42" rx="1.5" fill="#2e6282"></rect>
+      <rect x="18" y="-72" width="52" height="42" rx="1.5" fill="#234d66"></rect>
       <path d="M-140 -68V-34M-130 -68V-34M-120 -68V-34M-110 -68V-34M-100 -68V-34M26 -68V-34M36 -68V-34M46 -68V-34M56 -68V-34" stroke="#000" stroke-opacity="0.16" stroke-width="2"></path>
       <!-- hull with raked bow (left) -->
-      <path d="M-162 -32L148 -32L140 -2Q137 6 128 6L-118 6Q-132 6 -140 -4Z" fill="#ece4d2"></path>
-      <path d="M-143 -8L141 -8L140 -2Q137 6 128 6L-118 6Q-132 6 -140 -4Z" fill="#7a3a2f"></path>
-      <path d="M-160 -31H146" stroke="#c9a24a" stroke-width="2"></path>
-      <g fill="#0a1c38" fill-opacity="0.35">
+      <path d="M-162 -32L148 -32L140 -2Q137 6 128 6L-118 6Q-132 6 -140 -4Z" fill="#e3e7ea"></path>
+      <path d="M-143 -8L141 -8L140 -2Q137 6 128 6L-118 6Q-132 6 -140 -4Z" fill="#3b4554"></path>
+      <path d="M-160 -31H146" stroke="#8fb4c9" stroke-width="2"></path>
+      <g fill="#162c47" fill-opacity="0.35">
         <circle cx="-120" cy="-19" r="2"></circle><circle cx="-60" cy="-19" r="2"></circle><circle cx="0" cy="-19" r="2"></circle><circle cx="60" cy="-19" r="2"></circle>
       </g>
       <!-- superstructure -->
-      <rect x="74" y="-88" width="54" height="58" rx="2" fill="#f4eee0"></rect>
-      <rect x="70" y="-92" width="62" height="6" rx="1.5" fill="#dcd3bf"></rect>
+      <rect x="74" y="-88" width="54" height="58" rx="2" fill="#e8ecee"></rect>
+      <rect x="70" y="-92" width="62" height="6" rx="1.5" fill="#cfd5db"></rect>
       <rect x="78" y="-82" width="46" height="8" rx="1" fill={LIT} fill-opacity="0.85"></rect>
-      <path d="M82 -64H120M82 -52H120M82 -40H120" stroke="#0a1c38" stroke-opacity="0.22" stroke-width="2.5"></path>
-      <rect x="100" y="-110" width="16" height="18" fill="#1b3961"></rect>
-      <rect x="100" y="-105" width="16" height="4" fill="#c9a24a"></rect>
-      <path d="M-146 -32V-66" stroke="#f4eee0" stroke-width="2.5"></path>
+      <path d="M82 -64H120M82 -52H120M82 -40H120" stroke="#162c47" stroke-opacity="0.22" stroke-width="2.5"></path>
+      <rect x="100" y="-110" width="16" height="18" fill="#234d66"></rect>
+      <rect x="100" y="-105" width="16" height="4" fill="#8fb4c9"></rect>
+      <path d="M-146 -32V-66" stroke="#e8ecee" stroke-width="2.5"></path>
       <circle cx="-146" cy="-67" r="2.2" fill={LIT}></circle>
-      <path d="M118 -110V-122" stroke="#f4eee0" stroke-width="1.5"></path>
-      <circle cx="118" cy="-123" r="1.8" fill="#f2a65a"></circle>
+      <path d="M118 -110V-122" stroke="#e8ecee" stroke-width="1.5"></path>
+      <circle cx="118" cy="-123" r="1.8" fill="#b9d1de"></circle>
     </g>
 
     <!-- Scanner arch (front post) -->
@@ -443,15 +468,15 @@ const lattice = (x0: number, x1: number, y: number, hgt: number) => {
     <g data-j="truck" transform={`translate(${f.truckX.toFixed(2)} 0)`}>
       <path d="M0 446L-70 434V472L0 460Z" fill="url(#j-beam)" opacity="0.55"></path>
       <ellipse cx="78" cy="471" rx="82" ry="3.5" fill="#000" fill-opacity="0.3"></ellipse>
-      <rect x="44" y="446" width="110" height="7" rx="1.5" fill="#0a1c38" stroke="#8fa3c0" stroke-width="1.2"></rect>
-      <path d="M4 458V434Q4 422 16 422H48V458Z" fill="#ece4d2"></path>
-      <path d="M8 444V436Q8 428 16 428H28V444Z" fill="#1b3961"></path>
-      <path d="M10 440L20 430" stroke="#f7f1e4" stroke-opacity="0.35" stroke-width="2"></path>
-      <rect x="4" y="448" width="44" height="3" fill="#c9a24a"></rect>
+      <rect x="44" y="446" width="110" height="7" rx="1.5" fill="#162c47" stroke="#a8b0ba" stroke-width="1.2"></rect>
+      <path d="M4 458V434Q4 422 16 422H48V458Z" fill="#e3e7ea"></path>
+      <path d="M8 444V436Q8 428 16 428H28V444Z" fill="#234d66"></path>
+      <path d="M10 440L20 430" stroke="#e8ecee" stroke-opacity="0.35" stroke-width="2"></path>
+      <rect x="4" y="448" width="44" height="3" fill="#8fb4c9"></rect>
       <rect x="0" y="450" width="8" height="9" rx="1.5" fill={STEEL}></rect>
       <rect x="1" y="444" width="5" height="4" rx="1" fill={LIT}></rect>
-      <rect x="36" y="426" width="4" height="32" fill="#0a1c38" fill-opacity="0.18"></rect>
-      <g fill="#061226" stroke={STEEL} stroke-width="2">
+      <rect x="36" y="426" width="4" height="32" fill="#162c47" fill-opacity="0.18"></rect>
+      <g fill="#0d1a2c" stroke={STEEL} stroke-width="2">
         <circle cx="24" cy="461" r="9"></circle>
         <circle cx="112" cy="461" r="9"></circle>
         <circle cx="136" cy="461" r="9"></circle>
@@ -463,21 +488,21 @@ const lattice = (x0: number, x1: number, y: number, hgt: number) => {
 
     <!-- THE container: the one shipment the visitor follows -->
     <g data-j="container" transform={poseTransform(f.container, C.w, C.h)}>
-      <use href="#j-box" fill="#c9a24a"></use>
-      <path d="M84 6V36M90 6V36" stroke="#6e521a" stroke-opacity="0.55" stroke-width="1.6"></path>
-      <rect x="22" y="13" width="44" height="16" rx="2" fill="#0a1c38"></rect>
-      <text x="44" y="24.6" text-anchor="middle" font-size="8.5" font-weight="800" fill="#dfc17f" letter-spacing="1.2" font-family="Vazirmatn, Tahoma, sans-serif" direction="ltr">OKIYAN</text>
+      <use href="#j-box" fill="#8fb4c9"></use>
+      <path d="M84 6V36M90 6V36" stroke="#1b3d52" stroke-opacity="0.55" stroke-width="1.6"></path>
+      <rect x="22" y="13" width="44" height="16" rx="2" fill="#162c47"></rect>
+      <text x="44" y="24.6" text-anchor="middle" font-size="8.5" font-weight="800" fill="#b9d1de" letter-spacing="1.2" font-family="Vazirmatn, Tahoma, sans-serif" direction="ltr">OKIYAN</text>
     </g>
 
-    <line data-j="scan-line" x1="655" y1="398" x2="655" y2="468" stroke="#f3dc9f" stroke-width="2.5" opacity={f.scan.beam.toFixed(3)}></line>
+    <line data-j="scan-line" x1="655" y1="398" x2="655" y2="468" stroke="#d3e2ea" stroke-width="2.5" opacity={f.scan.beam.toFixed(3)}></line>
 
     <!-- Barrier at the customs exit -->
     <g>
       <rect x="576" y="432" width="10" height="38" rx="2" fill={STEEL}></rect>
-      <circle cx="581" cy="430" r="2.5" fill="#f2a65a"></circle>
+      <circle cx="581" cy="430" r="2.5" fill="#b9d1de"></circle>
       <g data-j="barrier" transform={`rotate(${(f.barrier * 80).toFixed(2)} 581 436)`}>
-        <rect x="486" y="432" width="96" height="7" rx="3" fill="#f4eee0"></rect>
-        <path d="M494 435.5H578" stroke="#c9a24a" stroke-width="7" stroke-dasharray="10 10"></path>
+        <rect x="486" y="432" width="96" height="7" rx="3" fill="#e8ecee"></rect>
+        <path d="M494 435.5H578" stroke="#8fb4c9" stroke-width="7" stroke-dasharray="10 10"></path>
       </g>
     </g>
 
@@ -485,7 +510,7 @@ const lattice = (x0: number, x1: number, y: number, hgt: number) => {
     {
       markers.map((m, i) => (
         <g class:list={['j-marker', { 'is-active': i === f.stage }]} data-j={`marker-${i}`} transform={`translate(${m.x} ${m.y})`}>
-          <line y1="16" y2="40" stroke="#f7f1e4" stroke-opacity="0.35" stroke-dasharray="2 4" />
+          <line y1="16" y2="40" stroke="#e8ecee" stroke-opacity="0.35" stroke-dasharray="2 4" />
           <circle class="j-marker__halo" r="24" />
           <circle r="16" />
           <text y="6" text-anchor="middle" font-size="16" font-weight="800">

@@ -38,8 +38,8 @@ const phases = [
   },
   {
     title: 'هماهنگی حمل',
-    text: 'مسیر و روش حمل را با زمان‌بندی ترخیص هماهنگ می‌کنیم.',
-    items: ['هماهنگی با شرکت حمل و فرستنده', 'بررسی پیش‌نویس بارنامه پیش از صدور', 'پیگیری زمان تقریبی رسیدن'],
+    text: 'روش حمل دریایی، هوایی یا زمینی را متناسب با کالا، فوریت و هزینه بررسی و با زمان‌بندی ترخیص هماهنگ می‌کنیم.',
+    items: ['هماهنگی با فرستنده و شرکت حمل دریایی یا هوایی', 'بررسی پیش‌نویس بارنامه پیش از صدور', 'پیگیری زمان تقریبی رسیدن'],
   },
   {
     title: 'ترخیص و تحویل',
@@ -282,7 +282,7 @@ const faqs = [
     top: 1.5rem;
     inset-inline: 3rem 0;
     height: 2px;
-    background: repeating-linear-gradient(90deg, var(--gold-400) 0 6px, transparent 6px 12px);
+    background: repeating-linear-gradient(90deg, var(--petrol-300) 0 6px, transparent 6px 12px);
     opacity: 0.6;
   }
   .phase:last-child::before {
@@ -295,18 +295,18 @@ const faqs = [
     inline-size: 3rem;
     block-size: 3rem;
     border-radius: 50%;
-    background: var(--gold-400);
+    background: var(--petrol-300);
     color: var(--navy-950);
     font-weight: 800;
     font-size: var(--step-1);
   }
   .phase h3 {
     font-size: var(--step-1);
-    color: var(--ivory-50);
+    color: var(--white);
     margin-top: 0.5rem;
   }
   .phase > p {
-    color: #b9c4d6;
+    color: #bcc3cb;
     font-size: var(--step--1);
   }
   .phase ul {
@@ -314,7 +314,7 @@ const faqs = [
     display: grid;
     gap: 0.45rem;
     padding-top: 0.8rem;
-    border-top: 1px solid rgb(247 241 228 / 0.12);
+    border-top: 1px solid rgb(232 236 238 / 0.12);
     font-size: var(--step--1);
     color: #d3dbe7;
   }
@@ -330,7 +330,7 @@ const faqs = [
     top: 0.8em;
     inline-size: 0.4rem;
     block-size: 2px;
-    background: var(--gold-400);
+    background: var(--petrol-300);
   }
 
   .bounds {
@@ -355,7 +355,7 @@ const faqs = [
     padding: 0.35rem;
     border-radius: 50%;
     background: var(--navy-900);
-    color: var(--gold-300);
+    color: var(--petrol-200);
   }
   .bounds dd {
     margin: 0.4rem 0 0;
@@ -368,23 +368,23 @@ const faqs = [
     padding: clamp(1.5rem, 3vw, 2.25rem);
     border-radius: var(--radius-l);
     background: var(--navy-900);
-    color: #c3cddc;
+    color: #c5cbd2;
   }
   .compare h3 {
-    color: var(--ivory-50);
+    color: var(--white);
     font-size: var(--step-2);
     margin-bottom: 0.75rem;
   }
   .compare__row {
     padding-block: 1rem;
-    border-top: 1px solid rgb(247 241 228 / 0.14);
+    border-top: 1px solid rgb(232 236 238 / 0.14);
   }
   .compare__label {
     font-size: var(--step--1);
     color: #9fb0c8;
   }
   .compare a {
-    color: var(--gold-300);
+    color: var(--petrol-200);
     font-weight: 800;
   }
 
@@ -400,7 +400,7 @@ const faqs = [
     padding: 1.6rem 1.6rem 3.5rem;
     border-radius: var(--radius-l);
     border: 1px solid var(--rule-strong);
-    background: var(--ivory-50);
+    background: var(--white);
     text-decoration: none;
     transition:
       border-color var(--dur-fast) ease,
@@ -422,7 +422,7 @@ const faqs = [
     position: absolute;
     bottom: 1.4rem;
     inset-inline-end: 1.6rem;
-    color: var(--gold-500);
+    color: var(--petrol-500);
     transition: transform var(--dur-med) var(--ease-out);
   }
   .read:hover :global(svg) {
@@ -454,7 +454,7 @@ const faqs = [
       inset-inline: 1.5rem auto;
       width: 2px;
       height: auto;
-      background: repeating-linear-gradient(180deg, var(--gold-400) 0 6px, transparent 6px 12px);
+      background: repeating-linear-gradient(180deg, var(--petrol-300) 0 6px, transparent 6px 12px);
     }
   }
   @media (max-width: 860px) {

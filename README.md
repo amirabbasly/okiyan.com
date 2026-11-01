@@ -23,7 +23,7 @@ Astro 7 + TypeScript, fully static, plain CSS, ~5 KB of gzipped JavaScript on th
 
 | Variable | Purpose |
 | --- | --- |
-| `SITE_URL` | Canonical production origin, e.g. `https://www.example.ir`. Drives canonicals, sitemap, OG URLs. Defaults to the reserved `https://okiyan.example` so a misconfigured build can't point at someone else's domain. |
+| `SITE_URL` | Canonical production origin. Defaults to `https://okiyan.ir` (the domain in the logo). Drives canonicals, sitemap, OG URLs. Redirect `www.okiyan.ir` to it with a 301 at the host. |
 | `SITE_ENV` | `production` makes the site indexable. **Anything else** (default `development`) emits `<meta name="robots" content="noindex, nofollow">`, a `Disallow: /` robots.txt, and an `X-Robots-Tag: noindex` rule in `dist/_headers`. |
 | `PUBLIC_FORM_ENDPOINT` | URL that receives the consultation form as a `POST` (multipart FormData). Empty = clearly labelled demo mode. |
 
@@ -43,6 +43,19 @@ supplied and was deliberately not invented.** Missing values:
 Contact/WhatsApp/Telegram/email links appear automatically once the values are set.
 Service scope copy lives in `src/data/services.ts` and in the two service pages.
 
+### Brand (logo and colours)
+
+- Master logo: `src/assets/brand/okiyan-logo.webp` (as supplied).
+- Brand palette (from the brand guide): deep navy `#162C47` (سرمه‌ای عمیق), petrol blue `#234D66` (آبی نفتی),
+  neutral silver `#A8B0BA` (نقره‌ای خنثی), light grey `#E8ECEE` (خاکستری روشن) and white. These are the ★ tokens in
+  `src/styles/global.css`; the other tokens there are tints/shades derived from them (e.g. `--petrol-300` is the
+  accent used on navy backgrounds, `--slate-600` the muted body text). Petrol blue is the accent on light pages;
+  silver is for rules and decoration only (too light for text on white).
+- Vector mark: `src/data/brand.ts` holds the two traced crescents and the brand colours used by `Mark.astro`/`Logo.astro`,
+  the illustrations and the asset script. The mark is drawn in deep navy + petrol blue on light backgrounds and in
+  light grey + light petrol on navy. The supplied master logo file still has its original colours.
+- After changing the mark, run `npm run assets` to regenerate the favicon, `logo.png` and the OG image.
+
 ## Content editing
 
 - **Guides**: Markdown files in `src/content/guides/`. Front matter is validated (`src/content.config.ts`):
@@ -50,8 +63,15 @@ Service scope copy lives in `src/data/services.ts` and in the two service pages.
   `relatedService`, `relatedGuides`, `summary` (2–5 bullets), `sources` (title/publisher/url/note) and
   `reviewNotes` (shown only in staging builds). A new file becomes `/guides/<file-name>/`, joins the guide index,
   footer and sitemap, and gets Article + BreadcrumbList markup.
-- **Pages**: `src/pages/` (`index`, `customs-clearance`, `import-services`, `guides`, `about`, `contact`, `404`).
+- **Pages**: `src/pages/` (`index`, `customs-clearance`, `import-services`, `commercial-services`, `special-projects`,
+  `price-calculator`, `guides`, `about`, `resume`, `partners`, `guarantee`, `contact`, `404`).
   Copy for lists, FAQs and steps sits at the top of each page file.
+- **Navigation**: `nav` in `src/config/site.ts` drives the header (with the «خدمات» and «درباره ما» dropdowns),
+  the mobile menu and the footer columns.
+- **Sample-content pages**: رزومه، همکاران، خدمات بازرگانی، پروژه‌های خاص، ضمانت and محاسبه قیمت currently hold
+  dummy text. Pages listed in `src/data/sample-pages.json` show a «محتوای نمونه» notice in every build, are
+  `noindex`, stay out of the sitemap and are listed in a build warning. Replace a page's text (and, for the
+  calculator, the rates in `src/data/pricing.ts`), then remove its path from the JSON file to publish it normally.
 - **Journey stage text**: `src/components/journey/stages.ts`.
 
 ## Shipment-journey animation
@@ -63,15 +83,17 @@ Files in `src/components/journey/`:
 | `timeline.ts` | Pure `computeFrame(p)` → pose of every moving part for progress `p ∈ [0,1]`. Camera keyframes, stage windows (`seg()` ranges), world coordinates. |
 | `JourneyScene.astro` | The SVG world (decorative, `aria-hidden`). Server-renders the frame for `p = 0`, so it is meaningful before/without JS. |
 | `journey-client.ts` | Reads native scroll position → progress → applies the frame. Light damping, swell only while on screen. |
-| `ShipmentJourney.astro` | Section layout: semantic stage text + sticky scene + progress HUD. |
+| `ShipmentJourney.astro` | The homepage header: a pinned, framed scene (90% of the page width) with a minimal overlay (the H1 and CTA via the `intro` slot, fading out once the journey starts) and a five-step bar; each step is a `<details>` whose description opens as a card on click. |
 | `stages.ts` | Stage copy (the real content). |
 
 How it behaves:
 
-- Progress is derived from where the stage blocks sit relative to a reading line (viewport centre on desktop; centre of the space under the sticky scene on mobile). No scroll hijacking; jumping or fast scrolling lands on the correct frame because frames depend only on `p`.
+- Progress comes from how far the pinned panel has travelled through its scroll track (pin vs. track; `--hj-scroll` sets the distance). No scroll hijacking; jumping or fast scrolling lands on the correct frame because frames depend only on `p`.
+- Clicking a step opens its description card and scrolls the animation to that stage; on wider screens the camera pans so the scene stays clear of the card.
+- The client fits the SVG `viewBox` to the frame's shape (`data-base-w`/`data-base-h` on the SVG): the full scene height is always shown, and wider frames reveal more of the harbour to each side.
 - One container element is handed from yard → ship → crane → truck; `npm run test:journey` asserts it never teleports.
 - `prefers-reduced-motion: reduce`: each stage snaps to its completed state, no damping, no swell.
-- No JavaScript: the scene stops being sticky and all stage text remains readable.
+- No JavaScript: nothing is pinned, the stage titles still open natively, and all text remains readable.
 - The rAF loop and the CSS wave loop run only while the section intersects the viewport.
 
 Section entrances (`.reveal`) use a tiny IntersectionObserver (`src/scripts/reveal.ts`), not CSS

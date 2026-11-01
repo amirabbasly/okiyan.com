@@ -13,7 +13,7 @@ const hasArt = Astro.slots.has('art');
 
 <section class:list={['page-hero section--grain', { 'page-hero--art': hasArt }]}>
   <svg class="page-hero__motif" viewBox="0 0 1440 480" preserveAspectRatio="none" aria-hidden="true" focusable="false">
-    <path d="M1500 60C1260 90 1150 300 900 330S420 250 180 420-60 520-60 520" fill="none" stroke="#c9a24a" stroke-opacity="0.32" stroke-width="1.5" stroke-dasharray="4 10" vector-effect="non-scaling-stroke"></path>
+    <path d="M1500 440C1240 400 1100 470 860 452S380 400 -60 470" fill="none" stroke="#8fb4c9" stroke-opacity="0.32" stroke-width="1.5" stroke-dasharray="4 10" vector-effect="non-scaling-stroke"></path>
   </svg>
   <div class="container page-hero__inner">
     <div class="page-hero__text">
@@ -48,10 +48,10 @@ const hasArt = Astro.slots.has('art');
     position: relative;
     overflow: hidden;
     padding-block: clamp(2rem, 1.5rem + 2vw, 3rem) clamp(3rem, 2rem + 4vw, 5.5rem);
-    background-color: var(--ivory-100);
+    background-color: var(--mist-100);
     border-bottom: 1px solid var(--rule);
     background-image:
-      radial-gradient(48rem 26rem at 8% 0%, rgb(201 162 74 / 0.13), transparent 65%),
+      radial-gradient(48rem 26rem at 8% 0%, rgb(143 180 201 / 0.13), transparent 65%),
       var(--grain);
   }
   .page-hero__inner {

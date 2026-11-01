@@ -1,0 +1,318 @@
+---
+/**
+ * محاسبه قیمت — SAMPLE CONTENT. The rates live in src/data/pricing.ts and are placeholders.
+ * The result is computed in the browser (src/scripts/calculator.ts); the server renders the
+ * same estimate for the default inputs so the page works before JS loads.
+ */
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import PageHero from '~/components/layout/PageHero.astro';
+import CtaBand from '~/components/ui/CtaBand.astro';
+import Faq from '~/components/ui/Faq.astro';
+import Icon from '~/components/ui/Icon.astro';
+import { breadcrumbLd } from '~/lib/schema';
+import { pricing, estimate } from '~/data/pricing';
+import { toFa } from '~/lib/format';
+
+const crumbs = [
+  { name: 'خانه', path: '/' },
+  { name: 'محاسبه قیمت', path: '/price-calculator/' },
+];
+
+const d = pricing.defaults;
+const initial = estimate(d);
+const fmt = (n: number) => new Intl.NumberFormat('fa-IR', { maximumFractionDigits: 0 }).format(Math.round(n));
+const num = (n: number) => new Intl.NumberFormat('fa-IR').format(n);
+
+const rows = [
+  { key: 'customsValue', label: 'ارزش گمرکی کالا (CIF)', note: 'ارزش کالا + حمل و بیمه، به تومان' },
+  { key: 'duty', label: 'حقوق ورودی', note: 'بر اساس نرخی که وارد کرده‌اید' },
+  { key: 'vat', label: `مالیات و عوارض ارزش افزوده (${toFa(pricing.vatPercent)}٪)`, note: 'روی ارزش گمرکی + حقوق ورودی' },
+  { key: 'port', label: 'هزینه‌های بندری و انبارداری', note: `حدود ${toFa(pricing.portPercent)}٪ ارزش گمرکی` },
+  { key: 'fee', label: 'کارمزد خدمات اوکیان', note: `${toFa(pricing.feePercent)}٪ ارزش گمرکی، حداقل ${fmt(pricing.feeMinimum)} تومان` },
+] as const;
+
+const faqs = [
+  { q: 'این عدد چقدر دقیق است؟', a: 'نتیجهٔ ماشین‌حساب فقط یک برآورد اولیه است. هزینهٔ واقعی به کد تعرفه، ارزش پذیرفته‌شده در گمرک، نوع کالا، مجوزها و زمان ترخیص بستگی دارد.' },
+  { q: 'نرخ حقوق ورودی را از کجا بدانم؟', a: 'نرخ حقوق ورودی بر اساس کد تعرفهٔ کالا در کتاب مقررات صادرات و واردات تعیین می‌شود. اگر کد تعرفه را نمی‌دانید، در تعیین آن کمکتان می‌کنیم.' },
+  { q: 'چه هزینه‌هایی در این برآورد نیست؟', a: 'هزینه‌های استاندارد و آزمایشگاه، حمل داخلی، بیمهٔ داخلی، هزینه‌های بانکی و هزینه‌های خاص بعضی کالاها در این برآورد لحاظ نشده‌اند.' },
+];
+---
+
+<BaseLayout
+  title="محاسبه قیمت ترخیص کالا؛ برآورد اولیهٔ هزینه"
+  description="با ماشین‌حساب اوکیان برآورد اولیه‌ای از هزینهٔ ترخیص کالا بگیرید: حقوق ورودی، مالیات بر ارزش افزوده، هزینه‌های بندری و کارمزد خدمات."
+  jsonLd={[breadcrumbLd(crumbs, Astro.site)]}
+>
+  <PageHero
+    eyebrow="ابزار"
+    title="محاسبه قیمت ترخیص"
+    lead="ارزش کالا، نرخ ارز و نرخ حقوق ورودی را وارد کنید تا تصویر اولیه‌ای از هزینه‌های ترخیص داشته باشید."
+    crumbs={crumbs}
+  />
+
+  <section class="section" aria-labelledby="calc-title">
+    <div class="container">
+      <h2 id="calc-title" class="sr-only">ماشین‌حساب هزینهٔ ترخیص</h2>
+      <div class="calc" data-calc>
+        <form class="calc__form reveal" data-calc-form novalidate>
+          <fieldset>
+            <legend>کالا</legend>
+            <div class="field">
+              <label for="c-value">ارزش کالا (FOB)</label>
+              <div class="field__row">
+                <input id="c-value" name="value" inputmode="decimal" autocomplete="off" value={num(d.value)} aria-describedby="c-value-hint" />
+                <select name="currency" aria-label="ارز">
+                  {pricing.currencies.map((c) => <option value={c.code}>{c.label}</option>)}
+                </select>
+              </div>
+              <p class="field__hint" id="c-value-hint">مبلغ پیش‌فاکتور، بدون هزینهٔ حمل</p>
+            </div>
+            <div class="field">
+              <label for="c-freight">هزینهٔ حمل و بیمه تا مقصد</label>
+              <input id="c-freight" name="freight" inputmode="decimal" autocomplete="off" value={num(d.freight)} aria-describedby="c-freight-hint" />
+              <p class="field__hint" id="c-freight-hint">به همان ارز ارزش کالا</p>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>نرخ‌ها</legend>
+            <div class="field">
+              <label for="c-rate">نرخ ارز (تومان)</label>
+              <input id="c-rate" name="rate" inputmode="decimal" autocomplete="off" value={num(d.rate)} aria-describedby="c-rate-hint" />
+              <p class="field__hint" id="c-rate-hint">نرخ ارز مورد عمل گمرک را وارد کنید</p>
+            </div>
+            <div class="field">
+              <label for="c-duty">نرخ حقوق ورودی (٪)</label>
+              <input id="c-duty" name="duty" inputmode="decimal" autocomplete="off" value={num(d.duty)} aria-describedby="c-duty-hint" />
+              <p class="field__hint" id="c-duty-hint">بر اساس کد تعرفهٔ کالا</p>
+            </div>
+          </fieldset>
+          <p class="calc__note">
+            <Icon name="info" />
+            اعداد پیش‌فرض فقط برای نمونه‌اند. نرخ‌های واقعی را جایگزین کنید.
+          </p>
+        </form>
+
+        <div class="calc__result reveal" aria-labelledby="result-title">
+          <h3 id="result-title">برآورد هزینه‌ها</h3>
+          <dl class="calc__rows">
+            {
+              rows.map((r) => (
+                <div class:list={['calc__row', { 'calc__row--base': r.key === 'customsValue' }]}>
+                  <dt>
+                    {r.label}
+                    <small>{r.note}</small>
+                  </dt>
+                  <dd>
+                    <output data-out={r.key}>{fmt(initial[r.key])}</output> <span>تومان</span>
+                  </dd>
+                </div>
+              ))
+            }
+          </dl>
+          <div class="calc__total">
+            <span>جمع برآوردی هزینه‌های ترخیص</span>
+            <strong>
+              <output data-out="total" aria-live="polite">{fmt(initial.total)}</output> تومان
+            </strong>
+          </div>
+          <p class="calc__error" data-calc-error hidden>لطفاً همهٔ مقادیر را به‌صورت عدد وارد کنید.</p>
+          <a class="btn btn--accent" href="/contact/">
+            برآورد دقیق بگیرید
+            <Icon name="arrow" class="btn__icon" />
+          </a>
+          <noscript><p class="calc__noscript">برای محاسبهٔ مقادیر دیگر، جاوااسکریپت مرورگر را فعال کنید.</p></noscript>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt" aria-labelledby="faq-title">
+    <div class="container split split--wide">
+      <header class="stack reveal" style="--stack: 1rem">
+        <span class="eyebrow">پرسش‌های رایج</span>
+        <h2 id="faq-title">دربارهٔ این برآورد</h2>
+        <p class="lead">برای برآورد دقیق، مشخصات کالا و اسناد را بفرستید تا پرونده را بررسی کنیم.</p>
+      </header>
+      <Faq items={faqs} />
+    </div>
+  </section>
+
+  <CtaBand />
+</BaseLayout>
+
+<script>
+  import { initCalculator } from '~/scripts/calculator';
+  document.querySelectorAll<HTMLElement>('[data-calc]').forEach(initCalculator);
+</script>
+
+<style>
+  .calc {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    gap: clamp(1.5rem, 4vw, 3rem);
+    align-items: start;
+  }
+  .calc__form {
+    display: grid;
+    gap: 1.5rem;
+    padding: clamp(1.5rem, 3vw, 2.25rem);
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius-l);
+    background: var(--mist-50);
+  }
+  fieldset {
+    display: grid;
+    gap: 1.1rem;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  legend {
+    margin-bottom: 0.25rem;
+    font-size: var(--step-1);
+    font-weight: 800;
+    color: var(--navy-900);
+  }
+  .field {
+    display: grid;
+    gap: 0.4rem;
+  }
+  .field label {
+    font-weight: 700;
+    color: var(--navy-900);
+  }
+  .field__row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.5rem;
+  }
+  .field input,
+  .field select {
+    width: 100%;
+    min-width: 0;
+    min-height: 3rem;
+    padding: 0.5rem 0.9rem;
+    border: 1.5px solid var(--rule-strong);
+    border-radius: var(--radius-s);
+    background: var(--white);
+    font: inherit;
+    font-size: var(--step-0);
+    color: var(--navy-900);
+  }
+  .field input {
+    direction: ltr;
+    text-align: right;
+    font-weight: 700;
+  }
+  .field input:focus,
+  .field select:focus {
+    border-color: var(--petrol-500);
+  }
+  .field input[aria-invalid='true'] {
+    border-color: var(--danger);
+  }
+  .field__hint {
+    font-size: 0.85rem;
+    color: var(--slate-600);
+  }
+  .calc__note {
+    display: flex;
+    gap: 0.5rem;
+    font-size: var(--step--1);
+    color: var(--slate-700);
+  }
+  .calc__note :global(svg) {
+    flex: none;
+    inline-size: 1.2rem;
+    block-size: 1.2rem;
+    margin-top: 0.3rem;
+    color: var(--petrol-500);
+  }
+
+  .calc__result {
+    position: sticky;
+    top: calc(var(--header-h) + 1.5rem);
+    display: grid;
+    gap: 1.25rem;
+    padding: clamp(1.5rem, 3vw, 2.25rem);
+    border-radius: var(--radius-l);
+    background: var(--navy-900);
+    color: var(--mist-100);
+  }
+  .calc__result h3 {
+    font-size: var(--step-2);
+    color: var(--white);
+  }
+  .calc__rows {
+    margin: 0;
+    display: grid;
+  }
+  .calc__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    padding-block: 0.9rem;
+    border-bottom: 1px solid rgb(232 236 238 / 0.12);
+  }
+  .calc__row dt {
+    display: grid;
+    gap: 0.15rem;
+    font-weight: 700;
+  }
+  .calc__row small {
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: #bcc3cb;
+  }
+  .calc__row dd {
+    margin: 0;
+    flex: none;
+    white-space: nowrap;
+    font-weight: 700;
+    color: var(--white);
+  }
+  .calc__row dd span {
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: #bcc3cb;
+  }
+  .calc__row--base dd {
+    color: var(--petrol-200);
+  }
+  .calc__total {
+    display: grid;
+    gap: 0.35rem;
+    padding: 1.1rem 1.25rem;
+    border-radius: var(--radius-m);
+    background: rgb(232 236 238 / 0.08);
+  }
+  .calc__total span {
+    font-size: var(--step--1);
+    color: #bcc3cb;
+  }
+  .calc__total strong {
+    font-size: var(--step-3);
+    line-height: 1.3;
+    color: var(--white);
+  }
+  .calc__result .btn {
+    justify-self: start;
+  }
+  .calc__error {
+    color: #f3b4ae;
+    font-weight: 700;
+  }
+  .calc__noscript {
+    font-size: var(--step--1);
+    color: #bcc3cb;
+  }
+  @media (max-width: 900px) {
+    .calc {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .calc__result {
+      position: static;
+    }
+  }
+</style>

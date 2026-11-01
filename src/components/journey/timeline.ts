@@ -16,7 +16,7 @@
 
 export const STAGE_COUNT = 5;
 
-/** Horizontal spacing of the three document sheets once aligned (stage 1). */
+/** Horizontal spacing of the three document sheets pinned on the board (stage 1). */
 export const SHEET_SPREAD = 64;
 
 export const VIEW = { w: 800, h: 560 } as const;
@@ -48,21 +48,23 @@ export const WORLD = {
 
 export const ROUTE_D = `M${WORLD.route[0][0]} ${WORLD.route[0][1]} C${WORLD.route[0].slice(2).join(' ')} C${WORLD.route[1].slice(2).join(' ')}`;
 
-/** Camera keyframes: centre (x, y) in world units and zoom, at progress p. */
+/** Camera keyframes: centre (x, y) in world units and zoom, at progress p.
+ *  y sits high (~315–335) so the quay lands near the bottom of the frame and the
+ *  sky above has room for the headline. */
 const CAMERA: Array<[p: number, x: number, y: number, s: number]> = [
-  [0.0, 2410, 360, 1.24],
-  [0.1, 2385, 360, 1.3],
-  [0.2, 2240, 368, 1.1],
-  [0.27, 2120, 374, 1.04],
-  [0.35, 1880, 384, 0.95],
-  [0.45, 1600, 380, 0.9],
-  [0.52, 1340, 366, 0.95],
-  [0.6, 1180, 350, 1.0],
-  [0.68, 890, 368, 1.05],
-  [0.76, 705, 366, 1.14],
-  [0.84, 520, 378, 1.05],
-  [0.92, 335, 378, 1.1],
-  [1.0, 262, 372, 1.16],
+  [0.0, 2580, 315, 1.24],
+  [0.1, 2500, 315, 1.3],
+  [0.2, 2240, 323, 1.1],
+  [0.27, 2120, 329, 1.04],
+  [0.35, 1880, 339, 0.95],
+  [0.45, 1600, 335, 0.9],
+  [0.52, 1340, 321, 0.95],
+  [0.6, 1180, 305, 1.0],
+  [0.68, 890, 323, 1.05],
+  [0.76, 705, 321, 1.14],
+  [0.84, 520, 333, 1.05],
+  [0.92, 335, 333, 1.1],
+  [1.0, 262, 327, 1.16],
 ];
 
 // ---------------------------------------------------------------- helpers
@@ -157,7 +159,7 @@ export interface Frame {
   originCrane: CraneState;
   destCrane: CraneState;
   truckX: number;
-  docs: { sheets: Array<{ dx: number; dy: number; r: number; o: number }>; check: number; dim: number };
+  docs: { sheets: Array<{ dx: number; dy: number; r: number; o: number; tick: number }>; check: number; dim: number };
   route: number;
   scan: { beam: number; line: number };
   stamp: { card: number; press: number; mark: number };
@@ -189,17 +191,16 @@ export function computeFrame(pIn: number, swell: Swell = { dy: 0, da: 0 }): Fram
   const t5 = local(4);
   const C = WORLD.container;
 
-  // ---- Stage 1: documents gather and align, then receive a verification mark.
-  const sheetOffsets = [
-    { dx: 70, dy: -60, r: 18 },
-    { dx: -60, dy: -30, r: -14 },
-    { dx: 30, dy: 70, r: 10 },
-  ];
-  const sheets = sheetOffsets.map((o, i) => {
-    const k = easeOut(seg(t1, 0.05 + i * 0.12, 0.42 + i * 0.12));
-    return { dx: o.dx * (1 - k), dy: o.dy * (1 - k), r: lerp(o.r, (i - 1) * 4, k), o: k };
+  // ---- Stage 1: three documents pinned on the office board are reviewed one by one
+  // (right → left): each one straightens and gets a tick, then the set is verified.
+  const pinnedTilt = [-5, 3, -4];
+  const sheets = pinnedTilt.map((r0, i) => {
+    const j = 2 - i; // review order, right to left
+    const k = easeOut(seg(t1, 0.08 + j * 0.17, 0.3 + j * 0.17));
+    const lift = Math.sin(Math.PI * k) * -5; // picked up slightly while being checked
+    return { dx: 0, dy: lift, r: lerp(r0, 0, k), o: 1, tick: easeInOut(seg(t1, 0.18 + j * 0.17, 0.32 + j * 0.17)) };
   });
-  const check = easeInOut(seg(t1, 0.62, 0.88));
+  const check = easeInOut(seg(t1, 0.7, 0.9));
 
   // ---- Ship along the sea route (stage 2 second half → stage 3 first half).
   const routeF = p < 0.4 ? lerp(0, 0.62, easeInOut(seg(t2, 0.42, 1))) : lerp(0.62, 1, easeOut(seg(t3, 0, 0.45)));
@@ -298,7 +299,7 @@ export function computeFrame(pIn: number, swell: Swell = { dy: 0, da: 0 }): Fram
     originCrane,
     destCrane,
     truckX,
-    docs: { sheets, check, dim: p < 0.2 ? 1 : lerp(1, 0.35, seg(t2, 0, 0.3)) },
+    docs: { sheets, check, dim: p < 0.2 ? 1 : lerp(1, 0.6, seg(t2, 0, 0.3)) },
     route: routeF,
     scan: {
       beam: seg(t4, 0.28, 0.36) * (1 - seg(t4, 0.62, 0.7)),

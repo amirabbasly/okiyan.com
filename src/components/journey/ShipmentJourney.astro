@@ -1,9 +1,13 @@
 ---
 /**
- * Signature homepage section: a shipment followed from documents to delivery.
- * - Stage content is semantic HTML (readable without JS, indexable).
- * - The scene is a decorative SVG driven by native scroll (no hijacking).
- * - The client script is bundled only on pages that render this component.
+ * Homepage header: the shipment journey as a full-bleed, pinned, scroll-driven stage.
+ *
+ * - The scene fills the pinned panel. A minimal overlay carries the H1 and one CTA
+ *   (slot "intro"); it fades out once the journey starts and returns at the top.
+ * - A slim five-step bar sits along the bottom. Each step is a native <details>
+ *   (one open at a time): titles only, the description opens as a card on click,
+ *   and clicking also scrolls the animation to that stage.
+ * - Without JavaScript nothing is pinned and every step still opens natively.
  */
 import JourneyScene from './JourneyScene.astro';
 import { journeyStages } from './stages';
@@ -18,75 +22,72 @@ const total = journeyStages.length;
 const pad = (n: number) => toFa(String(n).padStart(2, '0'));
 ---
 
-<section class="journey section section--dark" aria-labelledby={headingId} data-journey>
-  <div class="container">
-    <header class="section-head section-head--split journey__head">
-      <div>
-        <span class="eyebrow">مسیر یک محموله</span>
-        <h2 id={headingId}>از بررسی اسناد تا تحویل در انبار</h2>
-      </div>
-      <p class="lead">
-        واردات و ترخیص کالا زنجیره‌ای از کارهای به‌هم‌پیوسته است. اینجا یک محموله را در پنج مرحلهٔ اصلی دنبال کنید و ببینید در هر مرحله چه
-        چیزی اهمیت دارد.
-      </p>
-    </header>
-
-    <div class="journey__grid">
-      <ol class="journey__steps" data-steps>
-        {
-          journeyStages.map((stage, i) => (
-            <li class:list={['j-step', { 'is-active': i === 0 }]} id={stage.id} data-step={i}>
-              <div class="j-step__inner">
-                <p class="j-step__num" aria-hidden="true">
-                  {pad(i + 1)}
-                  <span>/ {pad(total)}</span>
-                </p>
-                <h3>
-                  <span class="sr-only">مرحلهٔ {toFa(i + 1)}: </span>
-                  {stage.title}
-                </h3>
-                <p>{stage.body}</p>
-                <ul class="j-step__points">
-                  {stage.points.map((pt) => (
-                    <li>{pt}</li>
-                  ))}
-                </ul>
-                {stage.link && (
-                  <a class="arrow-link" href={stage.link.href}>
-                    {stage.link.label}
-                    <Icon name="arrow" />
-                  </a>
-                )}
-              </div>
-            </li>
-          ))
-        }
-      </ol>
-
-      <div class="journey__scene-col">
-        <div class="j-sticky" data-scene>
-          <div class="j-frame">
-            <JourneyScene initialP={0} />
-            <div class="j-hud" aria-hidden="true">
-              <p class="j-hud__label">
-                <span class="j-hud__count" data-hud-count>{pad(1)} / {pad(total)}</span>
-                <span data-hud-title>{journeyStages[0].title}</span>
-              </p>
-              <div class="j-hud__bar">
-                {journeyStages.map(() => <span><i /></span>)}
-              </div>
-            </div>
+<section class="hj" aria-label="ترخیص و واردات کالا؛ مسیر یک محموله" data-journey>
+  <div class="hj__track" data-track>
+    <div class="hj__pin" data-pin>
+      <div class="hj__stage">
+        <div class="j-frame" data-scene>
+          <JourneyScene initialP={0} />
+          <div class="hj__intro" data-intro>
+            <slot name="intro" />
           </div>
+          <p class="hj__hint" aria-hidden="true">
+            <span class="hj__mouse"><i></i></span>
+            اسکرول کنید
+          </p>
+        </div>
+
+        <div class="hj__dock" data-stages>
+          <h2 id={headingId} class="sr-only">مسیر یک محموله در {toFa(total)} مرحله</h2>
+          <ol class="hj__steps">
+            {
+              journeyStages.map((stage, i) => (
+                <li class:list={['hj-step', { 'is-active': i === 0 }]} id={stage.id} data-step={i}>
+                  <details name="journey-stage" class="hj-step__details">
+                    <summary class="hj-step__summary">
+                      <span class="hj-step__bar" aria-hidden="true">
+                        <i />
+                      </span>
+                      <span class="hj-step__num" aria-hidden="true">
+                        {pad(i + 1)}
+                      </span>
+                      <h3 class="hj-step__title">
+                        <span class="sr-only">مرحلهٔ {toFa(i + 1)}: </span>
+                        {stage.title}
+                      </h3>
+                      <span class="hj-step__plus" aria-hidden="true" />
+                    </summary>
+                    <div class="hj-step__card">
+                      <div class="hj-step__card-head">
+                        <p class="hj-step__card-title" aria-hidden="true">
+                          {pad(i + 1)} · {stage.title}
+                        </p>
+                        <button class="hj-step__close" type="button" data-close>
+                          <Icon name="close" />
+                          <span class="sr-only">بستن توضیحات</span>
+                        </button>
+                      </div>
+                      <p>{stage.body}</p>
+                      <ul>
+                        {stage.points.map((pt) => (
+                          <li>{pt}</li>
+                        ))}
+                      </ul>
+                      {stage.link && (
+                        <a class="arrow-link" href={stage.link.href}>
+                          {stage.link.label}
+                          <Icon name="arrow" />
+                        </a>
+                      )}
+                      <p class="hj-step__note">مسیر نمایشی است؛ مراحل و زمان هر محموله به نوع کالا و مقررات جاری بستگی دارد.</p>
+                    </div>
+                  </details>
+                </li>
+              ))
+            }
+          </ol>
         </div>
       </div>
-    </div>
-
-    <div class="notice journey__note">
-      <Icon name="info" />
-      <p>
-        <strong>این مسیر نمایشی است.</strong> ترتیب کارها، مدارک، مدت‌زمان و هزینهٔ هر محموله به نوع کالا، کشور مبدأ، رویهٔ گمرکی و مقررات جاری بستگی
-        دارد و ممکن است با این نمایش تفاوت داشته باشد.
-      </p>
     </div>
   </div>
 </section>
@@ -97,150 +98,78 @@ const pad = (n: number) => toFa(String(n).padStart(2, '0'));
 </script>
 
 <style>
-  .journey {
+  /* ================= Layout ================= */
+  .hj {
+    --hj-scroll: 260svh; /* scroll distance for the five stages */
+    --pin-h: calc(100svh - var(--header-h));
+    --dock-h: 4.25rem;
+    --stage-w: min(90%, 100rem);
+    position: relative;
     background-color: var(--navy-900);
     background-image:
-      radial-gradient(60rem 30rem at 85% 0%, rgb(201 162 74 / 0.08), transparent 60%),
-      radial-gradient(50rem 40rem at 0% 100%, rgb(42 76 122 / 0.45), transparent 60%);
+      radial-gradient(60rem 30rem at 85% 0%, rgb(143 180 201 / 0.08), transparent 60%),
+      radial-gradient(50rem 40rem at 0% 100%, rgb(35 77 102 / 0.4), transparent 60%);
+    color: var(--mist-100);
   }
-  .journey__head h2 {
-    color: var(--ivory-50);
+  .hj__track {
+    height: calc(var(--pin-h) + var(--hj-scroll));
   }
-  .journey__grid {
-    --scene-h: min(34rem, calc((100vh - var(--header-h)) * 0.78));
-    display: grid;
-    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-    gap: clamp(2rem, 4vw, 4.5rem);
-    align-items: stretch;
-  }
-
-  /* ---------- Steps ---------- */
-  .journey__steps {
-    list-style: none;
-    padding: 0;
-    /* Keeps the sticky scene fully in view until the final stage completes. */
-    padding-bottom: calc((var(--header-h) + var(--scene-h)) / 2);
-  }
-  .j-step {
-    min-height: 62vh;
-    display: grid;
-    align-content: center;
-    padding-block: 2rem;
-  }
-  .j-step:first-child {
-    min-height: 48vh;
-    align-content: start;
-    padding-top: 4rem;
-  }
-  .j-step:last-child {
-    min-height: 50vh;
-  }
-  .j-step__inner {
-    display: grid;
-    gap: 0.9rem;
-    padding-inline-start: 1.5rem;
-    border-inline-start: 2px solid var(--rule);
-    transition: border-color var(--dur-med) ease;
-  }
-  .j-step__num {
-    font-size: var(--step-2);
-    font-weight: 800;
-    color: var(--navy-300);
-    line-height: 1;
-    transition: color var(--dur-med) ease;
-  }
-  .j-step__num span {
-    font-size: var(--step--1);
-    font-weight: 600;
-    opacity: 0.7;
-  }
-  .j-step h3 {
-    font-size: var(--step-3);
-    color: var(--ivory-50);
-    line-height: 1.35;
-  }
-  .j-step p {
-    color: #c3cddc;
-  }
-  .j-step__points {
-    list-style: none;
-    display: grid;
-    gap: 0.4rem;
-    font-size: var(--step--1);
-    color: #b9c4d6;
-  }
-  .j-step__points li {
-    position: relative;
-    padding-inline-start: 1.2rem;
-  }
-  .j-step__points li::before {
-    content: '';
-    position: absolute;
-    inset-inline-start: 0;
-    top: 0.85em;
-    inline-size: 0.45rem;
-    block-size: 2px;
-    background: var(--gold-400);
-  }
-  .js .j-step:not(.is-active) .j-step__inner {
-    border-color: rgb(247 241 228 / 0.08);
-  }
-  .js .j-step.is-active .j-step__inner {
-    border-color: var(--gold-400);
-  }
-  .js .j-step.is-active .j-step__num {
-    color: var(--gold-300);
-  }
-  .js .j-step:not(.is-active) h3 {
-    color: #c9d2e0;
-  }
-
-  /* ---------- Scene ---------- */
-  .journey__scene-col {
-    position: relative;
-    container-type: inline-size;
-  }
-  .j-sticky {
-    /* Match the scene's 10:7 aspect where the column allows it. */
-    --frame-h: min(var(--scene-h), 70cqi);
+  .hj__pin {
     position: sticky;
-    top: calc(var(--header-h) + (100vh - var(--header-h) - var(--frame-h)) / 2);
-    z-index: 2;
+    top: var(--header-h);
+    height: var(--pin-h);
   }
-  .no-js .j-sticky {
-    position: static;
+  .hj__stage {
+    position: relative;
+    width: var(--stage-w);
+    height: 100%;
+    margin-inline: auto;
+    padding-block: clamp(1rem, 3vh, 2rem) 0;
+    display: flex;
+    flex-direction: column;
   }
+
+  /* ================= Scene: edge to edge ================= */
   .j-frame {
     position: relative;
-    height: var(--frame-h, var(--scene-h));
-    border-radius: var(--radius-l);
+    flex: 1;
+    min-height: 0;
     overflow: hidden;
-    background: #0d2242;
-    border: 1px solid rgb(247 241 228 / 0.12);
+    border-radius: var(--radius-l);
+    background: #13263d;
+    border: 1px solid rgb(232 236 238 / 0.12);
     box-shadow:
-      0 30px 60px -30px rgb(0 0 0 / 0.55),
-      inset 0 1px 0 rgb(247 241 228 / 0.06);
+      0 40px 90px -40px rgb(0 0 0 / 0.7),
+      inset 0 1px 0 rgb(232 236 238 / 0.06);
   }
   .j-frame :global(.j-svg) {
     width: 100%;
     height: 100%;
   }
+  .j-frame::before {
+    /* legibility wash behind the headline (start side, top) and the step bar */
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: radial-gradient(60% 75% at 100% 0%, rgb(13 26 44 / 0.85), rgb(13 26 44 / 0.4) 45%, transparent 72%);
+    opacity: var(--intro-o, 1);
+  }
   .j-frame::after {
-    /* soft vignette + inner hairline for a lens-like depth */
     content: '';
     position: absolute;
     inset: 0;
     border-radius: inherit;
     pointer-events: none;
-    background: radial-gradient(120% 90% at 50% 40%, transparent 55%, rgb(3 10 24 / 0.55));
-    box-shadow: inset 0 0 0 1px rgb(247 241 228 / 0.06);
+    background: radial-gradient(130% 100% at 50% 45%, transparent 62%, rgb(8 16 28 / 0.45));
   }
   .j-frame :global(text) {
     font-family: var(--font-sans);
   }
   .j-frame :global(.j-marker circle) {
-    fill: #0a1c38;
-    stroke: rgb(247 241 228 / 0.45);
+    fill: var(--navy-900);
+    stroke: rgb(232 236 238 / 0.45);
     stroke-width: 1.5;
     transition:
       fill 300ms ease,
@@ -251,77 +180,32 @@ const pad = (n: number) => toFa(String(n).padStart(2, '0'));
     transition: fill 300ms ease;
   }
   .j-frame :global(.j-marker .j-marker__halo) {
-    fill: var(--gold-400);
+    fill: var(--petrol-300);
     stroke: none;
     opacity: 0;
     transition: opacity 300ms ease;
   }
   .j-frame :global(.j-marker.is-active .j-marker__halo) {
-    fill: var(--gold-400);
-    stroke: none;
     opacity: 0.22;
   }
   .j-frame :global(.j-marker.is-active circle:not(.j-marker__halo)) {
-    fill: var(--gold-400);
-    stroke: var(--gold-300);
+    fill: var(--petrol-300);
+    stroke: var(--petrol-200);
   }
   .j-frame :global(.j-marker.is-active text) {
     fill: var(--navy-950);
   }
-
-  .j-hud {
-    position: absolute;
-    inset-inline: 0;
-    bottom: 0;
-    padding: 2.2rem 1.25rem 1rem;
-    background: linear-gradient(to top, rgb(6 18 38 / 0.92), rgb(6 18 38 / 0));
-    pointer-events: none;
-    z-index: 1;
+  @media (max-width: 900px) {
+    /* On narrow frames the first marker sits behind the headline's button: show it once the headline fades. */
+    .j-frame :global([data-j='marker-0']) {
+      opacity: calc(1 - var(--intro-o, 1));
+    }
   }
-  .j-hud__label {
-    display: flex;
-    align-items: baseline;
-    gap: 0.75rem;
-    font-weight: 700;
-    color: var(--ivory-50);
-    font-size: var(--step-0);
-    line-height: 1.5;
-  }
-  .j-hud__count {
-    font-size: var(--step--1);
-    color: var(--gold-300);
-    white-space: nowrap;
-  }
-  .j-hud__bar {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 4px;
-    margin-top: 0.6rem;
-  }
-  .j-hud__bar span {
-    display: block;
-    height: 3px;
-    border-radius: 3px;
-    background: rgb(247 241 228 / 0.18);
-    overflow: hidden;
-  }
-  .j-hud__bar i {
-    display: block;
-    height: 100%;
-    background: var(--gold-400);
-    transform-origin: right center;
-    transform: scaleX(var(--fill, 0));
-  }
-  .no-js .j-hud {
-    display: none;
-  }
-
-  /* Independent swell loop: only while the section is on screen. */
   .j-frame :global(.j-waves) {
     animation: j-swell 7s linear infinite;
     animation-play-state: paused;
   }
-  .journey:global(.is-running) .j-frame :global(.j-waves) {
+  .hj:global(.is-running) .j-frame :global(.j-waves) {
     animation-play-state: running;
   }
   @keyframes j-swell {
@@ -335,72 +219,355 @@ const pad = (n: number) => toFa(String(n).padStart(2, '0'));
     }
   }
 
-  .journey__note {
-    margin-top: clamp(2rem, 4vw, 3rem);
-    max-width: 52rem;
+  /* ================= Minimal overlay: H1 + CTA ================= */
+  .hj__intro {
+    position: absolute;
+    z-index: 2;
+    top: clamp(1.5rem, 6%, 3.5rem);
+    inset-inline-start: clamp(1.5rem, 4%, 3.5rem);
+    max-width: min(34rem, 44%);
+    opacity: var(--intro-o, 1);
+    transform: translateY(calc((1 - var(--intro-o, 1)) * -14px));
+  }
+  .hj:global(.is-past-intro) .hj__intro {
+    pointer-events: none;
+    visibility: hidden;
   }
 
-  /* ---------- Compact stacked layout ---------- */
+  /* Scroll hint at the very start */
+  .hj__hint {
+    position: absolute;
+    z-index: 2;
+    bottom: 1.1rem;
+    inset-inline: 0;
+    margin-inline: auto;
+    width: fit-content;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--mist-100);
+    font-size: 0.8rem;
+    font-weight: 700;
+    opacity: 0;
+    transition: opacity 400ms ease;
+    pointer-events: none;
+  }
+  .hj:global(.is-start) .hj__hint {
+    opacity: 0.85;
+  }
+  .hj__mouse {
+    position: relative;
+    inline-size: 1rem;
+    block-size: 1.5rem;
+    border: 1.5px solid currentColor;
+    border-radius: 999px;
+  }
+  .hj__mouse i {
+    position: absolute;
+    top: 0.25rem;
+    inset-inline: 0;
+    margin-inline: auto;
+    inline-size: 2px;
+    block-size: 0.35rem;
+    border-radius: 2px;
+    background: var(--petrol-200);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .hj__mouse i {
+      animation: hj-wheel 1.6s ease-in-out infinite;
+    }
+  }
+  @keyframes hj-wheel {
+    0% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    70% {
+      transform: translateY(0.45rem);
+      opacity: 0;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  /* ================= Step bar (bottom dock) ================= */
+  .hj__dock {
+    position: relative;
+    z-index: 3;
+    flex: none;
+    padding-block: 0.4rem 0.9rem;
+  }
+  .hj__steps {
+    position: relative;
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+  .hj-step__summary {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.85rem 0.15rem 0.35rem;
+    cursor: pointer;
+    list-style: none;
+    border-radius: var(--radius-s);
+  }
+  .hj-step__summary::-webkit-details-marker {
+    display: none;
+  }
+  .hj-step__bar {
+    position: absolute;
+    top: 0;
+    inset-inline: 0;
+    height: 2px;
+    border-radius: 2px;
+    background: rgb(232 236 238 / 0.2);
+    overflow: hidden;
+  }
+  .hj-step__bar i {
+    display: block;
+    height: 100%;
+    background: var(--petrol-300);
+    transform-origin: right center;
+    transform: scaleX(var(--fill, 0));
+  }
+  .hj-step__num {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--silver-400);
+    transition: color var(--dur-med) ease;
+  }
+  .hj-step__title {
+    flex: 1;
+    min-width: 0;
+    font-size: 0.92rem;
+    font-weight: 700;
+    line-height: 1.5;
+    color: #aebbd0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color var(--dur-med) ease;
+  }
+  .hj-step__summary:hover .hj-step__title,
+  .hj-step__details[open] .hj-step__title {
+    color: var(--white);
+  }
+  :global(.js) .hj-step.is-active .hj-step__num {
+    color: var(--petrol-200);
+  }
+  :global(.js) .hj-step.is-active .hj-step__title {
+    color: var(--white);
+  }
+  .hj-step__plus {
+    position: relative;
+    flex: none;
+    inline-size: 1.1rem;
+    block-size: 1.1rem;
+    opacity: 0.55;
+    transition:
+      opacity var(--dur-fast) ease,
+      rotate var(--dur-med) var(--ease-out);
+  }
+  .hj-step__plus::before,
+  .hj-step__plus::after {
+    content: '';
+    position: absolute;
+    inset: 50% auto auto 50%;
+    inline-size: 0.65rem;
+    block-size: 1.5px;
+    border-radius: 2px;
+    background: var(--mist-100);
+    translate: -50% -50%;
+  }
+  .hj-step__plus::after {
+    rotate: 90deg;
+  }
+  .hj-step__summary:hover .hj-step__plus {
+    opacity: 1;
+  }
+  .hj-step__details[open] .hj-step__plus {
+    opacity: 1;
+    rotate: 45deg;
+  }
+
+  /* Description card: floats above the bar, aligned to the start side */
+  .hj-step__card {
+    position: absolute;
+    bottom: calc(100% + 0.9rem);
+    inset-inline-start: 0;
+    width: min(28rem, 100%);
+    max-height: calc(var(--pin-h) - var(--dock-h) - 4rem);
+    overflow-y: auto;
+    display: grid;
+    gap: 0.65rem;
+    padding: 1.15rem 1.3rem 1.2rem;
+    border-radius: var(--radius-m);
+    background: rgb(13 26 44 / 0.94);
+    border: 1px solid rgb(232 236 238 / 0.14);
+    box-shadow: 0 30px 60px -30px rgb(0 0 0 / 0.7);
+    color: #c5cbd2;
+    font-size: var(--step--1);
+    line-height: 1.9;
+  }
+  .hj-step__card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .hj-step__card-title {
+    font-weight: 800;
+    color: var(--petrol-200);
+  }
+  .hj-step__close {
+    display: grid;
+    place-items: center;
+    inline-size: 2rem;
+    block-size: 2rem;
+    flex: none;
+    border-radius: 50%;
+    border: 1px solid rgb(232 236 238 / 0.2);
+    background: transparent;
+    color: var(--mist-100);
+    cursor: pointer;
+  }
+  .hj-step__close :global(svg) {
+    inline-size: 1rem;
+    block-size: 1rem;
+  }
+  .hj-step__close:hover {
+    background: rgb(232 236 238 / 0.08);
+  }
+  .hj-step__card ul {
+    list-style: none;
+    display: grid;
+    gap: 0.25rem;
+    color: #bcc3cb;
+  }
+  .hj-step__card li {
+    position: relative;
+    padding-inline-start: 1.1rem;
+  }
+  .hj-step__card li::before {
+    content: '';
+    position: absolute;
+    inset-inline-start: 0;
+    top: 0.85em;
+    inline-size: 0.45rem;
+    block-size: 2px;
+    background: var(--petrol-300);
+  }
+  .hj-step__card .arrow-link {
+    color: var(--petrol-200);
+  }
+  .hj-step__note {
+    font-size: 0.75rem;
+    color: #a8b0ba;
+    padding-top: 0.5rem;
+    border-top: 1px solid rgb(232 236 238 / 0.1);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .hj-step__details[open] .hj-step__card {
+      animation: hj-open 260ms var(--ease-out);
+    }
+  }
+  @keyframes hj-open {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+  }
+
+  /* ================= Tablet & phone ================= */
   @media (max-width: 900px) {
-    .journey__grid {
-      grid-template-columns: minmax(0, 1fr);
-      gap: 0;
-      --scene-h: min(62.5vw, 38svh);
+    .hj {
+      --hj-scroll: 220svh;
     }
-    .journey__scene-col {
-      order: -1;
-      position: sticky;
-      top: var(--header-h);
-      z-index: 2;
-      /* Solid backdrop so steps scroll cleanly underneath */
-      background: var(--navy-900);
-      padding-block: 0.5rem;
-      margin-inline: calc(-1 * var(--gutter));
-      padding-inline: var(--gutter);
-    }
-    .no-js .journey__scene-col {
-      position: static;
-    }
-    .j-sticky {
-      position: static;
+    .hj__stage {
+      padding-top: 0.75rem;
     }
     .j-frame {
       border-radius: var(--radius-m);
     }
-    .j-hud {
-      padding: 1.6rem 0.9rem 0.7rem;
+    .hj__intro {
+      top: 1.25rem;
+      inset-inline-start: 1.1rem;
+      max-width: calc(100% - 2.2rem);
     }
-    .j-hud__label {
-      font-size: var(--step--1);
+    /* phones: a calmer top band behind the headline */
+    .j-frame::before {
+      background:
+        linear-gradient(to bottom, rgb(13 26 44 / 0.92), rgb(13 26 44 / 0.7) 26%, rgb(13 26 44 / 0) 46%),
+        linear-gradient(to top, rgb(13 26 44 / 0.8), transparent 18%);
     }
-    .j-step,
-    .j-step:last-child {
-      min-height: 58svh;
-      align-content: start;
-      padding-block: 2.25rem 1rem;
+    .hj__hint {
+      bottom: 0.9rem;
     }
-    .j-step:first-child {
-      min-height: 50svh;
-      padding-top: 2.25rem;
+    .hj__dock {
+      padding-block: 0.3rem 0.7rem;
     }
-    .j-step h3 {
-      font-size: var(--step-2);
+    .hj__steps {
+      gap: 0.4rem;
     }
-    .journey__steps {
-      padding-bottom: 0;
+    .hj-step__summary {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.1rem;
+      padding-top: 0.6rem;
+    }
+    .hj-step__title {
+      font-size: 0.78rem;
+      white-space: normal;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+    .hj-step__plus {
+      display: none;
+    }
+    .hj-step__card {
+      position: fixed;
+      inset-inline: 7%;
+      bottom: calc(var(--dock-h) + 1.5rem);
+      width: auto;
+      max-height: 55svh;
+    }
+  }
+  @media (max-width: 520px) {
+    :global(.js) .hj-step:not(.is-active) .hj-step__title {
+      color: #98a7c0; /* muted but ≥ 7:1 on the navy bar */
+    }
+    .hj-step__title {
+      font-size: 0.72rem;
     }
   }
 
-  /* Short landscape screens: no sticky scene, so nothing gets covered. */
-  @media (max-height: 520px) {
-    .journey__scene-col,
-    .j-sticky {
-      position: static;
-    }
-    .j-step,
-    .j-step:first-child,
-    .j-step:last-child {
-      min-height: auto;
-    }
+  /* ================= Without JavaScript: static, nothing pinned ================= */
+  :global(.no-js) .hj__track {
+    height: auto;
+  }
+  :global(.no-js) .hj__pin {
+    position: static;
+    height: auto;
+  }
+  :global(.no-js) .hj__stage {
+    height: auto;
+    padding-bottom: 1rem;
+  }
+  :global(.no-js) .j-frame {
+    flex: none;
+    height: min(70svh, 42rem);
+  }
+  :global(.no-js) .hj-step__card {
+    position: static;
+    width: auto;
+    margin-top: 0.5rem;
+  }
+  :global(.no-js) .hj__hint {
+    display: none;
   }
 </style>

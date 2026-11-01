@@ -1,7 +1,10 @@
 /**
- * Browser controller for the shipment journey.
+ * Browser controller for the shipment journey (homepage header).
  * Maps native scroll position → progress → computeFrame() → SVG attributes.
  * No scroll hijacking: the page scrolls normally; we only read its position.
+ *
+ * Progress comes from how far the pinned panel has travelled through its scroll track.
+ * The headline overlay fades out as the journey starts (--intro-o on the root).
  */
 import { computeFrame, discreteProgress, cameraTransform, poseTransform, WORLD, STAGE_COUNT, SHEET_SPREAD, clamp, type Frame } from './timeline';
 
@@ -11,10 +14,11 @@ const pad = (n: number) => String(n).padStart(2, '0').replace(/\d/g, (d) => faDi
 export function initJourney(root: HTMLElement) {
   const $ = <T extends Element = SVGElement>(k: string) => root.querySelector<T>(`[data-j="${k}"]`);
   const steps = Array.from(root.querySelectorAll<HTMLElement>('[data-step]'));
-  const stepsWrap = root.querySelector<HTMLElement>('[data-steps]');
+  const track = root.querySelector<HTMLElement>('[data-track]');
+  const pin = root.querySelector<HTMLElement>('[data-pin]');
   const scene = root.querySelector<HTMLElement>('[data-scene]');
   const svg = $('svg');
-  if (!stepsWrap || !scene || !svg) return;
+  if (!track || !pin || !scene || !svg) return;
 
   const el = {
     camera: $('camera'),
@@ -29,6 +33,7 @@ export function initJourney(root: HTMLElement) {
     docsCheck: $('docs-check'),
     docsCheckPath: $('docs-check-path'),
     sheets: [0, 1, 2].map((i) => $(`sheet-${i}`)),
+    sheetTicks: [0, 1, 2].map((i) => $(`sheet-tick-${i}`)),
     oc: { l1: $('oc-l1'), l2: $('oc-l2'), trolley: $('oc-trolley'), spreader: $('oc-spreader') },
     dc: { l1: $('dc-l1'), l2: $('dc-l2'), trolley: $('dc-trolley'), spreader: $('dc-spreader') },
     scanBeam: $('scan-beam'),
@@ -45,35 +50,70 @@ export function initJourney(root: HTMLElement) {
   const hudCount = root.querySelector<HTMLElement>('[data-hud-count]');
   const hudTitle = root.querySelector<HTMLElement>('[data-hud-title]');
   const hudFills = Array.from(root.querySelectorAll<HTMLElement>('.j-hud__bar i'));
-  const titles = steps.map((s) => s.querySelector('h3')?.lastChild?.textContent?.trim() ?? '');
+  const stepBars = steps.map((s) => s.querySelector<HTMLElement>('.hj-step__bar i'));
+  const titles = steps.map((s) => s.querySelector('.hj-step__title')?.lastChild?.textContent?.trim() ?? '');
+  const header = document.querySelector<HTMLElement>('.site-header');
 
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
-  const stacked = matchMedia('(max-width: 900px)');
 
   const set = (node: Element | null, attr: string, value: string | number) => {
     if (node) node.setAttribute(attr, typeof value === 'number' ? value.toFixed(3) : value);
   };
 
   let target = 0;
-  let shown = -1;
-  let stage = -1;
+  let shown = 0; // the server-rendered frame is p = 0
+  let rendered = false;
+  let stage = 0;
   let running = false;
   let raf = 0;
   let last = 0;
+  let atSea = 0;
+  // Sideways camera pan (in screen px) that keeps the scene clear of an open stage card.
+  let pan = 0;
+  let panGoal = 0;
+  let unitsPerPx = 1; // SVG view units per screen px, kept current by fit()
 
-  function readProgress() {
-    // Measure the stage blocks themselves (not the list's tail padding).
-    const top = steps[0].getBoundingClientRect().top;
-    const bottom = steps[steps.length - 1].getBoundingClientRect().bottom;
-    const r = { top, height: Math.max(1, bottom - top) };
-    const vh = window.innerHeight;
-    let line = vh * 0.5;
-    if (stacked.matches) {
-      // Reading line sits midway through the space left under the sticky scene.
-      const bottom = clamp(scene!.getBoundingClientRect().bottom, 0, vh);
-      line = bottom + (vh - bottom) * 0.42;
-    }
-    return clamp((line - r.top) / r.height);
+  /** d = distance travelled through the pinned range; before = distance until pinning starts. */
+  function geometry() {
+    const headerH = header?.offsetHeight ?? 0;
+    const pr = pin!.getBoundingClientRect();
+    const tr = track!.getBoundingClientRect();
+    return {
+      d: pr.top - tr.top,
+      range: Math.max(1, track!.offsetHeight - pin!.offsetHeight),
+      before: Math.max(0, pr.top - headerH),
+    };
+  }
+
+  const readProgress = () => {
+    const g = geometry();
+    return clamp(g.d / g.range);
+  };
+
+  /** Scroll the page so the animation shows stage i (near its completed state). */
+  function scrollToStage(i: number) {
+    const g = geometry();
+    const p = (i + 0.85) / STAGE_COUNT;
+    const top = window.scrollY + g.before + p * g.range - clamp(g.d, 0, g.range);
+    window.scrollTo({ top, behavior: reduceMotion.matches ? 'auto' : 'smooth' });
+  }
+
+  /** Pan needed to centre the scene in the part of the frame an open card leaves visible. */
+  function measurePan() {
+    const card = root.querySelector<HTMLElement>('.hj-step__details[open] .hj-step__card');
+    if (!card) return 0;
+    const r = scene!.getBoundingClientRect();
+    const c = card.getBoundingClientRect();
+    // Phone layout: the card spans the frame, so there is no side to move toward.
+    if (!c.width || c.width > r.width * 0.6) return 0;
+    const onRight = c.left + c.width / 2 > r.left + r.width / 2;
+    return onRight ? Math.max(0, r.right - c.left) / 2 : -Math.max(0, c.right - r.left) / 2;
+  }
+
+  function kick() {
+    // Untouched page with no card open: the server-rendered frame is already right.
+    if (!rendered && !panGoal && !pan) return;
+    if (running && !raf) raf = requestAnimationFrame(loop);
   }
 
   function apply(f: Frame) {
@@ -90,7 +130,8 @@ export function initJourney(root: HTMLElement) {
     set(el.docs, 'opacity', f.docs.dim);
     f.docs.sheets.forEach((s, i) => {
       set(el.sheets[i], 'opacity', s.o);
-      set(el.sheets[i], 'transform', `translate(${(s.dx + (i - 1) * SHEET_SPREAD).toFixed(2)} ${s.dy.toFixed(2)}) rotate(${s.r.toFixed(2)})`);
+      set(el.sheets[i], 'transform', `translate(${(s.dx + (i - 1) * SHEET_SPREAD).toFixed(2)} ${s.dy.toFixed(2)}) rotate(${s.r.toFixed(2)} 0 -40)`);
+      set(el.sheetTicks[i], 'stroke-dashoffset', (1 - s.tick).toFixed(4));
     });
     set(el.docsCheck, 'opacity', f.docs.check > 0 ? 1 : 0);
     set(el.docsCheckPath, 'stroke-dashoffset', (1 - f.docs.check).toFixed(4));
@@ -130,8 +171,12 @@ export function initJourney(root: HTMLElement) {
     set(el.done, 'opacity', f.done > 0 ? 1 : 0);
     el.doneStrokes.forEach((n) => set(n, 'stroke-dashoffset', (1 - f.done).toFixed(4)));
 
-    // Progress indicator
-    hudFills.forEach((fill, i) => fill.style.setProperty('--fill', clamp(f.p * STAGE_COUNT - i).toFixed(3)));
+    // Progress indicators: HUD bars and the bar under each stage title
+    for (let i = 0; i < STAGE_COUNT; i++) {
+      const v = clamp(f.p * STAGE_COUNT - i).toFixed(3);
+      hudFills[i]?.style.setProperty('--fill', v);
+      stepBars[i]?.style.setProperty('--fill', v);
+    }
 
     if (f.stage !== stage) {
       stage = f.stage;
@@ -140,47 +185,90 @@ export function initJourney(root: HTMLElement) {
       if (hudCount) hudCount.textContent = `${pad(stage + 1)} / ${pad(STAGE_COUNT)}`;
       if (hudTitle) hudTitle.textContent = titles[stage] ?? '';
     }
+    root.classList.toggle('is-start', f.p < 0.015);
+    // Headline overlay: fully visible at the top, gone once the journey is under way.
+    const introO = clamp(1 - f.p / 0.05);
+    root.style.setProperty('--intro-o', introO.toFixed(3));
+    root.classList.toggle('is-past-intro', introO < 0.05);
+    root.classList.toggle('is-running', running && f.p > 0.015 && !reduceMotion.matches);
   }
 
   function render(now: number) {
     const reduce = reduceMotion.matches;
     const goal = reduce ? discreteProgress(target) : target;
-    if (shown < 0 || reduce) {
+    if (reduce) {
       shown = goal;
     } else {
       // Light critically-damped easing toward the scroll position: smooth on
       // wheel steps, still exactly reversible, settles within ~200 ms.
       const dt = Math.min(64, now - (last || now));
-      const k = 1 - Math.exp(-dt / 70);
+      const k = last ? 1 - Math.exp(-dt / 70) : 1;
       shown += (goal - shown) * k;
       if (Math.abs(goal - shown) < 0.0004) shown = goal;
+    }
+    if (reduce) pan = panGoal;
+    else {
+      const k = 1 - Math.exp(-Math.min(64, now - (last || now)) / 140);
+      pan += (panGoal - pan) * (last ? k : 0);
+      if (Math.abs(panGoal - pan) < 0.5) pan = panGoal;
     }
     last = now;
     const t = now / 1000;
     const swell = reduce ? { dy: 0, da: 0 } : { dy: Math.sin(t * 1.7) * 2.4, da: Math.sin(t * 1.15 + 0.7) * 1.1 };
-    apply(computeFrame(shown, swell));
+    const f = computeFrame(shown, swell);
+    if (pan) f.camera = { ...f.camera, x: f.camera.x + (pan * unitsPerPx) / f.camera.s };
+    atSea = f.atSea;
+    apply(f);
+    rendered = true;
   }
 
   function loop(now: number) {
     render(now);
-    // Keep animating only while visible and motion is allowed (for the swell);
-    // otherwise frames are drawn on demand from scroll events.
-    if (running && !reduceMotion.matches) raf = requestAnimationFrame(loop);
-    else raf = 0;
+    // Keep animating only while easing toward the scroll position or while the ship
+    // bobs at sea; otherwise frames are drawn on demand from scroll events.
+    const easing = Math.abs(target - shown) > 0.0004 || pan !== panGoal;
+    if (running && !reduceMotion.matches && (easing || atSea > 0.001)) raf = requestAnimationFrame(loop);
+    else {
+      raf = 0;
+      last = 0;
+    }
   }
 
   function request() {
-    // Off-screen: do nothing (no layout reads). The IntersectionObserver calls
-    // request() again as soon as the section approaches the viewport.
+    // Off-screen: no layout reads. The IntersectionObserver re-requests on entry.
     if (!running) return;
     target = readProgress();
+    // Nothing to draw yet: the server-rendered SVG already shows p = 0.
+    if (!rendered && target < 0.0005) return;
     if (!raf) raf = requestAnimationFrame(loop);
   }
+
+  // Stage titles: opening one (by click or keyboard) also scrolls the animation to it.
+  steps.forEach((s, i) => {
+    const details = s.querySelector('details');
+    const summary = details?.querySelector('summary');
+    if (!details || !summary) return;
+    details.querySelector('[data-close]')?.addEventListener('click', () => {
+      details.open = false;
+      summary.focus();
+    });
+    let userToggled = false;
+    summary.addEventListener('click', () => {
+      userToggled = true;
+    });
+    details.addEventListener('toggle', () => {
+      if (details.open && userToggled) scrollToStage(i);
+      userToggled = false;
+      // Exclusive accordion: a closing card's toggle can arrive after the next one opened.
+      panGoal = measurePan();
+      kick();
+    });
+  });
 
   const io = new IntersectionObserver(
     ([entry]) => {
       running = entry.isIntersecting;
-      root.classList.toggle('is-running', running);
+      if (!running) root.classList.remove('is-running');
       if (running) request();
     },
     { rootMargin: '120px 0px' },
@@ -190,7 +278,23 @@ export function initJourney(root: HTMLElement) {
   window.addEventListener('scroll', request, { passive: true });
   window.addEventListener('resize', request, { passive: true });
   reduceMotion.addEventListener('change', request);
-  root.classList.add('is-enhanced');
-  // No work at load: the server-rendered SVG already shows the first frame, and the
-  // IntersectionObserver starts rendering once the section approaches the viewport.
+  // Fit the scene to the frame's shape: always show the full scene height and let a
+  // wider frame reveal more of the harbour to each side (narrower frames crop the sides).
+  const baseW = Number(svg.getAttribute('data-base-w')) || 800;
+  const baseH = Number(svg.getAttribute('data-base-h')) || 560;
+  // Sizes come from the observer (delivered after layout, also once on observe), so
+  // start-up never forces a synchronous layout.
+  new ResizeObserver(([entry]) => {
+    const { width, height } = entry.contentRect;
+    if (!width || !height) return;
+    const w = (baseH * width) / height;
+    unitsPerPx = baseH / height;
+    svg!.setAttribute('viewBox', `${((baseW - w) / 2).toFixed(1)} 0 ${w.toFixed(1)} ${baseH}`);
+    if (pan || panGoal) {
+      panGoal = measurePan();
+      kick();
+    }
+  }).observe(scene);
+
+  root.classList.add('is-enhanced', 'is-start');
 }

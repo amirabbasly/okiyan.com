@@ -1,0 +1,171 @@
+---
+/**
+ * ضمانت — SAMPLE CONTENT. These guarantees are placeholders, not commitments.
+ * Have the real terms approved (ideally by a lawyer), then remove '/guarantee/'
+ * from src/data/sample-pages.json.
+ */
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import PageHero from '~/components/layout/PageHero.astro';
+import CtaBand from '~/components/ui/CtaBand.astro';
+import Steps from '~/components/ui/Steps.astro';
+import Faq from '~/components/ui/Faq.astro';
+import Icon from '~/components/ui/Icon.astro';
+import { breadcrumbLd } from '~/lib/schema';
+
+const crumbs = [
+  { name: 'خانه', path: '/' },
+  { name: 'ضمانت', path: '/guarantee/' },
+];
+
+const guarantees = [
+  {
+    icon: 'doc' as const,
+    title: 'ضمانت شفافیت هزینه',
+    text: 'کارمزد خدمات ما پیش از شروع کار به‌صورت مکتوب اعلام می‌شود و بدون توافق شما افزایش نمی‌یابد.',
+  },
+  {
+    icon: 'clock' as const,
+    title: 'ضمانت پاسخ‌گویی',
+    text: 'به پیام‌ها و پرسش‌های پرونده حداکثر تا پایان روز کاری بعد پاسخ می‌دهیم.',
+  },
+  {
+    icon: 'lock' as const,
+    title: 'ضمانت محرمانگی',
+    text: 'اسناد و اطلاعات تجاری شما فقط برای انجام همان پرونده و با طرف‌های لازم به اشتراک گذاشته می‌شود.',
+  },
+  {
+    icon: 'shield' as const,
+    title: 'ضمانت جبران خطای ما',
+    text: 'اگر هزینه یا جریمه‌ای مستقیماً به دلیل خطای ما در تنظیم اسناد ایجاد شود، آن را جبران می‌کنیم.',
+  },
+];
+
+const exclusions = [
+  'تصمیم‌ها، زمان رسیدگی و نتیجهٔ ارزیابی گمرک و سایر نهادها',
+  'تغییر مقررات، نرخ‌ها یا تعرفه‌ها پس از شروع پرونده',
+  'اطلاعات نادرست یا ناقصی که از سوی صاحب کالا یا تأمین‌کننده ارائه شده باشد',
+  'تأخیر حمل‌کننده، بندر یا عوامل خارج از کنترل ما',
+];
+
+const steps = [
+  { title: 'اعلام موضوع', text: 'موضوع را با شمارهٔ پرونده و توضیح کوتاه به مدیر پرونده یا از طریق صفحهٔ تماس اعلام کنید.' },
+  { title: 'بررسی', text: 'ظرف پنج روز کاری موضوع بررسی و نتیجه به‌صورت مکتوب اعلام می‌شود.' },
+  { title: 'جبران', text: 'در صورت پذیرش، جبران طبق شرایط توافق‌شده در قرارداد انجام می‌شود.' },
+];
+
+const faqs = [
+  { q: 'آیا زمان ترخیص را تضمین می‌کنید؟', a: 'خیر. زمان ترخیص به تصمیم و زمان رسیدگی گمرک و نهادهای دیگر بستگی دارد. آنچه تضمین می‌کنیم، پیگیری به‌موقع و گزارش روشن هر مرحله است.' },
+  { q: 'شرایط ضمانت کجا نوشته می‌شود؟', a: 'شرایط کامل ضمانت در قرارداد خدمات هر پرونده درج می‌شود و پیش از شروع کار در اختیار شما قرار می‌گیرد.' },
+  { q: 'ضمانت شامل خدمات همکاران هم می‌شود؟', a: 'خدماتی که مستقیماً توسط همکاران (مانند حمل یا بیمه) ارائه می‌شود، تابع شرایط همان شرکت‌هاست؛ ما در پیگیری موضوع کنار شما هستیم.' },
+];
+---
+
+<BaseLayout
+  title="ضمانت خدمات؛ تعهدهای اوکیان و شرایط آن"
+  description="ضمانت‌های اوکیان در ترخیص و واردات کالا: شفافیت هزینه، پاسخ‌گویی، محرمانگی اسناد و جبران خطا، همراه با شرایط و موارد خارج از ضمانت."
+  jsonLd={[breadcrumbLd(crumbs, Astro.site)]}
+>
+  <PageHero
+    eyebrow="ضمانت"
+    title="ضمانت خدمات اوکیان"
+    lead="تعهدهایی که می‌دهیم را روشن و مکتوب می‌دهیم، و آنچه را که در اختیار ما نیست هم صادقانه می‌گوییم."
+    crumbs={crumbs}
+  />
+
+  <section class="section" aria-labelledby="g-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="eyebrow">تعهدهای ما</span>
+        <h2 id="g-title">چهار ضمانت برای هر پرونده</h2>
+      </header>
+      <ul class="tiles guarantees">
+        {
+          guarantees.map((g) => (
+            <li class="tile reveal">
+              <span class="tile__icon">
+                <Icon name={g.icon} />
+              </span>
+              <h3>{g.title}</h3>
+              <p>{g.text}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section--alt section--grain" aria-labelledby="ex-title">
+    <div class="container split">
+      <div class="stack prose-lite reveal" style="--stack: 1.1rem">
+        <span class="eyebrow">مرز ضمانت</span>
+        <h2 id="ex-title">آنچه خارج از ضمانت است</h2>
+        <p>
+          بخشی از مسیر ترخیص و واردات در اختیار نهادها و شرکت‌های دیگر است. این موارد را از ابتدا روشن می‌گوییم تا انتظار نادرستی شکل نگیرد. برای آشنایی بیشتر
+          با روش کار ما، <a href="/about/">صفحهٔ درباره ما</a> را ببینید.
+        </p>
+      </div>
+      <aside class="fit-card reveal" aria-labelledby="ex-list-title">
+        <h3 id="ex-list-title">ضمانت شامل این موارد نمی‌شود</h3>
+        <ul class="exclusions">
+          {
+            exclusions.map((e) => (
+              <li>
+                <Icon name="close" />
+                {e}
+              </li>
+            ))
+          }
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="claim-title">
+    <div class="container split split--wide">
+      <div class="stack sticky-head reveal" style="--stack: 1rem">
+        <span class="eyebrow">پیگیری ضمانت</span>
+        <h2 id="claim-title">اگر مشکلی پیش آمد</h2>
+        <p class="lead">درخواست ضمانت در سه قدم بررسی می‌شود.</p>
+      </div>
+      <Steps items={steps} />
+    </div>
+  </section>
+
+  <section class="section section--alt" aria-labelledby="faq-title">
+    <div class="container split split--wide">
+      <header class="stack reveal" style="--stack: 1rem">
+        <span class="eyebrow">پرسش‌های رایج</span>
+        <h2 id="faq-title">دربارهٔ ضمانت</h2>
+      </header>
+      <Faq items={faqs} />
+    </div>
+  </section>
+
+  <CtaBand />
+</BaseLayout>
+
+<style>
+  .guarantees {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+  }
+  .exclusions {
+    list-style: none;
+    display: grid;
+    gap: 0.8rem;
+  }
+  .exclusions li {
+    display: grid;
+    grid-template-columns: 1.5rem 1fr;
+    gap: 0.6rem;
+    color: var(--slate-700);
+  }
+  .exclusions :global(svg) {
+    inline-size: 1.25rem;
+    block-size: 1.25rem;
+    margin-top: 0.35rem;
+    padding: 0.15rem;
+    border-radius: 50%;
+    background: var(--mist-200);
+    color: var(--navy-900);
+  }
+</style>

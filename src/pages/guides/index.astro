@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import PageHero from '~/components/layout/PageHero.astro';
+import GuidesArt from '~/components/illustrations/GuidesArt.astro';
 import CtaBand from '~/components/ui/CtaBand.astro';
 import Icon from '~/components/ui/Icon.astro';
 import { breadcrumbLd } from '~/lib/schema';
@@ -29,7 +30,9 @@ const groups = [
     title="راهنمای ترخیص و واردات کالا"
     lead="پیش از خرید یا پیش از رسیدن کالا به گمرک، این راهنماها کمک می‌کنند تصویر روشنی از مراحل، مدارک و هزینه‌ها داشته باشید. هر راهنما به منابع رسمی ارجاع می‌دهد و جای بررسی پرونده را نمی‌گیرد."
     crumbs={crumbs}
-  />
+  >
+    <GuidesArt slot="art" />
+  </PageHero>
 
   <section class="section" aria-label="فهرست راهنماها">
     <div class="container guide-groups">
@@ -127,7 +130,7 @@ const groups = [
   }
   .guide-item:hover h3 a {
     text-decoration: underline;
-    text-decoration-color: var(--gold-400);
+    text-decoration-color: var(--petrol-300);
     text-decoration-thickness: 2px;
   }
   .guide-item > p:not(.guide-item__meta) {
@@ -138,7 +141,7 @@ const groups = [
     display: grid;
     gap: 0.35rem;
     font-size: var(--step--1);
-    color: var(--ink-700);
+    color: var(--slate-700);
   }
   .guide-item__points li {
     padding-inline-start: 1rem;
@@ -151,6 +154,6 @@ const groups = [
     top: 0.85em;
     inline-size: 0.4rem;
     block-size: 2px;
-    background: var(--gold-500);
+    background: var(--petrol-500);
   }
 </style>

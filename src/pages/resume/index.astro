@@ -1,0 +1,251 @@
+---
+/**
+ * رزومه — SAMPLE CONTENT. Every number, project and year below is a placeholder.
+ * Replace with real records, then remove '/resume/' from src/data/sample-pages.json.
+ */
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import PageHero from '~/components/layout/PageHero.astro';
+import CtaBand from '~/components/ui/CtaBand.astro';
+import Icon from '~/components/ui/Icon.astro';
+import { breadcrumbLd } from '~/lib/schema';
+
+const crumbs = [
+  { name: 'خانه', path: '/' },
+  { name: 'رزومه', path: '/resume/' },
+];
+
+const stats = [
+  { n: '+۱۰', label: 'سال تجربه در ترخیص و واردات' },
+  { n: '+۵۰۰', label: 'پروندهٔ ترخیص انجام‌شده' },
+  { n: '+۱۲', label: 'گمرک و بندر' },
+  { n: '+۸۰', label: 'مشتری تجاری' },
+];
+
+const projects = [
+  {
+    year: '۱۴۰۳',
+    title: 'ترخیص خط تولید بسته‌بندی مواد غذایی',
+    sector: 'صنایع غذایی',
+    place: 'بندر شهید رجایی',
+    text: 'هماهنگی ترخیص ۱۴ کانتینر تجهیزات خط تولید، تفکیک اقلام برای تعرفه‌گذاری درست و پیگیری مجوزهای لازم پیش از رسیدن کالا.',
+  },
+  {
+    year: '۱۴۰۲',
+    title: 'واردات تجهیزات آزمایشگاهی',
+    sector: 'تجهیزات پزشکی',
+    place: 'گمرک فرودگاه امام خمینی',
+    text: 'بررسی اسناد پیش از حمل، هماهنگی با تأمین‌کننده برای اصلاح پیش‌فاکتور و ترخیص محمولهٔ هوایی حساس به دما.',
+  },
+  {
+    year: '۱۴۰۲',
+    title: 'ترخیص قطعات یدکی خودرو',
+    sector: 'قطعات خودرو',
+    place: 'گمرک غرب تهران',
+    text: 'دسته‌بندی چند صد قلم قطعه، تطبیق کد تعرفه با مشخصات فنی و آماده‌سازی اسناد برای ارزیابی بدون توقف.',
+  },
+  {
+    year: '۱۴۰۱',
+    title: 'واردات مواد اولیهٔ پلیمری',
+    sector: 'پتروشیمی',
+    place: 'بندر امام خمینی',
+    text: 'برنامه‌ریزی محموله‌های مرحله‌ای، هماهنگی حمل داخلی از بندر تا کارخانه و گزارش منظم وضعیت هر محموله.',
+  },
+  {
+    year: '۱۴۰۱',
+    title: 'ترخیص ماشین‌آلات راه‌سازی',
+    sector: 'ماشین‌آلات سنگین',
+    place: 'بندر شهید رجایی',
+    text: 'هماهنگی تخلیهٔ کالای فوق‌ابعاد، بازرسی فیزیکی و حمل ترافیکی تا محل پروژه.',
+  },
+  {
+    year: '۱۴۰۰',
+    title: 'واردات لوازم الکترونیکی',
+    sector: 'الکترونیک',
+    place: 'گمرک فرودگاه امام خمینی',
+    text: 'پیگیری استاندارد و مجوزهای مرتبط، اصلاح مغایرت اسناد و ترخیص محموله در چند مرحله.',
+  },
+];
+
+const milestones = [
+  { year: '۱۳۹۲', text: 'شروع فعالیت در ترخیص کالا با تمرکز بر کالاهای صنعتی.' },
+  { year: '۱۳۹۷', text: 'گسترش خدمات به هماهنگی کامل واردات، از پیش از خرید تا تحویل.' },
+  { year: '۱۴۰۰', text: 'آغاز همکاری مستمر با شرکت‌های حمل بین‌المللی و داخلی.' },
+  { year: '۱۴۰۳', text: 'راه‌اندازی خدمات بازرگانی و پروژه‌های خاص.' },
+];
+
+const sectors = ['صنایع غذایی', 'دارو و تجهیزات پزشکی', 'قطعات خودرو', 'ماشین‌آلات صنعتی', 'لوازم الکترونیکی', 'مواد اولیهٔ پتروشیمی', 'لوازم خانگی', 'نساجی'];
+---
+
+<BaseLayout
+  title="رزومه؛ سوابق ترخیص و واردات کالا"
+  description="رزومهٔ اوکیان: نمونه‌ای از پرونده‌های ترخیص و واردات کالا، صنایعی که با آن‌ها کار کرده‌ایم و مسیر فعالیت ما در گمرکات و بنادر ایران."
+  jsonLd={[breadcrumbLd(crumbs, Astro.site)]}
+>
+  <PageHero
+    eyebrow="رزومه"
+    title="رزومهٔ اوکیان"
+    lead="نگاهی به پرونده‌هایی که پیش برده‌ایم، صنایعی که با آن‌ها کار کرده‌ایم و مسیری که تا امروز طی شده است."
+    crumbs={crumbs}
+  >
+    <div class="hero-actions">
+      <a class="btn" href="/contact/">
+        درخواست مشاوره
+        <Icon name="arrow" class="btn__icon" />
+      </a>
+      <a class="btn btn--ghost" href="#projects">پرونده‌های منتخب</a>
+    </div>
+  </PageHero>
+
+  <section class="section" aria-labelledby="stats-title">
+    <div class="container">
+      <h2 id="stats-title" class="sr-only">اوکیان در یک نگاه</h2>
+      <dl class="stats reveal">
+        {
+          stats.map((s) => (
+            <div>
+              <dt>{s.label}</dt>
+              <dd>{s.n}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </section>
+
+  <section class="section section--alt section--grain" id="projects" aria-labelledby="projects-title">
+    <div class="container">
+      <header class="section-head section-head--split reveal">
+        <div>
+          <span class="eyebrow">پرونده‌های منتخب</span>
+          <h2 id="projects-title">چند نمونه از کارهایی که انجام داده‌ایم</h2>
+        </div>
+        <p class="lead">هر پرونده چالش خودش را داشت؛ از تعرفه‌گذاری صدها قلم کالا تا هماهنگی حمل محموله‌های فوق‌ابعاد.</p>
+      </header>
+      <ul class="tiles">
+        {
+          projects.map((p) => (
+            <li class="tile reveal">
+              <div class="project__meta">
+                <span class="tile__tag">{p.sector}</span>
+                <span class="project__year">{p.year}</span>
+              </div>
+              <h3>{p.title}</h3>
+              <p>{p.text}</p>
+              <p class="project__place">
+                <Icon name="pin" />
+                {p.place}
+              </p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="path-title">
+    <div class="container split">
+      <div class="stack reveal" style="--stack: 1rem">
+        <span class="eyebrow">مسیر ما</span>
+        <h2 id="path-title">از ترخیص تا همراهی کامل واردات</h2>
+        <p class="lead">اوکیان کار خود را با ترخیص کالا شروع کرد و به‌مرور، خدمات را به مراحل پیش و پس از گمرک گسترش داد.</p>
+      </div>
+      <ol class="timeline">
+        {
+          milestones.map((m) => (
+            <li class="reveal">
+              <span class="timeline__year">{m.year}</span>
+              <p>{m.text}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="section section--dark" aria-labelledby="sectors-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="eyebrow">صنایع</span>
+        <h2 id="sectors-title">صنایعی که با آن‌ها کار کرده‌ایم</h2>
+        <p class="lead">تجربهٔ کار با کالاهای متنوع کمک می‌کند الزامات هر کالا را زودتر بشناسیم و پیش از رسیدن محموله آماده باشیم.</p>
+      </header>
+      <ul class="chips reveal">
+        {sectors.map((s) => <li>{s}</li>)}
+      </ul>
+    </div>
+  </section>
+
+  <CtaBand title="پروندهٔ بعدی می‌تواند مال شما باشد" />
+</BaseLayout>
+
+<style>
+  .project__meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .project__year {
+    font-weight: 800;
+    color: var(--slate-600);
+  }
+  .project__place {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding-top: 0.75rem;
+    border-top: 1px dashed var(--rule-strong);
+    font-size: var(--step--1);
+    font-weight: 700;
+    color: var(--navy-900) !important;
+  }
+  .project__place :global(svg) {
+    inline-size: 1.1rem;
+    block-size: 1.1rem;
+    color: var(--petrol-500);
+  }
+  .timeline {
+    list-style: none;
+    display: grid;
+    gap: 0;
+    border-inline-start: 2px solid var(--rule-strong);
+  }
+  .timeline li {
+    position: relative;
+    display: grid;
+    gap: 0.35rem;
+    padding: 0 1.75rem 2rem;
+  }
+  .timeline li::before {
+    content: '';
+    position: absolute;
+    inset-inline-start: -0.5rem;
+    top: 0.45rem;
+    inline-size: 0.9rem;
+    block-size: 0.9rem;
+    border-radius: 50%;
+    background: var(--white);
+    border: 3px solid var(--petrol-600);
+  }
+  .timeline__year {
+    font-size: var(--step-2);
+    font-weight: 800;
+    color: var(--petrol-600);
+  }
+  .timeline p {
+    color: var(--slate-700);
+  }
+  .chips {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .chips li {
+    padding: 0.6rem 1.2rem;
+    border: 1px solid var(--rule-strong);
+    border-radius: 999px;
+    font-weight: 700;
+    color: var(--white);
+  }
+</style>

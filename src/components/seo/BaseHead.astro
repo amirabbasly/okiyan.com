@@ -49,10 +49,11 @@ const ldJson = jsonLd.length
 <meta name="description" content={description} />
 {!noindex && <link rel="canonical" href={canonical} />}
 <meta name="robots" content={robots} />
-<meta name="theme-color" content="#0a1c38" />
+<meta name="theme-color" content="#162c47" />
 <meta name="format-detection" content="telephone=no" />
 
-<Font cssVariable="--font-vazirmatn" preload />
+<!-- Preload only what the first screen needs: body (400) and display headings (800). -->
+<Font cssVariable="--font-vazirmatn" preload={[{ weight: 400 }, { weight: 800 }]} />
 
 <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 <link rel="icon" href="/favicon.ico" sizes="32x32" />

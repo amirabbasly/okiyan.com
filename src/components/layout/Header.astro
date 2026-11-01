@@ -1,10 +1,11 @@
 ---
-import { nav, contactCta } from '~/config/site';
+import { nav, contactCta, site, isNavGroup } from '~/config/site';
 import Logo from '~/components/ui/Logo.astro';
 import Icon from '~/components/ui/Icon.astro';
 
 const path = Astro.url.pathname;
 const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
+const groupCurrent = (children: Array<{ href: string }>) => children.some((c) => isCurrent(c.href));
 ---
 
 <header class="site-header">
@@ -17,17 +18,51 @@ const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWi
     <nav class="site-nav" aria-label="ناوبری اصلی">
       <ul>
         {
-          nav.map((item) => (
-            <li>
-              <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
-                {item.label}
-              </a>
-            </li>
-          ))
+          nav.map((item, i) =>
+            isNavGroup(item) ? (
+              <li class="nav-group" data-nav-group>
+                <button
+                  type="button"
+                  class:list={['nav-group__btn', { 'is-current': groupCurrent(item.children) }]}
+                  aria-expanded="false"
+                  aria-controls={`nav-group-${i}`}
+                >
+                  {item.label}
+                  <Icon name="chevron" />
+                </button>
+                <div class="nav-group__panel" id={`nav-group-${i}`}>
+                  <ul>
+                    {item.children.map((c) => (
+                      <li>
+                        <a href={c.href} aria-current={isCurrent(c.href) ? 'page' : undefined}>
+                          <span class="nav-group__label">{c.label}</span>
+                          {c.hint && <span class="nav-group__hint">{c.hint}</span>}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </li>
+            ) : (
+              <li>
+                <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+                  {item.label}
+                </a>
+              </li>
+            ),
+          )
         }
       </ul>
     </nav>
 
+    {
+      site.contact.phone && (
+        <a href={`tel:${site.contact.phone}`} class="site-header__phone">
+          <Icon name="phone" />
+          <span dir="ltr">{site.contact.phoneDisplay ?? site.contact.phone}</span>
+        </a>
+      )
+    }
     <a href={contactCta.href} class="btn site-header__cta" aria-current={isCurrent(contactCta.href) ? 'page' : undefined}>
       {contactCta.label}
     </a>
@@ -51,22 +86,75 @@ const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWi
       <ul>
         <li><a href="/" aria-current={path === '/' ? 'page' : undefined}>صفحه اصلی</a></li>
         {
-          nav.map((item) => (
-            <li>
-              <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
-                {item.label}
-              </a>
-            </li>
-          ))
+          nav.map((item) =>
+            isNavGroup(item) ? (
+              <li class="mobile-menu__group">
+                <span class="mobile-menu__group-title">{item.label}</span>
+                <ul>
+                  {item.children.map((c) => (
+                    <li>
+                      <a href={c.href} aria-current={isCurrent(c.href) ? 'page' : undefined}>
+                        {c.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            ) : (
+              <li>
+                <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+                  {item.label}
+                </a>
+              </li>
+            ),
+          )
         }
       </ul>
     </nav>
-    <a href={contactCta.href} class="btn btn--gold mobile-menu__cta">
+    {
+      site.contact.phone && (
+        <a href={`tel:${site.contact.phone}`} class="btn btn--ghost mobile-menu__call">
+          <Icon name="phone" class="btn__icon" />
+          تماس: <span dir="ltr">{site.contact.phoneDisplay ?? site.contact.phone}</span>
+        </a>
+      )
+    }
+    <a href={contactCta.href} class="btn mobile-menu__cta">
       {contactCta.label}
       <Icon name="arrow" class="btn__icon" />
     </a>
   </div>
 </header>
+
+<script>
+  // Header dropdowns: click/Enter toggles, Esc or a click/focus elsewhere closes.
+  // Without JS they still open on hover and keyboard focus (CSS below).
+  const groups = Array.from(document.querySelectorAll<HTMLElement>('[data-nav-group]'));
+  const buttonOf = (g: HTMLElement) => g.querySelector<HTMLButtonElement>('.nav-group__btn')!;
+  const setOpen = (g: HTMLElement, open: boolean) => buttonOf(g).setAttribute('aria-expanded', String(open));
+  const closeAll = (except?: HTMLElement) => groups.forEach((g) => g !== except && setOpen(g, false));
+
+  for (const g of groups) {
+    const btn = buttonOf(g);
+    btn.addEventListener('click', () => {
+      const open = btn.getAttribute('aria-expanded') !== 'true';
+      closeAll(g);
+      setOpen(g, open);
+    });
+    g.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && btn.getAttribute('aria-expanded') === 'true') {
+        setOpen(g, false);
+        btn.focus();
+      }
+    });
+    g.addEventListener('focusout', (e) => {
+      if (!g.contains(e.relatedTarget as Node | null)) setOpen(g, false);
+    });
+  }
+  document.addEventListener('click', (e) => {
+    if (!(e.target as Element).closest('[data-nav-group]')) closeAll();
+  });
+</script>
 
 <style>
   .site-header {
@@ -74,7 +162,7 @@ const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWi
     top: 0;
     z-index: 50;
     /* Solid (no backdrop-filter): cheaper to composite while scrolling and overscrolling. */
-    background: var(--ivory-50);
+    background: var(--white);
     border-bottom: 1px solid var(--rule);
   }
   .site-header__inner {
@@ -99,7 +187,7 @@ const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWi
     padding: 0.4rem 0.85rem;
     font-weight: 600;
     font-size: 0.97rem;
-    color: var(--ink-700);
+    color: var(--slate-700);
     text-decoration: none;
     border-radius: 999px;
     transition:
@@ -108,7 +196,7 @@ const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWi
   }
   .site-nav a:hover {
     color: var(--navy-900);
-    background: var(--ivory-200);
+    background: var(--mist-200);
   }
   .site-nav a[aria-current='page'] {
     color: var(--navy-900);
@@ -120,7 +208,134 @@ const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWi
     bottom: 0.15rem;
     height: 2px;
     border-radius: 2px;
-    background: var(--gold-400);
+    background: var(--petrol-600);
+  }
+  /* ----- Dropdown groups ----- */
+  .nav-group {
+    position: relative;
+  }
+  .nav-group__btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.4rem 0.85rem;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    font: inherit;
+    font-weight: 600;
+    font-size: 0.97rem;
+    color: var(--slate-700);
+    cursor: pointer;
+    transition:
+      color var(--dur-fast) ease,
+      background-color var(--dur-fast) ease;
+  }
+  .nav-group__btn :global(svg) {
+    inline-size: 1rem;
+    block-size: 1rem;
+    transition: transform var(--dur-fast) ease;
+  }
+  .nav-group__btn:hover,
+  .nav-group__btn[aria-expanded='true'] {
+    color: var(--navy-900);
+    background: var(--mist-200);
+  }
+  .nav-group__btn[aria-expanded='true'] :global(svg) {
+    transform: rotate(180deg);
+  }
+  .nav-group__btn.is-current {
+    color: var(--navy-900);
+  }
+  .nav-group__btn.is-current::after {
+    content: '';
+    position: absolute;
+    inset-inline: 0.85rem 1.85rem;
+    bottom: 0.15rem;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--petrol-600);
+  }
+  .nav-group__panel {
+    display: none;
+    position: absolute;
+    top: 100%;
+    inset-inline-start: -0.5rem;
+    z-index: 10;
+    padding-top: 0.6rem; /* hover bridge between button and panel */
+  }
+  .nav-group__btn[aria-expanded='true'] + .nav-group__panel {
+    display: block;
+  }
+  @media (hover: hover) {
+    .nav-group:hover .nav-group__panel {
+      display: block;
+    }
+  }
+  :global(.no-js) .nav-group:focus-within .nav-group__panel {
+    display: block;
+  }
+  .nav-group__panel ul {
+    display: grid;
+    gap: 0.15rem;
+    width: 18rem;
+    padding: 0.5rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-m);
+    background: var(--white);
+    box-shadow: 0 24px 48px -24px rgb(22 44 71 / 0.35);
+  }
+  .site-nav .nav-group__panel a {
+    display: grid;
+    gap: 0.1rem;
+    padding: 0.65rem 0.8rem;
+    border-radius: var(--radius-s);
+  }
+  .site-nav .nav-group__panel a[aria-current='page']::after {
+    display: none;
+  }
+  .site-nav .nav-group__panel a[aria-current='page'] {
+    background: var(--mist-100);
+  }
+  .nav-group__label {
+    font-weight: 700;
+    color: var(--navy-900);
+  }
+  .nav-group__hint {
+    font-size: 0.82rem;
+    font-weight: 400;
+    color: var(--slate-600);
+  }
+
+  .site-header__phone {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--navy-900);
+    text-decoration: none;
+    white-space: nowrap;
+    border-radius: var(--radius-s);
+  }
+  .site-header__phone :global(svg) {
+    inline-size: 1.15rem;
+    block-size: 1.15rem;
+    color: var(--petrol-500);
+  }
+  .site-header__phone:hover span {
+    text-decoration: underline;
+    text-decoration-color: var(--petrol-500);
+    text-underline-offset: 0.3em;
+  }
+  .mobile-menu__call {
+    align-self: stretch;
+  }
+  @media (max-width: 1120px) {
+    .site-header__phone {
+      display: none;
+    }
   }
   .site-header__cta {
     min-height: 2.6rem;
@@ -157,7 +372,7 @@ const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWi
     margin: 0;
     padding: 1rem var(--gutter) 2rem;
     border: 0;
-    background: var(--ivory-50) var(--grain);
+    background: var(--white) var(--grain);
     color: var(--text);
     overflow-y: auto;
   }
@@ -192,7 +407,28 @@ const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWi
     text-decoration: none;
   }
   .mobile-menu li a[aria-current='page'] {
-    color: var(--gold-600);
+    color: var(--petrol-600);
+  }
+  .mobile-menu__group {
+    padding-top: 1.1rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .mobile-menu__group-title {
+    font-size: var(--step--1);
+    font-weight: 700;
+    color: var(--slate-600);
+  }
+  .mobile-menu .mobile-menu__group ul {
+    border-top: 0;
+    padding-inline-start: 0.75rem;
+  }
+  .mobile-menu .mobile-menu__group li a {
+    padding-block: 0.7rem;
+    font-size: var(--step-1);
+    font-weight: 700;
+  }
+  .mobile-menu .mobile-menu__group li:last-child a {
+    border-bottom: 0;
   }
   .mobile-menu__cta {
     align-self: stretch;

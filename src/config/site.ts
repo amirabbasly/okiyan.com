@@ -7,6 +7,7 @@
  * as dashed placeholders in staging/development builds (see `missingBusinessInfo`).
  */
 import { SITE_ENV } from 'astro:env/server';
+import { samplePages } from '~/lib/sample';
 
 export type ContactChannel = 'phone' | 'whatsapp' | 'telegram' | 'email';
 
@@ -14,6 +15,8 @@ export const site = {
   /** Working brand. */
   name: 'اوکیان',
   nameLatin: 'OKIYAN',
+  /** Latin wordmark as it appears in the logo. */
+  wordmarkLatin: 'OKIYAN.IR',
   /** Short descriptor used in titles and Organization markup. */
   tagline: 'ترخیص کالا و خدمات واردات',
   description:
@@ -29,16 +32,20 @@ export const site = {
 
   contact: {
     /** E.164 format, e.g. '+98912xxxxxxx'. */
-    phone: null as string | null,
+    phone: '+982191006662' as string | null,
     /** Human-friendly display version, e.g. '۰۲۱-۱۲۳۴۵۶۷۸'. */
-    phoneDisplay: null as string | null,
+    phoneDisplay: '۰۲۱-۹۱۰۰۶۶۶۲' as string | null,
     /** WhatsApp number in international digits only, e.g. '98912xxxxxxx'. */
     whatsapp: null as string | null,
     /** Telegram username without @. */
     telegram: null as string | null,
     email: null as string | null,
     /** Postal address shown on the contact page and in Organization markup. */
-    address: null as null | {
+    address: {
+      streetAddress: 'جماران، روبه‌روی بازار تره‌بار جماران، پلاک ۵، واحد ۵',
+      addressLocality: 'تهران',
+      addressRegion: 'تهران',
+    } as null | {
       streetAddress: string;
       addressLocality: string;
       addressRegion: string;
@@ -72,13 +79,42 @@ export const site = {
 export const SITE_ENVIRONMENT = SITE_ENV;
 export const isProduction = SITE_ENV === 'production';
 
-/** Primary navigation. Keep URLs in sync with src/pages. */
-export const nav = [
-  { href: '/customs-clearance/', label: 'ترخیص کالا' },
-  { href: '/import-services/', label: 'واردات کالا' },
+export interface NavLink {
+  href: string;
+  label: string;
+  /** One short line shown under the link in the header dropdowns. */
+  hint?: string;
+}
+export interface NavGroup {
+  label: string;
+  children: NavLink[];
+}
+export type NavItem = NavLink | NavGroup;
+export const isNavGroup = (item: NavItem): item is NavGroup => 'children' in item;
+
+/** Primary navigation (header, mobile menu, footer). Keep URLs in sync with src/pages. */
+export const nav: NavItem[] = [
+  {
+    label: 'خدمات',
+    children: [
+      { href: '/customs-clearance/', label: 'ترخیص کالا', hint: 'از بررسی اسناد تا خروج کالا از گمرک' },
+      { href: '/import-services/', label: 'واردات کالا', hint: 'همراهی از برنامه‌ریزی خرید تا تحویل' },
+      { href: '/commercial-services/', label: 'خدمات بازرگانی', hint: 'تأمین‌کننده، قرارداد و ثبت سفارش' },
+      { href: '/special-projects/', label: 'پروژه‌های خاص', hint: 'محموله‌های سنگین، حساس و پروژه‌ای' },
+    ],
+  },
+  { href: '/price-calculator/', label: 'محاسبه قیمت' },
   { href: '/guides/', label: 'راهنماها' },
-  { href: '/about/', label: 'درباره ما' },
-] as const;
+  {
+    label: 'درباره ما',
+    children: [
+      { href: '/about/', label: 'دربارهٔ اوکیان', hint: 'روش کار و مرز مسئولیت‌ها' },
+      { href: '/resume/', label: 'رزومه', hint: 'سوابق و پرونده‌های منتخب' },
+      { href: '/partners/', label: 'همکاران', hint: 'شرکت‌هایی که با آن‌ها کار می‌کنیم' },
+      { href: '/guarantee/', label: 'ضمانت', hint: 'تعهدهای ما و شرایط آن‌ها' },
+    ],
+  },
+];
 
 export const contactCta = { href: '/contact/', label: 'درخواست مشاوره' } as const;
 
@@ -97,6 +133,12 @@ export function missingBusinessInfo(): string[] {
   if (site.serviceAreas.length === 0) missing.push('گمرکات و بنادر تحت پوشش (serviceAreas)');
   if (!site.scopeConfirmed) missing.push('تأیید دامنه خدمات (scopeConfirmed)');
   return missing;
+}
+
+/** Office address as one line, e.g. «تهران، جماران، …». Null when not configured. */
+export function formattedAddress(): string | null {
+  const a = site.contact.address;
+  return a ? `${a.addressLocality}، ${a.streetAddress}` : null;
 }
 
 export interface ChannelLink {
@@ -135,5 +177,11 @@ export function warnMissingOnce() {
   if (missing.length) {
     const list = missing.map((m) => `  - ${m}`).join('\n');
     console.warn(`\n[okiyan] Missing business information (${missing.length}):\n${list}\n  Edit src/config/site.ts before launch.\n`);
+  }
+  if (samplePages.length) {
+    const list = samplePages.map((p) => `  - ${p}`).join('\n');
+    console.warn(
+      `[okiyan] Pages with sample content (${samplePages.length}, noindex + labelled):\n${list}\n  Replace the text, then remove the path from src/data/sample-pages.json.\n`,
+    );
   }
 }

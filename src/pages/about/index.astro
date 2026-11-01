@@ -1,11 +1,12 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import PageHero from '~/components/layout/PageHero.astro';
+import AboutArt from '~/components/illustrations/AboutArt.astro';
 import CtaBand from '~/components/ui/CtaBand.astro';
 import Icon from '~/components/ui/Icon.astro';
 import Placeholder from '~/components/ui/Placeholder.astro';
 import { breadcrumbLd } from '~/lib/schema';
-import { site, isProduction } from '~/config/site';
+import { site, isProduction, formattedAddress } from '~/config/site';
 import { toFa } from '~/lib/format';
 
 const crumbs = [
@@ -17,7 +18,8 @@ const facts = [
   site.company.foundingYear && { label: 'سال شروع فعالیت', value: toFa(site.company.foundingYear) },
   ...site.company.licences.map((l) => ({ label: l.title, value: `${toFa(l.number)} — ${l.issuer}` })),
   site.serviceAreas.length > 0 && { label: 'گمرکات و بنادر', value: site.serviceAreas.join('، ') },
-  site.contact.address && { label: 'نشانی', value: `${site.contact.address.addressLocality}، ${site.contact.address.streetAddress}` },
+  formattedAddress() && { label: 'نشانی', value: formattedAddress() as string },
+  site.contact.phone && { label: 'تلفن', value: site.contact.phoneDisplay ?? site.contact.phone },
 ].filter(Boolean) as Array<{ label: string; value: string }>;
 ---
 
@@ -31,7 +33,9 @@ const facts = [
     title="دربارهٔ اوکیان"
     lead="اوکیان برای کسب‌وکارهایی کار می‌کند که می‌خواهند واردات و ترخیص کالا را با تصویر روشن از مراحل، مسئولیت‌ها و هزینه‌ها پیش ببرند."
     crumbs={crumbs}
-  />
+  >
+    <AboutArt slot="art" />
+  </PageHero>
 
   <section class="section" aria-labelledby="why-title">
     <div class="container split">
@@ -66,7 +70,7 @@ const facts = [
             <p class="muted">برای دریافت اطلاعات رسمی شرکت، از طریق صفحهٔ تماس با ما در ارتباط باشید.</p>
           ) : null
         }
-        <Placeholder field="نام حقوقی، سال شروع فعالیت، مجوزها، گمرکات تحت پوشش و نشانی (company / serviceAreas / contact.address)" />
+        <Placeholder field="نام حقوقی، سال شروع فعالیت، مجوزها و گمرکات تحت پوشش (company / serviceAreas)" />
       </aside>
     </div>
   </section>
@@ -147,7 +151,7 @@ const facts = [
     align-items: center;
     gap: 0.6rem;
     font-size: var(--step-2);
-    color: var(--ivory-50);
+    color: var(--white);
     margin-bottom: 1.25rem;
   }
   .commit__col h3 :global(svg) {
@@ -155,7 +159,7 @@ const facts = [
     block-size: 2rem;
     padding: 0.35rem;
     border-radius: 50%;
-    background: var(--gold-400);
+    background: var(--petrol-300);
     color: var(--navy-950);
   }
   .commit__col ul {
@@ -165,18 +169,18 @@ const facts = [
   }
   .commit__col li {
     padding-bottom: 0.75rem;
-    border-bottom: 1px solid rgb(247 241 228 / 0.12);
+    border-bottom: 1px solid rgb(232 236 238 / 0.12);
   }
   .commit__col--no {
-    background: var(--ivory-50);
-    color: var(--ink-700);
+    background: var(--white);
+    color: var(--slate-700);
     border: 1px dashed var(--rule-strong);
   }
   .commit__col--no h3 {
-    color: var(--ink-900);
+    color: var(--navy-900);
   }
   .commit__col--no h3 :global(svg) {
-    background: var(--ivory-200);
+    background: var(--mist-200);
     color: var(--navy-900);
   }
   .commit__col--no li {

@@ -53,7 +53,7 @@ const { items, headingLevel: H = 'h3' } = Astro.props;
     transition: color var(--dur-fast) ease;
   }
   summary:hover .faq__q {
-    color: var(--navy-700);
+    color: var(--petrol-600);
   }
   .faq__icon {
     position: relative;
@@ -82,8 +82,8 @@ const { items, headingLevel: H = 'h3' } = Astro.props;
     transition: rotate var(--dur-med) var(--ease-out);
   }
   details[open] .faq__icon {
-    background: var(--gold-300);
-    border-color: var(--gold-300);
+    background: var(--petrol-200);
+    border-color: var(--petrol-200);
   }
   details[open] .faq__icon::after {
     rotate: 0deg;
@@ -94,7 +94,7 @@ const { items, headingLevel: H = 'h3' } = Astro.props;
     color: var(--text-muted);
   }
   .faq__a :global(a) {
-    color: var(--navy-700);
+    color: var(--petrol-600);
     font-weight: 600;
   }
 </style>
