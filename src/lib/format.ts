@@ -5,6 +5,14 @@ export function toFa(value: number | string): string {
   return String(value).replace(/[0-9]/g, (d) => faDigits[Number(d)]);
 }
 
+/** Persian digits with the Persian thousands separator: 2000 → «۲٬۰۰۰». */
+export function toFaNumber(value: number): string {
+  const grouped = Math.round(value)
+    .toString()
+    .replace(/\B(?=(\d{3})+(?!\d))/g, '٬');
+  return toFa(grouped);
+}
+
 const dateFmt = new Intl.DateTimeFormat('fa-IR-u-ca-persian', {
   year: 'numeric',
   month: 'long',

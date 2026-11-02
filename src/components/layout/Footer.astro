@@ -1,5 +1,5 @@
 ---
-import { site, contactChannels, socialLinks, isProduction, contactCta, formattedAddress } from '~/config/site';
+import { site, contactChannels, socialLinks, isProduction, contactCta, offices } from '~/config/site';
 import Logo from '~/components/ui/Logo.astro';
 import Icon from '~/components/ui/Icon.astro';
 import { persianYear } from '~/lib/format';
@@ -27,8 +27,10 @@ const year = persianYear();
       <ul>
         <li><a href="/customs-clearance/">ترخیص کالا</a></li>
         <li><a href="/import-services/">خدمات واردات کالا</a></li>
+        <li><a href="/sailor-import/">واردات ملوانی</a></li>
         <li><a href="/commercial-services/">خدمات بازرگانی</a></li>
         <li><a href="/special-projects/">پروژه‌های خاص</a></li>
+        <li><a href="/after-sales-services/">خدمات پس از فروش</a></li>
         <li><a href="/price-calculator/">محاسبه قیمت</a></li>
       </ul>
     </nav>
@@ -73,7 +75,6 @@ const year = persianYear();
           <span class="placeholder">راه‌های تماس هنوز در src/config/site.ts تنظیم نشده‌اند.</span>
         )
       }
-      {formattedAddress() && <address class="site-footer__address">{formattedAddress()}</address>}
       {
         socials.length > 0 && (
           <ul class="site-footer__social">
@@ -88,6 +89,29 @@ const year = persianYear();
         )
       }
     </div>
+  </div>
+
+  <div class="container site-footer__offices">
+    <h2 id="footer-offices">دفترهای اوکیان</h2>
+    <ul aria-labelledby="footer-offices">
+      {
+        offices.map((o) => (
+          <li class="office">
+            <span class="office__city">
+              <Icon name="pin" />
+              {o.city}
+            </span>
+            <address class="office__address">{o.address}</address>
+            {o.phone && (
+              <a class="office__phone" href={`tel:${o.phone.e164}`}>
+                <Icon name="phone" />
+                <span dir="ltr">{o.phone.display}</span>
+              </a>
+            )}
+          </li>
+        ))
+      }
+    </ul>
   </div>
 
   <p class="site-footer__mark" aria-hidden="true">{site.wordmarkLatin}</p>
@@ -139,10 +163,61 @@ const year = persianYear();
   .site-footer a:not(.btn):hover {
     background-size: 100% 1px;
   }
-  .site-footer__address {
+  .site-footer__offices {
+    margin-top: clamp(2.25rem, 4vw, 3.25rem);
+    padding-top: clamp(1.5rem, 3vw, 2rem);
+    border-top: 1px solid rgb(232 236 238 / 0.12);
+  }
+  .site-footer__offices ul {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem 2.5rem;
+  }
+  .office {
+    display: grid;
+    gap: 0.3rem;
+    align-content: start;
+    padding-inline-start: 1rem;
+    border-inline-start: 2px solid rgb(143 180 201 / 0.35);
+  }
+  .office__city {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-weight: 800;
+    color: var(--white);
+  }
+  .office__city :global(svg) {
+    inline-size: 1rem;
+    block-size: 1rem;
+    color: var(--petrol-300);
+  }
+  .office__address {
     font-style: normal;
-    line-height: 1.9;
-    margin-top: 1rem;
+    line-height: 1.95;
+    color: #c4cddb;
+  }
+  .office__phone {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    justify-self: start;
+    font-weight: 700;
+    margin-top: 0.15rem;
+  }
+  .office__phone :global(svg) {
+    inline-size: 0.95rem;
+    block-size: 0.95rem;
+    color: var(--petrol-300);
+  }
+  @media (max-width: 900px) {
+    .site-footer__offices ul {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (max-width: 620px) {
+    .site-footer__offices ul {
+      grid-template-columns: 1fr;
+    }
   }
   .site-footer__social {
     margin-top: 1rem;

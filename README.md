@@ -63,11 +63,20 @@ Service scope copy lives in `src/data/services.ts` and in the two service pages.
   `relatedService`, `relatedGuides`, `summary` (2–5 bullets), `sources` (title/publisher/url/note) and
   `reviewNotes` (shown only in staging builds). A new file becomes `/guides/<file-name>/`, joins the guide index,
   footer and sitemap, and gets Article + BreadcrumbList markup.
-- **Pages**: `src/pages/` (`index`, `customs-clearance`, `import-services`, `commercial-services`, `special-projects`,
-  `price-calculator`, `guides`, `about`, `resume`, `partners`, `guarantee`, `contact`, `404`).
-  Copy for lists, FAQs and steps sits at the top of each page file.
+- **Pages**: `src/pages/` (`index`, `customs-clearance`, `import-services`, `sailor-import`, `commercial-services`,
+  `after-sales-services`, `special-projects`, `price-calculator`, `guides`, `about`, `resume`, `partners`,
+  `guarantee`, `contact`, `404`). Copy for lists, FAQs and steps sits at the top of each page file.
 - **Navigation**: `nav` in `src/config/site.ts` drives the header (with the «خدمات» and «درباره ما» dropdowns),
-  the mobile menu and the footer columns.
+  the mobile menu and the footer columns. Both dropdowns render as a full-bleed **dark mega panel**
+  (`Header.astro`): the slab spans the viewport below the header, the links sit on translucent cards with white
+  text and each group carries a light “feature” card (`feature` on the group) that breaks out of the dark section.
+  Add `icon` to a link to show it in the panel.
+- **Support widget**: `src/components/layout/SupportWidget.astro`, rendered on every page by `BaseLayout`. The
+  floating button opens a native popover (`popovertarget`, no JS required) listing `companyPhones` from
+  `src/config/site.ts`. It lifts itself on the homepage so it never covers the journey's step bar.
+- **Homepage tally**: `src/components/ui/Counters.astro` + `src/scripts/counters.ts`. The three numbers are
+  server-rendered in their final form and only animated on first view (skipped with reduced motion), so they
+  are correct without JavaScript.
 - **Sample-content pages**: رزومه، همکاران، خدمات بازرگانی، پروژه‌های خاص، ضمانت and محاسبه قیمت currently hold
   dummy text. Pages listed in `src/data/sample-pages.json` show a «محتوای نمونه» notice in every build, are
   `noindex`, stay out of the sitemap and are listed in a build warning. Replace a page's text (and, for the
@@ -144,7 +153,8 @@ CSS is inlined; JS = prefetch helper (~1 KB gz) + journey (~4 KB gz, homepage on
 
 Fill these before launch (also printed by every build):
 
-- Phone, WhatsApp, Telegram, email, office address, response hours (`site.contact`)
+- WhatsApp, Telegram, email and response hours (`site.contact`); the mobile numbers, the Tehran landline and the
+  three branch addresses (Tehran, Bushehr, Bandar Abbas) are already filled in via `companyPhones` and `offices`
 - Legal company name, founding year, customs-broker licence / registrations (`site.company`)
 - Customs offices / ports actually served (`site.serviceAreas`)
 - Social profiles (`site.social`)

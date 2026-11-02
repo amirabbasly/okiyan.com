@@ -11,6 +11,45 @@ import { samplePages } from '~/lib/sample';
 
 export type ContactChannel = 'phone' | 'whatsapp' | 'telegram' | 'email';
 
+export interface CompanyPhone {
+  kind: 'mobile' | 'landline';
+  /** E.164 format for the `tel:` link. */
+  e164: string;
+  /** Human-friendly display version with Persian digits. */
+  display: string;
+}
+
+/**
+ * Numbers the support widget and the contact page list.
+ * Supplied by the business owner (see the SupportWidget + /contact/).
+ */
+export const companyPhones: CompanyPhone[] = [
+  { kind: 'mobile', e164: '+989172900409', display: '۰۹۱۷۲۹۰۰۴۰۹' },
+  { kind: 'mobile', e164: '+989172900410', display: '۰۹۱۷۲۹۰۰۴۱۰' },
+  { kind: 'mobile', e164: '+989172900411', display: '۰۹۱۷۲۹۰۰۴۱۱' },
+  { kind: 'landline', e164: '+982191006662', display: '۰۲۱-۹۱۰۰۶۶۶۲' },
+];
+
+export interface Office {
+  /** City / office name, shown as the heading. */
+  city: string;
+  /** Street address without the city name (the heading already carries it). */
+  address: string;
+  /** Direct line for this office, when supplied. */
+  phone?: CompanyPhone;
+}
+
+/** Branches printed in the footer, in the order supplied by the business. */
+export const offices: Office[] = [
+  { city: 'تهران', address: 'نیاوران، جماران، نبش کوچهٔ دوم جماران، پلاک ۵، واحد ۵' },
+  {
+    city: 'بوشهر',
+    address: 'خیابان گمرک، روبه‌روی درب بزرگ گمرک، ساختمان بوشهر تجارت (جمی)، طبقهٔ ۴، واحد ۱۲',
+    phone: { kind: 'landline', e164: '+987791009009', display: '۰۷۷-۹۱۰۰۹۰۰۹' },
+  },
+  { city: 'بندرعباس', address: 'میدان یادبود، برج ارم، طبقهٔ ۴، واحد ۴۰۹' },
+];
+
 export const site = {
   /** Working brand. */
   name: 'اوکیان',
@@ -35,6 +74,10 @@ export const site = {
     phone: '+982191006662' as string | null,
     /** Human-friendly display version, e.g. '۰۲۱-۱۲۳۴۵۶۷۸'. */
     phoneDisplay: '۰۲۱-۹۱۰۰۶۶۶۲' as string | null,
+    /** Every published number (mobile lines + office landline). */
+    phones: companyPhones,
+    /** Branches shown in the footer and on the contact page. */
+    offices,
     /** WhatsApp number in international digits only, e.g. '98912xxxxxxx'. */
     whatsapp: null as string | null,
     /** Telegram username without @. */
@@ -42,7 +85,7 @@ export const site = {
     email: null as string | null,
     /** Postal address shown on the contact page and in Organization markup. */
     address: {
-      streetAddress: 'جماران، روبه‌روی بازار تره‌بار جماران، پلاک ۵، واحد ۵',
+      streetAddress: 'نیاوران، جماران، نبش کوچهٔ دوم جماران، پلاک ۵، واحد ۵',
       addressLocality: 'تهران',
       addressRegion: 'تهران',
     } as null | {
@@ -84,9 +127,21 @@ export interface NavLink {
   label: string;
   /** One short line shown under the link in the header dropdowns. */
   hint?: string;
+  /** Icon shown in the mega menu (a subset of src/components/ui/Icon.astro). */
+  icon?: NavIcon;
+}
+/** Icon names used by the navigation — must exist in src/components/ui/Icon.astro. */
+export type NavIcon = 'stamp' | 'route' | 'ship' | 'briefcase' | 'cube' | 'headset';
+/** The highlight card shown beside the links in the dark mega menu. */
+export interface NavFeature {
+  title: string;
+  text: string;
+  href: string;
+  ctaLabel: string;
 }
 export interface NavGroup {
   label: string;
+  feature?: NavFeature;
   children: NavLink[];
 }
 export type NavItem = NavLink | NavGroup;
@@ -96,17 +151,31 @@ export const isNavGroup = (item: NavItem): item is NavGroup => 'children' in ite
 export const nav: NavItem[] = [
   {
     label: 'خدمات',
+    feature: {
+      title: 'کدام خدمت به کار شما می‌آید؟',
+      text: 'مشخصات کالا و مرحلهٔ محموله را بفرستید تا مسیر درست، مدارک لازم و هزینه‌های قابل انتظار را مشخص کنیم.',
+      href: '/contact/',
+      ctaLabel: 'درخواست مشاوره',
+    },
     children: [
-      { href: '/customs-clearance/', label: 'ترخیص کالا', hint: 'از بررسی اسناد تا خروج کالا از گمرک' },
-      { href: '/import-services/', label: 'واردات کالا', hint: 'همراهی از برنامه‌ریزی خرید تا تحویل' },
-      { href: '/commercial-services/', label: 'خدمات بازرگانی', hint: 'تأمین‌کننده، قرارداد و ثبت سفارش' },
-      { href: '/special-projects/', label: 'پروژه‌های خاص', hint: 'محموله‌های سنگین، حساس و پروژه‌ای' },
+      { href: '/customs-clearance/', label: 'ترخیص کالا', hint: 'از بررسی اسناد تا خروج کالا از گمرک', icon: 'stamp' },
+      { href: '/import-services/', label: 'واردات کالا', hint: 'همراهی از برنامه‌ریزی خرید تا تحویل', icon: 'route' },
+      { href: '/sailor-import/', label: 'واردات ملوانی', hint: 'ورود کالا با شناورهای ملوانی در بنادر جنوبی', icon: 'ship' },
+      { href: '/commercial-services/', label: 'خدمات بازرگانی', hint: 'تأمین‌کننده، قرارداد و ثبت سفارش', icon: 'briefcase' },
+      { href: '/special-projects/', label: 'پروژه‌های خاص', hint: 'محموله‌های سنگین، حساس و پروژه‌ای', icon: 'cube' },
+      { href: '/after-sales-services/', label: 'خدمات پس از فروش', hint: 'قطعات یدکی، گارانتی و کالای برگشتی', icon: 'headset' },
     ],
   },
   { href: '/price-calculator/', label: 'محاسبه قیمت' },
   { href: '/guides/', label: 'راهنماها' },
   {
     label: 'درباره ما',
+    feature: {
+      title: 'اوکیان را از نزدیک بشناسید',
+      text: 'روش کار، سوابق و تعهدهای ما؛ و اینکه در هر مرحله چه چیزی بر عهدهٔ ما و چه چیزی با گمرک است.',
+      href: '/about/',
+      ctaLabel: 'دربارهٔ اوکیان',
+    },
     children: [
       { href: '/about/', label: 'دربارهٔ اوکیان', hint: 'روش کار و مرز مسئولیت‌ها' },
       { href: '/resume/', label: 'رزومه', hint: 'سوابق و پرونده‌های منتخب' },

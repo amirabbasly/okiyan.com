@@ -4,6 +4,7 @@ import ShipmentJourney from '~/components/journey/ShipmentJourney.astro';
 import Icon from '~/components/ui/Icon.astro';
 import Faq from '~/components/ui/Faq.astro';
 import CtaBand from '~/components/ui/CtaBand.astro';
+import Counters from '~/components/ui/Counters.astro';
 import { services } from '~/data/services';
 import { site, contactCta } from '~/config/site';
 import { toFa } from '~/lib/format';
@@ -37,6 +38,12 @@ const prepare = [
   'پیش‌فاکتور و وضعیت ثبت سفارش',
   'مرحلهٔ فعلی محموله: پیش از خرید، در حال حمل یا رسیده به گمرک',
   'گمرک یا بندری که کالا وارد آن می‌شود',
+];
+
+const tally = [
+  { value: 2000, unit: 'محموله' },
+  { value: 200, unit: 'میلیون یورو' },
+  { value: 15, unit: 'سال سابقهٔ درخشان' },
 ];
 
 const faqs = [
@@ -85,6 +92,13 @@ const faqs = [
       </a>
     </div>
   </ShipmentJourney>
+
+  <!-- ============ TALLY (counting numbers) ============ -->
+  <Counters
+    title="مسیر ما، در اعداد"
+    lead="این اعداد نتیجهٔ همکاری با بازرگانان و شرکت‌هایی است که مسیر ورود کالایشان را به ما سپرده‌اند؛ از اولین برآورد تا تحویل."
+    items={tally}
+  />
 
   <!-- ============ SERVICES ============ -->
   <section class="section" id="services" aria-labelledby="services-title">
