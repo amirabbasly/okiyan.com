@@ -67,7 +67,11 @@ Service scope copy lives in `src/data/services.ts` and in the two service pages.
   `after-sales-services`, `special-projects`, `price-calculator`, `guides`, `about`, `resume`, `partners`,
   `guarantee`, `contact`, `404`). Copy for lists, FAQs and steps sits at the top of each page file.
 - **Navigation**: `nav` in `src/config/site.ts` drives the header (with the «خدمات» and «درباره ما» dropdowns),
-  the mobile menu and the footer columns. Both dropdowns render as a full-bleed **dark mega panel**
+  the mobile menu and the footer columns. On desktop the whole menu is one **dark capsule** centred in the white
+  header (white labels, petrol underline for the current page); the brand and the actions take equal space so the
+  capsule stays centred. «واردات ملوانی» and «خدمات پس از فروش» are top-level items *and* stay inside the
+  «خدمات» dropdown. Below 1280px the header phone hides, below 1120px the capsule tightens, below 980px the CTA
+  steps aside, and below 860px the mobile menu takes over. Both dropdowns render as a full-bleed **dark mega panel**
   (`Header.astro`): the slab spans the viewport below the header, the links sit on translucent cards with white
   text and each group carries a light “feature” card (`feature` on the group) that breaks out of the dark section.
   Add `icon` to a link to show it in the panel.
