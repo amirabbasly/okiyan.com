@@ -1,0 +1,111 @@
+---
+/**
+ * Headline numbers that count up when they scroll into view.
+ *
+ * The final value is server-rendered, so the block reads correctly without
+ * JavaScript; `src/scripts/counters.ts` only animates it (and skips the
+ * animation entirely when motion is reduced).
+ */
+import { toFaNumber } from '~/lib/format';
+
+export interface Props {
+  eyebrow?: string;
+  title: string;
+  lead?: string;
+  /** `unit` follows the number, e.g. «محموله» or «میلیون یورو». */
+  items: Array<{ value: number; unit: string }>;
+}
+const { eyebrow = 'در یک نگاه', title, lead, items } = Astro.props;
+---
+
+<section class="tally section" aria-labelledby="tally-title">
+  <div class="container">
+    <header class="section-head section-head--split reveal">
+      <div>
+        <span class="eyebrow">{eyebrow}</span>
+        <h2 id="tally-title">{title}</h2>
+      </div>
+      {lead && <p class="lead">{lead}</p>}
+    </header>
+
+    <dl class="tally__grid">
+      {
+        items.map((item) => (
+          <div class="tally__item reveal">
+            <dt class="tally__unit">{item.unit}</dt>
+            <dd class="tally__value">
+              <span class="tally__num" data-count={item.value}>
+                {toFaNumber(item.value)}
+              </span>
+            </dd>
+          </div>
+        ))
+      }
+    </dl>
+  </div>
+</section>
+
+<script>
+  import '~/scripts/counters';
+</script>
+
+<style>
+  .tally {
+    padding-block: clamp(3rem, 2.25rem + 3vw, 5rem);
+    border-bottom: 1px solid var(--rule);
+  }
+  .tally :global(.section-head) {
+    margin-bottom: clamp(1.75rem, 1.25rem + 2vw, 3rem);
+  }
+  .tally__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    border-top: 2px solid var(--navy-900);
+  }
+  .tally__item {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.1rem 0.7rem;
+    padding: clamp(1.5rem, 1rem + 2vw, 2.4rem) clamp(0.5rem, 2vw, 1.75rem);
+  }
+  .tally__item:first-child {
+    padding-inline-start: 0;
+  }
+  .tally__item + .tally__item {
+    border-inline-start: 1px solid var(--rule);
+  }
+  .tally__value {
+    order: 1;
+    margin: 0;
+  }
+  .tally__num {
+    display: inline-block;
+    font-size: clamp(2.6rem, 1.4rem + 4.4vw, 4.75rem);
+    font-weight: 800;
+    line-height: 1.05;
+    color: var(--petrol-600);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+  .tally__unit {
+    order: 2;
+    font-size: var(--step-1);
+    font-weight: 700;
+    line-height: 1.5;
+    color: var(--navy-900);
+  }
+  @media (max-width: 760px) {
+    .tally__grid {
+      grid-template-columns: 1fr;
+    }
+    .tally__item {
+      padding-inline: 0;
+      padding-block: 1.35rem;
+    }
+    .tally__item + .tally__item {
+      border-inline-start: 0;
+      border-top: 1px solid var(--rule);
+    }
+  }
+</style>

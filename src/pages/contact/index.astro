@@ -6,13 +6,15 @@ import ContactArt from '~/components/illustrations/ContactArt.astro';
 import Icon from '~/components/ui/Icon.astro';
 import Placeholder from '~/components/ui/Placeholder.astro';
 import { breadcrumbLd } from '~/lib/schema';
-import { site, contactChannels, formattedAddress } from '~/config/site';
+import { site, contactChannels, companyPhones, formattedAddress } from '~/config/site';
 
 const crumbs = [
   { name: 'خانه', path: '/' },
   { name: 'درخواست مشاوره', path: '/contact/' },
 ];
 const channels = contactChannels();
+// Numbers get their own list below, so the channel list carries the other ways in.
+const otherChannels = channels.filter((c) => c.channel !== 'phone');
 const iconFor = { phone: 'phone', whatsapp: 'chat', telegram: 'send', email: 'mail' } as const;
 ---
 
@@ -40,27 +42,38 @@ const iconFor = { phone: 'phone', whatsapp: 'chat', telegram: 'send', email: 'ma
       <aside class="contact__aside" aria-label="راه‌های تماس و روند پاسخ‌گویی">
         <section class="side-card" aria-labelledby="direct-title">
           <h2 id="direct-title">تماس مستقیم</h2>
-          {
-            channels.length > 0 ? (
-              <ul class="channels">
-                {channels.map((c) => (
-                  <li>
-                    <a href={c.href} class="channel" rel={c.channel === 'whatsapp' || c.channel === 'telegram' ? 'noopener' : undefined}>
-                      <Icon name={iconFor[c.channel]} />
-                      <span>
-                        <span class="channel__label">{c.label}</span>
-                        <span class="channel__value" dir={c.channel === 'phone' || c.channel === 'email' ? 'ltr' : undefined}>
-                          {c.value}
-                        </span>
+          <ul class="channels">
+            {
+              companyPhones.map((p) => (
+                <li>
+                  <a href={`tel:${p.e164}`} class="channel">
+                    <Icon name="phone" />
+                    <span>
+                      <span class="channel__label">{p.kind === 'mobile' ? 'تلفن همراه' : 'تلفن دفتر'}</span>
+                      <span class="channel__value" dir="ltr">
+                        {p.display}
                       </span>
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p class="muted">در حال حاضر، فرم همین صفحه راه ارسال درخواست است.</p>
-            )
-          }
+                    </span>
+                  </a>
+                </li>
+              ))
+            }
+            {
+              otherChannels.map((c) => (
+                <li>
+                  <a href={c.href} class="channel" rel={c.channel === 'whatsapp' || c.channel === 'telegram' ? 'noopener' : undefined}>
+                    <Icon name={iconFor[c.channel]} />
+                    <span>
+                      <span class="channel__label">{c.label}</span>
+                      <span class="channel__value" dir={c.channel === 'email' ? 'ltr' : undefined}>
+                        {c.value}
+                      </span>
+                    </span>
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
           {site.contact.hours && <p class="muted">ساعات پاسخ‌گویی: {site.contact.hours}</p>}
           <Placeholder field="واتس‌اپ، تلگرام، ایمیل و ساعات پاسخ‌گویی (contact)" />
         </section>

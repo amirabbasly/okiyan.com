@@ -31,6 +31,8 @@ const IS_PRODUCTION = env.SITE_ENV === 'production';
 
 export default defineConfig({
   site: SITE_URL,
+  // Dev server only: sandbox preview hosts are random tunnels, so allow them.
+  vite: { server: { allowedHosts: ['.e2b.app'] } },
   trailingSlash: 'always',
   // Inline page CSS: one fewer render-blocking request on slow mobile networks.
   build: { format: 'directory', inlineStylesheets: 'always' },

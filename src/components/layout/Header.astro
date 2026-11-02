@@ -31,16 +31,38 @@ const groupCurrent = (children: Array<{ href: string }>) => children.some((c) =>
                   <Icon name="chevron" />
                 </button>
                 <div class="nav-group__panel" id={`nav-group-${i}`}>
-                  <ul>
-                    {item.children.map((c) => (
-                      <li>
-                        <a href={c.href} aria-current={isCurrent(c.href) ? 'page' : undefined}>
-                          <span class="nav-group__label">{c.label}</span>
-                          {c.hint && <span class="nav-group__hint">{c.hint}</span>}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
+                  <div class="mega container">
+                    <ul class="mega__links">
+                      {item.children.map((c) => (
+                        <li>
+                          <a class="mega__link" href={c.href} aria-current={isCurrent(c.href) ? 'page' : undefined}>
+                            {c.icon && (
+                              <span class="mega__icon" aria-hidden="true">
+                                <Icon name={c.icon} />
+                              </span>
+                            )}
+                            <span class="mega__text">
+                              <span class="mega__label">{c.label}</span>
+                              {c.hint && <span class="mega__hint">{c.hint}</span>}
+                            </span>
+                            <Icon name="arrow" class="mega__arrow" />
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                    {
+                      item.feature && (
+                        <aside class="mega__feature" aria-label={item.feature.title}>
+                          <p class="mega__feature-title">{item.feature.title}</p>
+                          <p class="mega__feature-text">{item.feature.text}</p>
+                          <a class="btn mega__feature-cta" href={item.feature.href}>
+                            {item.feature.ctaLabel}
+                            <Icon name="arrow" class="btn__icon" />
+                          </a>
+                        </aside>
+                      )
+                    }
+                  </div>
                 </div>
               </li>
             ) : (
@@ -176,12 +198,25 @@ const groupCurrent = (children: Array<{ href: string }>) => children.some((c) =>
     margin-inline-end: auto;
     border-radius: var(--radius-s);
   }
-  .site-nav ul {
+  /* The nav row fills the header's height, so the dark mega panel that starts
+     right below the header never leaves a hover gap under its trigger. */
+  .site-nav {
     display: flex;
+    align-self: stretch;
+  }
+  .site-nav > ul {
+    display: flex;
+    align-items: stretch;
     gap: 0.25rem;
     list-style: none;
   }
-  .site-nav a {
+  .site-nav > ul > li {
+    display: flex;
+    align-items: center;
+  }
+  /* Only the top-level items carry these styles; the mega panel links are styled
+     on their own below. */
+  .site-nav > ul > li > a {
     position: relative;
     display: block;
     padding: 0.4rem 0.85rem;
@@ -194,14 +229,14 @@ const groupCurrent = (children: Array<{ href: string }>) => children.some((c) =>
       color var(--dur-fast) ease,
       background-color var(--dur-fast) ease;
   }
-  .site-nav a:hover {
+  .site-nav > ul > li > a:hover {
     color: var(--navy-900);
     background: var(--mist-200);
   }
-  .site-nav a[aria-current='page'] {
+  .site-nav > ul > li > a[aria-current='page'] {
     color: var(--navy-900);
   }
-  .site-nav a[aria-current='page']::after {
+  .site-nav > ul > li > a[aria-current='page']::after {
     content: '';
     position: absolute;
     inset-inline: 0.85rem;
@@ -257,13 +292,40 @@ const groupCurrent = (children: Array<{ href: string }>) => children.some((c) =>
     border-radius: 2px;
     background: var(--petrol-600);
   }
+  /* ----- Mega dropdown -----
+     A full-bleed dark slab under the header: the edges stay dark while every
+     piece of copy sits on its own surface — glass link cards for navigation and
+     a light feature card for the next step — so no text is painted straight
+     onto the section. */
   .nav-group__panel {
     display: none;
-    position: absolute;
-    top: 100%;
-    inset-inline-start: -0.5rem;
+    position: fixed;
+    inset-inline: 0;
+    top: var(--header-h);
     z-index: 10;
-    padding-top: 0.6rem; /* hover bridge between button and panel */
+    max-height: calc(100dvh - var(--header-h));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-block: clamp(1.25rem, 1rem + 1.5vw, 2rem);
+    border-bottom: 1px solid rgb(232 236 238 / 0.12);
+    color: var(--mist-100);
+    background:
+      radial-gradient(70rem 26rem at 50% -35%, rgb(46 98 130 / 0.55), transparent 66%),
+      linear-gradient(180deg, var(--navy-950) 0%, #0a1421 100%);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.06),
+      0 34px 60px -30px rgb(0 0 0 / 0.75);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .nav-group__panel {
+      animation: mega-in 240ms var(--ease-out) both;
+    }
+  }
+  @keyframes mega-in {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
   }
   .nav-group__btn[aria-expanded='true'] + .nav-group__panel {
     display: block;
@@ -276,36 +338,118 @@ const groupCurrent = (children: Array<{ href: string }>) => children.some((c) =>
   :global(.no-js) .nav-group:focus-within .nav-group__panel {
     display: block;
   }
-  .nav-group__panel ul {
+
+  .mega {
     display: grid;
-    gap: 0.15rem;
-    width: 18rem;
-    padding: 0.5rem;
-    border: 1px solid var(--rule);
+    grid-template-columns: minmax(0, 1fr) minmax(16rem, 19rem);
+    gap: clamp(1.25rem, 2.5vw, 2.25rem);
+    align-items: start;
+  }
+  .mega__links {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+    gap: 0.65rem;
+  }
+  .mega__link {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 0.85rem;
+    align-items: center;
+    block-size: 100%;
+    padding: 0.8rem 0.95rem;
+    border: 1px solid rgb(232 236 238 / 0.13);
     border-radius: var(--radius-m);
-    background: var(--white);
-    box-shadow: 0 24px 48px -24px rgb(22 44 71 / 0.35);
+    background: rgb(255 255 255 / 0.045);
+    color: var(--white);
+    font-weight: 400;
+    text-decoration: none;
+    transition:
+      background-color var(--dur-fast) ease,
+      border-color var(--dur-fast) ease,
+      transform var(--dur-med) var(--ease-out);
   }
-  .site-nav .nav-group__panel a {
-    display: grid;
-    gap: 0.1rem;
-    padding: 0.65rem 0.8rem;
-    border-radius: var(--radius-s);
+  .mega__link:hover,
+  .mega__link:focus-visible {
+    background: rgb(255 255 255 / 0.1);
+    border-color: rgb(143 180 201 / 0.5);
+    color: var(--white);
+    transform: translateY(-2px);
   }
-  .site-nav .nav-group__panel a[aria-current='page']::after {
+  .mega__link[aria-current='page'] {
+    background: rgb(143 180 201 / 0.14);
+    border-color: rgb(143 180 201 / 0.55);
+    color: var(--white);
+  }
+  .mega__link[aria-current='page']::after {
     display: none;
   }
-  .site-nav .nav-group__panel a[aria-current='page'] {
-    background: var(--mist-100);
+  .mega__icon {
+    display: grid;
+    place-items: center;
+    inline-size: 2.5rem;
+    block-size: 2.5rem;
+    border-radius: 0.75rem;
+    background: rgb(143 180 201 / 0.16);
+    color: var(--petrol-200);
   }
-  .nav-group__label {
+  .mega__icon :global(svg) {
+    inline-size: 1.25rem;
+    block-size: 1.25rem;
+  }
+  .mega__text {
+    display: grid;
+    gap: 0.1rem;
+  }
+  .mega__label {
     font-weight: 700;
-    color: var(--navy-900);
+    line-height: 1.6;
   }
-  .nav-group__hint {
+  .mega__hint {
     font-size: 0.82rem;
     font-weight: 400;
+    line-height: 1.7;
+    color: #b3c0cf;
+  }
+  .mega :global(.mega__arrow) {
+    inline-size: 1.15rem;
+    block-size: 1.15rem;
+    color: var(--petrol-300);
+    transition: transform var(--dur-med) var(--ease-out);
+  }
+  .mega__link:hover :global(.mega__arrow) {
+    transform: translateX(-4px);
+  }
+
+  .mega__feature {
+    display: grid;
+    gap: 0.7rem;
+    justify-items: start;
+    padding: clamp(1.2rem, 2vw, 1.6rem);
+    border-radius: var(--radius-m);
+    background: var(--white);
+    color: var(--navy-900);
+    box-shadow: 0 30px 60px -34px rgb(0 0 0 / 0.85);
+  }
+  .mega__feature-title {
+    font-size: var(--step-1);
+    font-weight: 800;
+    line-height: 1.55;
+  }
+  .mega__feature-text {
+    font-size: var(--step--1);
+    line-height: 1.85;
     color: var(--slate-600);
+  }
+  .mega__feature-cta {
+    min-height: 2.6rem;
+    margin-top: 0.2rem;
+    font-size: 0.95rem;
+  }
+  @media (max-width: 1080px) {
+    .mega {
+      grid-template-columns: 1fr;
+    }
   }
 
   .site-header__phone {
