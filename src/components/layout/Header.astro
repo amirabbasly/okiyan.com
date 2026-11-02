@@ -77,23 +77,26 @@ const groupCurrent = (children: Array<{ href: string }>) => children.some((c) =>
       </ul>
     </nav>
 
-    {
-      site.contact.phone && (
-        <a href={`tel:${site.contact.phone}`} class="site-header__phone">
-          <Icon name="phone" />
-          <span dir="ltr">{site.contact.phoneDisplay ?? site.contact.phone}</span>
-        </a>
-      )
-    }
-    <a href={contactCta.href} class="btn site-header__cta" aria-current={isCurrent(contactCta.href) ? 'page' : undefined}>
-      {contactCta.label}
-    </a>
+    <!-- Brand and actions grow equally, so the dark capsule stays centred. -->
+    <div class="site-header__actions">
+      {
+        site.contact.phone && (
+          <a href={`tel:${site.contact.phone}`} class="site-header__phone">
+            <Icon name="phone" />
+            <span dir="ltr">{site.contact.phoneDisplay ?? site.contact.phone}</span>
+          </a>
+        )
+      }
+      <a href={contactCta.href} class="btn site-header__cta" aria-current={isCurrent(contactCta.href) ? 'page' : undefined}>
+        {contactCta.label}
+      </a>
 
-    <!-- Native popover: works without JavaScript, closes with Esc / outside click. -->
-    <button class="menu-toggle" type="button" popovertarget="mobile-menu" aria-controls="mobile-menu">
-      <Icon name="menu" />
-      <span>منو</span>
-    </button>
+      <!-- Native popover: works without JavaScript, closes with Esc / outside click. -->
+      <button class="menu-toggle" type="button" popovertarget="mobile-menu" aria-controls="mobile-menu">
+        <Icon name="menu" />
+        <span>منو</span>
+      </button>
+    </div>
   </div>
 
   <div id="mobile-menu" class="mobile-menu" popover>
@@ -194,21 +197,40 @@ const groupCurrent = (children: Array<{ href: string }>) => children.some((c) =>
     min-height: var(--header-h);
   }
   .site-header__brand {
+    flex: 1 1 0;
     text-decoration: none;
-    margin-inline-end: auto;
     border-radius: var(--radius-s);
   }
-  /* The nav row fills the header's height, so the dark mega panel that starts
-     right below the header never leaves a hover gap under its trigger. */
-  .site-nav {
+  .site-header__actions {
+    flex: 1 1 0;
     display: flex;
-    align-self: stretch;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 1.5rem;
+  }
+  /* ----- Dark nav capsule -----
+     The menu sits as one dark, fully rounded bar in the middle of the white
+     header; every label inside it is white. The header itself stays light, so
+     the logo and the CTA keep their contrast. */
+  .site-nav {
+    flex: none;
+    display: flex;
+    align-items: center;
   }
   .site-nav > ul {
     display: flex;
-    align-items: stretch;
-    gap: 0.25rem;
+    align-items: center;
+    gap: 0.05rem;
+    padding: 0.3rem;
     list-style: none;
+    border-radius: 999px;
+    border: 1px solid rgb(255 255 255 / 0.09);
+    background:
+      radial-gradient(22rem 8rem at 50% -60%, rgb(46 98 130 / 0.65), transparent 70%),
+      linear-gradient(180deg, var(--navy-900) 0%, var(--navy-950) 100%);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.08),
+      0 14px 28px -18px rgb(13 26 44 / 0.75);
   }
   .site-nav > ul > li {
     display: flex;
@@ -219,10 +241,12 @@ const groupCurrent = (children: Array<{ href: string }>) => children.some((c) =>
   .site-nav > ul > li > a {
     position: relative;
     display: block;
-    padding: 0.4rem 0.85rem;
+    padding: 0.36rem 0.62rem;
     font-weight: 600;
-    font-size: 0.97rem;
-    color: var(--slate-700);
+    font-size: 0.88rem;
+    line-height: 1.6;
+    white-space: nowrap;
+    color: var(--mist-100);
     text-decoration: none;
     border-radius: 999px;
     transition:
@@ -230,20 +254,21 @@ const groupCurrent = (children: Array<{ href: string }>) => children.some((c) =>
       background-color var(--dur-fast) ease;
   }
   .site-nav > ul > li > a:hover {
-    color: var(--navy-900);
-    background: var(--mist-200);
+    color: var(--white);
+    background: rgb(255 255 255 / 0.1);
   }
   .site-nav > ul > li > a[aria-current='page'] {
-    color: var(--navy-900);
+    color: var(--white);
+    background: rgb(255 255 255 / 0.06);
   }
   .site-nav > ul > li > a[aria-current='page']::after {
     content: '';
     position: absolute;
-    inset-inline: 0.85rem;
-    bottom: 0.15rem;
+    inset-inline: 0.62rem;
+    bottom: 0.12rem;
     height: 2px;
     border-radius: 2px;
-    background: var(--petrol-600);
+    background: var(--petrol-200);
   }
   /* ----- Dropdown groups ----- */
   .nav-group {
@@ -253,15 +278,17 @@ const groupCurrent = (children: Array<{ href: string }>) => children.some((c) =>
     position: relative;
     display: inline-flex;
     align-items: center;
-    gap: 0.3rem;
-    padding: 0.4rem 0.85rem;
+    gap: 0.25rem;
+    padding: 0.36rem 0.62rem;
     border: 0;
     border-radius: 999px;
     background: transparent;
     font: inherit;
     font-weight: 600;
-    font-size: 0.97rem;
-    color: var(--slate-700);
+    font-size: 0.88rem;
+    line-height: 1.6;
+    white-space: nowrap;
+    color: var(--mist-100);
     cursor: pointer;
     transition:
       color var(--dur-fast) ease,
@@ -274,23 +301,23 @@ const groupCurrent = (children: Array<{ href: string }>) => children.some((c) =>
   }
   .nav-group__btn:hover,
   .nav-group__btn[aria-expanded='true'] {
-    color: var(--navy-900);
-    background: var(--mist-200);
+    color: var(--white);
+    background: rgb(255 255 255 / 0.1);
   }
   .nav-group__btn[aria-expanded='true'] :global(svg) {
     transform: rotate(180deg);
   }
   .nav-group__btn.is-current {
-    color: var(--navy-900);
+    color: var(--white);
   }
   .nav-group__btn.is-current::after {
     content: '';
     position: absolute;
-    inset-inline: 0.85rem 1.85rem;
-    bottom: 0.15rem;
+    inset-inline: 0.62rem 1.45rem;
+    bottom: 0.12rem;
     height: 2px;
     border-radius: 2px;
-    background: var(--petrol-600);
+    background: var(--petrol-200);
   }
   /* ----- Mega dropdown -----
      A full-bleed dark slab under the header: the edges stay dark while every
@@ -329,6 +356,15 @@ const groupCurrent = (children: Array<{ href: string }>) => children.some((c) =>
   }
   .nav-group__btn[aria-expanded='true'] + .nav-group__panel {
     display: block;
+  }
+  /* Invisible strip that keeps the pointer inside the group while it travels
+     from the capsule down to the panel. It exists only while hovering. */
+  .nav-group:hover::after {
+    content: '';
+    position: absolute;
+    inset-inline: -0.5rem;
+    top: 100%;
+    height: 1.5rem;
   }
   @media (hover: hover) {
     .nav-group:hover .nav-group__panel {
@@ -476,8 +512,28 @@ const groupCurrent = (children: Array<{ href: string }>) => children.some((c) =>
   .mobile-menu__call {
     align-self: stretch;
   }
-  @media (max-width: 1120px) {
+  /* Six top-level items need room: the phone link goes first, then the capsule
+     tightens and, on tablets, the CTA steps aside for the menu. */
+  @media (max-width: 1279px) {
     .site-header__phone {
+      display: none;
+    }
+  }
+  @media (max-width: 1120px) {
+    .site-header__inner {
+      gap: 1rem;
+    }
+    .site-nav > ul {
+      padding: 0.24rem;
+    }
+    .site-nav > ul > li > a,
+    .nav-group__btn {
+      font-size: 0.8rem;
+      padding-inline: 0.5rem;
+    }
+  }
+  @media (max-width: 980px) {
+    .site-header__cta {
       display: none;
     }
   }

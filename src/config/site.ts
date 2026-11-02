@@ -41,7 +41,11 @@ export interface Office {
 
 /** Branches printed in the footer, in the order supplied by the business. */
 export const offices: Office[] = [
-  { city: 'تهران', address: 'نیاوران، جماران، نبش کوچهٔ دوم جماران، پلاک ۵، واحد ۵' },
+  {
+    city: 'تهران',
+    address: 'نیاوران، جماران، نبش کوچهٔ دوم جماران، پلاک ۵، واحد ۵',
+    phone: { kind: 'landline', e164: '+982191006662', display: '۰۲۱-۹۱۰۰۶۶۶۲' },
+  },
   {
     city: 'بوشهر',
     address: 'خیابان گمرک، روبه‌روی درب بزرگ گمرک، ساختمان بوشهر تجارت (جمی)، طبقهٔ ۴، واحد ۱۲',
@@ -166,6 +170,8 @@ export const nav: NavItem[] = [
       { href: '/after-sales-services/', label: 'خدمات پس از فروش', hint: 'قطعات یدکی، گارانتی و کالای برگشتی', icon: 'headset' },
     ],
   },
+  { href: '/sailor-import/', label: 'واردات ملوانی' },
+  { href: '/after-sales-services/', label: 'خدمات پس از فروش' },
   { href: '/price-calculator/', label: 'محاسبه قیمت' },
   { href: '/guides/', label: 'راهنماها' },
   {
