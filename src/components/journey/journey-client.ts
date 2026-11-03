@@ -23,6 +23,11 @@ export function initJourney(root: HTMLElement) {
   const el = {
     camera: $('camera'),
     bg: $('bg'),
+    skyDay: $('sky-day'),
+    stars: $('stars'),
+    sun: $('sun'),
+    moon: $('moon'),
+    veil: $('night-veil'),
     ship: $('ship'),
     wake: $('wake'),
     container: $('container'),
@@ -73,6 +78,70 @@ export function initJourney(root: HTMLElement) {
   let panGoal = 0;
   let unitsPerPx = 1; // SVG view units per screen px, kept current by fit()
 
+  // ---- Autorun: plays the whole journey once without the visitor scrolling ----
+  const AUTO_MS = 12000;
+  const runBtn = root.querySelector<HTMLButtonElement>('[data-journey-run]');
+  const runLabel = runBtn?.querySelector<HTMLElement>('[data-run-label]');
+  const auto = { active: false, start: 0, from: 0 };
+
+  const smoothstep = (t: number) => t * t * (3 - 2 * t);
+  /** Gentle start and end, otherwise steady progress through the five stages. */
+  const autoEase = (t: number) => 0.18 * smoothstep(t) + 0.82 * t;
+
+  function setRunState(active: boolean) {
+    if (!runBtn) return;
+    runBtn.setAttribute('aria-pressed', String(active));
+    runBtn.classList.toggle('is-running', active);
+    if (runLabel) runLabel.textContent = active ? 'توقف پخش' : 'پخش خودکار مسیر';
+  }
+
+  function startAuto() {
+    if (reduceMotion.matches) {
+      // No motion: jump straight to the delivered state instead of animating.
+      scrollToStage(STAGE_COUNT - 1);
+      return;
+    }
+    // Replay from the top when the journey is already finished.
+    const g0 = geometry();
+    if (g0.d >= g0.range - 2) {
+      window.scrollTo({ top: window.scrollY + g0.d, behavior: 'auto' });
+      shown = 0;
+      rendered = false;
+    }
+    auto.active = true;
+    auto.start = performance.now();
+    auto.from = clamp(readProgress());
+    setRunState(true);
+    root.classList.add('is-autorun');
+    if (!raf) raf = requestAnimationFrame(loop);
+  }
+
+  function stopAuto(handBack = true) {
+    if (!auto.active) return;
+    auto.active = false;
+    setRunState(false);
+    root.classList.remove('is-autorun');
+    if (handBack) target = readProgress();
+    if (!raf) raf = requestAnimationFrame(loop);
+  }
+
+  runBtn?.addEventListener('click', () => {
+    if (auto.active) stopAuto();
+    else startAuto();
+  });
+
+  // Any deliberate scroll (wheel, touch, keys, scrollbar drag) hands control back.
+  // Touches on the button itself are not a scroll gesture.
+  const interrupt = (e: Event) => {
+    if (runBtn && e.target instanceof Element && runBtn.contains(e.target)) return;
+    stopAuto();
+  };
+  window.addEventListener('wheel', interrupt, { passive: true });
+  window.addEventListener('touchstart', interrupt, { passive: true });
+  window.addEventListener('keydown', (e) => {
+    if (['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End', ' '].includes(e.key)) interrupt(e);
+  });
+
   /** d = distance travelled through the pinned range; before = distance until pinning starts. */
   function geometry() {
     const headerH = header?.offsetHeight ?? 0;
@@ -90,12 +159,16 @@ export function initJourney(root: HTMLElement) {
     return clamp(g.d / g.range);
   };
 
-  /** Scroll the page so the animation shows stage i (near its completed state). */
-  function scrollToStage(i: number) {
+  /** Scroll the page so the animation sits at progress p (0 = top of the track). */
+  function scrollToProgress(p: number) {
     const g = geometry();
-    const p = (i + 0.85) / STAGE_COUNT;
     const top = window.scrollY + g.before + p * g.range - clamp(g.d, 0, g.range);
     window.scrollTo({ top, behavior: reduceMotion.matches ? 'auto' : 'smooth' });
+  }
+
+  /** Scroll the page so the animation shows stage i (near its completed state). */
+  function scrollToStage(i: number) {
+    scrollToProgress((i + 0.85) / STAGE_COUNT);
   }
 
   /** Pan needed to centre the scene in the part of the frame an open card leaves visible. */
@@ -118,6 +191,14 @@ export function initJourney(root: HTMLElement) {
 
   function apply(f: Frame) {
     set(el.camera, 'transform', cameraTransform(f.camera));
+    // Day → night: the day sky fades away as the sun sets and the moon rises.
+    set(el.skyDay, 'opacity', f.sky.night >= 0.999 ? 0 : 1 - f.sky.night);
+    set(el.stars, 'opacity', f.sky.starsO);
+    set(el.sun, 'transform', `translate(0 ${f.sky.sunDy.toFixed(2)})`);
+    set(el.sun, 'opacity', f.sky.sunO);
+    set(el.moon, 'transform', `translate(0 ${f.sky.moonDy.toFixed(2)})`);
+    set(el.moon, 'opacity', f.sky.moonO);
+    set(el.veil, 'opacity', f.sky.veil);
     set(el.bg, 'transform', `translate(${(400 - f.camera.x * 0.28).toFixed(1)} 0)`);
     set(el.ship, 'transform', `translate(${f.ship.x.toFixed(2)} ${f.ship.y.toFixed(2)}) rotate(${f.ship.a.toFixed(3)}) scale(${f.ship.s.toFixed(4)})`);
     set(el.wake, 'opacity', f.atSea * 0.9);
@@ -195,6 +276,22 @@ export function initJourney(root: HTMLElement) {
 
   function render(now: number) {
     const reduce = reduceMotion.matches;
+    if (auto.active) {
+      const t = clamp((now - auto.start) / AUTO_MS);
+      target = auto.from + (1 - auto.from) * autoEase(t);
+      if (t >= 1) {
+        // Finished: keep the delivered frame and let the page catch up so the
+        // scroll position matches what is on screen.
+        auto.active = false;
+        setRunState(false);
+        root.classList.remove('is-autorun');
+        // Land on the very end of the track, so the scroll position matches the
+        // delivered frame and nothing jumps back when the page catches up.
+        target = 1;
+        scrollToProgress(1);
+        rendered = true;
+      }
+    }
     const goal = reduce ? discreteProgress(target) : target;
     if (reduce) {
       shown = goal;
@@ -227,7 +324,7 @@ export function initJourney(root: HTMLElement) {
     // Keep animating only while easing toward the scroll position or while the ship
     // bobs at sea; otherwise frames are drawn on demand from scroll events.
     const easing = Math.abs(target - shown) > 0.0004 || pan !== panGoal;
-    if (running && !reduceMotion.matches && (easing || atSea > 0.001)) raf = requestAnimationFrame(loop);
+    if (running && !reduceMotion.matches && (easing || atSea > 0.001 || auto.active)) raf = requestAnimationFrame(loop);
     else {
       raf = 0;
       last = 0;
@@ -237,6 +334,7 @@ export function initJourney(root: HTMLElement) {
   function request() {
     // Off-screen: no layout reads. The IntersectionObserver re-requests on entry.
     if (!running) return;
+    if (auto.active) return; // the timeline owns the progress while it plays
     target = readProgress();
     // Nothing to draw yet: the server-rendered SVG already shows p = 0.
     if (!rendered && target < 0.0005) return;
@@ -297,4 +395,5 @@ export function initJourney(root: HTMLElement) {
   }).observe(scene);
 
   root.classList.add('is-enhanced', 'is-start');
+  setRunState(false);
 }

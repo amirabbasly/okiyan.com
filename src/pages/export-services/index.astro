@@ -1,0 +1,313 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import PageHero from '~/components/layout/PageHero.astro';
+import ExportArt from '~/components/illustrations/ExportArt.astro';
+import Steps from '~/components/ui/Steps.astro';
+import Faq from '~/components/ui/Faq.astro';
+import CtaBand from '~/components/ui/CtaBand.astro';
+import Icon from '~/components/ui/Icon.astro';
+import { breadcrumbLd, serviceLd } from '~/lib/schema';
+import { contactCta } from '~/config/site';
+
+const path = '/export-services/';
+const crumbs = [
+  { name: 'خانه', path: '/' },
+  { name: 'صادرات کالا', path },
+];
+const description =
+  'صادرات کالا از ایران: بررسی مجوزها و الزامات کشور مقصد، اظهارنامه صادراتی، گواهی مبدأ، بسته‌بندی، بارنامه و هماهنگی حمل بین‌المللی تا تحویل.';
+
+// REVIEW: confirm every step and exclusion with the business owner (site.scopeConfirmed).
+const fit = [
+  'محصولی دارید که بازار خارجی برایش هست و می‌خواهید مسیر صادرات را روشن کنید.',
+  'خریدار خارجی دارید و باید اسناد، حمل و ترخیص مبدأ را هماهنگ کنید.',
+  'برای اولین بار صادر می‌کنید و نمی‌دانید از کجا شروع شود.',
+  'صادرات مستمر دارید و می‌خواهید پرونده‌ها بی‌دردسر و یکدست بمانند.',
+];
+
+const scope = [
+  'بررسی مجوزها و الزامات کالا و کشور مقصد',
+  'تعیین رویهٔ گمرکی صادرات و آماده‌سازی اظهارنامه',
+  'گواهی مبدأ، فاکتور صادراتی و بسته‌بندی استاندارد حمل',
+  'هماهنگی با شرکت حمل و صدور بارنامه بین‌المللی',
+  'پیگیری ترخیص در مبدأ و اسناد تحویل به خریدار',
+  'گزارش وضعیت پرونده تا رسیدن محموله به مقصد',
+];
+
+const steps = [
+  {
+    title: 'بررسی امکان صادرات کالا',
+    text: 'نوع کالا، مقصد و شرایط بازار مقصد بررسی می‌شود: برخی کالاها مجوز ویژه یا استانداردهای اجباری دارند و بعضی مقصدها الزامات اسنادی خودشان را.',
+  },
+  {
+    title: 'آماده‌سازی مجوزها و اسناد',
+    text: 'مجوزهای لازم، ثبت اطلاعات در سامانه‌ها و اسناد تجاری آماده می‌شود؛ همه باید با یکدیگر هم‌خوان باشند.',
+  },
+  {
+    title: 'بسته‌بندی و هماهنگی حمل',
+    text: 'روش حمل (دریایی، هوایی یا زمینی) با فوریت و نوع کالا انتخاب و بارنامه مطابق با شرایط معامله تنظیم می‌شود.',
+  },
+  {
+    title: 'اظهار و ترخیص در مبدأ',
+    text: 'اظهارنامهٔ صادراتی ثبت و پرونده در گمرک خروجی پیگیری می‌شود تا کالا مجوز خروج بگیرد.',
+    note: 'مسیر رسیدگی و پذیرش نهایی اسناد، تصمیم گمرک است.',
+  },
+  {
+    title: 'تحویل اسناد به خریدار',
+    text: 'پس از خروج کالا، اسناد حمل و گواهی‌ها برای خریدار یا بانک ارسال و نسخه‌ای در پروندهٔ شما نگه داشته می‌شود.',
+  },
+];
+
+const documents = {
+  first: ['شرح کالا و کد تعرفه', 'کشور و بندر مقصد', 'شرایط معامله (اینکوترمز)', 'مقصد و خریدار (اگر مشخص است)'],
+  full: ['فاکتور تجاری و فهرست بسته‌بندی', 'گواهی مبدأ و گواهی‌های کالا', 'بارنامه یا سند حمل', 'مجوزهای صادراتی و ثبت‌های سامانه‌ای'],
+};
+
+const pitfalls = [
+  {
+    title: 'ناهم‌خوانی اسناد',
+    text: 'مغایرت میان فاکتور، بارنامه و گواهی مبدأ شایع‌ترین دلیل توقف در مبدأ و مقصد است.',
+  },
+  {
+    title: 'مجوزهایی که دیر مشخص می‌شوند',
+    text: 'بعضی کالاها پیش از حمل به تأییدیه نیاز دارند؛ کشف این موضوع در بندر، بار مالی و زمانی دارد.',
+  },
+  {
+    title: 'الزامات کشور مقصد',
+    text: 'استاندارد، برچسب‌گذاری و مدارک مورد قبول خریدار یا گمرک مقصد باید از ابتدا در طراحی بسته‌بندی دیده شود.',
+  },
+  {
+    title: 'بسته‌بندی و بارگیری',
+    text: 'بسته‌بندی نامناسب، خسارت و در نتیجه ادعا و تأخیر در تحویل ایجاد می‌کند.',
+  },
+  {
+    title: 'شرایط پرداخت و ارز',
+    text: 'روش پرداخت و اسنادی که بانک یا خریدار می‌خواهد، بر ترتیب صدور اسناد اثر می‌گذارد.',
+  },
+  {
+    title: 'زمان‌بندی حمل',
+    text: 'فاصلهٔ بندر تا انبار، زمان بارگیری و تعطیلات مقصد، تاریخ تحویل را جابه‌جا می‌کند.',
+  },
+];
+
+const faqs = [
+  {
+    q: 'برای صادرات به کارت بازرگانی نیاز دارم؟',
+    a: 'در بیشتر صادرات تجاری، داشتن کارت بازرگانی و ثبت در سامانه‌های مربوط لازم است، اما بسته به کالا و رویه ممکن است شرایط متفاوت باشد. پیش از هر تعهدی، وضعیت شما را بررسی می‌کنیم.',
+  },
+  {
+    q: 'گواهی مبدأ را چه کسی صادر می‌کند؟',
+    a: 'گواهی مبدأ را مرجع صادرکننده (اتاق بازرگانی یا نهاد مربوط) صادر می‌کند؛ کار ما آماده‌سازی اطلاعات، تطبیق آن با سایر اسناد و پیگیری صدور است.',
+  },
+  {
+    q: 'خریدار خارجی ندارم؛ در پیدا کردن بازار کمک می‌کنید؟',
+    a: 'تمرکز ما روی مسیر صادرات است: مجوز، اسناد، حمل و ترخیص. اگر خریدار مشخصی دارید، همه‌چیز را برای همان معامله تنظیم می‌کنیم؛ معرفی بازار و مذاکرهٔ فروش خارج از دامنهٔ خدمات ماست.',
+  },
+  {
+    q: 'صادرات چقدر طول می‌کشد؟',
+    a: 'زمان به کالا، مقصد، روش حمل و کامل بودن اسناد بستگی دارد و زمان ثابتی وجود ندارد. پس از دیدن اطلاعات کالا، برآورد واقع‌بینانه و عوامل تأخیر را اعلام می‌کنیم.',
+  },
+];
+---
+
+<BaseLayout
+  title="صادرات کالا؛ مجوز، گواهی مبدأ و حمل بین‌المللی"
+  description={description}
+  jsonLd={[
+    breadcrumbLd(crumbs, Astro.site),
+    serviceLd({ name: 'صادرات کالا', description, path, serviceType: 'Export services' }, Astro.site),
+  ]}
+>
+  <PageHero
+    eyebrow="خدمات"
+    title="صادرات کالا"
+    lead="صادرات فقط بارگیری و بارنامه نیست: مجوزها، گواهی مبدأ، بسته‌بندی و اسنادی که خریدار و گمرک مقصد می‌خواهند باید از ابتدا درست چیده شوند. این مسیر را با شما هماهنگ می‌کنیم."
+    crumbs={crumbs}
+  >
+    <div class="hero-actions">
+      <a class="btn" href={contactCta.href}>
+        {contactCta.label}
+        <Icon name="arrow" class="btn__icon" />
+      </a>
+      <a class="btn btn--ghost" href="#process">مراحل صادرات</a>
+    </div>
+    <ExportArt slot="art" />
+  </PageHero>
+
+  <!-- What it is -->
+  <section class="section" aria-labelledby="what-title">
+    <div class="container split">
+      <div class="stack reveal" style="--stack: 1.1rem">
+        <h2 id="what-title">صادرات کالا از کجا شروع می‌شود؟</h2>
+        <p class="lead-text">
+          برخلاف واردات که با رسیدن کالا به گمرک جدی می‌شود، صادرات از تصمیم دربارهٔ مقصد و خریدار شروع می‌شود: کالا باید با استانداردهای مقصد سازگار
+          باشد، مجوزهایش پیش از حمل مشخص باشد و اسناد تجاری با سند حمل یکی باشد.
+        </p>
+        <p class="lead-text">
+          خدمت صادرات اوکیان همین چیدمان را انجام می‌دهد: بررسی مجوزها و الزامات مقصد، آماده‌سازی اظهارنامه و گواهی مبدأ، هماهنگی حمل و پیگیری ترخیص در
+          مبدأ — و در نهایت تحویل اسنادی که خریدار برای ترخیص در مقصد لازم دارد.
+        </p>
+        <div class="notice">
+          <Icon name="info" />
+          <p>
+            الزامات صادرات و مدارک مورد قبول هر کشور با مقررات و رویه‌های همان مقصد تعیین می‌شود. در این صفحه عدد ثابتی نمی‌آوریم؛ برای هر محموله، شرایط
+            همان کالا و همان مقصد را بررسی و مکتوب اعلام می‌کنیم.
+          </p>
+        </div>
+      </div>
+
+      <aside class="fit-card reveal" aria-labelledby="fit-title">
+        <h3 id="fit-title">این خدمت برای شماست اگر…</h3>
+        <ul class="checklist">
+          {fit.map((item) => <li>{item}</li>)}
+        </ul>
+        <p class="muted">
+          در حال واردات هستید؟ مسیرهای <a href="/import-services/">واردات کالا</a> و <a href="/customs-clearance/">ترخیص کالا</a> را ببینید.
+        </p>
+      </aside>
+    </div>
+  </section>
+
+  <!-- Scope -->
+  <section class="section section--alt section--grain" aria-labelledby="scope-title">
+    <div class="container split split--wide">
+      <header class="section-head sticky-head reveal">
+        <span class="eyebrow">دامنهٔ خدمت</span>
+        <h2 id="scope-title">در این مسیر چه کاری انجام می‌دهیم</h2>
+        <p class="lead">از بررسی مجوز تا تحویل اسناد؛ نه تولید کالا و نه مذاکرهٔ فروش.</p>
+      </header>
+      <ul class="checklist scope-list reveal">
+        {scope.map((item) => <li>{item}</li>)}
+      </ul>
+    </div>
+  </section>
+
+  <!-- Process -->
+  <section class="section" id="process" aria-labelledby="process-title">
+    <div class="container split split--wide">
+      <header class="section-head sticky-head reveal">
+        <span class="eyebrow">فرایند</span>
+        <h2 id="process-title">مراحل صادرات کالا</h2>
+        <p class="lead">ترتیب کلی کار در یک محمولهٔ صادراتی؛ بسته به کالا و مقصد، ممکن است مرحله‌ای اضافه یا هم‌زمان شود.</p>
+      </header>
+      <Steps items={steps} />
+    </div>
+  </section>
+
+  <!-- Documents -->
+  <section class="section section--dark" aria-labelledby="docs-title">
+    <div class="container split">
+      <div class="stack reveal" style="--stack: 1.1rem">
+        <span class="eyebrow">شروع کار</span>
+        <h2 id="docs-title">اطلاعات و مدارکی که لازم است</h2>
+        <p class="lead">برای بررسی اولیه، اطلاعات کالا و مقصد کافی است؛ بقیهٔ مدارک را با هم تکمیل می‌کنیم.</p>
+        <a class="arrow-link" href="/guides/customs-clearance-documents/">
+          راهنمای اسناد تجاری و گمرکی
+          <Icon name="arrow" />
+        </a>
+      </div>
+      <div class="docs-cols reveal">
+        <div>
+          <h3>برای بررسی اولیه</h3>
+          <ul class="checklist">
+            {documents.first.map((item) => <li>{item}</li>)}
+          </ul>
+        </div>
+        <div>
+          <h3>برای انجام کار</h3>
+          <ul class="checklist">
+            {documents.full.map((item) => <li>{item}</li>)}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pitfalls -->
+  <section class="section" aria-labelledby="pitfalls-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="eyebrow">نکته‌های تعیین‌کننده</span>
+        <h2 id="pitfalls-title">چه چیزهایی صادرات را متوقف می‌کند؟</h2>
+        <p class="lead">بیشتر توقف‌ها از یک مورد ساده می‌آید که پیش از حمل دیده نشده است.</p>
+      </header>
+      <dl class="factors">
+        {
+          pitfalls.map((f) => (
+            <div class="factors__item reveal">
+              <dt>{f.title}</dt>
+              <dd>{f.text}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section section--alt" aria-labelledby="faq-title">
+    <div class="container split split--wide">
+      <header class="section-head reveal">
+        <span class="eyebrow">پرسش‌های رایج</span>
+        <h2 id="faq-title">پرسش‌های رایج دربارهٔ صادرات</h2>
+      </header>
+      <Faq items={faqs} />
+    </div>
+  </section>
+
+  <CtaBand
+    title="برای صادرات آماده می‌شوید؟"
+    text="شرح کالا، کشور مقصد و شرایط معامله را بفرستید. مجوزها، اسناد لازم و ترتیب کار را برایتان مشخص می‌کنیم."
+  />
+</BaseLayout>
+
+<style>
+  .lead-text {
+    font-size: var(--step-1);
+    line-height: 2;
+    color: var(--slate-700);
+  }
+  .scope-list {
+    padding-block: 0.5rem;
+  }
+  .docs-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+  .docs-cols h3 {
+    font-size: var(--step-1);
+    color: var(--petrol-200);
+    margin-bottom: 1rem;
+  }
+  .factors {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0 2.5rem;
+    margin: 0;
+  }
+  .factors__item {
+    padding-block: 1.6rem;
+    border-top: 1px solid var(--rule-strong);
+  }
+  .factors dt {
+    margin-bottom: 0.4rem;
+    font-weight: 800;
+    font-size: var(--step-1);
+  }
+  .factors dd {
+    margin: 0;
+    color: var(--text-muted);
+  }
+  @media (max-width: 960px) {
+    .factors {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (max-width: 600px) {
+    .factors,
+    .docs-cols {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

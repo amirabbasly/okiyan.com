@@ -147,10 +147,25 @@ export interface CraneState {
   tx: number;
   hookY: number;
 }
+/** Day → night state of the sky. 0 = daylight, 1 = night. */
+export interface SkyState {
+  night: number;
+  /** Sun sinks below the horizon as the shipment leaves stage 2. */
+  sunDy: number;
+  sunO: number;
+  /** Moon rises into the same sky while the sun sets. */
+  moonDy: number;
+  moonO: number;
+  starsO: number;
+  /** Overlay over the scenery that cools the port down after dark. */
+  veil: number;
+}
+
 export interface Frame {
   p: number;
   stage: number;
   stageT: number;
+  sky: SkyState;
   camera: { x: number; y: number; s: number };
   container: Pose;
   ship: Pose;
@@ -178,6 +193,24 @@ export interface Swell {
 export function stageOf(p: number) {
   const stage = Math.min(STAGE_COUNT - 1, Math.floor(clamp(p) * STAGE_COUNT));
   return { stage, t: clamp(p * STAGE_COUNT - stage) };
+}
+
+/** Window in which the sky changes: right after the shipment passes stage 2. */
+const NIGHT_FROM = 0.4;
+const NIGHT_TO = 0.52;
+
+export function skyState(p: number): SkyState {
+  const night = easeInOut(seg(clamp(p), NIGHT_FROM, NIGHT_TO));
+  return {
+    night,
+    sunDy: lerp(0, 215, easeInOut(night)),
+    // the sun is gone before it reaches the water, so it never floats below the quay
+    sunO: 1 - easeInOut(seg(night, 0.55, 1)),
+    moonDy: lerp(185, 0, easeInOut(night)),
+    moonO: easeInOut(seg(night, 0.15, 1)),
+    starsO: easeInOut(seg(night, 0.1, 0.95)),
+    veil: 0.34 * night,
+  };
 }
 
 export function computeFrame(pIn: number, swell: Swell = { dy: 0, da: 0 }): Frame {
@@ -292,6 +325,7 @@ export function computeFrame(pIn: number, swell: Swell = { dy: 0, da: 0 }): Fram
     p,
     stage,
     stageT,
+    sky: skyState(p),
     camera: camera(p),
     container,
     ship,

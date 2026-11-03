@@ -5,6 +5,7 @@ import Icon from '~/components/ui/Icon.astro';
 import Faq from '~/components/ui/Faq.astro';
 import CtaBand from '~/components/ui/CtaBand.astro';
 import Counters from '~/components/ui/Counters.astro';
+import Clients from '~/components/ui/Clients.astro';
 import { services } from '~/data/services';
 import { site, contactCta } from '~/config/site';
 import { toFa } from '~/lib/format';
@@ -41,10 +42,13 @@ const prepare = [
 ];
 
 const tally = [
-  { value: 2000, unit: 'محموله' },
-  { value: 200, unit: 'میلیون یورو' },
+  { value: 2000, unit: 'محموله', approx: true },
+  { value: 500, unit: 'میلیون یورو', approx: true },
   { value: 15, unit: 'سال سابقهٔ درخشان' },
 ];
+
+/** The four services shown on the homepage, in reading order. */
+const homepageServices = [services.clearance, services.import, services.sailor, services.export];
 
 const faqs = [
   {
@@ -91,6 +95,11 @@ const faqs = [
         <Icon name="arrow" class="btn__icon" />
       </a>
     </div>
+    <button slot="controls" class="btn hero-intro__run" type="button" data-journey-run aria-pressed="false">
+      <Icon name="play" class="btn__icon btn__icon--play" />
+      <Icon name="pause" class="btn__icon btn__icon--pause" />
+      <span data-run-label>پخش خودکار مسیر</span>
+    </button>
   </ShipmentJourney>
 
   <!-- ============ TALLY (counting numbers) ============ -->
@@ -100,28 +109,32 @@ const faqs = [
     items={tally}
   />
 
+  <!-- ============ CLIENTS ============ -->
+  <Clients />
+
   <!-- ============ SERVICES ============ -->
   <section class="section" id="services" aria-labelledby="services-title">
     <div class="container">
       <header class="section-head section-head--split reveal">
         <div>
           <span class="eyebrow">خدمات</span>
-          <h2 id="services-title">دو خدمت، دو نقطهٔ شروع متفاوت</h2>
+          <h2 id="services-title">چهار مسیر، چهار نقطهٔ شروع متفاوت</h2>
         </div>
         <p class="lead">
-          اگر کالا خریداری شده و در راه گمرک است، با <a href="/customs-clearance/">ترخیص کالا</a> شروع کنید. اگر هنوز در حال تصمیم‌گیری برای خرید هستید،
-          <a href="/import-services/">خدمات واردات کالا</a> از مرحلهٔ برنامه‌ریزی همراه شماست.
+          اگر کالا در راه گمرک است، با <a href="/customs-clearance/">ترخیص کالا</a> شروع کنید؛ اگر هنوز در حال تصمیم‌گیری برای خرید هستید،
+          <a href="/import-services/">واردات کالا</a> از مرحلهٔ برنامه‌ریزی همراه شماست. محموله‌های بندری با <a href="/sailor-import/">واردات ملوانی</a>
+          و کالاهای خروجی با <a href="/export-services/">صادرات کالا</a> مسیر خودشان را دارند.
         </p>
       </header>
 
       <div class="services">
         {
-          [services.clearance, services.import].map((s, i) => (
+          homepageServices.map((s, i) => (
             <article class="service reveal" aria-labelledby={`service-${i}`}>
               <div class="service__top" aria-hidden="true">
                 <p class="service__num">{toFa(`0${i + 1}`)}</p>
                 <span class="service__icon">
-                  <Icon name={i === 0 ? 'stamp' : 'route'} />
+                  <Icon name={s.icon} />
                 </span>
               </div>
               <h3 id={`service-${i}`}>
@@ -254,6 +267,44 @@ const faqs = [
     gap: 1.4rem;
     justify-items: start;
   }
+  /* Autorun: plays the whole journey once, without the visitor scrolling. */
+  .hero-intro__run {
+    --btn-bg: rgb(255 255 255 / 0.14);
+    --btn-fg: var(--white);
+    --btn-border: rgb(232 236 238 / 0.5);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+  }
+  .hero-intro__run:hover {
+    --btn-bg: var(--white);
+    --btn-fg: var(--navy-900);
+    --btn-border: var(--white);
+  }
+  .hero-intro__run :global(.btn__icon--play) {
+    fill: currentColor;
+  }
+  .hero-intro__run:hover :global(.btn__icon--play) {
+    transform: none;
+  }
+  /* While playing, the button shows a pause glyph through this ring. */
+  .hero-intro__run.is-running {
+    --btn-bg: var(--white);
+    --btn-fg: var(--navy-900);
+    --btn-border: var(--white);
+  }
+  .hero-intro__run :global(.btn__icon--pause) {
+    display: none;
+    fill: none;
+  }
+  .hero-intro__run.is-running :global(.btn__icon--play) {
+    display: none;
+  }
+  .hero-intro__run.is-running :global(.btn__icon--pause) {
+    display: inline-block;
+  }
+  .hero-intro__run.is-running:hover :global(.btn__icon--pause) {
+    transform: none;
+  }
   .hero__title {
     display: grid;
     gap: 0.1em;
@@ -303,12 +354,18 @@ const faqs = [
     align-content: start;
     padding: 2.25rem 0 0.5rem;
   }
-  .service + .service {
+  /* two columns: a rule between them, and one between the two rows */
+  .service:nth-child(odd) {
+    padding-inline-end: clamp(1.5rem, 4vw, 4rem);
+  }
+  .service:nth-child(even) {
     padding-inline-start: clamp(1.5rem, 4vw, 4rem);
     border-inline-start: 1px solid var(--rule);
   }
-  .service:first-child {
-    padding-inline-end: clamp(1.5rem, 4vw, 4rem);
+  .service:nth-child(n + 3) {
+    margin-top: 2rem;
+    padding-top: 2.25rem;
+    border-top: 1px solid var(--rule);
   }
   .service__top {
     display: flex;
@@ -332,7 +389,7 @@ const faqs = [
     box-shadow: 0 14px 30px -18px rgb(13 26 44 / 0.7);
     transition: transform var(--dur-med) var(--ease-out);
   }
-  .service:nth-child(2) .service__icon {
+  .service:nth-child(even) .service__icon {
     background: var(--petrol-600);
     color: var(--white);
   }
@@ -596,14 +653,20 @@ const faqs = [
     .prepare {
       grid-template-columns: 1fr;
     }
-    .service + .service {
+    .service:nth-child(odd) {
+      padding-inline-end: 0;
+    }
+    .service:nth-child(even) {
       padding-inline-start: 0;
       border-inline-start: 0;
-      border-top: 1px solid var(--rule);
-      margin-top: 1.5rem;
     }
-    .service:first-child {
-      padding-inline-end: 0;
+    .service:nth-child(n + 2) {
+      margin-top: 1.5rem;
+      padding-top: 2.25rem;
+      border-top: 1px solid var(--rule);
+    }
+    .service:nth-child(n + 3) {
+      margin-top: 1.5rem;
     }
   }
   @media (max-width: 640px) {
