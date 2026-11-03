@@ -135,7 +135,7 @@ export interface NavLink {
   icon?: NavIcon;
 }
 /** Icon names used by the navigation — must exist in src/components/ui/Icon.astro. */
-export type NavIcon = 'stamp' | 'route' | 'ship' | 'briefcase' | 'cube' | 'headset';
+export type NavIcon = 'stamp' | 'route' | 'ship' | 'globe' | 'shield' | 'briefcase' | 'cube' | 'headset';
 /** The highlight card shown beside the links in the dark mega menu. */
 export interface NavFeature {
   title: string;
@@ -165,13 +165,12 @@ export const nav: NavItem[] = [
       { href: '/customs-clearance/', label: 'ترخیص کالا', hint: 'از بررسی اسناد تا خروج کالا از گمرک', icon: 'stamp' },
       { href: '/import-services/', label: 'واردات کالا', hint: 'همراهی از برنامه‌ریزی خرید تا تحویل', icon: 'route' },
       { href: '/sailor-import/', label: 'واردات ملوانی', hint: 'ورود کالا با شناورهای ملوانی در بنادر جنوبی', icon: 'ship' },
-      { href: '/commercial-services/', label: 'خدمات بازرگانی', hint: 'تأمین‌کننده، قرارداد و ثبت سفارش', icon: 'briefcase' },
-      { href: '/special-projects/', label: 'پروژه‌های خاص', hint: 'محموله‌های سنگین، حساس و پروژه‌ای', icon: 'cube' },
-      { href: '/after-sales-services/', label: 'خدمات پس از فروش', hint: 'قطعات یدکی، گارانتی و کالای برگشتی', icon: 'headset' },
+      { href: '/export-services/', label: 'صادرات کالا', hint: 'از مجوز و گواهی مبدأ تا بارنامه و تحویل', icon: 'globe' },
+      { href: '/after-sales-services/', label: 'خدمات گارانتی کالا', hint: 'ضمانت، تعویض و تأمین قطعات یدکی', icon: 'shield' },
     ],
   },
   { href: '/sailor-import/', label: 'واردات ملوانی' },
-  { href: '/after-sales-services/', label: 'خدمات پس از فروش' },
+  { href: '/after-sales-services/', label: 'خدمات گارانتی کالا' },
   { href: '/price-calculator/', label: 'محاسبه قیمت' },
   { href: '/guides/', label: 'راهنماها' },
   {

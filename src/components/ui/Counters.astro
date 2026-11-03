@@ -13,7 +13,7 @@ export interface Props {
   title: string;
   lead?: string;
   /** `unit` follows the number, e.g. «محموله» or «میلیون یورو». */
-  items: Array<{ value: number; unit: string }>;
+  items: Array<{ value: number; unit: string; approx?: boolean }>;
 }
 const { eyebrow = 'در یک نگاه', title, lead, items } = Astro.props;
 ---
@@ -34,6 +34,9 @@ const { eyebrow = 'در یک نگاه', title, lead, items } = Astro.props;
           <div class="tally__item reveal">
             <dt class="tally__unit">{item.unit}</dt>
             <dd class="tally__value">
+              {/* Kept outside .tally__num: the counter replaces that element's text. */}
+              {item.approx && <span class="tally__approx" aria-hidden="true">+</span>}
+              {item.approx && <span class="sr-only">حدود</span>}
               <span class="tally__num" data-count={item.value}>
                 {toFaNumber(item.value)}
               </span>
@@ -78,6 +81,15 @@ const { eyebrow = 'در یک نگاه', title, lead, items } = Astro.props;
   .tally__value {
     order: 1;
     margin: 0;
+    display: inline-flex;
+    align-items: flex-start;
+    gap: 0.15rem;
+  }
+  .tally__approx {
+    font-size: clamp(1.4rem, 0.9rem + 1.6vw, 2.2rem);
+    font-weight: 800;
+    line-height: 1.2;
+    color: var(--petrol-500);
   }
   .tally__num {
     display: inline-block;

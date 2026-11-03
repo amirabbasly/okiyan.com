@@ -29,7 +29,12 @@ const pad = (n: number) => toFa(String(n).padStart(2, '0'));
         <div class="j-frame" data-scene>
           <JourneyScene initialP={0} />
           <div class="hj__intro" data-intro>
-            <slot name="intro" />
+            <div class="hj__intro-copy">
+              <slot name="intro" />
+            </div>
+            <div class="hj__controls">
+              <slot name="controls" />
+            </div>
           </div>
           <p class="hj__hint" aria-hidden="true">
             <span class="hj__mouse"><i></i></span>
@@ -219,19 +224,32 @@ const pad = (n: number) => toFa(String(n).padStart(2, '0'));
     }
   }
 
-  /* ================= Minimal overlay: H1 + CTA ================= */
+  /* ================= Minimal overlay: H1 + CTA + journey controls =================
+     Only the copy fades once the journey starts; the autorun control stays put so
+     it can always start — or stop — the animation. */
   .hj__intro {
     position: absolute;
     z-index: 2;
     top: clamp(1.5rem, 6%, 3.5rem);
     inset-inline-start: clamp(1.5rem, 4%, 3.5rem);
+    display: grid;
+    gap: 1rem;
+    justify-items: start;
     max-width: min(34rem, 44%);
+  }
+  .hj__intro-copy {
+    display: grid;
+    gap: 1.4rem;
+    justify-items: start;
     opacity: var(--intro-o, 1);
     transform: translateY(calc((1 - var(--intro-o, 1)) * -14px));
   }
-  .hj:global(.is-past-intro) .hj__intro {
+  .hj:global(.is-past-intro) .hj__intro-copy {
     pointer-events: none;
     visibility: hidden;
+  }
+  .hj:global(.no-js) .hj__controls {
+    display: none;
   }
 
   /* Scroll hint at the very start */

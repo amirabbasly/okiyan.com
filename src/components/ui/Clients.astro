@@ -1,0 +1,205 @@
+---
+/**
+ * Client logo wall: a seamless, auto-scrolling marquee.
+ *
+ * The list is rendered twice so the loop has no gap; CSS animates the track and
+ * pauses on hover/focus. With `prefers-reduced-motion: reduce` the marquee stops
+ * and wraps into a centred grid instead. Each brand is a typographic lockup
+ * (see src/data/clients.ts); drop an official file in `public/clients/` and set
+ * `logo` to show the real mark.
+ */
+import { clients, type ClientMark } from '~/data/clients';
+
+export interface Props {
+  title?: string;
+  lead?: string;
+  eyebrow?: string;
+}
+
+const {
+  title = 'برندهایی که بارشان را همراهی کرده‌ایم',
+  lead = 'از تولیدکنندگان تجهیزات صنعتی تا برندهای لوازم خانگی و قطعات؛ محموله‌های این شرکت‌ها را در مسیر واردات و ترخیص همراهی می‌کنیم.',
+  eyebrow = 'مشتریان',
+} = Astro.props;
+
+/** Simple geometric monograms, drawn in currentColor. */
+const marks: Record<ClientMark, string> = {
+  ring: '<circle cx="12" cy="12" r="8.4"/><circle cx="12" cy="12" r="3.2"/>',
+  square: '<rect x="3.8" y="3.8" width="16.4" height="16.4" rx="4.2"/><path d="M8.6 12h6.8"/>',
+  hex: '<path d="M12 3.2l7.6 4.4v8.8L12 20.8 4.4 16.4V7.6z"/><path d="M12 8.2l3.8 2.2v4.4L12 17l-3.8-2.2v-4.4z"/>',
+  chevron: '<path d="M4.6 6.4L12 12l7.4-5.6"/><path d="M4.6 12.6L12 18.2l7.4-5.6"/>',
+  wave: '<path d="M3.2 9.4c2.2-2.4 4.4-2.4 6.6 0s4.4 2.4 6.6 0"/><path d="M3.2 14.8c2.2-2.4 4.4-2.4 6.6 0s4.4 2.4 6.6 0"/>',
+  bolt: '<path d="M13.4 3.2L5.6 13.4h5l-1 7.4 7.8-10.2h-5z"/>',
+  grid: '<rect x="4" y="4" width="6.4" height="6.4" rx="1.6"/><rect x="13.6" y="4" width="6.4" height="6.4" rx="1.6"/><rect x="4" y="13.6" width="6.4" height="6.4" rx="1.6"/><rect x="13.6" y="13.6" width="6.4" height="6.4" rx="1.6"/>',
+  diamond: '<path d="M12 3.4l8.4 8.6-8.4 8.6L3.6 12z"/><path d="M12 8.4l3.6 3.6-3.6 3.6-3.6-3.6z"/>',
+};
+
+// Three copies keep the loop seamless on ultra-wide screens.
+const loop = [...clients, ...clients, ...clients];
+---
+
+<section class="clients section" aria-labelledby="clients-title">
+  <div class="container">
+    <header class="section-head section-head--split reveal">
+      <div>
+        <span class="eyebrow">{eyebrow}</span>
+        <h2 id="clients-title">{title}</h2>
+      </div>
+      <p class="lead">{lead}</p>
+    </header>
+  </div>
+
+  <div class="clients__viewport">
+    <ul class="clients__track" role="list" aria-label="برندهای همکار">
+      {
+        loop.map((c, i) => (
+          <li class="client" aria-hidden={i >= clients.length ? 'true' : undefined}>
+            <span class="client__mark" aria-hidden="true">
+              {c.logo ? <img src={c.logo} alt="" width="132" height="40" loading="lazy" decoding="async" /> : <svg viewBox="0 0 24 24" aria-hidden="true" set:html={marks[c.mark]} />}
+            </span>
+            {!c.logo && (
+              <span class:list={['client__word', c.tracking === 'wide' ? 'client__word--wide' : '']} dir="ltr">
+                {c.name}
+              </span>
+            )}
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+
+  <p class="container clients__note">
+    نام‌ها و نشان‌های تجاری متعلق به صاحبان آن‌هاست و صرفاً برای معرفی همکاری نمایش داده می‌شود.
+  </p>
+</section>
+
+<style>
+  .clients {
+    padding-block: clamp(3rem, 2.25rem + 3vw, 5rem);
+    border-bottom: 1px solid var(--rule);
+    background:
+      radial-gradient(60rem 22rem at 50% 0%, rgb(143 180 201 / 0.12), transparent 70%),
+      var(--bg);
+  }
+  .clients :global(.section-head) {
+    margin-bottom: clamp(1.5rem, 1rem + 1.5vw, 2.5rem);
+  }
+
+  .clients__viewport {
+    position: relative;
+    overflow: hidden;
+    padding-block: 0.5rem;
+    /* soften both edges so cards slide in and out instead of popping */
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+  }
+  .clients__track {
+    display: flex;
+    width: max-content;
+    gap: 0.9rem;
+    /* LTR so the translation maths is direction-independent; each wordmark is LTR anyway. */
+    direction: ltr;
+    animation: clients-scroll 56s linear infinite;
+    will-change: transform;
+  }
+  .clients__viewport:hover .clients__track,
+  .clients__viewport:focus-within .clients__track {
+    animation-play-state: paused;
+  }
+  @keyframes clients-scroll {
+    from {
+      transform: translate3d(0, 0, 0);
+    }
+    to {
+      /* one full copy of the list (it is repeated three times) */
+      transform: translate3d(calc(-100% / 3), 0, 0);
+    }
+  }
+
+  .client {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex: none;
+    min-height: 4.4rem;
+    padding: 0.7rem 1.35rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-m);
+    background: var(--white);
+    color: var(--slate-600);
+    box-shadow: 0 14px 28px -24px rgb(13 26 44 / 0.5);
+    transition:
+      color var(--dur-med) ease,
+      border-color var(--dur-med) ease,
+      transform var(--dur-med) var(--ease-out);
+  }
+  .client:hover {
+    color: var(--petrol-600);
+    border-color: var(--petrol-300);
+    transform: translateY(-2px);
+  }
+  .client__mark {
+    display: grid;
+    place-items: center;
+    flex: none;
+    inline-size: 1.9rem;
+    block-size: 1.9rem;
+    color: currentColor;
+    opacity: 0.85;
+  }
+  .client__mark :global(svg) {
+    inline-size: 100%;
+    block-size: 100%;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .client__mark :global(img) {
+    inline-size: auto;
+    block-size: 2rem;
+    max-width: 8.5rem;
+    object-fit: contain;
+  }
+  .client__word {
+    font-size: 1.02rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+    color: var(--navy-900);
+    opacity: 0.86;
+  }
+  .client__word--wide {
+    letter-spacing: 0.16em;
+    font-weight: 800;
+    font-size: 0.95rem;
+  }
+
+  .clients__note {
+    margin-top: 1.25rem;
+    font-size: var(--step--1);
+    color: var(--text-muted);
+    text-align: center;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .clients__viewport {
+      -webkit-mask-image: none;
+      mask-image: none;
+    }
+    .clients__track {
+      width: auto;
+      flex-wrap: wrap;
+      justify-content: center;
+      animation: none;
+      padding-inline: var(--gutter);
+      gap: 0.75rem;
+      direction: inherit;
+    }
+    /* the duplicated copies are only there for the loop */
+    .clients__track .client[aria-hidden='true'] {
+      display: none;
+    }
+  }
+</style>

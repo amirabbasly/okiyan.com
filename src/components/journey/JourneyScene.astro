@@ -119,10 +119,28 @@ const lattice = (x0: number, x1: number, y: number, hgt: number) => {
       <stop offset="0" stop-color="#284b66"></stop>
       <stop offset="1" stop-color="#1c3953"></stop>
     </linearGradient>
+    <linearGradient id="j-sky-day" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8fb6cd"></stop>
+      <stop offset="0.3" stop-color="#b3d1e1"></stop>
+      <stop offset="0.62" stop-color="#dbeaf2"></stop>
+      <stop offset="0.78" stop-color="#eaf3f7"></stop>
+      <stop offset="1" stop-color="#d7e6ee"></stop>
+    </linearGradient>
     <radialGradient id="j-sun" cx="0.5" cy="0.5" r="0.5">
       <stop offset="0" stop-color="#d6e4ec" stop-opacity="0.55"></stop>
       <stop offset="0.35" stop-color="#a9c6d6" stop-opacity="0.18"></stop>
       <stop offset="1" stop-color="#a9c6d6" stop-opacity="0"></stop>
+    </radialGradient>
+    <radialGradient id="j-sun-day" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.95"></stop>
+      <stop offset="0.22" stop-color="#f3f9fc" stop-opacity="0.55"></stop>
+      <stop offset="0.6" stop-color="#cfe4ee" stop-opacity="0.18"></stop>
+      <stop offset="1" stop-color="#cfe4ee" stop-opacity="0"></stop>
+    </radialGradient>
+    <radialGradient id="j-moon" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#e8f1f6" stop-opacity="0.6"></stop>
+      <stop offset="0.45" stop-color="#b9d1de" stop-opacity="0.16"></stop>
+      <stop offset="1" stop-color="#b9d1de" stop-opacity="0"></stop>
     </radialGradient>
     <radialGradient id="j-lamp" cx="0.5" cy="0.5" r="0.5">
       <stop offset="0" stop-color="#dbe8ef" stop-opacity="0.38"></stop>
@@ -144,17 +162,25 @@ const lattice = (x0: number, x1: number, y: number, hgt: number) => {
     </g>
   </defs>
 
-  <!-- ===== Sky (static, view space) ===== -->
+  <!-- ===== Sky (view space) =====
+       It starts as daylight: a day gradient sits over the night sky and fades
+       away once the shipment passes stage 2, together with sun, moon and stars. -->
   <rect x="-800" width="2400" height="560" fill="url(#j-sky)"></rect>
-  <g fill="#e8ecee">
+  <rect
+    data-j="sky-day"
+    x="-800"
+    width="2400"
+    height="560"
+    fill="url(#j-sky-day)"
+    opacity={(1 - f.sky.night).toFixed(3)}></rect>
+  <g data-j="stars" fill="#e8ecee" opacity={f.sky.starsO.toFixed(3)}>
     {stars.map((s) => <circle cx={s.x.toFixed(1)} cy={s.y.toFixed(1)} r={s.r.toFixed(2)} opacity={s.o.toFixed(2)} />)}
   </g>
   <rect x="-800" width="2400" height="560" fill="url(#j-grid)"></rect>
 
   <!-- ===== Parallax backdrop: sun, skyline, cloud streaks (view space, shifted) ===== -->
   <g data-j="bg" transform={`translate(${bgShift.toFixed(1)} 0)`}>
-    <circle cx="420" cy="292" r="150" fill="url(#j-sun)"></circle>
-    <circle cx="420" cy="296" r="26" fill="#c9dce6"></circle>
+
     <g fill="#e8ecee">
       <rect x="-520" y="118" width="210" height="4" rx="2" opacity="0.07"></rect>
       <rect x="-470" y="128" width="120" height="3" rx="1.5" opacity="0.05"></rect>
@@ -180,6 +206,20 @@ const lattice = (x0: number, x1: number, y: number, hgt: number) => {
     </g>
   </g>
 
+
+  <!-- ===== Daylight cycle (view space, so the sun and the moon stay in the sky) ===== -->
+  <g data-j="sun" opacity={f.sky.sunO.toFixed(3)} transform={`translate(0 ${f.sky.sunDy.toFixed(2)})`}>
+    <circle cx="150" cy="176" r="118" fill="url(#j-sun-day)"></circle>
+    <circle cx="150" cy="176" r="64" fill="url(#j-sun)"></circle>
+    <circle cx="150" cy="176" r="25" fill="#ffffff" fill-opacity="0.95"></circle>
+    <circle cx="150" cy="176" r="33" fill="none" stroke="#ffffff" stroke-opacity="0.4" stroke-width="2"></circle>
+  </g>
+  <g data-j="moon" opacity={f.sky.moonO.toFixed(3)} transform={`translate(0 ${f.sky.moonDy.toFixed(2)})`}>
+    <circle cx="150" cy="150" r="96" fill="url(#j-moon)"></circle>
+    <circle cx="150" cy="150" r="23" fill="#eef5f9"></circle>
+    <circle cx="160" cy="143" r="19" fill="#13263d"></circle>
+    <circle cx="142" cy="160" r="3.2" fill="#c9d8e2" fill-opacity="0.5"></circle>
+  </g>
 
   <!-- ===== World (camera space) ===== -->
   <g data-j="camera" transform={cameraTransform(f.camera)}>
@@ -428,6 +468,18 @@ const lattice = (x0: number, x1: number, y: number, hgt: number) => {
           stroke-dashoffset={(1 - f.docs.check).toFixed(4)}></path>
       </g>
     </g>
+
+    <!-- Night veil: the port itself cools down after dark; the shipment, truck and
+         barrier above it stay readable. -->
+    <rect
+      data-j="night-veil"
+      x="-400"
+      y="-200"
+      width="3600"
+      height="900"
+      fill="#0a1421"
+      opacity={f.sky.veil.toFixed(3)}
+      pointer-events="none"></rect>
 
     <!-- Ship -->
     <g data-j="ship" transform={`translate(${f.ship.x.toFixed(2)} ${f.ship.y.toFixed(2)}) rotate(${f.ship.a.toFixed(3)}) scale(${f.ship.s.toFixed(4)})`}>

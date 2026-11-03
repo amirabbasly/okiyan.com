@@ -12,10 +12,10 @@ import { contactCta } from '~/config/site';
 const path = '/after-sales-services/';
 const crumbs = [
   { name: 'خانه', path: '/' },
-  { name: 'خدمات پس از فروش', path },
+  { name: 'خدمات گارانتی کالا', path },
 ];
 const description =
-  'خدمات پس از فروش کالای وارداتی: تأمین و ترخیص قطعات یدکی، هماهنگی گارانتی و تعمیر، رویهٔ کالای برگشتی و پشتیبانی اسناد در دورهٔ بهره‌برداری.';
+  'خدمات گارانتی کالا و پس از فروش: تأمین و ترخیص قطعات یدکی، هماهنگی ضمانت و تعمیر، رویهٔ کالای برگشتی و پشتیبانی اسناد در دورهٔ بهره‌برداری.';
 
 // REVIEW: confirm with the business owner which of these are offered directly
 // and which are coordinated with partners (site.scopeConfirmed).
@@ -125,16 +125,16 @@ const faqs = [
 ---
 
 <BaseLayout
-  title="خدمات پس از فروش کالای وارداتی؛ قطعات و گارانتی"
+  title="خدمات گارانتی کالا و پس از فروش کالای وارداتی"
   description={description}
   jsonLd={[
     breadcrumbLd(crumbs, Astro.site),
-    serviceLd({ name: 'خدمات پس از فروش کالای وارداتی', description, path, serviceType: 'After-sales support' }, Astro.site),
+    serviceLd({ name: 'خدمات گارانتی کالا و خدمات پس از فروش', description, path, serviceType: 'After-sales and warranty support' }, Astro.site),
   ]}
 >
   <PageHero
     eyebrow="خدمات"
-    title="خدمات پس از فروش"
+    title="خدمات گارانتی کالا"
     lead="ورود کالا پایان کار نیست. قطعهٔ یدکی، تعویض، تعمیر یا مرجوعی، هرکدام دوباره پروندهٔ حمل و گمرک می‌سازند؛ این خدمت برای همان مرحله است."
     crumbs={crumbs}
   >

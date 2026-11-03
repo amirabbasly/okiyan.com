@@ -63,14 +63,14 @@ Service scope copy lives in `src/data/services.ts` and in the two service pages.
   `relatedService`, `relatedGuides`, `summary` (2–5 bullets), `sources` (title/publisher/url/note) and
   `reviewNotes` (shown only in staging builds). A new file becomes `/guides/<file-name>/`, joins the guide index,
   footer and sitemap, and gets Article + BreadcrumbList markup.
-- **Pages**: `src/pages/` (`index`, `customs-clearance`, `import-services`, `sailor-import`, `commercial-services`,
+- **Pages**: `src/pages/` (`index`, `customs-clearance`, `import-services`, `sailor-import`, `export-services`,
   `after-sales-services`, `special-projects`, `price-calculator`, `guides`, `about`, `resume`, `partners`,
   `guarantee`, `contact`, `404`). Copy for lists, FAQs and steps sits at the top of each page file.
 - **Navigation**: `nav` in `src/config/site.ts` drives the header (with the «خدمات» and «درباره ما» dropdowns),
   the mobile menu and the footer columns. On desktop the whole menu is one **dark capsule** centred in the white
   header (white labels, petrol underline for the current page); the brand and the actions take equal space so the
-  capsule stays centred. «واردات ملوانی» and «خدمات پس از فروش» are top-level items *and* stay inside the
-  «خدمات» dropdown. Below 1280px the header phone hides, below 1120px the capsule tightens, below 980px the CTA
+  capsule stays centred. «واردات ملوانی» and «خدمات گارانتی کالا» are top-level items *and* stay inside the
+  «خدمات» dropdown (which also lists «صادرات کالا»). Below 1280px the header phone hides, below 1120px the capsule tightens, below 980px the CTA
   steps aside, and below 860px the mobile menu takes over. Both dropdowns render as a full-bleed **dark mega panel**
   (`Header.astro`): the slab spans the viewport below the header, the links sit on translucent cards with white
   text and each group carries a light “feature” card (`feature` on the group) that breaks out of the dark section.
@@ -80,12 +80,24 @@ Service scope copy lives in `src/data/services.ts` and in the two service pages.
   `src/config/site.ts`. It lifts itself on the homepage so it never covers the journey's step bar.
 - **Homepage tally**: `src/components/ui/Counters.astro` + `src/scripts/counters.ts`. The three numbers are
   server-rendered in their final form and only animated on first view (skipped with reduced motion), so they
-  are correct without JavaScript.
+  are correct without JavaScript. Pass `approx: true` to print a «+» after a number that is rounded.
+- **Clients wall**: `src/components/ui/Clients.astro` + `src/data/clients.ts`. An auto-scrolling marquee (pauses on
+  hover, becomes a static grid with reduced motion). Brands currently render as typographic lockups; drop an official
+  file into `public/clients/` and set `logo` on the entry to show the real mark. **Confirm every brand and the right
+  to display its logo before launch.**
 - **Sample-content pages**: رزومه، همکاران، خدمات بازرگانی، پروژه‌های خاص، ضمانت and محاسبه قیمت currently hold
   dummy text. Pages listed in `src/data/sample-pages.json` show a «محتوای نمونه» notice in every build, are
   `noindex`, stay out of the sitemap and are listed in a build warning. Replace a page's text (and, for the
   calculator, the rates in `src/data/pricing.ts`), then remove its path from the JSON file to publish it normally.
 - **Journey stage text**: `src/components/journey/stages.ts`.
+- **Day → night**: the scene starts in daylight; as the shipment leaves stage 2 (`skyState()` in `timeline.ts`,
+  `NIGHT_FROM`/`NIGHT_TO`) the day sky fades out, the sun sinks behind the skyline, the moon rises on the other
+  side and the port cools down under a translucent veil. Sun, moon and stars live in view space (no camera or
+  parallax) so they always stay in the sky; the veil sits inside the camera group above the scenery but below the
+  truck, barrier and container.
+- **Autorun**: the “start”/“stop” button in the hero overlay plays the whole journey once (`AUTO_MS` in
+  `journey-client.ts`) by driving progress over time instead of scroll position, then hands the page back at the
+  delivered frame. Wheel, touch and key scrolling, or a second click, stop it immediately.
 
 ## Shipment-journey animation
 
