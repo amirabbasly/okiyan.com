@@ -11,16 +11,22 @@
 import { clients, type ClientMark } from '~/data/clients';
 
 export interface Props {
-  title?: string;
-  lead?: string;
-  eyebrow?: string;
+  title?: string | null;
+  lead?: string | null;
+  eyebrow?: string | null;
+  /** Hide the trademark footnote (the quiet strip on the service pages). */
+  note?: boolean;
+  /** The heading is off: the strip sits under a small lead line instead. */
+  compact?: boolean;
 }
 
 const {
   title = 'مشتریان ما',
   lead = 'از تولیدکنندگان تجهیزات صنعتی تا برندهای لوازم خانگی و قطعات؛ محموله‌های این شرکت‌ها را در مسیر واردات و ترخیص همراهی می‌کنیم.',
   eyebrow = 'مشتریان',
-} = Astro.props;
+  note = true,
+  compact = false,
+} = Astro.props as Props;
 
 /** Simple geometric monograms, drawn in currentColor. */
 const marks: Record<ClientMark, string> = {
@@ -41,16 +47,24 @@ const marks: Record<ClientMark, string> = {
 const rowItems = [...clients, ...clients];
 ---
 
-<section class="clients section" aria-labelledby="clients-title">
-  <div class="container">
-    <header class="section-head section-head--split reveal">
-      <div>
-        <span class="eyebrow">{eyebrow}</span>
-        <h2 id="clients-title">{title}</h2>
+<section
+  class:list={['clients', title ? 'section' : '', compact ? 'clients--compact' : '']}
+  aria-labelledby={title ? 'clients-title' : undefined}
+  aria-label={title ? undefined : 'برندهای همکار'}
+>
+  {
+    title && (
+      <div class="container">
+        <header class="section-head section-head--split reveal">
+          <div>
+            <span class="eyebrow">{eyebrow}</span>
+            <h2 id="clients-title">{title}</h2>
+          </div>
+          <p class="lead">{lead}</p>
+        </header>
       </div>
-      <p class="lead">{lead}</p>
-    </header>
-  </div>
+    )
+  }
 
   <div class="clients__viewport">
     <div class="clients__track">
@@ -58,23 +72,23 @@ const rowItems = [...clients, ...clients];
         [0, 1].map((copy) => (
           <ul
             class="clients__row"
-            role="list"
+            role={copy === 0 ? 'list' : undefined}
             aria-label={copy === 0 ? 'برندهای همکار' : undefined}
             aria-hidden={copy === 1 ? 'true' : undefined}
           >
             {rowItems.map((c) => (
               <li class="client">
-                <span class="client__mark" aria-hidden="true">
-                  {c.logo ? (
-                    <img src={c.logo} alt="" width="132" height="40" loading="lazy" decoding="async" />
-                  ) : (
-                    <svg viewBox="0 0 24 24" aria-hidden="true" set:html={marks[c.mark]} />
-                  )}
-                </span>
-                {!c.logo && (
-                  <span class:list={['client__word', c.tracking === 'wide' ? 'client__word--wide' : '']} dir="ltr">
-                    {c.name}
-                  </span>
+                {c.logo ? (
+                  <img class="client__logo" src={c.logo} alt={c.name} height="44" loading="lazy" decoding="async" />
+                ) : (
+                  <>
+                    <span class="client__mark" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" aria-hidden="true" set:html={marks[c.mark ?? 'ring']} />
+                    </span>
+                    <span class:list={['client__word', c.tracking === 'wide' ? 'client__word--wide' : '']} dir="ltr">
+                      {c.name}
+                    </span>
+                  </>
                 )}
               </li>
             ))}
@@ -84,9 +98,13 @@ const rowItems = [...clients, ...clients];
     </div>
   </div>
 
-  <p class="container clients__note">
-    نام‌ها و نشان‌های تجاری متعلق به صاحبان آن‌هاست و صرفاً برای معرفی همکاری نمایش داده می‌شود.
-  </p>
+  {
+    note && (
+      <p class="container clients__note">
+        نام‌ها و نشان‌های تجاری متعلق به صاحبان آن‌هاست و صرفاً برای معرفی همکاری نمایش داده می‌شود.
+      </p>
+    )
+  }
 </section>
 
 <style>
@@ -99,6 +117,11 @@ const rowItems = [...clients, ...clients];
   }
   .clients :global(.section-head) {
     margin-bottom: clamp(1.5rem, 1rem + 1.5vw, 2.5rem);
+  }
+  .clients--compact {
+    padding-block: 0;
+    border-bottom: 0;
+    background: none;
   }
 
   .clients__viewport {
@@ -115,9 +138,9 @@ const rowItems = [...clients, ...clients];
   .clients__track {
     display: flex;
     width: max-content;
-    animation: clients-scroll 56s linear infinite;
+    animation: clients-scroll 68s linear infinite;
     /* start mid-loop, so the strip is full of logos from the very first frame */
-    animation-delay: -12s;
+    animation-delay: -14s;
     will-change: transform;
   }
   .clients__row {
@@ -153,7 +176,7 @@ const rowItems = [...clients, ...clients];
     gap: 0.6rem;
     flex: none;
     min-height: 4.4rem;
-    padding: 0.7rem 1.35rem;
+    padding: 0.7rem 1.6rem;
     border: 1px solid var(--rule);
     border-radius: var(--radius-m);
     background: var(--white);
@@ -168,6 +191,19 @@ const rowItems = [...clients, ...clients];
     color: var(--petrol-600);
     border-color: var(--petrol-300);
     transform: translateY(-2px);
+  }
+  /* A real logo fills the card on its own: height-capped, width free, so locks of
+     different proportions still line up on the same optical baseline. */
+  .client__logo {
+    display: block;
+    block-size: 2.1rem;
+    inline-size: auto;
+    /* wide enough for the long wordmark (ZOOMIT) to keep its full height */
+    max-inline-size: 13rem;
+    object-fit: contain;
+  }
+  .client {
+    min-height: 4.4rem;
   }
   .client__mark {
     display: grid;
@@ -222,7 +258,7 @@ const rowItems = [...clients, ...clients];
       mask-image: none;
     }
     .clients__track {
-      animation-duration: 120s;
+      animation-duration: 150s;
     }
   }
 </style>

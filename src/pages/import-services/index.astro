@@ -4,6 +4,7 @@ import PageHero from '~/components/layout/PageHero.astro';
 import ImportArt from '~/components/illustrations/ImportArt.astro';
 import Faq from '~/components/ui/Faq.astro';
 import CtaBand from '~/components/ui/CtaBand.astro';
+import Clients from '~/components/ui/Clients.astro';
 import Icon from '~/components/ui/Icon.astro';
 import Placeholder from '~/components/ui/Placeholder.astro';
 import { breadcrumbLd, serviceLd } from '~/lib/schema';
@@ -255,10 +256,27 @@ const faqs = [
     </div>
   </section>
 
+    <!-- client brands: the same wall as the homepage, without the heading -->
+  <div class="section">
+    <div class="container" style="padding-bottom: 1.5rem">
+      <p class="clients-lead">برخی از برندهایی که محموله‌هایشان را همراهی کرده‌ایم</p>
+    </div>
+    <Clients title={null} note={false} compact />
+  </div>
+
   <CtaBand title="کالایی را در نظر دارید؟" text="مشخصات کالا و کشور تأمین را بفرستید تا پیش از سفارش، الزامات و هزینه‌های تقریبی واردات آن را بررسی کنیم." />
 </BaseLayout>
 
 <style>
+  .clients-lead {
+    margin: 0 0 1rem;
+    font-size: var(--step--1);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--text-muted);
+    text-align: center;
+  }
+
   .phases {
     list-style: none;
     display: grid;
