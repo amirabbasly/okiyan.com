@@ -61,18 +61,42 @@ export function initJourney(root: HTMLElement) {
 
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
 
+  // Writing an attribute that already holds the value still invalidates style and
+  // forces the browser to re-rasterise the whole scene, so remember what is on screen.
+  const written = new WeakMap<Element, Map<string, string>>();
   const set = (node: Element | null, attr: string, value: string | number) => {
-    if (node) node.setAttribute(attr, typeof value === 'number' ? value.toFixed(3) : value);
+    if (!node) return;
+    const v = typeof value === 'number' ? value.toFixed(3) : value;
+    let seen = written.get(node);
+    if (!seen) written.set(node, (seen = new Map()));
+    if (seen.get(attr) === v) return;
+    seen.set(attr, v);
+    node.setAttribute(attr, v);
+  };
+  const cssVars = new WeakMap<HTMLElement, string>();
+  const setVar = (node: HTMLElement | null | undefined, name: string, value: string) => {
+    if (!node) return;
+    const key = `${name}:${value}`;
+    if (cssVars.get(node) === key) return;
+    cssVars.set(node, key);
+    node.style.setProperty(name, value);
   };
 
   let target = 0;
   let shown = 0; // the server-rendered frame is p = 0
   let rendered = false;
   let stage = 0;
+  let started = true;
+  let past = false;
+  let doorCache = '';
   let running = false;
   let raf = 0;
   let last = 0;
-  let atSea = 0;
+  /** Last sign of life (scroll, resize, stage click, playback). */
+  let lastInput = performance.now();
+  let liveTimer = 0;
+  /** How long the scene keeps breathing after the last scroll or click. */
+  const IDLE_MS = 700;
 
   // ---- Autorun: plays the whole journey once without the visitor scrolling ----
   const AUTO_MS = 14000;
@@ -102,6 +126,7 @@ export function initJourney(root: HTMLElement) {
       target = 0;
       rendered = false;
     }
+    markLive();
     auto.active = true;
     auto.start = performance.now();
     auto.from = clamp(readProgress());
@@ -136,15 +161,23 @@ export function initJourney(root: HTMLElement) {
     if (['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End', ' '].includes(e.key)) interrupt(e);
   });
 
+  // Layout is measured only when it can change (resize / observer); a rect read on
+  // every scroll frame forces a synchronous layout and is a classic source of jank.
+  const metrics = { top: 0, headerH: 0, range: 1 };
+  function measure() {
+    const tr = track!.getBoundingClientRect();
+    metrics.top = tr.top + window.scrollY;
+    metrics.headerH = header?.offsetHeight ?? 0;
+    metrics.range = Math.max(1, track!.offsetHeight - pin!.offsetHeight);
+  }
+
   /** d = distance travelled through the pinned range; before = distance until pinning starts. */
   function geometry() {
-    const headerH = header?.offsetHeight ?? 0;
-    const pr = pin!.getBoundingClientRect();
-    const tr = track!.getBoundingClientRect();
+    const travelled = window.scrollY - (metrics.top - metrics.headerH);
     return {
-      d: pr.top - tr.top,
-      range: Math.max(1, track!.offsetHeight - pin!.offsetHeight),
-      before: Math.max(0, pr.top - headerH),
+      d: clamp(travelled, 0, metrics.range),
+      range: metrics.range,
+      before: clamp(-travelled, 0, Infinity),
     };
   }
 
@@ -239,15 +272,19 @@ export function initJourney(root: HTMLElement) {
     set(el.barrier, 'transform', `rotate(${(f.barrier * 80).toFixed(2)} 581 436)`);
 
     // Delivery
-    if (el.door) el.door.style.transform = `scaleY(${(1 - f.door * 0.86).toFixed(4)})`;
+    if (el.door) {
+      const doorT = `scaleY(${(1 - f.door * 0.86).toFixed(3)})`;
+      if (doorT !== doorCache) el.door.style.transform = doorCache = doorT;
+    }
     set(el.done, 'opacity', f.done > 0 ? 1 : 0);
     el.doneStrokes.forEach((n) => set(n, 'stroke-dashoffset', (1 - f.done).toFixed(4)));
 
-    // Progress indicators: HUD bars and the bar under each stage title
+    // Progress indicators: HUD bars and the bar under each stage title. Quantised to
+    // 1% so a slow scroll does not rewrite ten custom properties every frame.
     for (let i = 0; i < STAGE_COUNT; i++) {
-      const v = clamp(f.p * STAGE_COUNT - i).toFixed(3);
-      hudFills[i]?.style.setProperty('--fill', v);
-      stepBars[i]?.style.setProperty('--fill', v);
+      const v = (Math.round(clamp(f.p * STAGE_COUNT - i) * 100) / 100).toFixed(2);
+      setVar(hudFills[i], '--fill', v);
+      setVar(stepBars[i], '--fill', v);
     }
 
     if (f.stage !== stage) {
@@ -257,12 +294,13 @@ export function initJourney(root: HTMLElement) {
       if (hudCount) hudCount.textContent = `${pad(stage + 1)} / ${pad(STAGE_COUNT)}`;
       if (hudTitle) hudTitle.textContent = titles[stage] ?? '';
     }
-    root.classList.toggle('is-start', f.p < 0.015);
+    const atStart = f.p < 0.015;
+    if (atStart !== started) root.classList.toggle('is-start', (started = atStart));
     // Headline overlay: fully visible at the top, gone once the journey is under way.
     const introO = clamp(1 - f.p / 0.05);
-    root.style.setProperty('--intro-o', introO.toFixed(3));
-    root.classList.toggle('is-past-intro', introO < 0.05);
-    root.classList.toggle('is-running', running && f.p > 0.015 && !reduceMotion.matches);
+    setVar(root, '--intro-o', introO.toFixed(3));
+    const pastIntro = introO < 0.05;
+    if (pastIntro !== past) root.classList.toggle('is-past-intro', (past = pastIntro));
   }
 
   function render(now: number) {
@@ -298,24 +336,26 @@ export function initJourney(root: HTMLElement) {
     }
     last = now;
     const t = now / 1000;
-    const swell = reduce ? { dy: 0, da: 0 } : { dy: Math.sin(t * 1.7) * 2.4, da: Math.sin(t * 1.15 + 0.7) * 1.1 };
+    // The ambient bob only runs while the visitor is actually moving through the
+    // scene; a permanently bobbing ship repaints the whole SVG every frame forever.
+    const live = auto.active || now - lastInput < IDLE_MS;
+    const swell = reduce || !live ? { dy: 0, da: 0 } : { dy: Math.sin(t * 1.7) * 2.4, da: Math.sin(t * 1.15 + 0.7) * 1.1 };
     // While the autorun plays, keep the page's own scroll position in step with the
     // timeline: the scrollbar moves with the scene and there is no jump at the end.
     if (auto.active) syncScroll(shown);
     const f = computeFrame(shown, swell);
-    atSea = f.atSea;
     apply(f);
     rendered = true;
   }
 
   function loop(now: number) {
     render(now);
-    // Keep animating only while easing toward the scroll position or while the ship
-    // bobs at sea; otherwise frames are drawn on demand from scroll events.
+    // Anything still moving requests another frame; once the visitor stops (and no
+    // playback is running) the loop ends and the last frame stays on screen. That is
+    // what keeps a long page with a full-screen SVG responsive after the hero.
     const easing = Math.abs(target - shown) > 0.0004;
-    // While playing, the page follows the timeline and the section may scroll out of
-    // view at the very end — the playback still has to finish its 14 seconds.
-    const keepGoing = auto.active || (running && !reduceMotion.matches && (easing || atSea > 0.001));
+    const idle = !auto.active && now - lastInput > IDLE_MS;
+    const keepGoing = auto.active || (running && (easing || !idle));
     if (keepGoing) raf = requestAnimationFrame(loop);
     else {
       raf = 0;
@@ -323,7 +363,16 @@ export function initJourney(root: HTMLElement) {
     }
   }
 
+  /** Anything that should wake the scene up (and keep the waves drifting). */
+  function markLive() {
+    lastInput = performance.now();
+    root.classList.add('is-live');
+    window.clearTimeout(liveTimer);
+    liveTimer = window.setTimeout(() => root.classList.remove('is-live'), 1200);
+  }
+
   function request() {
+    markLive();
     // Off-screen: no layout reads. The IntersectionObserver re-requests on entry.
     if (!running) return;
     if (auto.active) return; // the timeline owns the progress while it plays
@@ -344,15 +393,21 @@ export function initJourney(root: HTMLElement) {
   const io = new IntersectionObserver(
     ([entry]) => {
       running = entry.isIntersecting;
-      if (!running) root.classList.remove('is-running');
       if (running) request();
     },
     { rootMargin: '120px 0px' },
   );
   io.observe(root);
 
+  measure();
+  // Web fonts and late layout can move the track; re-measure once they settle.
+  window.addEventListener('load', measure, { once: true });
+  document.fonts?.ready.then(measure).catch(() => {});
   window.addEventListener('scroll', request, { passive: true });
-  window.addEventListener('resize', request, { passive: true });
+  window.addEventListener('resize', () => {
+    measure();
+    request();
+  });
   reduceMotion.addEventListener('change', request);
   // Fit the scene to the frame's shape: always show the full scene height and let a
   // wider frame reveal more of the harbour to each side (narrower frames crop the sides).
@@ -361,6 +416,7 @@ export function initJourney(root: HTMLElement) {
   // Sizes come from the observer (delivered after layout, also once on observe), so
   // start-up never forces a synchronous layout.
   new ResizeObserver(([entry]) => {
+    measure();
     const { width, height } = entry.contentRect;
     if (!width || !height) return;
     const w = (baseH * width) / height;
