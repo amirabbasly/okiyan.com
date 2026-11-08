@@ -198,9 +198,15 @@ export function stageOf(p: number) {
 /** Window in which the sky changes: right after the shipment passes stage 2. */
 const NIGHT_FROM = 0.4;
 const NIGHT_TO = 0.52;
+/** Dawn: the sky clears again while the truck rolls up to the customs gate, so the
+ *  journey ends in daylight (the truck arrives at ~0.94, after the sun is back). */
+const DAWN_FROM = 0.78;
+const DAWN_TO = 0.9;
 
 export function skyState(p: number): SkyState {
-  const night = easeInOut(seg(clamp(p), NIGHT_FROM, NIGHT_TO));
+  // Night comes in after stage 2 and leaves again before the last stage ends.
+  const nightIn = easeInOut(seg(clamp(p), NIGHT_FROM, NIGHT_TO));
+  const night = Math.min(nightIn, 1 - easeInOut(seg(clamp(p), DAWN_FROM, DAWN_TO)));
   return {
     night,
     sunDy: lerp(0, 215, easeInOut(night)),

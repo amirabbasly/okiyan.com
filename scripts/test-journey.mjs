@@ -45,4 +45,13 @@ for (let s = 0; s < STAGE_COUNT; s++) {
 assert.ok(computeFrame(discreteProgress(0.05)).docs.check === 1, 'reduced motion: documents should be verified');
 assert.ok(computeFrame(discreteProgress(0.75)).barrier > 0.99, 'reduced motion: customs barrier should be open');
 
+// 7. Sky: daylight at the start, night in the middle, and daylight again by the time
+// the truck reaches the customs gate — so the journey ends on a bright frame.
+assert.ok(computeFrame(0.2).sky.night < 0.001, 'journey should start in daylight');
+assert.ok(computeFrame(0.65).sky.night > 0.999, 'the middle of the journey should be at night');
+assert.ok(computeFrame(0.9).sky.night < 0.001, 'the sky should be light again before the gate');
+assert.ok(computeFrame(0.94).sky.night < 0.001, 'the truck arrives at the gate in daylight');
+assert.ok(computeFrame(1).sky.night < 0.001, 'the journey must end in daylight');
+assert.ok(computeFrame(1).sky.sunO > 0.99 && computeFrame(1).sky.moonO < 0.01, 'sun back, moon gone at the end');
+
 console.log(`journey timeline OK — ${N} samples, max container step ${maxJump.toFixed(2)} units`);
