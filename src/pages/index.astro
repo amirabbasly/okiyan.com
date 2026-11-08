@@ -48,7 +48,10 @@ const tally = [
 ];
 
 /** The four services shown on the homepage, in reading order. */
-const homepageServices = [services.clearance, services.import, services.sailor, services.export];
+// The homepage shows the two entry points: import (before the purchase) and customs
+// clearance (once the goods are on their way). The other routes stay one click away.
+const homepageServices = [services.import, services.clearance];
+const relatedServices = [services.sailor, services.container, services.export];
 
 const faqs = [
   {
@@ -118,12 +121,11 @@ const faqs = [
       <header class="section-head section-head--split reveal">
         <div>
           <span class="eyebrow">خدمات</span>
-          <h2 id="services-title">چهار مسیر، چهار نقطهٔ شروع متفاوت</h2>
+          <h2 id="services-title">دو مسیر، دو نقطهٔ شروع متفاوت</h2>
         </div>
         <p class="lead">
-          اگر کالا در راه گمرک است، با <a href="/customs-clearance/">ترخیص کالا</a> شروع کنید؛ اگر هنوز در حال تصمیم‌گیری برای خرید هستید،
-          <a href="/import-services/">واردات کالا</a> از مرحلهٔ برنامه‌ریزی همراه شماست. محموله‌های بندری با <a href="/sailor-import/">واردات ملوانی</a>
-          و کالاهای خروجی با <a href="/export-services/">صادرات کالا</a> مسیر خودشان را دارند.
+          اگر هنوز در حال تصمیم‌گیری برای خرید هستید، مسیر <a href="/import-services/">واردات کالا</a> از مرحلهٔ برنامه‌ریزی همراه شماست؛
+          اگر کالا در راه گمرک است، مسیر <a href="/customs-clearance/">ترخیص کالا</a> از بررسی اسناد تا خروج کالا را پیش می‌بریم.
         </p>
       </header>
 
@@ -155,6 +157,22 @@ const faqs = [
           ))
         }
       </div>
+
+      <nav class="routes" aria-labelledby="routes-title">
+        <p class="routes__label" id="routes-title">مسیرهای مرتبط</p>
+        <ul class="routes__list">
+          {
+            relatedServices.map((r) => (
+              <li>
+                <a class="routes__link" href={r.href}>
+                  <span>{r.name}</span>
+                  <Icon name="arrow" />
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
     </div>
   </section>
 
@@ -437,6 +455,52 @@ const faqs = [
     color: var(--text-muted);
     padding-top: 1rem;
     border-top: 1px dashed var(--rule-strong);
+  }
+
+  /* ---------- Related routes (the two paths lead here) ---------- */
+  .routes {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1.5rem;
+    margin-top: clamp(1.75rem, 1.2rem + 2vw, 2.75rem);
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--rule);
+  }
+  .routes__label {
+    font-size: var(--step--1);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--text-muted);
+  }
+  .routes__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .routes__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-weight: 600;
+    color: var(--navy-800);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition:
+      color var(--dur-med) ease,
+      border-color var(--dur-med) ease;
+  }
+  .routes__link :global(svg) {
+    inline-size: 0.95rem;
+    block-size: 0.95rem;
+    flex: none;
+  }
+  .routes__link:hover {
+    color: var(--petrol-600);
+    border-bottom-color: currentColor;
   }
 
   /* ---------- Principles ---------- */

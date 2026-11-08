@@ -34,8 +34,11 @@ const marks: Record<ClientMark, string> = {
   diamond: '<path d="M12 3.4l8.4 8.6-8.4 8.6L3.6 12z"/><path d="M12 8.4l3.6 3.6-3.6 3.6-3.6-3.6z"/>',
 };
 
-// Three copies keep the loop seamless on ultra-wide screens.
-const loop = [...clients, ...clients, ...clients];
+// The track holds two identical rows and each row repeats the list twice: with the
+// gap baked into the row's own width the track is exactly twice one row, so shifting
+// it by -50% is a seamless loop, and one row is wider than any screen — never a gap.
+// The second row is decorative (it only exists for the loop).
+const rowItems = [...clients, ...clients];
 ---
 
 <section class="clients section" aria-labelledby="clients-title">
@@ -50,22 +53,35 @@ const loop = [...clients, ...clients, ...clients];
   </div>
 
   <div class="clients__viewport">
-    <ul class="clients__track" role="list" aria-label="برندهای همکار">
+    <div class="clients__track">
       {
-        loop.map((c, i) => (
-          <li class="client" aria-hidden={i >= clients.length ? 'true' : undefined}>
-            <span class="client__mark" aria-hidden="true">
-              {c.logo ? <img src={c.logo} alt="" width="132" height="40" loading="lazy" decoding="async" /> : <svg viewBox="0 0 24 24" aria-hidden="true" set:html={marks[c.mark]} />}
-            </span>
-            {!c.logo && (
-              <span class:list={['client__word', c.tracking === 'wide' ? 'client__word--wide' : '']} dir="ltr">
-                {c.name}
-              </span>
-            )}
-          </li>
+        [0, 1].map((copy) => (
+          <ul
+            class="clients__row"
+            role="list"
+            aria-label={copy === 0 ? 'برندهای همکار' : undefined}
+            aria-hidden={copy === 1 ? 'true' : undefined}
+          >
+            {rowItems.map((c) => (
+              <li class="client">
+                <span class="client__mark" aria-hidden="true">
+                  {c.logo ? (
+                    <img src={c.logo} alt="" width="132" height="40" loading="lazy" decoding="async" />
+                  ) : (
+                    <svg viewBox="0 0 24 24" aria-hidden="true" set:html={marks[c.mark]} />
+                  )}
+                </span>
+                {!c.logo && (
+                  <span class:list={['client__word', c.tracking === 'wide' ? 'client__word--wide' : '']} dir="ltr">
+                    {c.name}
+                  </span>
+                )}
+              </li>
+            ))}
+          </ul>
         ))
       }
-    </ul>
+    </div>
   </div>
 
   <p class="container clients__note">
@@ -89,6 +105,9 @@ const loop = [...clients, ...clients, ...clients];
     position: relative;
     overflow: hidden;
     padding-block: 0.5rem;
+    /* LTR: the rows are anchored to the left edge, so the strip is already full on the
+       first paint (in RTL the overflow hangs off the right edge and leaves a gap). */
+    direction: ltr;
     /* soften both edges so cards slide in and out instead of popping */
     -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
     mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
@@ -96,23 +115,35 @@ const loop = [...clients, ...clients, ...clients];
   .clients__track {
     display: flex;
     width: max-content;
-    gap: 0.9rem;
-    /* LTR so the translation maths is direction-independent; each wordmark is LTR anyway. */
-    direction: ltr;
     animation: clients-scroll 56s linear infinite;
+    /* start mid-loop, so the strip is full of logos from the very first frame */
+    animation-delay: -12s;
     will-change: transform;
   }
-  .clients__viewport:hover .clients__track,
-  .clients__viewport:focus-within .clients__track {
-    animation-play-state: paused;
+  .clients__row {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    margin: 0;
+    padding: 0 0.9rem 0 0;
+    list-style: none;
+  }
+  /* Pausing needs a real pointer: on touch screens :hover sticks after a tap and the
+     strip would stay frozen. */
+  @media (hover: hover) and (pointer: fine) {
+    .clients__viewport:hover .clients__track,
+    .clients__viewport:focus-within .clients__track {
+      animation-play-state: paused;
+    }
   }
   @keyframes clients-scroll {
     from {
       transform: translate3d(0, 0, 0);
     }
     to {
-      /* one full copy of the list (it is repeated three times) */
-      transform: translate3d(calc(-100% / 3), 0, 0);
+      /* one whole row: the track is exactly two of them */
+      transform: translate3d(-50%, 0, 0);
     }
   }
 
@@ -183,23 +214,15 @@ const loop = [...clients, ...clients, ...clients];
     text-align: center;
   }
 
+  /* The wall is meant to drift on its own, so it keeps drifting for visitors who ask
+     for less motion — just at a calmer pace, with the edge fades removed. */
   @media (prefers-reduced-motion: reduce) {
     .clients__viewport {
       -webkit-mask-image: none;
       mask-image: none;
     }
     .clients__track {
-      width: auto;
-      flex-wrap: wrap;
-      justify-content: center;
-      animation: none;
-      padding-inline: var(--gutter);
-      gap: 0.75rem;
-      direction: inherit;
-    }
-    /* the duplicated copies are only there for the loop */
-    .clients__track .client[aria-hidden='true'] {
-      display: none;
+      animation-duration: 120s;
     }
   }
 </style>

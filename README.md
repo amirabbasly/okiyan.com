@@ -87,10 +87,12 @@ Service scope copy lives in `src/data/services.ts` and in the two service pages.
 - **Homepage tally**: `src/components/ui/Counters.astro` + `src/scripts/counters.ts`. The three numbers are
   server-rendered in their final form and only animated on first view (skipped with reduced motion), so they
   are correct without JavaScript. Pass `approx: true` to print a «+» after a number that is rounded.
-- **Clients wall**: `src/components/ui/Clients.astro` + `src/data/clients.ts`. An auto-scrolling marquee (pauses on
-  hover, becomes a static grid with reduced motion). Brands currently render as typographic lockups; drop an official
-  file into `public/clients/` and set `logo` on the entry to show the real mark. **Confirm every brand and the right
-  to display its logo before launch.**
+- **Clients wall**: `src/components/ui/Clients.astro` + `src/data/clients.ts`. An infinite auto-scrolling marquee that
+  is already full on the first paint: two identical rows (each repeating the list, with the gap baked into the row
+  width) so shifting the track by -50% is exactly one row. It pauses on hover only for real pointers and slows down —
+  never stops — under `prefers-reduced-motion`. Brands currently render as typographic lockups; drop an official file
+  into `public/clients/` and set `logo` on the entry to show the real mark. **Confirm every brand and the right to
+  display its logo before launch.**
 - **Sample-content pages**: رزومه، همکاران، خدمات بازرگانی، پروژه‌های خاص، ضمانت and محاسبه قیمت currently hold
   dummy text. Pages listed in `src/data/sample-pages.json` show a «محتوای نمونه» notice in every build, are
   `noindex`, stay out of the sitemap and are listed in a build warning. Replace a page's text (and, for the
@@ -138,7 +140,11 @@ How it behaves:
   whole stage at a time) and playback still runs when the visitor presses play; only the easing, the ambient swell
   and the wave loop are switched off.
 - No JavaScript: nothing is pinned or animated, and the five stage labels stay readable as a plain list.
-- The rAF loop and the CSS wave loop run only while the section intersects the viewport.
+- **Cost control**: the rAF loop, the ambient swell and the CSS wave drift all stop about
+  700 ms after the last scroll/click (playback keeps them alive), so a still scene costs
+  nothing. Attribute writes are cached and skipped when the value is unchanged, the layout
+  is measured on resize only (no `getBoundingClientRect` per scroll frame), and the HUD bars
+  are quantised to 1%.
 
 Section entrances (`.reveal`) use a tiny IntersectionObserver (`src/scripts/reveal.ts`), not CSS
 scroll-driven animations (`animation-timeline: view()`): in Chrome those stalled touchpad scrolling for

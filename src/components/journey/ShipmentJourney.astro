@@ -185,11 +185,15 @@ const pad = (n: number) => toFa(String(n).padStart(2, '0'));
       opacity: calc(1 - var(--intro-o, 1));
     }
   }
+  /* The waves drift only while the visitor is moving through the scene: a permanently
+     animated full-width SVG repaints the whole layer on every frame, which is what
+     made the rest of the page feel heavy. */
   .j-frame :global(.j-waves) {
     animation: j-swell 7s linear infinite;
     animation-play-state: paused;
+    will-change: transform;
   }
-  .hj:global(.is-running) .j-frame :global(.j-waves) {
+  .hj:global(.is-live) .j-frame :global(.j-waves) {
     animation-play-state: running;
   }
   @keyframes j-swell {
