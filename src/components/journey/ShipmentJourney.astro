@@ -75,8 +75,11 @@ const pad = (n: number) => toFa(String(n).padStart(2, '0'));
 <style>
   /* ================= Layout ================= */
   .hj {
-    --hj-scroll: 260svh; /* scroll distance for the five stages */
-    --pin-h: calc(100svh - var(--header-h));
+    /* Scroll distance for the five stages. `vh` first, `svh` where supported, so a
+       browser without `svh` still gets the full track height (otherwise the whole
+       journey would collapse into one tiny scroll). */
+    --hj-scroll: 260vh;
+    --pin-h: calc(100vh - var(--header-h));
     --stage-w: min(90%, 100rem);
     position: relative;
     background-color: var(--navy-900);
@@ -85,8 +88,15 @@ const pad = (n: number) => toFa(String(n).padStart(2, '0'));
       radial-gradient(50rem 40rem at 0% 100%, rgb(35 77 102 / 0.4), transparent 60%);
     color: var(--mist-100);
   }
+  @supports (height: 100svh) {
+    .hj {
+      --hj-scroll: 260svh;
+      --pin-h: calc(100svh - var(--header-h));
+    }
+  }
   .hj__track {
     height: calc(var(--pin-h) + var(--hj-scroll));
+    min-height: calc(100vh - var(--header-h) + 260vh);
   }
   .hj__pin {
     position: sticky;
@@ -373,7 +383,7 @@ const pad = (n: number) => toFa(String(n).padStart(2, '0'));
   /* ================= Tablet & phone ================= */
   @media (max-width: 900px) {
     .hj {
-      --hj-scroll: 220svh;
+      --hj-scroll: 220vh;
     }
     .hj__stage {
       padding-top: 0.75rem;
@@ -413,6 +423,13 @@ const pad = (n: number) => toFa(String(n).padStart(2, '0'));
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
+    }
+  }
+  @supports (height: 100svh) {
+    @media (max-width: 900px) {
+      .hj {
+        --hj-scroll: 220svh;
+      }
     }
   }
   @media (max-width: 520px) {

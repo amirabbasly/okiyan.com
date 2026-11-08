@@ -6,7 +6,7 @@
  * Progress comes from how far the pinned panel has travelled through its scroll track.
  * The headline overlay fades out as the journey starts (--intro-o on the root).
  */
-import { computeFrame, discreteProgress, cameraTransform, poseTransform, WORLD, STAGE_COUNT, SHEET_SPREAD, clamp, type Frame } from './timeline';
+import { computeFrame, cameraTransform, poseTransform, WORLD, STAGE_COUNT, SHEET_SPREAD, clamp, type Frame } from './timeline';
 
 const faDigits = '۰۱۲۳۴۵۶۷۸۹';
 const pad = (n: number) => String(n).padStart(2, '0').replace(/\d/g, (d) => faDigits[Number(d)]);
@@ -75,7 +75,7 @@ export function initJourney(root: HTMLElement) {
   let atSea = 0;
 
   // ---- Autorun: plays the whole journey once without the visitor scrolling ----
-  const AUTO_MS = 12000;
+  const AUTO_MS = 14000;
   const runBtn = root.querySelector<HTMLButtonElement>('[data-journey-run]');
   const runLabel = runBtn?.querySelector<HTMLElement>('[data-run-label]');
   const auto = { active: false, start: 0, from: 0 };
@@ -92,16 +92,14 @@ export function initJourney(root: HTMLElement) {
   }
 
   function startAuto() {
-    if (reduceMotion.matches) {
-      // No motion: jump straight to the delivered state instead of animating.
-      scrollToStage(STAGE_COUNT - 1);
-      return;
-    }
+    // Playback is an explicit choice (like pressing play on a video), so it always
+    // animates — the reduced-motion preference only drops the ambient effects.
     // Replay from the top when the journey is already finished.
     const g0 = geometry();
     if (g0.d >= g0.range - 2) {
-      window.scrollTo({ top: window.scrollY + g0.d, behavior: 'auto' });
+      jumpToProgress(0);
       shown = 0;
+      target = 0;
       rendered = false;
     }
     auto.active = true;
@@ -155,11 +153,26 @@ export function initJourney(root: HTMLElement) {
     return clamp(g.d / g.range);
   };
 
+  /** Where the page has to be so the animation sits at progress p. */
+  function scrollTopFor(p: number) {
+    const g = geometry();
+    return window.scrollY + g.before + p * g.range - clamp(g.d, 0, g.range);
+  }
+
   /** Scroll the page so the animation sits at progress p (0 = top of the track). */
   function scrollToProgress(p: number) {
-    const g = geometry();
-    const top = window.scrollY + g.before + p * g.range - clamp(g.d, 0, g.range);
-    window.scrollTo({ top, behavior: reduceMotion.matches ? 'auto' : 'smooth' });
+    window.scrollTo({ top: scrollTopFor(p), behavior: reduceMotion.matches ? 'auto' : 'smooth' });
+  }
+
+  /** Put the page at progress p with no animation at all. */
+  function jumpToProgress(p: number) {
+    window.scrollTo(0, scrollTopFor(p));
+  }
+
+  /** Follow the playing timeline with the page position (no end-of-play jump). */
+  function syncScroll(p: number) {
+    const top = scrollTopFor(p);
+    if (Math.abs(top - window.scrollY) > 1) window.scrollTo(0, top);
   }
 
   /** Scroll the page so the animation shows stage i (near its completed state). */
@@ -258,19 +271,21 @@ export function initJourney(root: HTMLElement) {
       const t = clamp((now - auto.start) / AUTO_MS);
       target = auto.from + (1 - auto.from) * autoEase(t);
       if (t >= 1) {
-        // Finished: keep the delivered frame and let the page catch up so the
-        // scroll position matches what is on screen.
+        // Finished: the page has been following the timeline, so it is already at
+        // the delivered frame. Just hand control back without moving anything.
         auto.active = false;
         setRunState(false);
         root.classList.remove('is-autorun');
-        // Land on the very end of the track, so the scroll position matches the
-        // delivered frame and nothing jumps back when the page catches up.
+        shown = 1;
         target = 1;
-        scrollToProgress(1);
+        jumpToProgress(1);
         rendered = true;
       }
     }
-    const goal = reduce ? discreteProgress(target) : target;
+    // Progress is always continuous and follows the scroll position exactly; the
+    // reduced-motion preference only removes the easing (and the ambient swell),
+    // it never snaps a whole stage at a time.
+    const goal = target;
     if (reduce) {
       shown = goal;
     } else {
@@ -284,6 +299,9 @@ export function initJourney(root: HTMLElement) {
     last = now;
     const t = now / 1000;
     const swell = reduce ? { dy: 0, da: 0 } : { dy: Math.sin(t * 1.7) * 2.4, da: Math.sin(t * 1.15 + 0.7) * 1.1 };
+    // While the autorun plays, keep the page's own scroll position in step with the
+    // timeline: the scrollbar moves with the scene and there is no jump at the end.
+    if (auto.active) syncScroll(shown);
     const f = computeFrame(shown, swell);
     atSea = f.atSea;
     apply(f);
@@ -295,7 +313,10 @@ export function initJourney(root: HTMLElement) {
     // Keep animating only while easing toward the scroll position or while the ship
     // bobs at sea; otherwise frames are drawn on demand from scroll events.
     const easing = Math.abs(target - shown) > 0.0004;
-    if (running && !reduceMotion.matches && (easing || atSea > 0.001 || auto.active)) raf = requestAnimationFrame(loop);
+    // While playing, the page follows the timeline and the section may scroll out of
+    // view at the very end — the playback still has to finish its 14 seconds.
+    const keepGoing = auto.active || (running && !reduceMotion.matches && (easing || atSea > 0.001));
+    if (keepGoing) raf = requestAnimationFrame(loop);
     else {
       raf = 0;
       last = 0;
