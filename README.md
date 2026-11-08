@@ -110,8 +110,9 @@ Service scope copy lives in `src/data/services.ts` and in the two service pages.
   parallax) so they always stay in the sky; the veil sits inside the camera group above the scenery but below the
   truck, barrier and container.
 - **Autorun**: the “start”/“stop” button in the hero overlay plays the whole journey once (`AUTO_MS` in
-  `journey-client.ts`) by driving progress over time instead of scroll position, then hands the page back at the
-  delivered frame. Wheel, touch and key scrolling, or a second click, stop it immediately.
+  `journey-client.ts`) and keeps the page's scroll position in step with the timeline, so the scrollbar moves with
+  the scene and it ends exactly on the delivered frame — no jump at the end. Wheel, touch and key scrolling, or a
+  second click, stop it immediately.
 
 ## Shipment-journey animation
 
@@ -131,8 +132,10 @@ How it behaves:
 - Clicking a step scrolls the animation to it and does nothing else: nothing opens over the scene, so the frame stays fully visible.
 - The client fits the SVG `viewBox` to the frame's shape (`data-base-w`/`data-base-h` on the SVG): the full scene height is always shown, and wider frames reveal more of the harbour to each side.
 - One container element is handed from yard → ship → crane → truck; `npm run test:journey` asserts it never teleports.
-- `prefers-reduced-motion: reduce`: each stage snaps to its completed state, no damping, no swell.
-- No JavaScript: nothing is pinned, the stage titles still open natively, and all text remains readable.
+- `prefers-reduced-motion: reduce`: the scene still follows the scroll position continuously (it never snaps a
+  whole stage at a time) and playback still runs when the visitor presses play; only the easing, the ambient swell
+  and the wave loop are switched off.
+- No JavaScript: nothing is pinned or animated, and the five stage labels stay readable as a plain list.
 - The rAF loop and the CSS wave loop run only while the section intersects the viewport.
 
 Section entrances (`.reveal`) use a tiny IntersectionObserver (`src/scripts/reveal.ts`), not CSS
@@ -140,7 +143,8 @@ scroll-driven animations (`animation-timeline: view()`): in Chrome those stalled
 up to a minute after scrolling past the top/bottom edge, and the production CSS minifier silently dropped
 them anyway. Keep it that way.
 
-To retime a stage, edit the `seg(t, a, b)` windows in `computeFrame`. To move scenery, change `WORLD` in `timeline.ts`
+The hero is pinned for `--hj-scroll` (260svh; a `vh` fallback plus an `@supports` upgrade keeps the track height
+correct in browsers without `svh`). To retime a stage, edit the `seg(t, a, b)` windows in `computeFrame`. To move scenery, change `WORLD` in `timeline.ts`
 and the matching coordinates in `JourneyScene.astro`, then run `npm run test:journey`.
 
 ## Consultation form
