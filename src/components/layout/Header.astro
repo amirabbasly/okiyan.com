@@ -84,7 +84,7 @@ const headerPhones = companyPhones.filter((p) => p.kind === 'mobile').slice(0, 1
       {
         site.contact.phone && (
           <span class="site-header__phones">
-            <a href={`tel:${site.contact.phone}`} class="site-header__phone">
+            <a href={`tel:${site.contact.phone}`} class="site-header__phone site-header__phone--landline">
               <Icon name="phone" />
               <span class="sr-only">تلفن دفتر</span>
               <span dir="ltr">{site.contact.phoneDisplay ?? site.contact.phone}</span>
@@ -213,7 +213,10 @@ const headerPhones = companyPhones.filter((p) => p.kind === 'mobile').slice(0, 1
     inline-size: min(100% - 2 * var(--gutter), 82rem);
   }
   .site-header__brand {
-    flex: 1 1 0;
+    /* Brand and actions split the free space around the capsule. A slightly smaller
+       share for the brand pulls the capsule a few percent towards the logo side
+       (right in RTL); both edges stay put, so nothing else is re-placed. */
+    flex: 0.84 1 0;
     text-decoration: none;
     border-radius: var(--radius-s);
   }
@@ -538,15 +541,22 @@ const headerPhones = companyPhones.filter((p) => p.kind === 'mobile').slice(0, 1
   .mobile-menu__call {
     align-self: stretch;
   }
-  /* Seven top-level items need room: the mobile line goes first, then both
-     numbers, then the capsule tightens and, on tablets, the CTA steps aside. */
+  /* Seven top-level items need room. From 1440px up both numbers show. Between
+     1100 and 1439 the mobile line stays and the landline steps aside — one number
+     occupies the same footprint as before, so nothing else has to move (a 1440px
+     screen with a scrollbar is 1425px, which is why the mobile line was invisible
+     on most laptops). Below 1100 the numbers give way to the menu. */
   @media (max-width: 1439px) {
-    .site-header__phone--mobile,
-    .site-header__phones > a + a {
+    .site-header__phone--landline {
       display: none;
     }
+    /* no landline on the left any more, so the mobile line drops its divider */
+    .site-header__phone--mobile {
+      padding-inline-start: 0;
+      border-inline-start: 0;
+    }
   }
-  @media (max-width: 1279px) {
+  @media (max-width: 1099px) {
     .site-header__phones {
       display: none;
     }
