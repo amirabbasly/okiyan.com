@@ -27,6 +27,7 @@ const year = persianYear();
       <ul>
         <li><a href="/customs-clearance/">ترخیص کالا</a></li>
         <li><a href="/import-services/">خدمات واردات کالا</a></li>
+        <li><a href="/container-import/">واردات کانتینری</a></li>
         <li><a href="/sailor-import/">واردات ملوانی</a></li>
         <li><a href="/export-services/">صادرات کالا</a></li>
         <li><a href="/after-sales-services/">خدمات گارانتی کالا</a></li>
@@ -46,10 +47,10 @@ const year = persianYear();
     </nav>
 
     <nav aria-labelledby="footer-guides">
-      <h2 id="footer-guides">راهنماها</h2>
+      <h2 id="footer-guides">بلاگ</h2>
       <ul>
         {guides.map((g) => <li><a href={`/guides/${g.id}/`}>{g.data.navTitle}</a></li>)}
-        <li><a href="/guides/">همه راهنماها</a></li>
+        <li><a href="/guides/">همهٔ نوشته‌های بلاگ</a></li>
       </ul>
     </nav>
 
@@ -101,12 +102,18 @@ const year = persianYear();
               {o.city}
             </span>
             <address class="office__address">{o.address}</address>
-            {o.phone && (
-              <a class="office__phone" href={`tel:${o.phone.e164}`}>
-                <Icon name="phone" />
-                <span dir="ltr">{o.phone.display}</span>
-              </a>
-            )}
+            {
+              o.phones && o.phones.length > 0 && (
+                <span class="office__phones">
+                  {o.phones.map((ph) => (
+                    <a class="office__phone" href={`tel:${ph.e164}`}>
+                      <Icon name="phone" />
+                      <span dir="ltr">{ph.display}</span>
+                    </a>
+                  ))}
+                </span>
+              )
+            }
           </li>
         ))
       }
@@ -195,13 +202,19 @@ const year = persianYear();
     line-height: 1.95;
     color: #c4cddb;
   }
+  .office__phones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.15rem 1rem;
+    margin-top: 0.15rem;
+  }
   .office__phone {
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
     justify-self: start;
     font-weight: 700;
-    margin-top: 0.15rem;
+    white-space: nowrap;
   }
   .office__phone :global(svg) {
     inline-size: 0.95rem;

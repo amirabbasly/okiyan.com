@@ -24,9 +24,9 @@ export interface CompanyPhone {
  * Supplied by the business owner (see the SupportWidget + /contact/).
  */
 export const companyPhones: CompanyPhone[] = [
-  { kind: 'mobile', e164: '+989172900409', display: '۰۹۱۷۲۹۰۰۴۰۹' },
-  { kind: 'mobile', e164: '+989172900410', display: '۰۹۱۷۲۹۰۰۴۱۰' },
-  { kind: 'mobile', e164: '+989172900411', display: '۰۹۱۷۲۹۰۰۴۱۱' },
+  { kind: 'mobile', e164: '+989172900409', display: '۰۹۱۷-۲۹۰۰۴۰۹' },
+  { kind: 'mobile', e164: '+989172900410', display: '۰۹۱۷-۲۹۰۰۴۱۰' },
+  { kind: 'mobile', e164: '+989172900411', display: '۰۹۱۷-۲۹۰۰۴۱۱' },
   { kind: 'landline', e164: '+982191006662', display: '۰۲۱-۹۱۰۰۶۶۶۲' },
 ];
 
@@ -35,21 +35,24 @@ export interface Office {
   city: string;
   /** Street address without the city name (the heading already carries it). */
   address: string;
-  /** Direct line for this office, when supplied. */
-  phone?: CompanyPhone;
+  /** Direct lines for this office, when supplied. */
+  phones?: CompanyPhone[];
 }
 
 /** Branches printed in the footer, in the order supplied by the business. */
 export const offices: Office[] = [
   {
     city: 'تهران',
-    address: 'نیاوران، جماران، نبش کوچهٔ دوم جماران، پلاک ۵، واحد ۵',
-    phone: { kind: 'landline', e164: '+982191006662', display: '۰۲۱-۹۱۰۰۶۶۶۲' },
+    address: 'نیاوران، جماران، نبش کوچهٔ دوم، پلاک ۵، واحد ۵',
+    phones: [
+      { kind: 'landline', e164: '+982191006662', display: '۰۲۱-۹۱۰۰۶۶۶۲' },
+      { kind: 'mobile', e164: '+989172900409', display: '۰۹۱۷-۲۹۰۰۴۰۹' },
+    ],
   },
   {
     city: 'بوشهر',
     address: 'خیابان گمرک، روبه‌روی درب بزرگ گمرک، ساختمان بوشهر تجارت (جمی)، طبقهٔ ۴، واحد ۱۲',
-    phone: { kind: 'landline', e164: '+987791009009', display: '۰۷۷-۹۱۰۰۹۰۰۹' },
+    phones: [{ kind: 'landline', e164: '+987791009009', display: '۰۷۷-۹۱۰۰۹۰۰۹' }],
   },
   { city: 'بندرعباس', address: 'میدان یادبود، برج ارم، طبقهٔ ۴، واحد ۴۰۹' },
 ];
@@ -89,7 +92,7 @@ export const site = {
     email: null as string | null,
     /** Postal address shown on the contact page and in Organization markup. */
     address: {
-      streetAddress: 'نیاوران، جماران، نبش کوچهٔ دوم جماران، پلاک ۵، واحد ۵',
+      streetAddress: 'نیاوران، جماران، نبش کوچهٔ دوم، پلاک ۵، واحد ۵',
       addressLocality: 'تهران',
       addressRegion: 'تهران',
     } as null | {
@@ -163,6 +166,7 @@ export const nav: NavItem[] = [
     },
     children: [
       { href: '/customs-clearance/', label: 'ترخیص کالا', hint: 'از بررسی اسناد تا خروج کالا از گمرک', icon: 'stamp' },
+      { href: '/container-import/', label: 'واردات کانتینری', hint: 'FCL و LCL، ترخیص کانتینر و حمل تا انبار', icon: 'cube' },
       { href: '/import-services/', label: 'واردات کالا', hint: 'همراهی از برنامه‌ریزی خرید تا تحویل', icon: 'route' },
       { href: '/sailor-import/', label: 'واردات ملوانی', hint: 'ورود کالا با شناورهای ملوانی در بنادر جنوبی', icon: 'ship' },
       { href: '/export-services/', label: 'صادرات کالا', hint: 'از مجوز و گواهی مبدأ تا بارنامه و تحویل', icon: 'globe' },
@@ -170,9 +174,10 @@ export const nav: NavItem[] = [
     ],
   },
   { href: '/sailor-import/', label: 'واردات ملوانی' },
-  { href: '/after-sales-services/', label: 'خدمات گارانتی کالا' },
-  { href: '/price-calculator/', label: 'محاسبه قیمت' },
-  { href: '/guides/', label: 'راهنماها' },
+  { href: '/customs-clearance/', label: 'ترخیص' },
+  { href: '/container-import/', label: 'واردات کانتینری' },
+  { href: '/export-services/', label: 'صادرات' },
+  { href: '/guides/', label: 'بلاگ' },
   {
     label: 'درباره ما',
     feature: {
@@ -190,7 +195,7 @@ export const nav: NavItem[] = [
   },
 ];
 
-export const contactCta = { href: '/contact/', label: 'درخواست مشاوره' } as const;
+export const contactCta = { href: '/contact/', label: 'استعلام قیمت' } as const;
 
 /** Build a list of business details that still need real values. */
 export function missingBusinessInfo(): string[] {

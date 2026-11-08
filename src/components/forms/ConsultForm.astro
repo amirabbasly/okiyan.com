@@ -1,106 +1,126 @@
 ---
 /**
- * Consultation form.
- * - With PUBLIC_FORM_ENDPOINT set: posts FormData to it (fetch with JS, native POST without JS)
- *   and shows success ONLY when the endpoint responds 2xx.
- * - Without it: clearly labelled demonstration mode; nothing is sent and no success is shown.
+ * Consultation / quote form.
+ *
+ * Every value is requested separately (tariff code, volume, weight, value, CBM)
+ * so the enquiry can be priced without a back-and-forth. The mobile number and
+ * the packing list are required; everything else except name, goods and stage
+ * is optional.
+ *
+ * Submission: the form posts multipart FormData to PUBLIC_FORM_ENDPOINT. With
+ * JavaScript the same data is sent with fetch and success is shown only on a
+ * 2xx answer; without JavaScript the browser posts natively. There is no
+ * demonstration mode — if the endpoint is not configured the visitor is told so
+ * and pointed at the phone numbers.
  */
 import { PUBLIC_FORM_ENDPOINT } from 'astro:env/server';
 import Icon from '~/components/ui/Icon.astro';
+import { companyPhones } from '~/config/site';
 
 const endpoint = PUBLIC_FORM_ENDPOINT?.trim() || '';
-const demo = endpoint === '';
 
-const methods = [
-  { value: 'phone', label: 'تماس تلفنی' },
-  { value: 'whatsapp', label: 'واتس‌اپ' },
-  { value: 'telegram', label: 'تلگرام' },
-  { value: 'email', label: 'ایمیل' },
+const serviceOptions = [
+  { value: 'clearance', label: 'ترخیص کالا' },
+  { value: 'container', label: 'واردات کانتینری' },
+  { value: 'import', label: 'واردات کالا' },
+  { value: 'sailor-import', label: 'واردات ملوانی' },
+  { value: 'export', label: 'صادرات کالا' },
+  { value: 'after-sales', label: 'خدمات گارانتی کالا' },
+  { value: 'unsure', label: 'هنوز مطمئن نیستم' },
 ];
-const stages = [
+
+const stageOptions = [
+  { value: '', label: 'انتخاب کنید…' },
   { value: 'planning', label: 'هنوز خرید نکرده‌ام' },
-  { value: 'ordered', label: 'سفارش داده‌ام' },
+  { value: 'ordered', label: 'سفارش داده‌ام، آمادهٔ حمل است' },
   { value: 'in-transit', label: 'کالا در حال حمل است' },
-  { value: 'at-customs', label: 'کالا به گمرک رسیده' },
+  { value: 'at-port', label: 'کالا در بندر یا گمرک است' },
+  { value: 'customs-review', label: 'پرونده در جریان ترخیص است' },
   { value: 'unsure', label: 'مطمئن نیستم' },
 ];
 ---
 
-<div class="consult" data-consult data-endpoint={endpoint} data-demo={demo ? 'true' : 'false'}>
-  {
-    demo && (
-      <div class="notice consult__demo" role="note">
-        <Icon name="alert" />
-        <p>
-          <strong>فرم در حالت نمایشی است.</strong> این فرم هنوز به سامانهٔ دریافت درخواست متصل نشده و با ارسال آن، اطلاعاتی برای ما فرستاده نمی‌شود.
-        </p>
-      </div>
-    )
-  }
-
+<div class="consult" data-consult data-endpoint={endpoint}>
   <div class="consult__summary" data-error-summary tabindex="-1" hidden role="alert" aria-labelledby="err-sum-title">
     <p class="consult__summary-title" id="err-sum-title">لطفاً این موارد را اصلاح کنید:</p>
     <ul data-error-list></ul>
   </div>
 
-  <form class="form" method="post" action={demo ? undefined : endpoint} accept-charset="UTF-8" data-form>
+  <form class="form" method="post" action={endpoint || undefined} enctype="multipart/form-data" accept-charset="UTF-8" data-form>
     <fieldset class="form__group">
       <legend>مشخصات شما</legend>
-      <div class="field">
-        <label for="f-name">نام و نام خانوادگی <span class="req" aria-hidden="true">*</span></label>
-        <input id="f-name" name="name" type="text" autocomplete="name" required maxlength="80" aria-describedby="f-name-err" />
-        <p class="field__error" id="f-name-err" data-error-for="name"></p>
+      <div class="form__row">
+        <div class="field">
+          <label for="f-name">نام و نام خانوادگی <span class="req" aria-hidden="true">*</span></label>
+          <input
+            id="f-name"
+            name="name"
+            type="text"
+            autocomplete="name"
+            required
+            maxlength="80"
+            aria-describedby="f-name-err" />
+          <p class="field__error" id="f-name-err" data-error-for="name"></p>
+        </div>
+        <div class="field">
+          <label for="f-company">نام شرکت <span class="optional">(اختیاری)</span></label>
+          <input id="f-company" name="company" type="text" autocomplete="organization" maxlength="120" />
+        </div>
       </div>
-      <div class="field">
-        <label for="f-company">نام شرکت <span class="optional">(اختیاری)</span></label>
-        <input id="f-company" name="company" type="text" autocomplete="organization" maxlength="120" />
-      </div>
-    </fieldset>
-
-    <fieldset class="form__group" aria-describedby="f-method-err">
-      <legend>راه ارتباطی ترجیحی <span class="req" aria-hidden="true">*</span></legend>
-      <div class="chips">
-        {
-          methods.map((m, i) => (
-            <label class="chip">
-              <input type="radio" name="contactMethod" value={m.value} required checked={i === 0} />
-              <span>{m.label}</span>
-            </label>
-          ))
-        }
-      </div>
-      <p class="field__error" id="f-method-err" data-error-for="contactMethod"></p>
-      <div class="field">
-        <label for="f-contact" data-contact-label>شمارهٔ تماس <span class="req" aria-hidden="true">*</span></label>
-        <input
-          id="f-contact"
-          name="contact"
-          type="tel"
-          inputmode="tel"
-          autocomplete="tel"
-          dir="ltr"
-          required
-          maxlength="80"
-          aria-describedby="f-contact-hint f-contact-err"
-        />
-        <p class="field__hint" id="f-contact-hint" data-contact-hint>مثلاً ۰۹۱۲۱۲۳۴۵۶۷ — ارقام فارسی یا انگلیسی پذیرفته می‌شود.</p>
-        <p class="field__error" id="f-contact-err" data-error-for="contact"></p>
+      <div class="form__row">
+        <div class="field">
+          <label for="f-mobile">شمارهٔ موبایل <span class="req" aria-hidden="true">*</span></label>
+          <input
+            id="f-mobile"
+            name="mobile"
+            type="tel"
+            inputmode="tel"
+            autocomplete="tel"
+            dir="ltr"
+            required
+            maxlength="20"
+            placeholder="0917 000 0000"
+            aria-describedby="f-mobile-hint f-mobile-err" />
+          <p class="field__hint" id="f-mobile-hint">برای هماهنگی و اعلام نتیجهٔ استعلام. ارقام فارسی یا انگلیسی پذیرفته می‌شود.</p>
+          <p class="field__error" id="f-mobile-err" data-error-for="mobile"></p>
+        </div>
+        <div class="field">
+          <label for="f-email">ایمیل <span class="optional">(اختیاری)</span></label>
+          <input
+            id="f-email"
+            name="email"
+            type="email"
+            inputmode="email"
+            autocomplete="email"
+            dir="ltr"
+            maxlength="120"
+            placeholder="name@company.com"
+            aria-describedby="f-email-err" />
+          <p class="field__error" id="f-email-err" data-error-for="email"></p>
+        </div>
       </div>
     </fieldset>
 
     <fieldset class="form__group">
-      <legend>دربارهٔ کالا</legend>
-      <div class="field">
-        <label for="f-service">به کدام خدمت نیاز دارید؟</label>
-        <select id="f-service" name="service">
-          <option value="clearance">ترخیص کالا</option>
-          <option value="import">خدمات واردات کالا</option>
-          <option value="sailor-import">واردات ملوانی</option>
-          <option value="export">صادرات کالا</option>
-          <option value="after-sales">خدمات گارانتی کالا</option>
-          <option value="unsure">هنوز مطمئن نیستم</option>
-        </select>
+      <legend>دربارهٔ محموله</legend>
+      <div class="form__row">
+        <div class="field">
+          <label for="f-service">به کدام خدمت نیاز دارید؟ <span class="req" aria-hidden="true">*</span></label>
+          <select id="f-service" name="service" required aria-describedby="f-service-err">
+            <option value="" selected>انتخاب کنید…</option>
+            {serviceOptions.map((o) => <option value={o.value}>{o.label}</option>)}
+          </select>
+          <p class="field__error" id="f-service-err" data-error-for="service"></p>
+        </div>
+        <div class="field">
+          <label for="f-stage">محموله در چه مرحله‌ای است؟ <span class="req" aria-hidden="true">*</span></label>
+          <select id="f-stage" name="stage" required aria-describedby="f-stage-err">
+            {stageOptions.map((o) => <option value={o.value} selected={o.value === ''}>{o.label}</option>)}
+          </select>
+          <p class="field__error" id="f-stage-err" data-error-for="stage"></p>
+        </div>
       </div>
+
       <div class="field">
         <label for="f-goods">شرح کالا <span class="req" aria-hidden="true">*</span></label>
         <textarea
@@ -110,33 +130,94 @@ const stages = [
           required
           minlength="10"
           maxlength="1500"
+          placeholder="نوع کالا، کاربرد و مشخصات فنی"
           aria-describedby="f-goods-hint f-goods-err"></textarea>
-        <p class="field__hint" id="f-goods-hint">نوع کالا، کاربرد و در صورت امکان کد تعرفه یا مقدار تقریبی.</p>
+        <p class="field__hint" id="f-goods-hint">هرچه شرح دقیق‌تر باشد، استعلام دقیق‌تر است. کد تعرفه را در فیلد جداگانه بنویسید.</p>
         <p class="field__error" id="f-goods-err" data-error-for="goods"></p>
       </div>
-      <div class="field" role="group" aria-labelledby="f-stage-label" aria-describedby="f-stage-err">
-        <p class="field__label" id="f-stage-label">محموله الان در چه مرحله‌ای است؟ <span class="req" aria-hidden="true">*</span></p>
-        <div class="chips">
-          {
-            stages.map((s) => (
-              <label class="chip">
-                <input type="radio" name="stage" value={s.value} required />
-                <span>{s.label}</span>
-              </label>
-            ))
-          }
+
+      <div class="form__row form__row--3">
+        <div class="field">
+          <label for="f-tariff">کد تعرفه (HS) <span class="optional">(اختیاری)</span></label>
+          <input
+            id="f-tariff"
+            name="tariff"
+            type="text"
+            dir="ltr"
+            inputmode="numeric"
+            maxlength="20"
+            placeholder="8471.30"
+            aria-describedby="f-tariff-hint f-tariff-err" />
+          <p class="field__hint" id="f-tariff-hint">اگر نمی‌دانید، خالی بگذارید؛ ما بررسی می‌کنیم.</p>
+          <p class="field__error" id="f-tariff-err" data-error-for="tariff"></p>
         </div>
-        <p class="field__error" id="f-stage-err" data-error-for="stage"></p>
-      </div>
-      <div class="form__row">
         <div class="field">
           <label for="f-origin">کشور مبدأ <span class="optional">(اختیاری)</span></label>
-          <input id="f-origin" name="origin" type="text" maxlength="60" />
+          <input id="f-origin" name="origin" type="text" maxlength="60" placeholder="مثلاً چین" />
         </div>
         <div class="field">
           <label for="f-port">گمرک یا بندر ورود <span class="optional">(اختیاری)</span></label>
-          <input id="f-port" name="port" type="text" maxlength="60" />
+          <input id="f-port" name="port" type="text" maxlength="60" placeholder="مثلاً بندرعباس" />
         </div>
+      </div>
+
+      <p class="form__sub">مشخصات محموله <span class="optional">(اختیاری — برای برآورد دقیق‌تر)</span></p>
+      <div class="form__row form__row--4">
+        <div class="field">
+          <label for="f-volume">حجم</label>
+          <div class="input-unit">
+            <input id="f-volume" name="volume" type="text" dir="ltr" inputmode="decimal" maxlength="16" aria-describedby="f-volume-err" />
+            <span aria-hidden="true">m³</span>
+          </div>
+          <p class="field__error" id="f-volume-err" data-error-for="volume"></p>
+        </div>
+        <div class="field">
+          <label for="f-weight">وزن</label>
+          <div class="input-unit">
+            <input id="f-weight" name="weight" type="text" dir="ltr" inputmode="decimal" maxlength="16" aria-describedby="f-weight-err" />
+            <span aria-hidden="true">kg</span>
+          </div>
+          <p class="field__error" id="f-weight-err" data-error-for="weight"></p>
+        </div>
+        <div class="field">
+          <label for="f-value">ارزش دلاری</label>
+          <div class="input-unit">
+            <input id="f-value" name="value" type="text" dir="ltr" inputmode="decimal" maxlength="18" aria-describedby="f-value-err" />
+            <span aria-hidden="true">USD</span>
+          </div>
+          <p class="field__error" id="f-value-err" data-error-for="value"></p>
+        </div>
+        <div class="field">
+          <label for="f-cbm">CBM</label>
+          <div class="input-unit">
+            <input id="f-cbm" name="cbm" type="text" dir="ltr" inputmode="decimal" maxlength="16" aria-describedby="f-cbm-err" />
+            <span aria-hidden="true">CBM</span>
+          </div>
+          <p class="field__error" id="f-cbm-err" data-error-for="cbm"></p>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset class="form__group">
+      <legend>فهرست عدل‌بندی (Packing List)</legend>
+      <div class="field field--file">
+        <label for="f-packing">بارگذاری فایل packing list <span class="req" aria-hidden="true">*</span></label>
+        <div class="file">
+          <input
+            id="f-packing"
+            name="packingList"
+            type="file"
+            required
+            accept=".pdf,.xls,.xlsx,.csv,.doc,.docx,.jpg,.jpeg,.png"
+            aria-describedby="f-packing-hint f-packing-err"
+            data-file-input />
+          <span class="file__fake" aria-hidden="true">
+            <Icon name="doc" />
+            <span data-file-label>انتخاب فایل…</span>
+          </span>
+        </div>
+        <p class="field__hint" id="f-packing-hint">PDF، اکسل، CSV، Word یا تصویر اسکن‌شده — حداکثر ۱۰ مگابایت. این فایل برای برآورد لازم است؛ اگر فهرست عدل‌بندی آماده ندارید، پیش از تکمیل فرم با شماره‌های تماس هماهنگ کنید.</p>
+        <p class="field__error" id="f-packing-err" data-error-for="packingList"></p>
       </div>
       <div class="field">
         <label for="f-message">توضیحات بیشتر <span class="optional">(اختیاری)</span></label>
@@ -152,27 +233,37 @@ const stages = [
 
     <div class="field field--consent">
       <label class="check">
-        <input type="checkbox" name="consent" value="yes" required aria-describedby="f-consent-err" />
-        <span>موافقم این اطلاعات فقط برای بررسی و پاسخ به همین درخواست استفاده شود.</span>
+        <input type="checkbox" id="f-consent" name="consent" value="yes" required aria-describedby="f-consent-err" />
+        <span>موافقم این اطلاعات و فایل ارسالی فقط برای بررسی و پاسخ به همین استعلام استفاده شود.</span>
       </label>
       <p class="field__error" id="f-consent-err" data-error-for="consent"></p>
     </div>
 
     <div class="form__submit">
       <button class="btn" type="submit" data-submit>
-        <span data-submit-label>{demo ? 'بررسی فرم (حالت نمایشی)' : 'ارسال درخواست'}</span>
+        <span data-submit-label>ارسال و دریافت استعلام</span>
         <Icon name="send" class="btn__icon" />
       </button>
       <p class="form__status" data-status role="status" aria-live="polite"></p>
+      {
+        !endpoint && (
+          <p class="field__hint" data-no-endpoint>
+            سامانهٔ دریافت فرم هنوز تنظیم نشده است؛ تا آن زمان برای ثبت استعلام از شماره‌های{' '}
+            {companyPhones.map((p, i) => (
+              <>
+                {i > 0 && ' · '}
+                <a href={`tel:${p.e164}`} dir="ltr">
+                  {p.display}
+                </a>
+              </>
+            ))}{' '}
+            استفاده کنید.
+          </p>
+        )
+      }
     </div>
     <noscript>
-      <p class="notice">
-        {
-          demo
-            ? 'این فرم در حالت نمایشی است و بدون جاوااسکریپت نیز اطلاعاتی ارسال نمی‌کند.'
-            : 'جاوااسکریپت غیرفعال است؛ با ارسال فرم، به صفحهٔ دریافت‌کنندهٔ درخواست منتقل می‌شوید.'
-        }
-      </p>
+      <p class="notice">جاوااسکریپت غیرفعال است؛ با ارسال فرم، اطلاعات شما مستقیماً برای سامانهٔ دریافت درخواست فرستاده می‌شود.</p>
     </noscript>
   </form>
 </div>
@@ -186,10 +277,6 @@ const stages = [
   .consult {
     display: grid;
     gap: 1.5rem;
-  }
-  .consult__demo {
-    border-color: var(--petrol-300);
-    background: #eef3f6;
   }
   .consult__summary {
     padding: 1.1rem 1.3rem;
@@ -234,6 +321,19 @@ const stages = [
     grid-template-columns: 1fr 1fr;
     gap: 1.25rem;
   }
+  .form__row--3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .form__row--4 {
+    grid-template-columns: 1fr 1fr;
+    max-inline-size: 34rem;
+  }
+  .form__sub {
+    margin-top: 0.25rem;
+    font-weight: 800;
+    font-size: var(--step--1);
+    color: var(--navy-900);
+  }
   .field {
     display: grid;
     gap: 0.4rem;
@@ -271,12 +371,17 @@ const stages = [
   input[dir='ltr'] {
     text-align: left;
   }
-  input[dir='ltr']::placeholder {
-    text-align: right;
-  }
   textarea {
     resize: vertical;
     min-height: 6rem;
+  }
+  select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23234d66' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M7 10l5 5 5-5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: left 0.9rem center;
+    background-size: 1.1rem;
+    padding-inline-end: 2.4rem;
   }
   input:hover,
   select:hover,
@@ -312,51 +417,92 @@ const stages = [
     content: '⚠ ';
   }
 
-  .chips {
+  /* number + unit */
+  .input-unit {
     display: flex;
-    flex-wrap: wrap;
+    align-items: stretch;
+    border: 1.5px solid var(--rule-strong);
+    border-radius: var(--radius-s);
+    background: #fff;
+    overflow: hidden;
+  }
+  .input-unit:focus-within {
+    border-color: var(--focus);
+    box-shadow: 0 0 0 3px rgb(46 98 130 / 0.25);
+  }
+  .input-unit input {
+    border: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0;
+    min-height: 2.9rem;
+  }
+  .input-unit span {
+    display: grid;
+    place-items: center;
+    padding-inline: 0.6rem;
+    background: var(--mist-100);
+    border-inline-start: 1px solid var(--rule);
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--slate-600);
+    direction: ltr;
+  }
+  .input-unit:has([aria-invalid='true']) {
+    border-color: var(--danger);
+  }
+
+  /* file picker */
+  .field--file {
     gap: 0.5rem;
   }
-  .chip {
+  .file {
     position: relative;
-    cursor: pointer;
   }
-  .chip input {
+  .file input[type='file'] {
     position: absolute;
-    opacity: 0;
     inset: 0;
-    margin: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    opacity: 0;
     cursor: pointer;
   }
-  .chip span {
-    display: inline-flex;
+  .file__fake {
+    display: flex;
     align-items: center;
-    min-height: 2.75rem;
-    padding: 0.4rem 1rem;
-    border: 1.5px solid var(--rule-strong);
-    border-radius: 999px;
-    background: #fff;
+    gap: 0.6rem;
+    min-height: 3.25rem;
+    padding: 0.65rem 0.9rem;
+    border: 1.5px dashed var(--petrol-500);
+    border-radius: var(--radius-s);
+    background: rgb(143 180 201 / 0.08);
     font-size: var(--step--1);
     font-weight: 700;
+    color: var(--petrol-700);
     transition:
       background-color var(--dur-fast) ease,
-      border-color var(--dur-fast) ease,
-      color var(--dur-fast) ease;
+      border-color var(--dur-fast) ease;
   }
-  .chip:hover span {
-    border-color: var(--petrol-500);
+  .file__fake :global(svg) {
+    inline-size: 1.25rem;
+    block-size: 1.25rem;
+    flex: none;
   }
-  .chip input:checked + span {
-    background: var(--navy-900);
-    border-color: var(--navy-900);
-    color: var(--white);
+  .file:hover .file__fake,
+  .file input[type='file']:focus-visible + .file__fake {
+    background: rgb(143 180 201 / 0.16);
+    border-color: var(--petrol-600);
   }
-  .chip input:focus-visible + span {
+  .file input[type='file']:focus-visible + .file__fake {
     outline: 3px solid var(--focus);
     outline-offset: 2px;
   }
-  .chips:has([aria-invalid='true']) .chip span {
+  .file:has([data-file-input][aria-invalid='true']) .file__fake {
     border-color: var(--danger);
+  }
+  .file__fake [data-file-label] {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .check {
@@ -413,13 +559,13 @@ const stages = [
     border: 1.5px solid var(--danger);
     color: #7c1c16;
   }
-  .form__status[data-tone='demo'] {
-    background: #eef3f6;
-    border: 1.5px solid var(--petrol-500);
-    color: #1b3d52;
+  [data-no-endpoint] a {
+    font-weight: 700;
+    color: var(--petrol-700);
   }
-  @media (max-width: 600px) {
-    .form__row {
+  @media (max-width: 700px) {
+    .form__row,
+    .form__row--3 {
       grid-template-columns: 1fr;
     }
     .form__submit .btn {
