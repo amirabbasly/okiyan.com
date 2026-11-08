@@ -5,6 +5,7 @@ import ContainerArt from '~/components/illustrations/ContainerArt.astro';
 import Steps from '~/components/ui/Steps.astro';
 import Faq from '~/components/ui/Faq.astro';
 import CtaBand from '~/components/ui/CtaBand.astro';
+import Clients from '~/components/ui/Clients.astro';
 import Icon from '~/components/ui/Icon.astro';
 import { breadcrumbLd, serviceLd } from '~/lib/schema';
 import { contactCta } from '~/config/site';
@@ -281,6 +282,14 @@ const containerLd = serviceLd({ name: 'واردات کانتینری', descripti
     </div>
   </section>
 
+    <!-- client brands: the same wall as the homepage, without the heading -->
+  <div class="section">
+    <div class="container" style="padding-bottom: 1.5rem">
+      <p class="clients-lead">برخی از برندهایی که محموله‌هایشان را همراهی کرده‌ایم</p>
+    </div>
+    <Clients title={null} note={false} compact />
+  </div>
+
   <CtaBand
     title="کانتینر شما در راه است؟"
     text="حجم، وزن و نوع کالا و همچنین بندر ورود را بفرستید. روش حمل، مدارک لازم و هزینه‌هایی که باید در نظر بگیرید را مشخص می‌کنیم."
@@ -288,6 +297,15 @@ const containerLd = serviceLd({ name: 'واردات کانتینری', descripti
 </BaseLayout>
 
 <style>
+  .clients-lead {
+    margin: 0 0 1rem;
+    font-size: var(--step--1);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--text-muted);
+    text-align: center;
+  }
+
   .lead-text {
     font-size: var(--step-1);
     line-height: 2;
