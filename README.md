@@ -103,7 +103,7 @@ Service scope copy lives in `src/data/services.ts` and in the two service pages.
   they are marked REVIEW in the page file; confirm them (and the contract wording) before launch.
 - **Terms**: `src/pages/terms/` — the conditions the consent checkbox in the consultation form links to
   (data use, quote validity, site content, responsibility limits). Linked from the footer's legal line.
-- **Journey stage text**: `src/components/journey/stages.ts`.
+- **Journey stage labels**: `src/components/journey/stages.ts` (titles only — the bar has no descriptions).
 - **Day → night**: the scene starts in daylight; as the shipment leaves stage 2 (`skyState()` in `timeline.ts`,
   `NIGHT_FROM`/`NIGHT_TO`) the day sky fades out, the sun sinks behind the skyline, the moon rises on the other
   side and the port cools down under a translucent veil. Sun, moon and stars live in view space (no camera or
@@ -122,13 +122,13 @@ Files in `src/components/journey/`:
 | `timeline.ts` | Pure `computeFrame(p)` → pose of every moving part for progress `p ∈ [0,1]`. Camera keyframes, stage windows (`seg()` ranges), world coordinates. |
 | `JourneyScene.astro` | The SVG world (decorative, `aria-hidden`). Server-renders the frame for `p = 0`, so it is meaningful before/without JS. |
 | `journey-client.ts` | Reads native scroll position → progress → applies the frame. Light damping, swell only while on screen. |
-| `ShipmentJourney.astro` | The homepage header: a pinned, framed scene (90% of the page width) with a minimal overlay (the H1 and CTA via the `intro` slot, fading out once the journey starts) and a five-step bar; each step is a `<details>` whose description opens as a card on click. |
-| `stages.ts` | Stage copy (the real content). |
+| `ShipmentJourney.astro` | The homepage header: a pinned, framed scene (90% of the page width) with a minimal overlay (the H1 and CTA via the `intro` slot, fading out once the journey starts) and a five-step bar. Each step is a plain `<button>` — no card, no popup. |
+| `stages.ts` | The five stage titles shown in the bar (keep the count equal to `STAGE_COUNT`). |
 
 How it behaves:
 
 - Progress comes from how far the pinned panel has travelled through its scroll track (pin vs. track; `--hj-scroll` sets the distance). No scroll hijacking; jumping or fast scrolling lands on the correct frame because frames depend only on `p`.
-- Clicking a step opens its description card and scrolls the animation to that stage; on wider screens the camera pans so the scene stays clear of the card.
+- Clicking a step scrolls the animation to it and does nothing else: nothing opens over the scene, so the frame stays fully visible.
 - The client fits the SVG `viewBox` to the frame's shape (`data-base-w`/`data-base-h` on the SVG): the full scene height is always shown, and wider frames reveal more of the harbour to each side.
 - One container element is handed from yard → ship → crane → truck; `npm run test:journey` asserts it never teleports.
 - `prefers-reduced-motion: reduce`: each stage snaps to its completed state, no damping, no swell.
