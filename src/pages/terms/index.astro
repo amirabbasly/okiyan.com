@@ -1,0 +1,286 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import PageHero from '~/components/layout/PageHero.astro';
+import Icon from '~/components/ui/Icon.astro';
+import { breadcrumbLd } from '~/lib/schema';
+import { site, companyPhones, formattedAddress } from '~/config/site';
+
+const path = '/terms/';
+const crumbs = [
+  { name: 'خانه', path: '/' },
+  { name: 'قوانین و مقررات', path },
+];
+
+const sections = [
+  {
+    id: 'about',
+    icon: 'doc' as const,
+    title: 'این قوانین دربارهٔ چیست؟',
+    body: [
+      'این صفحه شرایط استفاده از سایت اوکیان و شرایط ارسال اطلاعات از طریق فرم استعلام قیمت را توضیح می‌دهد. با تکمیل و ارسال فرم، یا با استفاده از مطالب سایت، با همین شرایط موافقت می‌کنید.',
+      'این قوانین جایگزین قرارداد خدمات نیست. برای هر پرونده، شرایط کار، هزینه‌ها و مسئولیت‌ها در قرارداد جداگانه‌ای نوشته و پیش از شروع کار به شما ارائه می‌شود.',
+    ],
+  },
+  {
+    id: 'form',
+    icon: 'lock' as const,
+    title: 'اطلاعاتی که در فرم می‌فرستید',
+    body: [
+      'اطلاعات و فایلی که در فرم استعلام قیمت می‌فرستید (نام، شمارهٔ تماس، مشخصات کالا و فهرست عدل‌بندی) فقط برای بررسی همان استعلام و پاسخ به شما استفاده می‌شود.',
+      'این اطلاعات در اختیار اشخاص یا شرکت‌های دیگر قرار نمی‌گیرد، مگر در حدی که برای بررسی همان محموله ضروری باشد و با اطلاع شما. برای ارسال اسناد محرمانه‌تر (قرارداد، اسناد بانکی یا مدارک هویتی) از فرم استفاده نکنید؛ پس از تماس، راه امن ارسال را هماهنگ می‌کنیم.',
+      'اگر بخواهید اطلاعات ارسالی حذف شود، کافی است با شماره‌های تماس یا از صفحهٔ تماس اعلام کنید.',
+    ],
+  },
+  {
+    id: 'quotes',
+    icon: 'calc' as const,
+    title: 'استعلام قیمت و برآورد',
+    body: [
+      'هر عدد و برآوردی که در پاسخ استعلام اعلام می‌شود، بر پایهٔ اطلاعات همان محموله است و تا زمانی که مشخصات کالا، مسیر، نرخ‌ها یا مقررات تغییر نکند معتبر است.',
+      'برآوردها مبنای ترخیص و حمل هستند، نه تعهد به نتیجهٔ نهایی؛ پرداخت‌های قانونی گمرک و نهادهای دیگر بر پایهٔ ارزیابی و تعرفهٔ روز محاسبه می‌شوند.',
+      'اگر اطلاعات ارسالی نادرست یا ناقص باشد (مثلاً شرح کالا با بار واقعی نخواند)، برآورد و زمان‌بندی ممکن است تغییر کند و پیش از هر هزینهٔ اضافه با شما هماهنگ می‌شود.',
+    ],
+  },
+  {
+    id: 'content',
+    icon: 'info' as const,
+    title: 'مطالب سایت',
+    body: [
+      'مطالب راهنماها و صفحات سایت با دقت و بر پایهٔ منابعی که در پایان هر نوشته آمده تهیه شده‌اند، اما جایگزین استعلام برای همان محموله یا نظر حقوقی نیستند. مقررات واردات و گمرک تغییر می‌کنند و وضعیت هر کالا به کد تعرفه و شرایط معامله بستگی دارد.',
+      'استفاده از متن‌ها و تصاویر اختصاصی سایت بدون اجازهٔ کتبی مجاز نیست. نام و نشان برندهایی که در بخش مشتریان آمده، متعلق به صاحبان آن‌هاست.',
+    ],
+  },
+  {
+    id: 'limits',
+    icon: 'shield' as const,
+    title: 'مرز مسئولیت',
+    body: [
+      'تصمیم‌ها، زمان رسیدگی و نتیجهٔ ارزیابی گمرک و سایر نهادها در اختیار ما نیست. تأخیر حمل‌کننده، بندر یا رویدادهای خارج از کنترل ما هم مشمول تعهد زمان‌بندی نیست.',
+      'تعهدهای اوکیان و شرایط دقیق آن‌ها در قرارداد هر پرونده نوشته می‌شود و در صفحهٔ ضمانت توضیح داده شده است.',
+    ],
+  },
+  {
+    id: 'changes',
+    icon: 'clock' as const,
+    title: 'تغییر این قوانین',
+    body: [
+      'این قوانین ممکن است با تغییر روش کار یا مقررات به‌روز شود. نسخهٔ جاری همیشه همین صفحه است و تاریخ آخرین به‌روزرسانی پایین صفحه نوشته می‌شود.',
+    ],
+  },
+];
+
+const address = formattedAddress();
+---
+
+<BaseLayout
+  title="قوانین و مقررات استفاده از سایت و فرم استعلام"
+  description="شرایط استفاده از سایت اوکیان و فرم استعلام قیمت: نحوهٔ استفاده از اطلاعات ارسالی، اعتبار برآوردها، مطالب سایت و مرز مسئولیت‌ها."
+  jsonLd={[breadcrumbLd(crumbs, Astro.site)]}
+>
+  <PageHero
+    eyebrow="قوانین"
+    title="قوانین و مقررات"
+    lead="شرایط استفاده از سایت و فرم استعلام قیمت، به زبان ساده: چه اطلاعاتی می‌فرستید، چطور استفاده می‌شود و برآوردها چه اعتباری دارند."
+    crumbs={crumbs}
+  />
+
+  <section class="section">
+    <div class="container terms">
+      <nav class="terms__nav reveal" aria-labelledby="terms-nav-title">
+        <h2 id="terms-nav-title" class="sr-only">فهرست بخش‌ها</h2>
+        <ul>
+          {
+            sections.map((s) => (
+              <li>
+                <a href={`#${s.id}`}>
+                  <Icon name={s.icon} />
+                  {s.title}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+        <div class="terms__contact">
+          <p class="terms__contact-title">پرسشی دارید؟</p>
+          <ul>
+            {
+              companyPhones.map((p) => (
+                <li>
+                  <a href={`tel:${p.e164}`} dir="ltr">
+                    {p.display}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+          <a class="btn btn--ghost" href="/contact/">
+            صفحهٔ تماس
+            <Icon name="arrow" class="btn__icon" />
+          </a>
+        </div>
+      </nav>
+
+      <article class="terms__body prose-lite reveal">
+        {
+          sections.map((s) => (
+            <section id={s.id} aria-labelledby={`${s.id}-title`}>
+              <h2 id={`${s.id}-title`}>
+                <span class="terms__num" aria-hidden="true">
+                  <Icon name={s.icon} />
+                </span>
+                {s.title}
+              </h2>
+              {s.body.map((p) => (
+                <p>{p}</p>
+              ))}
+            </section>
+          ))
+        }
+
+        <section id="identity" aria-labelledby="identity-title">
+          <h2 id="identity-title">
+            <span class="terms__num" aria-hidden="true">
+              <Icon name="pin" />
+            </span>
+            مشخصات تماس
+          </h2>
+          <p>
+            این سایت متعلق به {site.name} است. برای هر پرسش، شکایت یا درخواست دربارهٔ اطلاعات ارسالی، از راه‌های زیر با ما در ارتباط باشید.
+          </p>
+          <ul class="terms__facts">
+            {address && <li>{address}</li>}
+            {companyPhones.map((p) => <li><a href={`tel:${p.e164}`} dir="ltr">{p.display}</a></li>)}
+            {site.contact.email && <li><a href={`mailto:${site.contact.email}`} dir="ltr">{site.contact.email}</a></li>}
+          </ul>
+        </section>
+
+        <p class="terms__updated">آخرین به‌روزرسانی: آبان ۱۴۰۴</p>
+      </article>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .terms {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 2.1fr);
+    align-items: start;
+    gap: clamp(2rem, 4vw, 4rem);
+  }
+  .terms__nav {
+    position: sticky;
+    top: calc(var(--header-h) + 1.5rem);
+    display: grid;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-l);
+    background: var(--mist-100);
+  }
+  .terms__nav ul {
+    list-style: none;
+    display: grid;
+    gap: 0.6rem;
+    font-size: var(--step--1);
+  }
+  .terms__nav a {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: var(--navy-900);
+  }
+  .terms__nav a:hover {
+    text-decoration: underline;
+  }
+  .terms__nav :global(svg) {
+    inline-size: 1.1rem;
+    block-size: 1.1rem;
+    color: var(--petrol-500);
+    flex: none;
+  }
+  .terms__contact {
+    display: grid;
+    gap: 0.6rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--rule);
+  }
+  .terms__contact-title {
+    font-weight: 800;
+    font-size: var(--step--1);
+  }
+  .terms__contact ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 0.9rem;
+    font-size: var(--step--1);
+  }
+  .terms__contact .btn {
+    justify-self: start;
+    margin-top: 0.4rem;
+    font-size: var(--step--1);
+    padding: 0.5rem 0.9rem;
+  }
+
+  .terms__body {
+    display: grid;
+    gap: 2.6rem;
+  }
+  .terms__body section {
+    display: grid;
+    gap: 0.9rem;
+    scroll-margin-top: calc(var(--header-h) + 1.5rem);
+  }
+  .terms__body h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    font-size: var(--step-1);
+    line-height: 1.6;
+  }
+  .terms__num {
+    display: grid;
+    place-items: center;
+    inline-size: 2.2rem;
+    block-size: 2.2rem;
+    flex: none;
+    border-radius: 50%;
+    background: var(--petrol-100);
+    color: var(--petrol-700);
+  }
+  .terms__num :global(svg) {
+    inline-size: 1.15rem;
+    block-size: 1.15rem;
+  }
+  .terms__body p {
+    color: var(--slate-700);
+    font-size: var(--step-0);
+    line-height: 2.05;
+  }
+  .terms__facts {
+    display: grid;
+    gap: 0.5rem;
+    padding: 1.2rem 1.4rem;
+    border-radius: var(--radius-m);
+    background: var(--mist-100);
+    font-size: var(--step--1);
+  }
+  .terms__facts a {
+    font-weight: 700;
+  }
+  .terms__updated {
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--rule);
+    font-size: var(--step--1);
+    color: var(--text-muted);
+  }
+  @media (max-width: 900px) {
+    .terms {
+      grid-template-columns: 1fr;
+    }
+    .terms__nav {
+      position: static;
+    }
+  }
+</style>
