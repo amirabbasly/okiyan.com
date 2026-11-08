@@ -104,11 +104,13 @@ Service scope copy lives in `src/data/services.ts` and in the two service pages.
 - **Terms**: `src/pages/terms/` — the conditions the consent checkbox in the consultation form links to
   (data use, quote validity, site content, responsibility limits). Linked from the footer's legal line.
 - **Journey stage labels**: `src/components/journey/stages.ts` (titles only — the bar has no descriptions).
-- **Day → night**: the scene starts in daylight; as the shipment leaves stage 2 (`skyState()` in `timeline.ts`,
-  `NIGHT_FROM`/`NIGHT_TO`) the day sky fades out, the sun sinks behind the skyline, the moon rises on the other
-  side and the port cools down under a translucent veil. Sun, moon and stars live in view space (no camera or
-  parallax) so they always stay in the sky; the veil sits inside the camera group above the scenery but below the
-  truck, barrier and container.
+- **Day → night → day**: the scene starts in daylight; as the shipment leaves stage 2 (`skyState()` in
+  `timeline.ts`, `NIGHT_FROM`/`NIGHT_TO`) the day sky fades out, the sun sinks behind the skyline, a full moon
+  rises and the port cools down under a translucent veil. While the truck rolls up to the customs gate
+  (`DAWN_FROM`/`DAWN_TO`) the night clears again, so the journey ends in daylight. The moon is a plain full disc
+  with faint maria — deliberately no dark disc crossing it, so it can never read as an eclipse. Sun, moon and stars
+  live in view space (no camera or parallax) so they always stay in the sky; the veil sits inside the camera group
+  above the scenery but below the truck, barrier and container.
 - **Autorun**: the “start”/“stop” button in the hero overlay plays the whole journey once (`AUTO_MS` in
   `journey-client.ts`) and keeps the page's scroll position in step with the timeline, so the scrollbar moves with
   the scene and it ends exactly on the delivered frame — no jump at the end. Wheel, touch and key scrolling, or a

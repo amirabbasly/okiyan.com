@@ -142,6 +142,11 @@ const lattice = (x0: number, x1: number, y: number, hgt: number) => {
       <stop offset="0.45" stop-color="#b9d1de" stop-opacity="0.16"></stop>
       <stop offset="1" stop-color="#b9d1de" stop-opacity="0"></stop>
     </radialGradient>
+    <radialGradient id="j-moon-face" cx="0.38" cy="0.34" r="0.72">
+      <stop offset="0" stop-color="#ffffff"></stop>
+      <stop offset="0.62" stop-color="#eef6fa"></stop>
+      <stop offset="1" stop-color="#cfdfe9"></stop>
+    </radialGradient>
     <radialGradient id="j-lamp" cx="0.5" cy="0.5" r="0.5">
       <stop offset="0" stop-color="#dbe8ef" stop-opacity="0.38"></stop>
       <stop offset="1" stop-color="#dbe8ef" stop-opacity="0"></stop>
@@ -214,11 +219,13 @@ const lattice = (x0: number, x1: number, y: number, hgt: number) => {
     <circle cx="150" cy="176" r="25" fill="#ffffff" fill-opacity="0.95"></circle>
     <circle cx="150" cy="176" r="33" fill="none" stroke="#ffffff" stroke-opacity="0.4" stroke-width="2"></circle>
   </g>
+  <!-- A plain full moon: no dark disc over it, so it can never read as an eclipse. -->
   <g data-j="moon" opacity={f.sky.moonO.toFixed(3)} transform={`translate(0 ${f.sky.moonDy.toFixed(2)})`}>
     <circle cx="150" cy="150" r="96" fill="url(#j-moon)"></circle>
-    <circle cx="150" cy="150" r="23" fill="#eef5f9"></circle>
-    <circle cx="160" cy="143" r="19" fill="#13263d"></circle>
-    <circle cx="142" cy="160" r="3.2" fill="#c9d8e2" fill-opacity="0.5"></circle>
+    <circle cx="150" cy="150" r="23" fill="url(#j-moon-face)"></circle>
+    <circle cx="143" cy="144" r="4.4" fill="#c6d8e3" fill-opacity="0.55"></circle>
+    <circle cx="159" cy="155" r="3.2" fill="#c6d8e3" fill-opacity="0.45"></circle>
+    <circle cx="147" cy="162" r="2.2" fill="#c6d8e3" fill-opacity="0.4"></circle>
   </g>
 
   <!-- ===== World (camera space) ===== -->
