@@ -2,11 +2,11 @@
 /**
  * Client logo wall: a seamless, auto-scrolling marquee.
  *
- * The list is rendered twice so the loop has no gap; CSS animates the track and
- * pauses on hover/focus. With `prefers-reduced-motion: reduce` the marquee stops
- * and wraps into a centred grid instead. Each brand is a typographic lockup
- * (see src/data/clients.ts); drop an official file in `public/clients/` and set
- * `logo` to show the real mark.
+ * The track holds two identical rows with the gap baked into each row, so shifting
+ * it by -50% is exactly one row: the strip is full on the first paint and loops
+ * without a seam. It drifts forever — for `prefers-reduced-motion: reduce` it only
+ * slows down, it never stops, which is why the overrides below need `!important`
+ * (the global reset in `global.css` sets 0.01ms/once on every element).
  */
 import { clients, type ClientMark } from '~/data/clients';
 
@@ -152,14 +152,8 @@ const rowItems = [...clients, ...clients];
     padding: 0 0.9rem 0 0;
     list-style: none;
   }
-  /* Pausing needs a real pointer: on touch screens :hover sticks after a tap and the
-     strip would stay frozen. */
-  @media (hover: hover) and (pointer: fine) {
-    .clients__viewport:hover .clients__track,
-    .clients__viewport:focus-within .clients__track {
-      animation-play-state: paused;
-    }
-  }
+  /* No hover/focus pause on purpose: the strip is a moving wall of client logos and
+     stopping it (or sticking on touch after a tap) is what made it look frozen. */
   @keyframes clients-scroll {
     from {
       transform: translate3d(0, 0, 0);
@@ -250,15 +244,18 @@ const rowItems = [...clients, ...clients];
     text-align: center;
   }
 
-  /* The wall is meant to drift on its own, so it keeps drifting for visitors who ask
-     for less motion — just at a calmer pace, with the edge fades removed. */
+  /* The wall is the content of this section, so it keeps drifting for visitors who
+     ask for less motion — just at half speed. `!important` is required: the global
+     reduced-motion reset in global.css forces `animation-duration: 0.01ms` and
+     `animation-iteration-count: 1` on `*`, which froze the strip on its last frame. */
   @media (prefers-reduced-motion: reduce) {
     .clients__viewport {
       -webkit-mask-image: none;
       mask-image: none;
     }
     .clients__track {
-      animation-duration: 150s;
+      animation-duration: 150s !important;
+      animation-iteration-count: infinite !important;
     }
   }
 </style>
