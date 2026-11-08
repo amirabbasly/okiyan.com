@@ -98,7 +98,7 @@ export function initConsultForm(root: HTMLElement) {
       add(name, id, validNumber(value(name)) ? null : `${label} باید عدد باشد (فقط رقم و اعشار).`);
     }
     add('packingList', 'f-packing', validFile(fileInput?.files?.[0] ?? null));
-    add('consent', 'f-consent', form!.querySelector<HTMLInputElement>('[name="consent"]')?.checked ? null : 'برای ارسال، موافقت با استفاده از اطلاعات لازم است.');
+    add('consent', 'f-consent', form!.querySelector<HTMLInputElement>('[name="consent"]')?.checked ? null : 'برای ارسال، خواندن قوانین و مقررات و تیک موافقت لازم است.');
     return errors;
   }
 

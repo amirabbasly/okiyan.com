@@ -64,16 +64,17 @@ Service scope copy lives in `src/data/services.ts` and in the two service pages.
   `reviewNotes` (shown only in staging builds). A new file becomes `/guides/<file-name>/`, joins the guide index,
   footer and sitemap, and gets Article + BreadcrumbList markup.
 - **Pages**: `src/pages/` (`index`, `customs-clearance`, `container-import`, `import-services`, `sailor-import`,
-  `export-services`, `after-sales-services`, `special-projects`, `price-calculator`, `guides`, `about`, `resume`,
-  `partners`, `guarantee`, `contact`, `404`). Copy for lists, FAQs and steps sits at the top of each page file;
+  `export-services`, `special-projects`, `price-calculator`, `guides`, `about`, `resume`,
+  `partners`, `guarantee`, `terms`, `contact`, `404`). Copy for lists, FAQs and steps sits at the top of each page file;
   the service pages share the same skeleton (hero + illustration, fit card, scope, steps, documents, pitfalls, FAQ,
   CTA) and each has its own plate in `src/components/illustrations/`.
 - **Navigation**: `nav` in `src/config/site.ts` drives the header (with the «خدمات» and «درباره ما» dropdowns),
   the mobile menu and the footer columns. On desktop the whole menu is one **dark capsule** centred in the white
   header (white labels, petrol underline for the current page); the brand and the actions take equal space so the
   capsule stays centred. The top level is exactly **خدمات · واردات ملوانی · ترخیص · واردات کانتینری · صادرات ·
-  بلاگ · درباره ما** — «بلاگ» points at `/guides/`, and «واردات ملوانی» + «خدمات گارانتی کالا» stay inside the
-  «خدمات» dropdown as well. The header shows the Tehran landline (`۰۲۱-۹۱۰۰۶۶۶۲`) and, next to it, the mobile
+  بلاگ · درباره ما** — «بلاگ» points at `/guides/`, and «واردات ملوانی» also stays inside the «خدمات» dropdown.
+  The former «خدمات گارانتی کالا» (warranty / after-sales) service was removed from the site on request: no page,
+  no nav entry, no footer link and no option in the consultation form. The header shows the Tehran landline (`۰۲۱-۹۱۰۰۶۶۶۲`) and, next to it, the mobile
   number (`۰۹۱۷-۲۹۰۰۴۰۹`) with a «همراه» tag; below 1440px the mobile line hides, below 1280px both numbers hide,
   below 1120px the capsule tightens, below 980px the CTA steps aside, and below 860px the mobile menu takes over.
   Office addresses and their own phones live in `offices` in `src/config/site.ts` and are rendered by the footer. Both dropdowns render as a full-bleed **dark mega panel**
@@ -94,6 +95,14 @@ Service scope copy lives in `src/data/services.ts` and in the two service pages.
   dummy text. Pages listed in `src/data/sample-pages.json` show a «محتوای نمونه» notice in every build, are
   `noindex`, stay out of the sitemap and are listed in a build warning. Replace a page's text (and, for the
   calculator, the rates in `src/data/pricing.ts`), then remove its path from the JSON file to publish it normally.
+- **Sailor import page**: `src/pages/sailor-import/` carries the carrier comparison the owner asked for —
+  «مزایای حمل ملوانی نسبت به حمل کانتینری» (11 items), «انواع حمل» (دوبه/دوویه، لنج، مسیرها) and «امنیت حمل ملوانی»,
+  three contract-backed guarantees. The two maps in `src/components/illustrations/RouteMap.astro` share one
+  coastline: `variant="via-khasab"` (the old Dubai → Khasab → Bandar Abbas path) and `variant="direct"`
+  (Dubai → Bushehr / Bandar Abbas). **The 15–25 day window and the fixed-price wording are the owner's promises** —
+  they are marked REVIEW in the page file; confirm them (and the contract wording) before launch.
+- **Terms**: `src/pages/terms/` — the conditions the consent checkbox in the consultation form links to
+  (data use, quote validity, site content, responsibility limits). Linked from the footer's legal line.
 - **Journey stage text**: `src/components/journey/stages.ts`.
 - **Day → night**: the scene starts in daylight; as the shipment leaves stage 2 (`skyState()` in `timeline.ts`,
   `NIGHT_FROM`/`NIGHT_TO`) the day sky fades out, the sun sinks behind the skyline, the moon rises on the other
@@ -138,7 +147,8 @@ and the matching coordinates in `JourneyScene.astro`, then run `npm run test:jou
 
 `src/components/forms/` — accessible validation (error summary with jump links, inline messages, `aria-invalid`),
 Persian/Latin digit normalisation, honeypot. Required: name, **mobile**, service, **stage** (a `<select>`), goods
-description, the **packing-list upload** and consent. Optional but separate inputs: company, email, **tariff code
+description, the **packing-list upload** and the consent checkbox at the bottom of the form, which links to the
+**قوانین و مقررات** page (`/terms/`). Optional but separate inputs: company, email, **tariff code
 (HS)**, origin, port, **volume (m³)**, **weight (kg)**, **dollar value (USD)** and **CBM** — plus a free-text note.
 The number fields accept Persian digits and only need to be numeric. The upload accepts PDF, Excel, CSV, Word or a
 scanned JPG/PNG up to 10 MB and is checked in the browser before sending. With `PUBLIC_FORM_ENDPOINT` set the form

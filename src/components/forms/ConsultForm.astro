@@ -25,7 +25,6 @@ const serviceOptions = [
   { value: 'import', label: 'واردات کالا' },
   { value: 'sailor-import', label: 'واردات ملوانی' },
   { value: 'export', label: 'صادرات کالا' },
-  { value: 'after-sales', label: 'خدمات گارانتی کالا' },
   { value: 'unsure', label: 'هنوز مطمئن نیستم' },
 ];
 
@@ -234,7 +233,10 @@ const stageOptions = [
     <div class="field field--consent">
       <label class="check">
         <input type="checkbox" id="f-consent" name="consent" value="yes" required aria-describedby="f-consent-err" />
-        <span>موافقم این اطلاعات و فایل ارسالی فقط برای بررسی و پاسخ به همین استعلام استفاده شود.</span>
+        <span>
+          <a href="/terms/" target="_blank" rel="noopener">قوانین و مقررات</a> را خوانده‌ام و موافقم اطلاعات و فایل ارسالی فقط برای بررسی و پاسخ به همین استعلام
+          استفاده شود.
+        </span>
       </label>
       <p class="field__error" id="f-consent-err" data-error-for="consent"></p>
     </div>
@@ -520,6 +522,12 @@ const stageOptions = [
     block-size: 1.25rem;
     margin-top: 0.25rem;
     accent-color: var(--navy-900);
+  }
+  .check a {
+    font-weight: 700;
+    color: var(--petrol-700);
+    text-decoration-color: var(--petrol-300);
+    text-decoration-thickness: 2px;
   }
 
   .hp {

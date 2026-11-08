@@ -30,7 +30,6 @@ const year = persianYear();
         <li><a href="/container-import/">واردات کانتینری</a></li>
         <li><a href="/sailor-import/">واردات ملوانی</a></li>
         <li><a href="/export-services/">صادرات کالا</a></li>
-        <li><a href="/after-sales-services/">خدمات گارانتی کالا</a></li>
         <li><a href="/price-calculator/">محاسبه قیمت</a></li>
       </ul>
     </nav>
@@ -124,7 +123,10 @@ const year = persianYear();
 
   <div class="container site-footer__base">
     <p>© {year} {site.name}</p>
-    <a href="/about/">درباره {site.name}</a>
+    <div class="site-footer__legal">
+      <a href="/about/">درباره {site.name}</a>
+      <a href="/terms/">قوانین و مقررات</a>
+    </div>
   </div>
 </footer>
 
@@ -249,6 +251,11 @@ const year = persianYear();
     user-select: none;
     white-space: nowrap;
     overflow: hidden;
+  }
+  .site-footer__legal {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.4rem;
   }
   .site-footer__base {
     display: flex;

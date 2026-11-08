@@ -2,6 +2,7 @@
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import PageHero from '~/components/layout/PageHero.astro';
 import SailorArt from '~/components/illustrations/SailorArt.astro';
+import RouteMap from '~/components/illustrations/RouteMap.astro';
 import Steps from '~/components/ui/Steps.astro';
 import Faq from '~/components/ui/Faq.astro';
 import CtaBand from '~/components/ui/CtaBand.astro';
@@ -15,14 +16,14 @@ const crumbs = [
   { name: 'واردات ملوانی', path },
 ];
 const description =
-  'واردات ملوانی یا ته لنجی: بررسی کالای مجاز، سهمیه و مدارک شناور، اظهار و ترخیص در بنادر جنوبی. مشاورهٔ تخصصی پیش از خرید کالا.';
+  'واردات ملوانی (ته لنجی) مستقیم از دبی به بوشهر و بندرعباس: حمل با دوبه و لنج، ترخیص با اسناد گمرکی، مزایای حمل ملوانی نسبت به کانتینر و ضمانت قیمت و زمان تحویل.';
 
 // REVIEW: the permitted goods list, quotas and duty concessions are set by
-// regulation and change; nothing numeric is stated on this page on purpose.
+// regulation and change; nothing numeric about duties is stated on this page.
 const fit = [
   'کالای شما از نظر نوع، در فهرست مجاز این رویه قرار می‌گیرد.',
   'حجم و ارزش محموله در سهمیهٔ تعیین‌شده برای همان سفر و همان شناور است.',
-  'مبدأ کالا و بندر ورود با مسیرهای مجاز رویهٔ ملوانی هم‌خوانی دارد.',
+  'بار شما در دبی (یا از مسیر خصب) آمادهٔ حمل است و باید به بوشهر یا بندرعباس برسد.',
   'اسناد شناور و مدارک مالکیت کالا روشن و قابل ارائه است.',
 ];
 
@@ -32,7 +33,7 @@ const scope = [
   'مرور اسناد شناور و مدارک مالکیت کالا پیش از حرکت',
   'تنظیم و ثبت اظهارنامه و پیگیری پرونده در گمرک',
   'هماهنگی ارزیابی، کنترل‌ها و پرداخت وجوه قانونی',
-  'گزارش وضعیت پرونده در هر مرحله تا تحویل کالا',
+  'حمل از بندر ورود به شهر مقصد و تحویل در انبار مشتری',
 ];
 
 const steps = [
@@ -54,8 +55,8 @@ const steps = [
     note: 'مسیر رسیدگی و پذیرش نهایی اسناد و ارزش، تصمیم گمرک است.',
   },
   {
-    title: 'پرداخت وجوه و ترخیص',
-    text: 'وجوه قانونی این رویه بر پایهٔ ارزیابی نهایی پرداخت می‌شود و پس از صدور اجازهٔ خروج، کالا ترخیص و برای حمل داخلی آماده می‌شود.',
+    title: 'پرداخت وجوه، ترخیص و حمل داخلی',
+    text: 'وجوه قانونی این رویه بر پایهٔ ارزیابی نهایی پرداخت می‌شود؛ پس از صدور اجازهٔ خروج، کالا ترخیص و به شهر مقصد و انبار شما حمل می‌شود.',
   },
 ];
 
@@ -63,6 +64,41 @@ const documents = {
   first: ['شرح کالا و کاربرد آن', 'فهرست بار یا مانیفست', 'بندر مبدأ و مقصد', 'مشخصات شناور و مالک آن'],
   full: ['اسناد ثبت شناور و مجوزهای آن', 'مدارک هویتی مالک یا نمایندهٔ قانونی', 'اسناد خرید و مالکیت کالا', 'اطلاعات ثبت‌شده در سامانه‌های مربوط'],
 };
+
+/** «مزایای حمل ملوانی نسبت به حمل کانتینری» — supplied by the business owner. */
+const advantages = [
+  'عدم وجود دِموراژ',
+  'هزینهٔ گمرکی کمتر',
+  'عدم نیاز به ثبت سفارش',
+  'عدم نیاز به کد سِلفا و روال بانکی',
+  'عدم نیاز به مجوز بهین‌یاب و سهمیه',
+  'عدم وجود بازرسی، کسر دریافتی و کسر تخلیه',
+  'عدم ورود به روال‌های پیچیدهٔ گمرکی و استاندارد',
+  'عدم رد خوردن کالا در ارزیابی',
+  'سرعت بالای مراحل ترخیص',
+  'بدون هزینهٔ سنگین انبارداری گمرک',
+  'عدم پرداخت هزینهٔ ترخیصیهٔ کشتیرانی',
+];
+
+/**
+ * Contract-backed commitments quoted from the business owner.
+ * REVIEW: confirm the 15–25 day window and the fixed-price wording with the
+ * owner (and with a lawyer) before launch — this is a written promise on a page.
+ */
+const guarantees = [
+  {
+    title: 'تحویل سالم محموله',
+    text: 'سلامت بار از لحظهٔ تحویل در دبی تا تحویل در انبار شما در قرارداد ضمانت می‌شود؛ خسارت در مسیر، تعهد ما است.',
+  },
+  {
+    title: 'ضمانت ثبت قیمت اولیه',
+    text: 'قیمت اعلامی اوکیان تا تحویل کامل بار تغییر نمی‌کند؛ عددی که می‌گیرید همان عددی است که می‌پردازید.',
+  },
+  {
+    title: 'تضمین زمان تحویل',
+    text: 'جز در شرایط فورس ماژور، بار شما بسته به شرایط از ۱۵ تا ۲۵ روز از دبی در انبار شما تحویل داده می‌شود.',
+  },
+];
 
 const limits = [
   {
@@ -93,6 +129,18 @@ const limits = [
 
 const faqs = [
   {
+    q: 'بار چند روزه از دبی به انبار من می‌رسد؟',
+    a: 'در قرارداد ضمانت، زمان تحویل مشخص می‌شود: بسته به کالا و بندر، از ۱۵ تا ۲۵ روز از دبی تا انبار شما — مگر در شرایط فورس ماژور. اگر کالا نیاز به مجوز یا ارزیابی بیشتری داشته باشد، پیش از شروع کار به شما اعلام می‌کنیم.',
+  },
+  {
+    q: 'قیمت اعلامی تا آخر تغییر نمی‌کند؟',
+    a: 'قیمت اعلامی اوکیان تا تحویل کامل بار تغییر نمی‌کند. اگر در جریان کار مشخص شود کالا نیاز به مجوز یا فرایند اضافه‌ای دارد، پیش از هر هزینه‌ای با شما هماهنگ می‌شود.',
+  },
+  {
+    q: 'دوبه (دوویه) چیست؟',
+    a: 'دوبه یک شناور باری کوتاه‌برد است که برای مسیرهای نزدیک خلیج فارس استفاده می‌شود و بار را از دبی به بندرهای ایرانی می‌آورد. برای محموله‌های بزرگ‌تر از لنج استفاده می‌شود؛ انتخاب بین این دو به حجم، وزن و بندر ورود بستگی دارد.',
+  },
+  {
     q: 'آیا واردات ملوانی بدون عوارض گمرکی است؟',
     a: 'خیر. این رویه امتیازها و نرخ‌های خودش را دارد و پرداخت وجوه قانونی بخشی از کار است. اینکه کالای شما چه امتیازی می‌گیرد به نوع کالا و مقررات جاری بستگی دارد؛ پیش از خرید، وضعیت همان کالا را بررسی و مکتوب اعلام می‌کنیم.',
   },
@@ -101,18 +149,14 @@ const faqs = [
     a: 'کالای همراه ملوان، سهمیهٔ شخصی خدمهٔ شناور است و سقف جداگانه‌ای دارد؛ رویهٔ ملوانی، ورود بار شناور با فهرست بار و اظهارنامهٔ خودش است. این دو را نباید یکی گرفت؛ سقف هیچ‌کدام را هم نمی‌توان بدون دیدن مقررات روز به‌صورت عددی اعلام کرد.',
   },
   {
-    q: 'چه کالاهایی از این مسیر وارد می‌شوند؟',
-    a: 'فقط کالاهایی که در فهرست مجاز این رویه قرار دارند. این فهرست با مقررات تعیین می‌شود و تغییر می‌کند؛ شرح کالای خود را بفرستید تا تطبیق آن را بررسی کنیم.',
-  },
-  {
     q: 'از کدام بندرها انجام می‌شود؟',
-    a: 'این رویه در بنادر جنوبی و در گمرکات مجازِ آن اجرا می‌شود. بندر ورود را در فرم مشاوره بنویسید تا امکان کار در همان محل و مسیر حمل داخلی بررسی شود.',
+    a: 'امروز بار را مستقیم از دبی به بوشهر و بندرعباس می‌آوریم و مسیر قدیمی (از طریق خصب در عمان) هم در شرایطی که لازم باشد بررسی می‌شود. بندر ورود را در فرم استعلام بنویسید تا امکان کار در همان محل و مسیر حمل داخلی بررسی شود.',
   },
 ];
 ---
 
 <BaseLayout
-  title="واردات ملوانی (ته لنجی)؛ شرایط، مدارک و ترخیص"
+  title="واردات ملوانی (ته لنجی)؛ حمل مستقیم از دبی و ضمانت"
   description={description}
   jsonLd={[
     breadcrumbLd(crumbs, Astro.site),
@@ -122,7 +166,7 @@ const faqs = [
   <PageHero
     eyebrow="خدمات"
     title="واردات ملوانی (ته لنجی)"
-    lead="رویهٔ ملوانی یکی از مسیرهای قانونی ورود کالا از راه دریا است؛ با فهرست کالای مجاز، سهمیه و تشریفات گمرکی مشخص. پیش از خرید، بدانید کالای شما با این مسیر سازگار است یا نه."
+    lead="رویهٔ ملوانی یکی از مسیرهای قانونی ورود کالا از راه دریاست. در روش قدیمی، بار داخل امارات از طریق خصب (عمان) به ایران حمل می‌شد که هزینه‌های حمل را به‌شدت افزایش می‌داد."
     crumbs={crumbs}
   >
     <div class="hero-actions">
@@ -130,7 +174,7 @@ const faqs = [
         {contactCta.label}
         <Icon name="arrow" class="btn__icon" />
       </a>
-      <a class="btn btn--ghost" href="#process">مراحل کار</a>
+      <a class="btn btn--ghost" href="#routes">مسیرهای حمل</a>
     </div>
     <SailorArt slot="art" />
   </PageHero>
@@ -139,21 +183,20 @@ const faqs = [
   <section class="section" aria-labelledby="what-title">
     <div class="container split">
       <div class="stack reveal" style="--stack: 1.1rem">
-        <h2 id="what-title">واردات ملوانی چیست و چه فرقی با واردات رسمی دارد؟</h2>
+        <h2 id="what-title">واردات ملوانی چیست و چه فرقی با واردات کانتینری دارد؟</h2>
         <p class="lead-text">
-          در رویهٔ ملوانی — که در بازار با نام ته لنجی هم شناخته می‌شود — کالا با شناورهای مشمول مقررات تجارت مرزی از بنادر جنوبی وارد می‌شود. این رویه برای
-          پشتیبانی از معیشت ساحل‌نشینان شکل گرفته و به همین دلیل محدودیت‌های خودش را دارد: فقط کالاهای فهرست مجاز، در سهمیهٔ تعیین‌شده و با تشریفات مخصوص
-          همین رویه.
+          رویهٔ ملوانی — که در بازار با نام ته لنجی شناخته می‌شود — ورود کالا با شناورهای مشمول تجارت مرزی از بنادر جنوبی است؛ با فهرست کالای مجاز، سهمیه و
+          تشریفات گمرکی مشخص. برخلاف حمل کانتینری، در این رویه خبری از دِموراژ، ثبت سفارش، کد سلفا و بازرسی‌های پیچیدهٔ گمرکی نیست.
         </p>
-        <p class="lead-text">
-          یعنی واردات ملوانی «واردات بدون گمرک» نیست. اظهار کالا، ثبت اطلاعات در سامانه‌ها، ارزیابی و پرداخت وجوه قانونی — با امتیازهایی که مقررات برای این
-          رویه در نظر گرفته — بخشی از کار است. تفاوت اصلی با واردات رسمی در همین چارچوب است: نوع کالا، سهمیه و رویهٔ اظهار.
+        <p class="callout-line">
+          <Icon name="shield" />
+          <span>رویهٔ ملوانی کاملاً قانونی است و از طریق گمرکات و با ارائهٔ مستندات انجام می‌شود.</span>
         </p>
         <div class="notice">
           <Icon name="info" />
           <p>
-            فهرست کالاهای مجاز، سهمیه، مدارک و میزان امتیازهای گمرکی این رویه با مقررات تعیین و به‌روز می‌شود. در این صفحه عدد قطعی نمی‌آوریم؛ برای هر
-            محموله، وضعیت همان کالا را بررسی و مکتوب اعلام می‌کنیم.
+            فهرست کالاهای مجاز، سهمیه، مدارک و میزان امتیازهای گمرکی این رویه با مقررات تعیین و به‌روز می‌شود. در واردات ملوانی، برای هر محموله، وضعیت همان
+            محموله را بررسی و اعلام می‌کنیم.
           </p>
         </div>
       </div>
@@ -170,13 +213,125 @@ const faqs = [
     </div>
   </section>
 
+  <!-- Routes: the two maps -->
+  <section class="section section--alt section--grain" id="routes" aria-labelledby="routes-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="eyebrow">مسیر حمل</span>
+        <h2 id="routes-title">از مسیر قدیمی خصب تا حمل مستقیم از دبی</h2>
+        <p class="lead">
+          در روش قدیمی، بار ابتدا داخل امارات جابه‌جا می‌شد و بعد از طریق خصب در عمان به ایران می‌آمد؛ این مسیر هزینهٔ حمل را به‌شدت بالا می‌برد. امروز
+          اوکیان همین بار را مستقیم از دبی به بوشهر یا بندرعباس می‌آورد.
+        </p>
+      </header>
+
+      <div class="routes">
+        <figure class="route-card reveal">
+          <RouteMap variant="via-khasab" label="نقشهٔ مسیر قدیمی: دبی، خصب در عمان، سپس بندرعباس" />
+          <figcaption>
+            <span class="route-card__tag">مسیر قدیمی</span>
+            <h3>از داخل امارات، از طریق خصب (عمان)</h3>
+            <p>جابه‌جایی چندمرحله‌ای، تخلیه و بارگیری اضافه و زمان بیشتر؛ نتیجه‌اش هزینهٔ بالاتر برای صاحب کالا بود.</p>
+          </figcaption>
+        </figure>
+
+        <figure class="route-card route-card--accent reveal">
+          <RouteMap variant="direct" label="نقشهٔ مسیر مستقیم: دبی، بوشهر و بندرعباس" />
+          <figcaption>
+            <span class="route-card__tag route-card__tag--accent">مسیر امروز اوکیان</span>
+            <h3>مستقیم از دبی به بوشهر و بندرعباس</h3>
+            <p>یک بارگیری، یک مسیر و یک برنامهٔ زمانی روشن؛ هزینه به‌مراتب کمتر و بار با سرعت بالاتری تحویل شما می‌شود.</p>
+          </figcaption>
+        </figure>
+      </div>
+
+      <div class="route-note reveal">
+        <p>
+          شرکت اوکیان این امکان را دارد که بار شما را مستقیماً از دبی به یکی از بنادر بوشهر حمل، ترخیص و به همهٔ شهرهای کشور حمل کند و در انبار شما تحویل
+          دهد. مسیر دوم، دو راه مستقیم از دبی به بوشهر و بندرعباس را نشان می‌دهد.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Types of carriage -->
+  <section class="section" aria-labelledby="types-title">
+    <div class="container split split--wide">
+      <header class="section-head sticky-head reveal">
+        <span class="eyebrow">انواع حمل</span>
+        <h2 id="types-title">با دوبه یا با لنج؟</h2>
+        <p class="lead">انتخاب شناور به حجم بار، بندر ورود و زمان تحویل بستگی دارد؛ هر دو نوع را برای همان محموله بررسی می‌کنیم.</p>
+      </header>
+
+      <div class="types reveal">
+        <article class="type-card">
+          <h3><Icon name="ship" /> دوبه (دوویه)</h3>
+          <p>
+            شناور باری کوتاه‌برد برای مسیرهای نزدیک خلیج فارس؛ برای بارهای حجیم‌تر و محموله‌هایی که باید در بندر مشخصی تخلیه شوند مناسب است.
+          </p>
+        </article>
+        <article class="type-card">
+          <h3><Icon name="ship" /> لنج</h3>
+          <p>
+            شناور سنتی و رایج این رویه؛ برای محموله‌های سبک‌تر و سفرهای پرتعداد استفاده می‌شود و انعطاف بیشتری در بندر تخلیه دارد.
+          </p>
+        </article>
+        <div class="type-routes">
+          <p><strong>مسیرها:</strong> مستقیم از دبی به بوشهر یا بندرعباس؛ و در صورت نیاز، مسیر قدیمی از طریق عمان (خصب).</p>
+          <p><strong>دوبه چیست؟</strong> همان «دوویه»؛ شناور باری‌ای که مسیر حرکت بار شما را از دبی به بندرهای ایران ممکن می‌کند.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Advantages -->
+  <section class="section section--alt" aria-labelledby="adv-title">
+    <div class="container split split--wide">
+      <header class="section-head sticky-head reveal">
+        <span class="eyebrow">مزایا</span>
+        <h2 id="adv-title">مزایای حمل ملوانی نسبت به حمل کانتینری</h2>
+        <p class="lead">چرا بسیاری از واردکنندگان برای بارهای سازگار با این رویه، ملوانی را به کانتینر ترجیح می‌دهند.</p>
+      </header>
+      <ul class="checklist adv-list reveal">
+        {advantages.map((item) => <li>{item}</li>)}
+      </ul>
+    </div>
+  </section>
+
+  <!-- Guarantees -->
+  <section class="section section--dark" aria-labelledby="guarantee-title">
+    <div class="container split">
+      <div class="stack reveal" style="--stack: 1.1rem">
+        <span class="eyebrow">قرارداد ضمانت</span>
+        <h2 id="guarantee-title">امنیت حمل ملوانی</h2>
+        <p class="lead">
+          اوکیان تحت یک قرارداد ضمانت با شما وارد همکاری می‌شود. در این قرارداد سه مورد زیر مورد ضمانت قرار می‌گیرد و در متن قرارداد نوشته می‌شود.
+        </p>
+        <a class="arrow-link" href="/guarantee/">
+          شرایط ضمانت و مرز مسئولیت‌ها
+          <Icon name="arrow" />
+        </a>
+      </div>
+      <ol class="guarantees reveal">
+        {
+          guarantees.map((g) => (
+            <li>
+              <h3>{g.title}</h3>
+              <p>{g.text}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
   <!-- Scope -->
-  <section class="section section--alt section--grain" aria-labelledby="scope-title">
+  <section class="section" aria-labelledby="scope-title">
     <div class="container split split--wide">
       <header class="section-head sticky-head reveal">
         <span class="eyebrow">دامنهٔ خدمت</span>
         <h2 id="scope-title">در این مسیر چه کاری انجام می‌دهیم</h2>
-        <p class="lead">تمرکز ما بر بررسی امکان‌پذیری، اسناد و تشریفات گمرکی است؛ نه خرید و فروش کالا.</p>
+        <p class="lead">تمرکز ما بر حمل، بررسی امکان‌پذیری، اسناد و تشریفات گمرکی است؛ نه خرید و فروش کالا.</p>
       </header>
       <ul class="checklist scope-list reveal">
         {scope.map((item) => <li>{item}</li>)}
@@ -185,11 +340,11 @@ const faqs = [
   </section>
 
   <!-- Process -->
-  <section class="section" id="process" aria-labelledby="process-title">
+  <section class="section section--alt" id="process" aria-labelledby="process-title">
     <div class="container split split--wide">
       <header class="section-head sticky-head reveal">
         <span class="eyebrow">فرایند</span>
-        <h2 id="process-title">از بررسی کالا تا ترخیص</h2>
+        <h2 id="process-title">از بررسی کالا تا تحویل در انبار</h2>
         <p class="lead">ترتیب کلی کار در یک محمولهٔ ملوانی. بسته به بندر و نوع کالا، ممکن است برخی مراحل هم‌زمان پیش برود.</p>
       </header>
       <Steps items={steps} />
@@ -197,14 +352,12 @@ const faqs = [
   </section>
 
   <!-- Documents -->
-  <section class="section section--dark" aria-labelledby="docs-title">
+  <section class="section" aria-labelledby="docs-title">
     <div class="container split">
       <div class="stack reveal" style="--stack: 1.1rem">
         <span class="eyebrow">شروع کار</span>
         <h2 id="docs-title">اطلاعات و مدارکی که لازم است</h2>
-        <p class="lead">
-          برای بررسی اولیه لازم نیست همهٔ مدارک کامل باشد. اطلاعات کالا و شناور را بفرستید؛ کمبودها را با هم مشخص می‌کنیم.
-        </p>
+        <p class="lead">برای بررسی اولیه لازم نیست همهٔ مدارک کامل باشد. اطلاعات کالا و شناور را بفرستید؛ کمبودها را با هم مشخص می‌کنیم.</p>
         <a class="arrow-link" href="/guides/customs-clearance-documents/">
           فهرست مدارک ترخیص کالا
           <Icon name="arrow" />
@@ -228,7 +381,7 @@ const faqs = [
   </section>
 
   <!-- Limits -->
-  <section class="section" aria-labelledby="limits-title">
+  <section class="section section--alt" aria-labelledby="limits-title">
     <div class="container">
       <header class="section-head reveal">
         <span class="eyebrow">نکته‌های تعیین‌کننده</span>
@@ -249,7 +402,7 @@ const faqs = [
   </section>
 
   <!-- FAQ -->
-  <section class="section section--alt" aria-labelledby="faq-title">
+  <section class="section" aria-labelledby="faq-title">
     <div class="container split split--wide">
       <header class="section-head reveal">
         <span class="eyebrow">پرسش‌های رایج</span>
@@ -261,7 +414,7 @@ const faqs = [
 
   <CtaBand
     title="کالای شما با مسیر ملوانی سازگار است؟"
-    text="شرح کالا، بندر ورود و مشخصات شناور را بفرستید. بررسی می‌کنیم کالا در فهرست مجاز است یا نه، سهمیه چه محدودیتی می‌گذارد و چه مدارکی لازم است."
+    text="شرح کالا، بندر ورود و مشخصات شناور را بفرستید. بررسی می‌کنیم کالا در فهرست مجاز است یا نه، سهمیه چه محدودیتی می‌گذارد و زمان و هزینهٔ تحویل چه می‌شود."
   />
 </BaseLayout>
 
@@ -271,6 +424,170 @@ const faqs = [
     line-height: 2;
     color: var(--slate-700);
   }
+  .callout-line {
+    display: flex;
+    gap: 0.7rem;
+    align-items: flex-start;
+    padding: 1rem 1.2rem;
+    border-radius: var(--radius-m);
+    border: 1px solid rgb(31 107 69 / 0.25);
+    background: #ecf6f0;
+    font-weight: 600;
+    line-height: 1.9;
+  }
+  .callout-line :global(svg) {
+    inline-size: 1.35rem;
+    block-size: 1.35rem;
+    flex: none;
+    color: var(--success);
+    margin-top: 0.15rem;
+  }
+
+  /* route maps */
+  .routes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.75rem;
+    margin-top: 2.5rem;
+  }
+  .route-card {
+    display: grid;
+    gap: 1.1rem;
+    margin: 0;
+    padding: 1.1rem 1.1rem 1.6rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-l);
+    background: #fff;
+  }
+  .route-card--accent {
+    border-color: rgb(35 77 102 / 0.35);
+    box-shadow: 0 22px 40px -30px rgb(13 26 44 / 0.55);
+  }
+  .route-card figcaption {
+    display: grid;
+    gap: 0.45rem;
+    padding-inline: 0.4rem;
+  }
+  .route-card h3 {
+    font-size: var(--step-1);
+    line-height: 1.6;
+  }
+  .route-card p {
+    color: var(--text-muted);
+    font-size: var(--step--1);
+    line-height: 1.95;
+  }
+  .route-card__tag {
+    justify-self: start;
+    padding: 0.2rem 0.7rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--slate-600);
+    background: var(--mist-100);
+  }
+  .route-card__tag--accent {
+    color: #fff;
+    background: var(--petrol-600);
+  }
+  .route-note {
+    margin-top: 1.5rem;
+    padding: 1.25rem 1.5rem;
+    border-inline-start: 3px solid var(--petrol-500);
+    background: var(--mist-100);
+    border-radius: var(--radius-m);
+    line-height: 2;
+  }
+
+  /* vessel types */
+  .types {
+    display: grid;
+    gap: 1.1rem;
+  }
+  .type-card {
+    display: grid;
+    gap: 0.5rem;
+    padding: 1.4rem 1.6rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-m);
+    background: #fff;
+  }
+  .type-card h3 {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: var(--step-1);
+  }
+  .type-card h3 :global(svg) {
+    inline-size: 1.35rem;
+    block-size: 1.35rem;
+    color: var(--petrol-500);
+  }
+  .type-card p {
+    color: var(--text-muted);
+    line-height: 2;
+  }
+  .type-routes {
+    display: grid;
+    gap: 0.5rem;
+    padding: 1.2rem 1.6rem;
+    border-radius: var(--radius-m);
+    background: var(--mist-100);
+    line-height: 2;
+    font-size: var(--step--1);
+  }
+
+  .adv-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.85rem 2rem;
+    align-content: start;
+  }
+  .adv-list :global(li) {
+    font-size: var(--step-0);
+  }
+
+  .guarantees {
+    display: grid;
+    gap: 1.1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: g;
+  }
+  .guarantees li {
+    position: relative;
+    padding: 1.3rem 1.5rem 1.3rem 1.5rem;
+    padding-inline-start: 4rem;
+    border: 1px solid rgb(255 255 255 / 0.14);
+    border-radius: var(--radius-m);
+    background: rgb(255 255 255 / 0.04);
+    counter-increment: g;
+  }
+  .guarantees li::before {
+    content: counter(g, persian);
+    position: absolute;
+    inset-inline-start: 1.2rem;
+    top: 1.15rem;
+    display: grid;
+    place-items: center;
+    inline-size: 2rem;
+    block-size: 2rem;
+    border-radius: 50%;
+    background: var(--petrol-200);
+    color: var(--navy-950);
+    font-weight: 800;
+    font-size: 0.95rem;
+  }
+  .guarantees h3 {
+    font-size: var(--step-1);
+    margin-bottom: 0.3rem;
+  }
+  .guarantees p {
+    color: #c4cddb;
+    line-height: 2;
+  }
+
   .scope-list {
     padding-block: 0.5rem;
   }
@@ -284,7 +601,7 @@ const faqs = [
   }
   .docs-cols h3 {
     font-size: var(--step-1);
-    color: var(--petrol-200);
+    color: var(--petrol-600);
     margin-bottom: 1rem;
   }
   .factors {
@@ -310,10 +627,14 @@ const faqs = [
     .factors {
       grid-template-columns: 1fr 1fr;
     }
+    .routes {
+      grid-template-columns: 1fr;
+    }
   }
   @media (max-width: 600px) {
     .factors,
-    .docs-cols {
+    .docs-cols,
+    .adv-list {
       grid-template-columns: 1fr;
     }
   }

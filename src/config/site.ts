@@ -170,7 +170,6 @@ export const nav: NavItem[] = [
       { href: '/import-services/', label: 'واردات کالا', hint: 'همراهی از برنامه‌ریزی خرید تا تحویل', icon: 'route' },
       { href: '/sailor-import/', label: 'واردات ملوانی', hint: 'ورود کالا با شناورهای ملوانی در بنادر جنوبی', icon: 'ship' },
       { href: '/export-services/', label: 'صادرات کالا', hint: 'از مجوز و گواهی مبدأ تا بارنامه و تحویل', icon: 'globe' },
-      { href: '/after-sales-services/', label: 'خدمات گارانتی کالا', hint: 'ضمانت، تعویض و تأمین قطعات یدکی', icon: 'shield' },
     ],
   },
   { href: '/sailor-import/', label: 'واردات ملوانی' },
