@@ -101,6 +101,7 @@ const headerPhones = companyPhones.filter((p) => p.kind === 'mobile').slice(0, 1
       }
       <a href={contactCta.href} class="btn site-header__cta" aria-current={isCurrent(contactCta.href) ? 'page' : undefined}>
         {contactCta.label}
+        <Icon name="arrow" class="btn__icon" />
       </a>
 
       <!-- Native popover: works without JavaScript, closes with Esc / outside click. -->
@@ -205,8 +206,11 @@ const headerPhones = companyPhones.filter((p) => p.kind === 'mobile').slice(0, 1
   .site-header__inner {
     display: flex;
     align-items: center;
-    gap: 1.5rem;
+    gap: clamp(0.9rem, 1.6vw, 1.6rem);
     min-height: var(--header-h);
+    /* A band of its own: a touch wider than the page column so the brand, the
+       seven-item capsule and the phone/CTA cluster never fight for space. */
+    inline-size: min(100% - 2 * var(--gutter), 82rem);
   }
   .site-header__brand {
     flex: 1 1 0;
@@ -503,26 +507,27 @@ const headerPhones = companyPhones.filter((p) => p.kind === 'mobile').slice(0, 1
   .site-header__phones {
     display: flex;
     align-items: center;
-    gap: 0.9rem;
+    gap: 0.7rem;
+    min-width: 0;
   }
   .site-header__phones > a + a {
-    padding-inline-start: 0.9rem;
+    padding-inline-start: 0.7rem;
     border-inline-start: 1px solid var(--rule);
   }
   .site-header__phone {
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.35rem;
     font-weight: 700;
-    font-size: 0.9rem;
+    font-size: 0.86rem;
     color: var(--navy-900);
     text-decoration: none;
     white-space: nowrap;
     border-radius: var(--radius-s);
   }
   .site-header__phone :global(svg) {
-    inline-size: 1.05rem;
-    block-size: 1.05rem;
+    inline-size: 1rem;
+    block-size: 1rem;
     color: var(--petrol-500);
   }
   .site-header__phone:hover span {
@@ -546,11 +551,18 @@ const headerPhones = companyPhones.filter((p) => p.kind === 'mobile').slice(0, 1
       display: none;
     }
   }
-  @media (max-width: 1200px) {
+  @media (max-width: 1700px) {
     .site-nav > ul > li > a,
     .nav-group__btn {
       font-size: 0.82rem;
       padding-inline: 0.5rem;
+    }
+  }
+  @media (max-width: 1200px) {
+    .site-nav > ul > li > a,
+    .nav-group__btn {
+      font-size: 0.8rem;
+      padding-inline: 0.45rem;
     }
   }
   @media (max-width: 1120px) {
@@ -566,15 +578,27 @@ const headerPhones = companyPhones.filter((p) => p.kind === 'mobile').slice(0, 1
       padding-inline: 0.5rem;
     }
   }
-  @media (max-width: 980px) {
+  @media (max-width: 1040px) {
     .site-header__cta {
       display: none;
     }
   }
   .site-header__cta {
+    flex: none;
+    gap: 0.4rem;
     min-height: 2.6rem;
-    padding-inline: 1.15rem;
-    font-size: 0.95rem;
+    padding-inline: 1.05rem;
+    font-size: 0.92rem;
+    line-height: 1.2;
+    white-space: nowrap;
+    box-shadow: 0 10px 20px -16px rgb(13 26 44 / 0.7);
+  }
+  .site-header__cta .btn__icon {
+    inline-size: 0.95rem;
+    block-size: 0.95rem;
+  }
+  .site-header__cta:hover {
+    box-shadow: 0 12px 22px -14px rgb(13 26 44 / 0.75);
   }
 
   .menu-toggle,
