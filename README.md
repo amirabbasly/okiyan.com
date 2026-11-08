@@ -25,7 +25,7 @@ Astro 7 + TypeScript, fully static, plain CSS, ~5 KB of gzipped JavaScript on th
 | --- | --- |
 | `SITE_URL` | Canonical production origin. Defaults to `https://okiyan.ir` (the domain in the logo). Drives canonicals, sitemap, OG URLs. Redirect `www.okiyan.ir` to it with a 301 at the host. |
 | `SITE_ENV` | `production` makes the site indexable. **Anything else** (default `development`) emits `<meta name="robots" content="noindex, nofollow">`, a `Disallow: /` robots.txt, and an `X-Robots-Tag: noindex` rule in `dist/_headers`. |
-| `PUBLIC_FORM_ENDPOINT` | URL that receives the consultation form as a `POST` (multipart FormData). Empty = clearly labelled demo mode. |
+| `PUBLIC_FORM_ENDPOINT` | URL that receives the consultation form as a `POST` (multipart FormData, including the packing-list file). Empty = the form says online sending is unavailable and shows the phone numbers; it never fakes a success. |
 
 **Production indexing checklist:** set `SITE_URL` to the final domain, `SITE_ENV=production`, build with
 `npm run build:prod`, then `npm run verify` (it fails if any production page is noindex or any canonical is wrong).
@@ -63,15 +63,20 @@ Service scope copy lives in `src/data/services.ts` and in the two service pages.
   `relatedService`, `relatedGuides`, `summary` (2–5 bullets), `sources` (title/publisher/url/note) and
   `reviewNotes` (shown only in staging builds). A new file becomes `/guides/<file-name>/`, joins the guide index,
   footer and sitemap, and gets Article + BreadcrumbList markup.
-- **Pages**: `src/pages/` (`index`, `customs-clearance`, `import-services`, `sailor-import`, `export-services`,
-  `after-sales-services`, `special-projects`, `price-calculator`, `guides`, `about`, `resume`, `partners`,
-  `guarantee`, `contact`, `404`). Copy for lists, FAQs and steps sits at the top of each page file.
+- **Pages**: `src/pages/` (`index`, `customs-clearance`, `container-import`, `import-services`, `sailor-import`,
+  `export-services`, `after-sales-services`, `special-projects`, `price-calculator`, `guides`, `about`, `resume`,
+  `partners`, `guarantee`, `contact`, `404`). Copy for lists, FAQs and steps sits at the top of each page file;
+  the service pages share the same skeleton (hero + illustration, fit card, scope, steps, documents, pitfalls, FAQ,
+  CTA) and each has its own plate in `src/components/illustrations/`.
 - **Navigation**: `nav` in `src/config/site.ts` drives the header (with the «خدمات» and «درباره ما» dropdowns),
   the mobile menu and the footer columns. On desktop the whole menu is one **dark capsule** centred in the white
   header (white labels, petrol underline for the current page); the brand and the actions take equal space so the
-  capsule stays centred. «واردات ملوانی» and «خدمات گارانتی کالا» are top-level items *and* stay inside the
-  «خدمات» dropdown (which also lists «صادرات کالا»). Below 1280px the header phone hides, below 1120px the capsule tightens, below 980px the CTA
-  steps aside, and below 860px the mobile menu takes over. Both dropdowns render as a full-bleed **dark mega panel**
+  capsule stays centred. The top level is exactly **خدمات · واردات ملوانی · ترخیص · واردات کانتینری · صادرات ·
+  بلاگ · درباره ما** — «بلاگ» points at `/guides/`, and «واردات ملوانی» + «خدمات گارانتی کالا» stay inside the
+  «خدمات» dropdown as well. The header shows the Tehran landline (`۰۲۱-۹۱۰۰۶۶۶۲`) and, next to it, the mobile
+  number (`۰۹۱۷-۲۹۰۰۴۰۹`) with a «همراه» tag; below 1440px the mobile line hides, below 1280px both numbers hide,
+  below 1120px the capsule tightens, below 980px the CTA steps aside, and below 860px the mobile menu takes over.
+  Office addresses and their own phones live in `offices` in `src/config/site.ts` and are rendered by the footer. Both dropdowns render as a full-bleed **dark mega panel**
   (`Header.astro`): the slab spans the viewport below the header, the links sit on translucent cards with white
   text and each group carries a light “feature” card (`feature` on the group) that breaks out of the dark section.
   Add `icon` to a link to show it in the panel.
@@ -131,11 +136,16 @@ and the matching coordinates in `JourneyScene.astro`, then run `npm run test:jou
 
 ## Consultation form
 
-`src/components/forms/` — accessible validation (error summary, inline messages, `aria-invalid`), Persian/Latin
-digit normalisation, honeypot. With `PUBLIC_FORM_ENDPOINT` set it posts FormData via `fetch` (native POST without
-JS) and shows success **only on a 2xx response**; errors keep the entered data. Any service that accepts multipart
-POST with CORS works (e.g. Formspree, Basin, a Cloudflare Worker, your own API). Field names: `name`, `company`,
-`contactMethod`, `contact`, `service`, `goods`, `stage`, `origin`, `port`, `message`, `consent`, `page`.
+`src/components/forms/` — accessible validation (error summary with jump links, inline messages, `aria-invalid`),
+Persian/Latin digit normalisation, honeypot. Required: name, **mobile**, service, **stage** (a `<select>`), goods
+description, the **packing-list upload** and consent. Optional but separate inputs: company, email, **tariff code
+(HS)**, origin, port, **volume (m³)**, **weight (kg)**, **dollar value (USD)** and **CBM** — plus a free-text note.
+The number fields accept Persian digits and only need to be numeric. The upload accepts PDF, Excel, CSV, Word or a
+scanned JPG/PNG up to 10 MB and is checked in the browser before sending. With `PUBLIC_FORM_ENDPOINT` set the form
+posts FormData via `fetch` (native multipart POST without JS) and shows success **only on a 2xx response**; errors
+keep the entered data. Any service that accepts multipart POST with CORS works (e.g. Formspree, Basin, a Cloudflare
+Worker, your own API). Field names: `name`, `company`, `mobile`, `email`, `service`, `stage`, `goods`, `tariff`,
+`origin`, `port`, `volume`, `weight`, `value`, `cbm`, `packingList`, `message`, `consent`, `page`.
 
 ## Deployment
 

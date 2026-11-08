@@ -1,11 +1,13 @@
 ---
-import { nav, contactCta, site, isNavGroup } from '~/config/site';
+import { nav, contactCta, site, isNavGroup, companyPhones } from '~/config/site';
 import Logo from '~/components/ui/Logo.astro';
 import Icon from '~/components/ui/Icon.astro';
 
 const path = Astro.url.pathname;
 const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
 const groupCurrent = (children: Array<{ href: string }>) => children.some((c) => isCurrent(c.href));
+// The first mobile line is printed next to the office number in the header.
+const headerPhones = companyPhones.filter((p) => p.kind === 'mobile').slice(0, 1);
 ---
 
 <header class="site-header">
@@ -81,10 +83,20 @@ const groupCurrent = (children: Array<{ href: string }>) => children.some((c) =>
     <div class="site-header__actions">
       {
         site.contact.phone && (
-          <a href={`tel:${site.contact.phone}`} class="site-header__phone">
-            <Icon name="phone" />
-            <span dir="ltr">{site.contact.phoneDisplay ?? site.contact.phone}</span>
-          </a>
+          <span class="site-header__phones">
+            <a href={`tel:${site.contact.phone}`} class="site-header__phone">
+              <Icon name="phone" />
+              <span class="sr-only">تلفن دفتر</span>
+              <span dir="ltr">{site.contact.phoneDisplay ?? site.contact.phone}</span>
+            </a>
+            {headerPhones.map((p) => (
+              <a href={`tel:${p.e164}`} class="site-header__phone site-header__phone--mobile">
+                <Icon name="phone" />
+                <span class="sr-only">تلفن همراه</span>
+                <span dir="ltr">{p.display}</span>
+              </a>
+            ))}
+          </span>
         )
       }
       <a href={contactCta.href} class="btn site-header__cta" aria-current={isCurrent(contactCta.href) ? 'page' : undefined}>
@@ -488,20 +500,29 @@ const groupCurrent = (children: Array<{ href: string }>) => children.some((c) =>
     }
   }
 
+  .site-header__phones {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+  }
+  .site-header__phones > a + a {
+    padding-inline-start: 0.9rem;
+    border-inline-start: 1px solid var(--rule);
+  }
   .site-header__phone {
     display: inline-flex;
     align-items: center;
-    gap: 0.45rem;
+    gap: 0.4rem;
     font-weight: 700;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     color: var(--navy-900);
     text-decoration: none;
     white-space: nowrap;
     border-radius: var(--radius-s);
   }
   .site-header__phone :global(svg) {
-    inline-size: 1.15rem;
-    block-size: 1.15rem;
+    inline-size: 1.05rem;
+    block-size: 1.05rem;
     color: var(--petrol-500);
   }
   .site-header__phone:hover span {
@@ -512,11 +533,24 @@ const groupCurrent = (children: Array<{ href: string }>) => children.some((c) =>
   .mobile-menu__call {
     align-self: stretch;
   }
-  /* Six top-level items need room: the phone link goes first, then the capsule
-     tightens and, on tablets, the CTA steps aside for the menu. */
-  @media (max-width: 1279px) {
-    .site-header__phone {
+  /* Seven top-level items need room: the mobile line goes first, then both
+     numbers, then the capsule tightens and, on tablets, the CTA steps aside. */
+  @media (max-width: 1439px) {
+    .site-header__phone--mobile,
+    .site-header__phones > a + a {
       display: none;
+    }
+  }
+  @media (max-width: 1279px) {
+    .site-header__phones {
+      display: none;
+    }
+  }
+  @media (max-width: 1200px) {
+    .site-nav > ul > li > a,
+    .nav-group__btn {
+      font-size: 0.82rem;
+      padding-inline: 0.5rem;
     }
   }
   @media (max-width: 1120px) {

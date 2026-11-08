@@ -1,0 +1,359 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import PageHero from '~/components/layout/PageHero.astro';
+import ContainerArt from '~/components/illustrations/ContainerArt.astro';
+import Steps from '~/components/ui/Steps.astro';
+import Faq from '~/components/ui/Faq.astro';
+import CtaBand from '~/components/ui/CtaBand.astro';
+import Icon from '~/components/ui/Icon.astro';
+import { breadcrumbLd, serviceLd } from '~/lib/schema';
+import { contactCta } from '~/config/site';
+
+const path = '/container-import/';
+const crumbs = [
+  { name: 'خانه', path: '/' },
+  { name: 'واردات کانتینری', path },
+];
+const description =
+  'واردات کانتینری: انتخاب FCL یا LCL، بررسی تناژ و نوع کانتینر، هماهنگی حمل دریایی، ترخیص کانتینر از گمرک و حمل تا انبار با مدیریت زمان‌های دیرکرد.';
+
+// REVIEW: confirm every step and exclusion with the business owner (site.scopeConfirmed).
+const fit = [
+  'محموله‌ای دارید که با بار هوایی یا محمولهٔ خرد به‌صرفه نیست و باید کانتینری بیاید.',
+  'نمی‌دانید کانتینر کامل (FCL) بگیرید یا بار خود را با بار دیگران شریک کنید (LCL).',
+  'کالا در بندر رسیده و کانتینر باید ترخیص و به انبار منتقل شود.',
+  'نگران زمان‌های آزاد و هزینهٔ دیرکرد کانتینر (دموراژ) هستید.',
+];
+
+const scope = [
+  'بررسی حجم، وزن و CBM و انتخاب کانتینر مناسب (۲۰ یا ۴۰ فوت، یخچالی، اوپن‌تاپ)',
+  'هماهنگی حمل دریایی FCL یا LCL با خط کشتیرانی و فورواردر',
+  'تطبیق اسناد حمل با اظهارنامه و کد تعرفهٔ کالا',
+  'تنظیم و ثبت اظهارنامه و پیگیری ارزیابی در گمرک ورودی',
+  'هماهنگی تخلیه، بارگیری و حمل کانتینر تا انبار شما',
+  'پیگیری زمان‌های آزاد کانتینر و جلوگیری از هزینهٔ دیرکرد',
+];
+
+const steps = [
+  {
+    title: 'بررسی محموله و انتخاب روش حمل',
+    text: 'با حجم، وزن و CBM و همچنین ماهیت کالا مشخص می‌شود کانتینر کامل به‌صرفه است یا حمل LCL. نوع کانتینر (خشک، یخچالی، اوپن‌تاپ) هم همین‌جا تعیین می‌شود.',
+  },
+  {
+    title: 'رزرو حمل و هماهنگی با تأمین‌کننده',
+    text: 'با خط کشتیرانی یا فورواردر رزرو انجام می‌شود و تاریخ بارگیری، بندر مبدأ و مدارک لازم برای تأمین‌کننده اعلام می‌شود تا بارگیری بدون تأخیر انجام شود.',
+  },
+  {
+    title: 'اسناد حمل و آماده‌سازی ترخیص',
+    text: 'بارنامه، فاکتور، فهرست عدل‌بندی و گواهی‌ها بررسی و با کد تعرفه تطبیق داده می‌شود؛ مغایرت اسناد پیش از رسیدن کانتینر اصلاح می‌شود.',
+  },
+  {
+    title: 'ترخیص کانتینر در گمرک ورودی',
+    text: 'اظهارنامه ثبت و پرونده در گمرک پیگیری می‌شود: ارزیابی، پرداخت‌ها و مجوزهای کالا تا صدور اجازهٔ خروج.',
+    note: 'رسیدگی، ارزیابی و پذیرش نهایی اسناد، تصمیم گمرک است و زمان آن در اختیار ما نیست.',
+  },
+  {
+    title: 'خروج و حمل تا انبار',
+    text: 'کانتینر پس از ترخیص تخلیه و به انبار شما منتقل می‌شود؛ زمان آزاد و روزهای دیرکرد در همین مرحله کنترل می‌شود.',
+  },
+];
+
+const documents = {
+  first: ['شرح کالا و کد تعرفه', 'حجم، وزن و CBM تقریبی', 'بندر مبدأ و مقصد', 'تاریخ تقریبی آماده‌شدن بار'],
+  full: ['بارنامه (B/L) یا سند حمل', 'فاکتور تجاری و فهرست عدل‌بندی', 'گواهی مبدأ و مجوزهای کالا', 'بیمه‌نامه و اسناد پرداخت'],
+};
+
+const pitfalls = [
+  {
+    title: 'دموراژ و زمان آزاد کانتینر',
+    text: 'هر روز توقف کانتینر پس از پایان زمان آزاد، هزینهٔ دیرکرد دارد. تأخیر در اسناد یا پرداخت، مستقیم به همین هزینه تبدیل می‌شود.',
+  },
+  {
+    title: 'انتخاب اشتباه FCL و LCL',
+    text: 'حجم کم با کانتینر کامل، هزینهٔ بیهوده است؛ حجم نزدیک به ظرفیت با LCL، هم گران‌تر می‌شود هم ریسک آسیب بار را بالا می‌برد.',
+  },
+  {
+    title: 'مغایرت وزن و شرح کالا',
+    text: 'اختلاف میان بارنامه، فهرست عدل‌بندی و اظهارنامه، پرونده را متوقف می‌کند و کانتینر پشت دروازه می‌ماند.',
+  },
+  {
+    title: 'نوع کانتینر و شرایط کالا',
+    text: 'کالای حساس به رطوبت یا دما، کانتینر مناسب خودش را می‌خواهد؛ انتخاب دیرهنگام آن، رزرو را از دست می‌دهد.',
+  },
+  {
+    title: 'تخلیه و ظرفیت انبار',
+    text: 'اگر انبار در زمان تحویل آماده نباشد، کانتینر روی چرخ می‌ماند و هزینهٔ توقف اضافه می‌شود.',
+  },
+  {
+    title: 'بیمه و خسارت',
+    text: 'بدون بیمه‌نامهٔ حمل، آسیب یا کمبود بار در مسیر دریایی جبران‌ناپذیر می‌شود.',
+  },
+];
+
+const faqs = [
+  {
+    q: 'FCL بهتر است یا LCL؟',
+    a: 'به حجم و ماهیت بار بستگی دارد: وقتی بار به ظرفیت کانتینر نزدیک است FCL ارزان‌تر و امن‌تر می‌شود؛ برای بار کم، LCL منطقی است. بر اساس CBM و وزن شما مقایسه می‌کنیم.',
+  },
+  {
+    q: 'یک کانتینر ۲۰ یا ۴۰ فوت چقدر بار می‌گیرد؟',
+    a: 'ظرفیت اسمی و عملی هر کانتینر با هم فرق دارد و به نوع کالا و بسته‌بندی هم بستگی دارد. برای برآورد دقیق، ابعاد و وزن بار خود را بفرستید تا ظرفیت واقعی همان کانتینر را حساب کنیم.',
+  },
+  {
+    q: 'ترخیص کانتینر چقدر طول می‌کشد؟',
+    a: 'زمان ثابتی وجود ندارد و به کامل بودن اسناد، نوع کالا، نیاز به مجوز یا ارزیابی و حجم کار گمرک بستگی دارد. برای همین، آماده‌سازی اسناد را پیش از رسیدن کانتینر شروع می‌کنیم.',
+  },
+  {
+    q: 'دموراژ چیست و چه کسی پرداخت می‌کند؟',
+    a: 'دموراژ هزینهٔ توقف کانتینر پس از پایان زمان آزاد در بندر است و مطابق قرارداد حمل به صاحب کالا تعلق می‌گیرد. با پیگیری به‌موقع اسناد و ترخیص، آن را به حداقل می‌رسانیم.',
+  },
+];
+
+const containerLd = serviceLd({ name: 'واردات کانتینری', description, path, serviceType: 'Container import services' }, Astro.site);
+---
+
+<BaseLayout title="واردات کانتینری؛ FCL و LCL، ترخیص و حمل تا انبار" description={description} jsonLd={[breadcrumbLd(crumbs, Astro.site), containerLd]}>
+  <PageHero
+    eyebrow="خدمات"
+    title="واردات کانتینری"
+    lead="وقتی محموله با بار هوایی یا ارسال خرد نمی‌گنجد، کانتینر مسیر اصلی است. انتخاب FCL یا LCL، نوع کانتینر، ترخیص و حمل تا انبار را با هم هماهنگ می‌کنیم تا کانتینر در بندر معطل نماند."
+    crumbs={crumbs}
+  >
+    <div class="hero-actions">
+      <a class="btn" href={contactCta.href}>
+        {contactCta.label}
+        <Icon name="arrow" class="btn__icon" />
+      </a>
+      <a class="btn btn--ghost" href="#process">مراحل واردات کانتینری</a>
+    </div>
+    <ContainerArt slot="art" />
+  </PageHero>
+
+  <!-- What it is -->
+  <section class="section" aria-labelledby="what-title">
+    <div class="container split">
+      <div class="stack reveal" style="--stack: 1.1rem">
+        <h2 id="what-title">واردات کانتینری از کجا شروع می‌شود؟</h2>
+        <p class="lead-text">
+          مسیر کانتینر پیش از رسیدن به بندر تعیین می‌شود: با حجم و وزن بار، روش حمل انتخاب می‌شود، کانتینر رزرو می‌شود و اسناد باید پیش از ورود کشتی
+          آماده باشند. هر روز تأخیر در این چیدمان، بعداً به‌صورت دموراژ و توقف در بندر ظاهر می‌شود.
+        </p>
+        <p class="lead-text">
+          خدمت واردات کانتینری اوکیان همین زنجیره را می‌بندد: انتخاب روش حمل و کانتینر، هماهنگی با خط کشتیرانی و تأمین‌کننده، تطبیق اسناد حمل با
+          اظهارنامه، ترخیص کانتینر و در نهایت حمل تا انبار شما.
+        </p>
+        <div class="notice">
+          <Icon name="info" />
+          <p>
+            هزینه‌های کانتینری (کرایه، هزینهٔ بندری، انبارداری و دموراژ) با تعرفه و شرایط هر خط کشتیرانی و بندر تعیین می‌شود. در این صفحه عدد ثابتی
+            نمی‌آوریم؛ برای هر محموله برآورد مکتوب و تفکیک‌شده اعلام می‌کنیم.
+          </p>
+        </div>
+      </div>
+
+      <aside class="fit-card reveal" aria-labelledby="fit-title">
+        <h3 id="fit-title">این خدمت برای شماست اگر…</h3>
+        <ul class="checklist">
+          {fit.map((item) => <li>{item}</li>)}
+        </ul>
+        <p class="muted">
+          کالای کوچک‌تر یا همراه شناورهای ملوانی دارید؟ <a href="/sailor-import/">واردات ملوانی</a> و <a href="/import-services/">واردات کالا</a> را ببینید.
+        </p>
+      </aside>
+    </div>
+  </section>
+
+  <!-- FCL vs LCL -->
+  <section class="section section--alt section--grain" aria-labelledby="modes-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="eyebrow">دو روش حمل</span>
+        <h2 id="modes-title">کانتینر کامل یا حمل گروهی؟</h2>
+        <p class="lead">تفاوت اصلی در این است که کل کانتینر از آن شما باشد یا بارتان با بار دیگران شریک شود.</p>
+      </header>
+      <div class="modes">
+        <article class="modes__item reveal">
+          <h3>FCL — کانتینر کامل</h3>
+          <p>کل کانتینر در اختیار شماست: بارگیری در مبدأ مهر و موم می‌شود و تا مقصد باز نمی‌شود.</p>
+          <ul class="checklist">
+            <li>مناسب بارهایی که به ظرفیت کانتینر نزدیک‌اند</li>
+            <li>خطر آسیب و گم‌شدن کمتر به‌دلیل جابه‌جایی محدود</li>
+            <li>ترخیص و حمل با یک سند و یک برنامهٔ زمانی روشن</li>
+          </ul>
+        </article>
+        <article class="modes__item reveal">
+          <h3>LCL — حمل گروهی</h3>
+          <p>بار شما در کنسولیگنیشن با بارهای دیگر شریک می‌شود و بر اساس CBM محاسبه می‌شود.</p>
+          <ul class="checklist">
+            <li>مناسب بار کم که کانتینر کامل را پر نمی‌کند</li>
+            <li>هزینهٔ کمتر برای حجم‌های کوچک</li>
+            <li>نیازمند بسته‌بندی مقاوم و زمان بیشتر برای تجمیع در بندر</li>
+          </ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Scope -->
+  <section class="section" aria-labelledby="scope-title">
+    <div class="container split split--wide">
+      <header class="section-head sticky-head reveal">
+        <span class="eyebrow">دامنهٔ خدمت</span>
+        <h2 id="scope-title">در این مسیر چه کاری انجام می‌دهیم</h2>
+        <p class="lead">از انتخاب روش حمل تا رسیدن کانتینر به انبار؛ نه خرید کالا و نه فروش آن.</p>
+      </header>
+      <ul class="checklist scope-list reveal">
+        {scope.map((item) => <li>{item}</li>)}
+      </ul>
+    </div>
+  </section>
+
+  <!-- Process -->
+  <section class="section section--alt" id="process" aria-labelledby="process-title">
+    <div class="container split split--wide">
+      <header class="section-head sticky-head reveal">
+        <span class="eyebrow">فرایند</span>
+        <h2 id="process-title">مراحل واردات کانتینری</h2>
+        <p class="lead">ترتیب کلی کار در یک محمولهٔ کانتینری؛ بسته به بندر و کالا، ممکن است مرحله‌ای هم‌زمان یا کوتاه‌تر شود.</p>
+      </header>
+      <Steps items={steps} />
+    </div>
+  </section>
+
+  <!-- Documents -->
+  <section class="section section--dark" aria-labelledby="docs-title">
+    <div class="container split">
+      <div class="stack reveal" style="--stack: 1.1rem">
+        <span class="eyebrow">شروع کار</span>
+        <h2 id="docs-title">اطلاعات و مدارکی که لازم است</h2>
+        <p class="lead">برای بررسی اولیه، مشخصات بار و مسیر کافی است؛ بقیهٔ مدارک را با هم تکمیل می‌کنیم.</p>
+        <a class="arrow-link" href="/guides/customs-clearance-documents/">
+          راهنمای اسناد تجاری و گمرکی
+          <Icon name="arrow" />
+        </a>
+      </div>
+      <div class="docs-cols reveal">
+        <div>
+          <h3>برای بررسی اولیه</h3>
+          <ul class="checklist">
+            {documents.first.map((item) => <li>{item}</li>)}
+          </ul>
+        </div>
+        <div>
+          <h3>برای انجام کار</h3>
+          <ul class="checklist">
+            {documents.full.map((item) => <li>{item}</li>)}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pitfalls -->
+  <section class="section" aria-labelledby="pitfalls-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="eyebrow">نکته‌های تعیین‌کننده</span>
+        <h2 id="pitfalls-title">چه چیزهایی کانتینر را در بندر معطل می‌کند؟</h2>
+        <p class="lead">بیشتر هزینه‌های اضافی از یک مورد ساده می‌آید که پیش از رسیدن کشتی دیده نشده است.</p>
+      </header>
+      <dl class="factors">
+        {
+          pitfalls.map((f) => (
+            <div class="factors__item reveal">
+              <dt>{f.title}</dt>
+              <dd>{f.text}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section section--alt" aria-labelledby="faq-title">
+    <div class="container split split--wide">
+      <header class="section-head reveal">
+        <span class="eyebrow">پرسش‌های رایج</span>
+        <h2 id="faq-title">پرسش‌های رایج دربارهٔ واردات کانتینری</h2>
+      </header>
+      <Faq items={faqs} />
+    </div>
+  </section>
+
+  <CtaBand
+    title="کانتینر شما در راه است؟"
+    text="حجم، وزن و نوع کالا و همچنین بندر ورود را بفرستید. روش حمل، مدارک لازم و هزینه‌هایی که باید در نظر بگیرید را مشخص می‌کنیم."
+  />
+</BaseLayout>
+
+<style>
+  .lead-text {
+    font-size: var(--step-1);
+    line-height: 2;
+    color: var(--slate-700);
+  }
+  .scope-list {
+    padding-block: 0.5rem;
+  }
+  .modes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+  .modes__item {
+    padding: 1.8rem;
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius-m);
+    background: #fff;
+  }
+  .modes__item h3 {
+    font-size: var(--step-1);
+    margin-bottom: 0.6rem;
+  }
+  .modes__item p {
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+  }
+  .docs-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+  .docs-cols h3 {
+    font-size: var(--step-1);
+    color: var(--petrol-200);
+    margin-bottom: 1rem;
+  }
+  .factors {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0 2.5rem;
+    margin: 0;
+  }
+  .factors__item {
+    padding-block: 1.6rem;
+    border-top: 1px solid var(--rule-strong);
+  }
+  .factors dt {
+    margin-bottom: 0.4rem;
+    font-weight: 800;
+    font-size: var(--step-1);
+  }
+  .factors dd {
+    margin: 0;
+    color: var(--text-muted);
+  }
+  @media (max-width: 960px) {
+    .factors {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (max-width: 600px) {
+    .factors,
+    .docs-cols,
+    .modes {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
