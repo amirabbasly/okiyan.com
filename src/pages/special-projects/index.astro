@@ -1,13 +1,16 @@
 ---
 /**
- * پروژه‌های خاص — SAMPLE CONTENT. The case studies are placeholders.
- * Replace with real projects, then remove '/special-projects/' from src/data/sample-pages.json.
+ * پروژه‌های خاص — indexable service page.
+ * Instead of anonymised case studies (which would be unverifiable), the page
+ * explains the four project types and what decides their outcome.
  */
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import PageHero from '~/components/layout/PageHero.astro';
 import CtaBand from '~/components/ui/CtaBand.astro';
+import Faq from '~/components/ui/Faq.astro';
+import AnswerBlock from '~/components/ui/AnswerBlock.astro';
 import Icon from '~/components/ui/Icon.astro';
-import { breadcrumbLd } from '~/lib/schema';
+import { breadcrumbLd, faqLd, serviceLd } from '~/lib/schema';
 
 const crumbs = [
   { name: 'خانه', path: '/' },
@@ -22,26 +25,50 @@ const kinds = [
   { icon: 'route' as const, title: 'واردات پروژه‌ای و مرحله‌ای', text: 'پروژه‌هایی که کالای آن‌ها در چند محموله و از چند مبدأ می‌رسد و باید یکپارچه مدیریت شود.' },
 ];
 
+const path = '/special-projects/';
+
 const cases = [
   {
-    title: 'انتقال ترانسفورماتور ۱۲۰ تنی',
-    challenge: 'ابعاد و وزن محموله، تخلیه از کشتی و عبور از مسیرهای محدود جاده‌ای را دشوار می‌کرد.',
-    solution: 'برنامه‌ریزی تخلیه با جرثقیل ویژه، اخذ مجوز حمل ترافیکی و هماهنگی اسکورت در طول مسیر.',
-    result: 'تحویل در محل پروژه طبق برنامهٔ نصب.',
+    title: 'محمولهٔ فوق‌ابعاد',
+    challenge: 'ابعاد و وزن، تخلیه از کشتی، مسیر جاده‌ای و مجوز حمل را محدود می‌کند.',
+    solution: 'بررسی ابعاد پیش از رزرو حمل، انتخاب تجهیز تخلیه و هماهنگی مجوز حمل ترافیکی با زمان ورود کشتی.',
+    result: 'معیار موفقیت: هم‌خوانی برنامهٔ تخلیه، مجوز و مسیر جاده‌ای پیش از رسیدن محموله.',
   },
   {
-    title: 'خط تولید در ۳۲ کانتینر',
-    challenge: 'رسیدن قطعات یک خط تولید در چند محموله و نیاز به تعرفه‌گذاری دقیق صدها قلم کالا.',
-    solution: 'تهیهٔ فهرست یکپارچهٔ اقلام پیش از حمل و ترخیص مرحله‌ای هم‌زمان با رسیدن محموله‌ها.',
-    result: 'شروع نصب بدون انتظار برای رسیدن آخرین محموله.',
+    title: 'خط تولید چندمحموله‌ای',
+    challenge: 'قطعات در چند محموله می‌رسند و هر کدام تعرفه، مجوز و زمان خودش را دارد.',
+    solution: 'تهیهٔ فهرست یکپارچهٔ اقلام پیش از حمل، تفکیک کد تعرفه و برنامهٔ ترخیص مرحله‌ای هم‌زمان با ورود هر محموله.',
+    result: 'معیار موفقیت: رسیدن قطعات به ترتیب نصب و نبود انتظار برای محمولهٔ آخر.',
   },
   {
-    title: 'محمولهٔ دارویی یخچالی',
-    challenge: 'حساسیت دمایی کالا و محدودیت زمان نگهداری در انبار فرودگاه.',
-    solution: 'آماده‌سازی اسناد و مجوزها پیش از پرواز و هماهنگی حمل یخچالی از لحظهٔ ترخیص.',
-    result: 'ترخیص و تحویل بدون قطع زنجیرهٔ سرما.',
+    title: 'کالای حساس به دما و زمان',
+    challenge: 'عمر نگهداری محدود و نیاز به زنجیرهٔ سرد از لحظهٔ ورود تا تحویل.',
+    solution: 'آماده‌سازی مجوزها پیش از پرواز یا ورود کشتی و هماهنگی حمل یخچالی از همان روز ترخیص.',
+    result: 'معیار موفقیت: کوتاه شدن فاصلهٔ ترخیص تا حمل یخچالی.',
   },
 ];
+
+const faqs = [
+  {
+    q: 'چه محموله‌ای «پروژهٔ خاص» حساب می‌شود؟',
+    a: 'محموله‌های فوق‌ابعاد و سنگین، خطوط تولید چندمحموله‌ای، کالای حساس به دما و زمان، و کالاهایی که الزامات ویژهٔ بسته‌بندی، مجوز یا حمل دارند.',
+  },
+  {
+    q: 'برای محمولهٔ فوق‌سنگین از کجا شروع کنیم؟',
+    a: 'از مشخصات فنی: ابعاد، وزن، نقطهٔ تخلیه و مسیر جاده‌ای. این اطلاعات پیش از رزرو حمل تعیین می‌کند چه تجهیز و چه مجوزی لازم است.',
+  },
+  {
+    q: 'چرا برنامه‌ریزی پیش از بارگیری مهم است؟',
+    a: 'چون بخش بزرگی از محدودیت‌ها — مجوز حمل، تجهیز تخلیه، ظرفیت انبار و مسیر — پیش از رسیدن کالا قابل حل است؛ بعد از ورود، همین موارد به روزهای توقف تبدیل می‌شوند.',
+  },
+  {
+    q: 'کالای خطرناک هم ترخیص می‌شود؟',
+    a: 'بخشی از کالاهای خطرناک با رعایت الزامات بسته‌بندی، برچسب‌گذاری، انبار و مجوز قابل ورود است و بخشی ممنوع است. وضعیت هر قلم باید پیش از حمل روشن شود.',
+  },
+];
+
+const answer =
+  'محمولهٔ پروژه‌ای، محموله‌ای است که با روال معمول ترخیص پیش نمی‌رود: ابعاد و وزن غیرمتعارف، چند محمولهٔ هم‌زمان برای یک خط تولید، یا الزامات ویژهٔ دما، مجوز و حمل. تفاوت اصلی این پرونده‌ها زمان شروع برنامه‌ریزی است؛ پیش از بارگیری، نه پس از رسیدن کالا به گمرک.';
 
 const differences = [
   'برنامه‌ریزی از پیش از بارگیری، نه از زمان رسیدن کالا',
@@ -54,7 +81,19 @@ const differences = [
 <BaseLayout
   title="پروژه‌های خاص؛ محموله‌های سنگین و حساس"
   description="ترخیص و واردات پروژه‌های خاص با اوکیان: محموله‌های سنگین و فوق‌ابعاد، خطوط تولید، کالای یخچالی و خطرناک و واردات چندمرحله‌ای."
-  jsonLd={[breadcrumbLd(crumbs, Astro.site)]}
+  jsonLd={[
+    breadcrumbLd(crumbs, Astro.site),
+    serviceLd(
+      {
+        name: 'ترخیص و واردات پروژه‌های خاص',
+        serviceType: 'ترخیص کالای پروژه‌ای و محموله‌های خاص',
+        description: 'برنامه‌ریزی و ترخیص محموله‌های فوق‌ابعاد و سنگین، خطوط تولید چندمحموله‌ای و کالای حساس به دما و زمان.',
+        path,
+      },
+      Astro.site,
+    ),
+    faqLd(faqs, path, Astro.site),
+  ].filter((x) => x !== null)}
 >
   <PageHero
     eyebrow="خدمات"
@@ -67,9 +106,11 @@ const differences = [
         طرح پروژه
         <Icon name="arrow" class="btn__icon" />
       </a>
-      <a class="btn btn--ghost" href="#cases">نمونه پروژه‌ها</a>
+      <a class="btn btn--ghost" href="#cases">دسته‌بندی پروژه‌ها</a>
     </div>
   </PageHero>
+
+  <AnswerBlock text={answer} />
 
   <section class="section" aria-labelledby="kinds-title">
     <div class="container">
@@ -99,8 +140,8 @@ const differences = [
   <section class="section section--alt section--grain" id="cases" aria-labelledby="cases-title">
     <div class="container">
       <header class="section-head reveal">
-        <span class="eyebrow">نمونه پروژه‌ها</span>
-        <h2 id="cases-title">چالش، راه‌حل، نتیجه</h2>
+        <span class="eyebrow">دسته‌بندی پروژه‌ها</span>
+        <h2 id="cases-title">چالش، رویکرد، معیار موفقیت</h2>
       </header>
       <div class="cases">
         {
@@ -117,7 +158,7 @@ const differences = [
                   <dd>{c.solution}</dd>
                 </div>
                 <div class="case__result">
-                  <dt>نتیجه</dt>
+                  <dt>معیار موفقیت</dt>
                   <dd>{c.result}</dd>
                 </div>
               </dl>
@@ -141,10 +182,59 @@ const differences = [
     </div>
   </section>
 
+  <section class="section" aria-labelledby="faq-title">
+    <div class="container split split--wide">
+      <header class="stack reveal" style="--stack: 1rem">
+        <span class="eyebrow">پرسش‌های رایج</span>
+        <h2 id="faq-title">دربارهٔ پروژه‌های خاص</h2>
+      </header>
+      <Faq items={faqs} />
+    </div>
+  </section>
+
+  <section class="section section--alt" aria-labelledby="read-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="eyebrow">بیشتر بخوانید</span>
+        <h2 id="read-title">راهنمای مرتبط با این پرونده‌ها</h2>
+      </header>
+      <ul class="read-list">
+        <li><a href="/guides/customs-clearance-guide/">مراحل ترخیص کالا از گمرک</a></li>
+        <li><a href="/guides/transit-and-warehousing/">ترانزیت، حمل یکسره و انبار گمرکی</a></li>
+        <li><a href="/guides/import-permits/">مجوزهای واردات</a></li>
+        <li><a href="/customs/bandar-abbas/">گمرک بندرعباس</a></li>
+        <li><a href="/customs/imam-khomeini-port/">گمرک بندر امام خمینی</a></li>
+      </ul>
+    </div>
+  </section>
+
   <CtaBand title="پروژهٔ خاصی در پیش دارید؟" text="مشخصات کالا، ابعاد و وزن تقریبی و زمان مورد نیاز را بفرستید تا دربارهٔ مسیر و الزامات آن با شما صحبت کنیم." />
 </BaseLayout>
 
 <style>
+  .read-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    list-style: none;
+    margin: 1.25rem 0 0;
+    padding: 0;
+  }
+  .read-list a {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    font-weight: 700;
+    font-size: var(--step--1);
+    color: var(--navy-800);
+    background: var(--white);
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    text-decoration: none;
+  }
+  .read-list a:hover {
+    border-color: var(--petrol-300);
+    color: var(--petrol-600);
+  }
   .cases {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));

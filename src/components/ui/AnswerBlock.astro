@@ -1,0 +1,48 @@
+---
+/**
+ * «پاسخ کوتاه» — a self-contained, quotable answer placed directly under the
+ * page hero. Answer engines (AI Overviews, ChatGPT Search, Perplexity) extract
+ * a single tight paragraph far more reliably than an opening section, and
+ * readers get the conclusion before the detail.
+ *
+ * Only use text that is fully supported by the rest of the page.
+ */
+export interface Props {
+  text: string;
+  title?: string;
+}
+const { text, title = 'پاسخ کوتاه' } = Astro.props;
+---
+
+<section class="section section--answer" aria-labelledby="answer-title">
+  <div class="container">
+    <div class="answer-block">
+      <h2 id="answer-title">{title}</h2>
+      <p>{text}</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .section--answer {
+    padding-block: clamp(1.5rem, 1rem + 2vw, 2.5rem) 0;
+  }
+  .answer-block {
+    padding: 1.4rem 1.6rem;
+    border-radius: var(--radius-m);
+    background: var(--mist-100);
+    border: 1px solid var(--rule);
+    border-inline-start: 4px solid var(--petrol-500);
+  }
+  .answer-block h2 {
+    font-size: var(--step--1);
+    color: var(--petrol-600);
+    margin-bottom: 0.5rem;
+  }
+  .answer-block p {
+    margin: 0;
+    font-size: var(--step-0);
+    line-height: 1.9;
+    color: var(--navy-800);
+  }
+</style>

@@ -56,6 +56,8 @@ const phone = companyPhones[0];
         modified: entry.data.updatedDate,
         keywords: entry.data.keywords,
         section: 'گمرکات ایران',
+        wordCount: entry.body ? entry.body.trim().split(/\s+/).length : undefined,
+        about: [entry.data.office, entry.data.city, ...entry.data.cargo.slice(0, 4)],
       },
       Astro.site,
     ),
@@ -100,6 +102,15 @@ const phone = companyPhones[0];
     </aside>
 
     <article class="guide__body">
+      {
+        entry.data.answer && (
+          <section class="guide__answer" aria-labelledby="answer-title">
+            <h2 id="answer-title">پاسخ کوتاه</h2>
+            <p>{entry.data.answer}</p>
+          </section>
+        )
+      }
+
       {entry.data.cargo.length > 0 && (
         <div class="cargo-strip">
           <h2 class="cargo-strip__title">کالاهای رایج این گمرک</h2>
@@ -279,6 +290,26 @@ const phone = companyPhones[0];
   .guide__toc a:hover {
     color: var(--navy-900);
     border-color: var(--petrol-300);
+  }
+  .guide__answer {
+    padding: 1.4rem 1.6rem;
+    margin-bottom: 2rem;
+    border-radius: var(--radius-m);
+    background: var(--white);
+    border: 1px solid var(--rule);
+    border-inline-start: 4px solid var(--petrol-500);
+  }
+  .guide__answer h2 {
+    font-size: var(--step--1);
+    letter-spacing: 0.04em;
+    color: var(--petrol-600);
+    margin-bottom: 0.5rem;
+  }
+  .guide__answer p {
+    margin: 0;
+    font-size: var(--step-0);
+    line-height: 1.9;
+    color: var(--navy-800);
   }
   .guide__body {
     display: grid;

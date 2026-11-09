@@ -5,6 +5,7 @@ import ClearanceArt from '~/components/illustrations/ClearanceArt.astro';
 import Steps from '~/components/ui/Steps.astro';
 import Faq from '~/components/ui/Faq.astro';
 import CtaBand from '~/components/ui/CtaBand.astro';
+import AnswerBlock from '~/components/ui/AnswerBlock.astro';
 import Clients from '~/components/ui/Clients.astro';
 import Icon from '~/components/ui/Icon.astro';
 import Placeholder from '~/components/ui/Placeholder.astro';
@@ -118,7 +119,7 @@ const faqs = [
 ---
 
 <BaseLayout
-  title="ترخیص کالا از گمرک؛ مراحل، مدارک و برآورد هزینه"
+  title="خدمات ترخیص کالا از گمرک؛ هزینه و مدارک"
   description={description}
   jsonLd={[
     breadcrumbLd(crumbs, Astro.site),
@@ -127,7 +128,7 @@ const faqs = [
 >
   <PageHero
     eyebrow="خدمات"
-    title="ترخیص کالا از گمرک"
+    title="خدمات ترخیص کالا از گمرک"
     lead="تشریفات گمرکی کالای وارداتی شما را از بررسی اسناد و کد تعرفه تا ثبت اظهارنامه، همراهی در ارزیابی و خروج کالا از گمرک پیگیری می‌کنیم؛ با برآورد مکتوب هزینه و گزارش روشن از هر مرحله."
     crumbs={crumbs}
   >
@@ -140,6 +141,8 @@ const faqs = [
     </div>
     <ClearanceArt slot="art" />
   </PageHero>
+
+  <AnswerBlock text={"خدمات ترخیص کالا، انجام تشریفات گمرکی کالای وارداتی از سوی صاحب کالا است: بررسی اسناد و کد تعرفه، برآورد مکتوب هزینه، ثبت اظهارنامه و گرفتن کوتاژ، همراهی در ارزیابی، اخذ مجوزها و پیگیری تا صدور پروانه و خروج کالا. زمان و هزینهٔ هر پرونده به مسیر گمرکی، کامل بودن مجوزها و زمان توقف کالا بستگی دارد."} />
 
   <!-- What it is -->
   <section class="section" aria-labelledby="what-title">
@@ -322,6 +325,7 @@ const faqs = [
         <li><a href="/customs/anzali/">گمرک انزلی <small>دریای خزر و CIS</small></a></li>
         <li><a href="/customs/imam-khomeini-airport/">فرودگاه امام <small>بار هوایی و فوری</small></a></li>
         <li><a href="/customs/bazargan/">گمرک بازرگان <small>مرز زمینی ترکیه</small></a></li>
+        <li><a href="/special-projects/">پروژه‌های خاص <small>محموله‌های سنگین و حساس</small></a></li>
         <li><a href="/customs/">همهٔ گمرکات <small>فهرست کامل</small></a></li>
       </ul>
     </div>

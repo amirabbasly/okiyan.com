@@ -1,7 +1,8 @@
 /** Absolute canonical URL for a site path, always with a trailing slash for pages. */
 export function absoluteUrl(path: string, site: URL | undefined): string {
-  const base = site ?? new URL('https://okiyan.ir');
+  const base = site ?? new URL("https://okiyan.com");
   const url = new URL(path, base);
-  if (!url.pathname.endsWith('/') && !/\.[a-z0-9]+$/i.test(url.pathname)) url.pathname += '/';
+  if (!url.pathname.endsWith("/") && !/\.[a-z0-9]+$/i.test(url.pathname))
+    url.pathname += "/";
   return url.href;
 }

@@ -103,6 +103,29 @@ const facts = [
     </div>
   </section>
 
+  <section class="section" aria-labelledby="services-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="eyebrow">خدمات</span>
+        <h2 id="services-title">اوکیان کجای مسیر واردات می‌ایستد؟</h2>
+        <p class="lead">
+          هر خدمت، یک بازهٔ مشخص از مسیر است. اگر نمی‌دانید از کجا شروع کنید، <a href="/contact/">مشخصات کالا را بفرستید</a> تا
+          قدم درست را مشخص کنیم.
+        </p>
+      </header>
+      <ul class="service-links">
+        <li><a href="/customs-clearance/">ترخیص کالا از گمرک</a><span>پس از رسیدن کالا</span></li>
+        <li><a href="/import-services/">واردات کالا</a><span>از پیش از خرید تا تحویل</span></li>
+        <li><a href="/container-import/">واردات کانتینری</a><span>FCL و LCL</span></li>
+        <li><a href="/sailor-import/">واردات ملوانی</a><span>بنادر جنوبی</span></li>
+        <li><a href="/export-services/">صادرات کالا</a><span>مجوز و گواهی مبدأ</span></li>
+        <li><a href="/commercial-services/">خدمات بازرگانی</a><span>تأمین‌کننده و ثبت سفارش</span></li>
+        <li><a href="/special-projects/">پروژه‌های خاص</a><span>محموله‌های سنگین و حساس</span></li>
+        <li><a href="/customs/">گمرکات و بنادر</a><span>راهنمای هر گمرک</span></li>
+      </ul>
+    </div>
+  </section>
+
   <section class="section" aria-labelledby="editorial-title">
     <div class="container--narrow stack prose-lite reveal" style="--stack: 1.1rem">
       <span class="eyebrow">سیاست محتوا</span>
@@ -122,6 +145,33 @@ const facts = [
 </BaseLayout>
 
 <style>
+  .service-links {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+    gap: 0.75rem;
+    list-style: none;
+    margin: 1.25rem 0 0;
+    padding: 0;
+  }
+  .service-links a {
+    display: block;
+    font-weight: 700;
+    color: var(--navy-900);
+    text-decoration-color: var(--petrol-300);
+    text-underline-offset: 4px;
+  }
+  .service-links li {
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-s);
+    background: var(--white);
+  }
+  .service-links span {
+    display: block;
+    margin-top: 0.15rem;
+    font-size: var(--step--1);
+    color: var(--text-muted);
+  }
   .facts {
     margin: 0;
     display: grid;

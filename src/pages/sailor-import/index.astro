@@ -6,6 +6,7 @@ import RouteMap from '~/components/illustrations/RouteMap.astro';
 import Steps from '~/components/ui/Steps.astro';
 import Faq from '~/components/ui/Faq.astro';
 import CtaBand from '~/components/ui/CtaBand.astro';
+import AnswerBlock from '~/components/ui/AnswerBlock.astro';
 import Clients from '~/components/ui/Clients.astro';
 import Icon from '~/components/ui/Icon.astro';
 import { breadcrumbLd, serviceLd } from '~/lib/schema';
@@ -157,7 +158,7 @@ const faqs = [
 ---
 
 <BaseLayout
-  title="واردات ملوانی (ته لنجی)؛ حمل مستقیم از دبی و ضمانت"
+  title="واردات ملوانی از دبی؛ حمل و ترخیص ته لنجی"
   description={description}
   jsonLd={[
     breadcrumbLd(crumbs, Astro.site),
@@ -166,7 +167,7 @@ const faqs = [
 >
   <PageHero
     eyebrow="خدمات"
-    title="واردات ملوانی (ته لنجی)"
+    title="واردات ملوانی از دبی"
     lead="رویهٔ ملوانی یکی از مسیرهای قانونی ورود کالا از راه دریاست. در روش قدیمی، بار داخل امارات از طریق خصب (عمان) به ایران حمل می‌شد که هزینه‌های حمل را به‌شدت افزایش می‌داد."
     crumbs={crumbs}
   >
@@ -179,6 +180,8 @@ const faqs = [
     </div>
     <SailorArt slot="art" />
   </PageHero>
+
+  <AnswerBlock text={"واردات ملوانی (ته لنجی)، ورود قانونی کالا با شناورهای سنتی و کوچک از بنادر جنوبی است. مسیر مستقیم دبی به بوشهر و بندرعباس، جابه‌جایی و انبار میانی را حذف می‌کند و برای محموله‌های کوچک و متوسط معمولاً سریع‌تر و کم‌هزینه‌تر از مسیرهای واسطه‌ای است؛ به شرط آنکه سهمیهٔ شناور، فهرست کالاهای مجاز و اسناد گمرکی از ابتدا روشن باشد."} />
 
   <!-- What it is -->
   <section class="section" aria-labelledby="what-title">
