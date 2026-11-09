@@ -64,7 +64,7 @@ export const site = {
   /** Latin wordmark as it appears in the logo. */
   wordmarkLatin: 'OKIYAN.COM',
   /** Short descriptor used in titles and Organization markup. */
-  tagline: 'ترخیص کالا و خدمات واردات',
+  tagline: 'شرکت بازرگانی؛ ترخیص، واردات و صادرات کالا',
   description:
     'اوکیان در ترخیص کالا از گمرکات ایران و هماهنگی مراحل واردات کالا، از بررسی اسناد پیش از حمل تا تحویل، همراه بازرگانان و شرکت‌هاست.',
 

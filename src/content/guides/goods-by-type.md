@@ -4,6 +4,7 @@ navTitle: "ترخیص کالاهای مختلف"
 description: "هر گروه کالا حساسیت، مجوز و دام اظهاری خودش را دارد. راهنمای ترخیص ماشین‌آلات، مواد غذایی، دارو، الکترونیک، پوشاک، مواد شیمیایی و کالای مستعمل در یک صفحه."
 order: 10
 publishDate: 2026-11-02
+updatedDate: 2026-11-02
 relatedService: customs-clearance
 relatedGuides:
   [

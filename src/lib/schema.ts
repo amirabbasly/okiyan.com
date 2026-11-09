@@ -29,7 +29,11 @@ export function organizationLd(base: URL | undefined) {
     "@type": "Organization",
     "@id": absoluteUrl("/#organization", base),
     name: site.name,
-    alternateName: site.nameLatin,
+    // The brand is also written in Latin and as part of the domain; both are
+    // real variants, not keyword padding — they help the entity resolve to one
+    // company when someone searches «اوکیان» or «okiyan».
+    alternateName: [site.nameLatin, site.wordmarkLatin],
+    slogan: site.tagline,
     url: absoluteUrl("/", base),
     logo: absoluteUrl("/logo.png", base),
     image: absoluteUrl("/og/default.png", base),
@@ -71,6 +75,7 @@ export function websiteLd(base: URL | undefined) {
     "@type": "WebSite",
     "@id": absoluteUrl("/#website", base),
     name: site.name,
+    alternateName: [site.nameLatin, site.wordmarkLatin],
     url: absoluteUrl("/", base),
     inLanguage: "fa-IR",
     publisher: { "@id": absoluteUrl("/#organization", base) },

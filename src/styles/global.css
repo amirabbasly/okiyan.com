@@ -789,3 +789,94 @@ textarea {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ---------- Printable checklist (guides/clearance-checklist) ---------- */
+.print-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 1.5rem 0 2rem;
+}
+.print-bar__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.1rem;
+  font: inherit;
+  font-size: var(--step--1);
+  font-weight: 700;
+  color: var(--navy-800);
+  background: var(--white);
+  border: 1px solid var(--rule-strong);
+  border-radius: 999px;
+  text-decoration: none;
+  cursor: pointer;
+}
+.print-bar__btn--solid {
+  color: var(--white);
+  background: var(--navy-900);
+  border-color: var(--navy-900);
+}
+.print-bar__btn:hover {
+  border-color: var(--petrol-500);
+  color: var(--petrol-600);
+}
+.print-bar__btn--solid:hover {
+  color: var(--white);
+  background: var(--petrol-600);
+  border-color: var(--petrol-600);
+}
+.chk {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  margin-block: 0.4rem;
+  padding: 0.55rem 0.8rem;
+  font-size: var(--step--1);
+  line-height: 1.85;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-s);
+  background: var(--white);
+  cursor: pointer;
+}
+.chk:hover {
+  border-color: var(--petrol-300);
+}
+.chk input {
+  flex: none;
+  inline-size: 1rem;
+  block-size: 1rem;
+  margin-block-start: 0.5rem;
+  accent-color: var(--petrol-600);
+}
+.chk:has(input:checked) {
+  background: var(--mist-100);
+  color: var(--text-muted);
+}
+
+@media print {
+  /* Only the checklist page prints as a clean sheet. */
+  body:has(.print-bar) .site-header,
+  body:has(.print-bar) .site-footer,
+  body:has(.print-bar) .support,
+  body:has(.print-bar) .skip-link,
+  body:has(.print-bar) .guide__aside,
+  body:has(.print-bar) .guide__toc,
+  body:has(.print-bar) .cluster-nav,
+  body:has(.print-bar) .guide__sources,
+  body:has(.print-bar) .guide__next,
+  body:has(.print-bar) .notice,
+  body:has(.print-bar) .print-bar,
+  body:has(.print-bar) .guide-meta,
+  body:has(.print-bar) .cta-band {
+    display: none !important;
+  }
+  body:has(.print-bar) .guide {
+    display: block;
+    padding: 0;
+  }
+  body:has(.print-bar) .chk {
+    break-inside: avoid;
+    border-color: #999;
+  }
+}
