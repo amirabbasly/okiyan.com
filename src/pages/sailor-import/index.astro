@@ -421,6 +421,21 @@ const faqs = [
     <Clients title={null} note={false} compact />
   </div>
 
+  <section class="section" aria-labelledby="sailor-more-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="eyebrow">بیشتر بخوانید</span>
+        <h2 id="sailor-more-title">راهنمای کامل واردات و ترخیص ملوانی</h2>
+      </header>
+      <ul class="ports-grid">
+        <li><a href="/guides/sailor-import-guide/">واردات ملوانی (ته لنجی) <small>شرایط، سهمیه و اسناد</small></a></li>
+        <li><a href="/guides/sailor-clearance/">ترخیص ملوانی گام‌به‌گام <small>از ورود لنج تا پروانه</small></a></li>
+        <li><a href="/customs/bushehr/">گمرک بوشهر <small>رویهٔ ملوانی و مسیر دبی</small></a></li>
+        <li><a href="/customs/bandar-abbas/">گمرک بندرعباس <small>کانتینر و ملوانی</small></a></li>
+      </ul>
+    </div>
+  </section>
+
   <CtaBand
     title="کالای شما با مسیر ملوانی سازگار است؟"
     text="شرح کالا، بندر ورود و مشخصات شناور را بفرستید. بررسی می‌کنیم کالا در فهرست مجاز است یا نه، سهمیه چه محدودیتی می‌گذارد و زمان و هزینهٔ تحویل چه می‌شود."
@@ -428,6 +443,38 @@ const faqs = [
 </BaseLayout>
 
 <style>
+  .ports-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+    gap: 0.9rem;
+    margin: 1.25rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .ports-grid a {
+    display: grid;
+    gap: 0.15rem;
+    padding: 0.9rem 1.1rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-s);
+    text-decoration: none;
+    font-weight: 700;
+    color: var(--navy-800);
+    background: var(--white);
+    transition:
+      border-color var(--dur-fast) ease,
+      transform var(--dur-med) var(--ease-out);
+  }
+  .ports-grid a:hover {
+    border-color: var(--petrol-300);
+    transform: translateY(-2px);
+  }
+  .ports-grid small {
+    font-weight: 500;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+  }
+
   .clients-lead {
     margin: 0 0 1rem;
     font-size: var(--step--1);

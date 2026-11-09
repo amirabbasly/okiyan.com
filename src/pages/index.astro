@@ -11,7 +11,12 @@ import { site, contactCta } from '~/config/site';
 import { toFa } from '~/lib/format';
 import { getCollection } from 'astro:content';
 
-const guides = (await getCollection('guides')).sort((a, b) => a.data.order - b.data.order);
+// The homepage teaser is intentionally a fixed set of three guides: adding new
+// guides under /guides/ must not change the homepage layout or its length.
+const HOME_GUIDES = ['customs-clearance-cost', 'customs-clearance-documents', 'import-process'];
+const guides = (await getCollection('guides'))
+  .filter((g) => HOME_GUIDES.includes(g.id))
+  .sort((a, b) => HOME_GUIDES.indexOf(a.id) - HOME_GUIDES.indexOf(b.id));
 
 const principles = [
   {

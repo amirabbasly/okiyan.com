@@ -1,0 +1,152 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import PageHero from '~/components/layout/PageHero.astro';
+import CtaBand from '~/components/ui/CtaBand.astro';
+import Icon from '~/components/ui/Icon.astro';
+import { breadcrumbLd } from '~/lib/schema';
+
+const offices = (await getCollection('customs')).sort((a, b) => a.data.order - b.data.order);
+const crumbs = [
+  { name: 'خانه', path: '/' },
+  { name: 'گمرکات', path: '/customs/' },
+];
+---
+
+<BaseLayout
+  title="گمرکات ایران: ترخیص کالا از هر گمرک"
+  description="کدام گمرک برای محمولهٔ شما مناسب است؟ بندرعباس، بوشهر، بندر امام خمینی، خرمشهر، انزلی، فرودگاه امام و بازرگان؛ کالاهای رایج، اسناد و نکات عملیاتی هر گمرک."
+  jsonLd={[breadcrumbLd(crumbs, Astro.site)]}
+>
+  <PageHero
+    eyebrow="گمرکات"
+    title="ترخیص کالا از گمرکات ایران"
+    lead="هر گمرک، ویژگی عملیاتی خودش را دارد: نوع کالا، انبارها، مسیرهای زمینی و زمان‌بندی. گمرک درست را با محموله انتخاب کنید، نه با عادت."
+    crumbs={crumbs}
+  >
+    <p class="hint">برای هر گمرک: کالاهای رایج، مدارک لازم و نکاتی که پرونده را جلو می‌اندازد.</p>
+  </PageHero>
+
+  <section class="section" aria-labelledby="offices-title">
+    <div class="container">
+      <h2 id="offices-title" class="sr-only">فهرست گمرکات</h2>
+      <ul class="office-grid">
+        {
+          offices.map((o) => (
+            <li class="office-card">
+              <p class="office-card__city">{o.data.city}</p>
+              <h3>
+                <a href={`/customs/${o.id}/`}>{o.data.office}</a>
+              </h3>
+              <p class="office-card__text">{o.data.description}</p>
+              {o.data.terminals.length > 0 && (
+                <ul class="office-card__tags" aria-label="ترمینال‌ها">
+                  {o.data.terminals.slice(0, 3).map((t) => (
+                    <li>{t}</li>
+                  ))}
+                </ul>
+              )}
+              <a class="arrow-link" href={`/customs/${o.id}/`} aria-label={`جزئیات ${o.data.office}`}>
+                راهنمای این گمرک
+                <Icon name="arrow" />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+
+      <div class="notice offices-note">
+        <Icon name="info" />
+        <p>
+          اطلاعات این صفحه‌ها جنبهٔ راهنمای عملی دارد و جای استعلام رسمی از گمرک را نمی‌گیرد. شرایط هر گمرک ممکن است
+          تغییر کند؛ پیش از اقدام، وضعیت پرونده را با گمرک مربوط بررسی کنید.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="customs-guides-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="eyebrow">راهنماها</span>
+        <h2 id="customs-guides-title">پیش از ورود کالا، این‌ها را بخوانید</h2>
+      </header>
+      <ul class="ports-grid">
+        <li><a href="/guides/customs-clearance-guide/">ترخیص کالا گام‌به‌گام <small>از پیش از خرید تا خروج</small></a></li>
+        <li><a href="/guides/goods-by-type/">ترخیص کالاهای مختلف <small>مجوز و دام هر گروه کالا</small></a></li>
+        <li><a href="/guides/import-permits/">مجوزهای واردات <small>چه کالایی چه مجوزی می‌خواهد</small></a></li>
+        <li><a href="/guides/customs-declaration-errors/">خطاهای اظهارنامه <small>و راه اصلاح آن‌ها</small></a></li>
+        <li><a href="/guides/customs-glossary/">واژه‌نامهٔ گمرکی <small>۳۲ اصطلاح پرتکرار</small></a></li>
+        <li><a href="/guides/transit-and-warehousing/">ترانزیت و انبار گمرکی <small>تفاوت رویه‌ها</small></a></li>
+      </ul>
+    </div>
+  </section>
+
+  <CtaBand />
+</BaseLayout>
+
+<style>
+  .hint {
+    font-size: var(--step--1);
+    color: var(--text-muted);
+  }
+  .office-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
+    gap: 1.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .office-card {
+    display: grid;
+    gap: 0.6rem;
+    align-content: start;
+    padding: 1.5rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-m);
+    background: var(--white);
+    box-shadow: 0 18px 40px -34px rgb(13 26 44 / 0.5);
+    transition:
+      border-color var(--dur-fast) ease,
+      transform var(--dur-med) var(--ease-out);
+  }
+  .office-card:hover {
+    border-color: var(--petrol-300);
+    transform: translateY(-2px);
+  }
+  .office-card__city {
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    color: var(--petrol-600);
+  }
+  .office-card h3 {
+    font-size: var(--step-1);
+  }
+  .office-card h3 a {
+    text-decoration: none;
+  }
+  .office-card__text {
+    font-size: var(--step--1);
+    color: var(--slate-700);
+  }
+  .office-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .office-card__tags li {
+    padding: 0.15rem 0.55rem;
+    font-size: 0.75rem;
+    color: var(--slate-600);
+    background: var(--mist-100);
+    border-radius: 999px;
+  }
+  .offices-note {
+    margin-top: 2rem;
+  }
+</style>
