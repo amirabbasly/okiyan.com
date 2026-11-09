@@ -177,3 +177,31 @@ export function articleLd(
     isPartOf: absoluteUrl("/", base),
   };
 }
+
+/**
+ * ItemList for a hub page that lists content pages. Only paths that are linked
+ * on the hub itself are included, so the markup always matches the page.
+ */
+export function itemListLd(
+  opts: {
+    name: string;
+    path: string;
+    items: Array<{ name: string; path: string }>;
+  },
+  base: URL | undefined,
+) {
+  if (!opts.items.length) return null;
+  return {
+    "@type": "ItemList",
+    "@id": absoluteUrl(`${opts.path}#itemlist`, base),
+    name: opts.name,
+    numberOfItems: opts.items.length,
+    itemListOrder: "https://schema.org/ItemListOrderAscending",
+    itemListElement: opts.items.map((item, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: item.name,
+      url: absoluteUrl(item.path, base),
+    })),
+  };
+}

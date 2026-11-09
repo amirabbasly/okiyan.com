@@ -4,6 +4,7 @@ import BaseLayout from '~/layouts/BaseLayout.astro';
 import PageHero from '~/components/layout/PageHero.astro';
 import CtaBand from '~/components/ui/CtaBand.astro';
 import Icon from '~/components/ui/Icon.astro';
+import ClusterNav from '~/components/ui/ClusterNav.astro';
 import { articleLd, breadcrumbLd, faqLd, serviceLd } from '~/lib/schema';
 import { formatFaDate, readingMinutes, toFa } from '~/lib/format';
 import { companyPhones, isProduction } from '~/config/site';
@@ -198,6 +199,13 @@ const phone = companyPhones[0];
           </li>
         </ul>
       </section>
+
+      <ClusterNav
+        siblings={[
+          ...guides.map((g) => ({ href: `/guides/${g.id}/`, label: g.data.navTitle })),
+          ...offices.map((o) => ({ href: `/customs/${o.id}/`, label: `گمرک ${o.data.city}` })),
+        ]}
+      />
 
       <div class="notice guide__disclaimer">
         <Icon name="info" />

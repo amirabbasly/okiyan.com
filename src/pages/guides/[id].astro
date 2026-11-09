@@ -4,6 +4,7 @@ import BaseLayout from '~/layouts/BaseLayout.astro';
 import PageHero from '~/components/layout/PageHero.astro';
 import CtaBand from '~/components/ui/CtaBand.astro';
 import Icon from '~/components/ui/Icon.astro';
+import ClusterNav from '~/components/ui/ClusterNav.astro';
 import { articleLd, breadcrumbLd, faqLd } from '~/lib/schema';
 import { formatFaDate, readingMinutes, toFa } from '~/lib/format';
 import { services } from '~/data/services';
@@ -18,6 +19,10 @@ const { entry } = Astro.props;
 const { Content, headings } = await render(entry);
 const all = await getCollection('guides');
 const offices = await getCollection('customs');
+const origins = await getCollection('origins');
+const relatedOrigins = entry.data.relatedOrigins
+  .map((id) => origins.find((o) => o.id === id))
+  .filter((o): o is NonNullable<typeof o> => Boolean(o));
 const relatedOffices = entry.data.relatedOffices
   .map((id) => offices.find((o) => o.id === id))
   .filter((o): o is NonNullable<typeof o> => Boolean(o));
@@ -188,9 +193,9 @@ const toc = headings.filter((h) => h.depth === 2);
       }
 
       {
-        relatedOffices.length > 0 && (
+        (relatedOffices.length > 0 || relatedOrigins.length > 0) && (
           <section class="guide__offices" aria-labelledby="offices-title">
-            <h2 id="offices-title">همین رویه در گمرکات</h2>
+            <h2 id="offices-title">همین رویه در گمرکات و مبدأها</h2>
             <ul>
               {relatedOffices.map((o) => (
                 <li>
@@ -198,10 +203,25 @@ const toc = headings.filter((h) => h.depth === 2);
                   <span>{o.data.city}</span>
                 </li>
               ))}
+              {relatedOrigins.map((o) => (
+                <li>
+                  <a href={`/imports/${o.id}/`}>{o.data.navTitle}</a>
+                  <span>{o.data.country}</span>
+                </li>
+              ))}
             </ul>
           </section>
         )
       }
+
+      <ClusterNav
+        siblings={[
+          ...related.map((g) => ({ href: `/guides/${g.id}/`, label: g.data.navTitle })),
+          ...siblings.map((g) => ({ href: `/guides/${g.id}/`, label: g.data.navTitle })),
+          ...relatedOffices.map((o) => ({ href: `/customs/${o.id}/`, label: `گمرک ${o.data.city}` })),
+          ...relatedOrigins.map((o) => ({ href: `/imports/${o.id}/`, label: `واردات از ${o.data.country}` })),
+        ]}
+      />
 
       <section class="guide__next" aria-labelledby="next-title">
         <h2 id="next-title">قدم بعدی</h2>
