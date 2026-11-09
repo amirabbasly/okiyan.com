@@ -5,6 +5,7 @@ import ContainerArt from '~/components/illustrations/ContainerArt.astro';
 import Steps from '~/components/ui/Steps.astro';
 import Faq from '~/components/ui/Faq.astro';
 import CtaBand from '~/components/ui/CtaBand.astro';
+import AnswerBlock from '~/components/ui/AnswerBlock.astro';
 import Clients from '~/components/ui/Clients.astro';
 import Icon from '~/components/ui/Icon.astro';
 import { breadcrumbLd, serviceLd } from '~/lib/schema';
@@ -129,6 +130,8 @@ const containerLd = serviceLd({ name: 'واردات کانتینری', descripti
     </div>
     <ContainerArt slot="art" />
   </PageHero>
+
+  <AnswerBlock text={"واردات کانتینری، حمل کالا در کانتینر کامل (FCL) یا کانتینر گروهی (LCL) است. انتخاب بین این دو به حجم محموله بستگی دارد و هزینهٔ واقعی آن فقط کرایهٔ حمل نیست: زمان‌های آزاد کانتینر، دموراژ و انبارداری می‌توانند از کرایه بیشتر شوند."} />
 
   <!-- What it is -->
   <section class="section" aria-labelledby="what-title">
@@ -290,6 +293,22 @@ const containerLd = serviceLd({ name: 'واردات کانتینری', descripti
     <Clients title={null} note={false} compact />
   </div>
 
+  <section class="section" aria-labelledby="read-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="eyebrow">بیشتر بخوانید</span>
+        <h2 id="read-title">راهنمای مرتبط</h2>
+      </header>
+      <ul class="read-list">
+        <li><a href="/guides/customs-clearance-guide/">مراحل ترخیص کالا</a></li>
+        <li><a href="/guides/customs-clearance-cost/">هزینهٔ ترخیص کالا</a></li>
+        <li><a href="/customs/bandar-abbas/">گمرک بندرعباس</a></li>
+        <li><a href="/customs/imam-khomeini-port/">گمرک بندر امام خمینی</a></li>
+        <li><a href="/special-projects/">محموله‌های فوق‌ابعاد و پروژه‌ای</a></li>
+      </ul>
+    </div>
+  </section>
+
   <CtaBand
     title="کانتینر شما در راه است؟"
     text="حجم، وزن و نوع کالا و همچنین بندر ورود را بفرستید. روش حمل، مدارک لازم و هزینه‌هایی که باید در نظر بگیرید را مشخص می‌کنیم."
@@ -297,6 +316,30 @@ const containerLd = serviceLd({ name: 'واردات کانتینری', descripti
 </BaseLayout>
 
 <style>
+  .read-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    list-style: none;
+    margin: 1.25rem 0 0;
+    padding: 0;
+  }
+  .read-list a {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    font-weight: 700;
+    font-size: var(--step--1);
+    color: var(--navy-800);
+    background: var(--white);
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    text-decoration: none;
+  }
+  .read-list a:hover {
+    border-color: var(--petrol-300);
+    color: var(--petrol-600);
+  }
+
   .clients-lead {
     margin: 0 0 1rem;
     font-size: var(--step--1);

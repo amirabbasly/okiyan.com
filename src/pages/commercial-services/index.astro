@@ -1,15 +1,17 @@
 ---
 /**
- * خدمات بازرگانی — SAMPLE CONTENT. Confirm the real scope of these services,
- * then remove '/commercial-services/' from src/data/sample-pages.json.
+ * خدمات بازرگانی — indexable service page.
+ * Scope is described at the level the business has confirmed (coordination and
+ * advisory, not buying on the client's behalf); no volumes, prices or years.
  */
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import PageHero from '~/components/layout/PageHero.astro';
 import CtaBand from '~/components/ui/CtaBand.astro';
 import Steps from '~/components/ui/Steps.astro';
 import Faq from '~/components/ui/Faq.astro';
+import AnswerBlock from '~/components/ui/AnswerBlock.astro';
 import Icon from '~/components/ui/Icon.astro';
-import { breadcrumbLd } from '~/lib/schema';
+import { breadcrumbLd, faqLd, serviceLd } from '~/lib/schema';
 
 const crumbs = [
   { name: 'خانه', path: '/' },
@@ -33,17 +35,36 @@ const steps = [
   { title: 'تحویل به تیم ترخیص', text: 'پرونده با اسناد کامل برای ترخیص و تحویل آماده می‌شود.' },
 ];
 
+const path = '/commercial-services/';
+
 const faqs = [
   { q: 'آیا خرید کالا را هم انجام می‌دهید؟', a: 'نقش ما هماهنگی و مشاوره است. قرارداد خرید میان شما و تأمین‌کننده بسته می‌شود و ما در انتخاب، مذاکره و پیگیری همراهتان هستیم.' },
   { q: 'برای ثبت سفارش، کارت بازرگانی لازم است؟', a: 'در بیشتر واردات تجاری بله. اگر کارت بازرگانی ندارید، دربارهٔ گزینه‌های قانونی موجود با شما صحبت می‌کنیم.' },
   { q: 'هزینهٔ خدمات بازرگانی چطور محاسبه می‌شود؟', a: 'بسته به دامنهٔ کار، به‌صورت مبلغ ثابت یا درصدی از ارزش سفارش و پیش از شروع کار به‌صورت مکتوب اعلام می‌شود.' },
+  { q: 'تفاوت خدمات بازرگانی با ترخیص کالا چیست؟', a: 'خدمات بازرگانی پیش از حمل انجام می‌شود (تأمین‌کننده، قرارداد، ثبت سفارش) و ترخیص پس از رسیدن کالا. اگر کالا خریداری شده و در راه است، خدمات ترخیص کالا نقطهٔ شروع درست است.' },
+  { q: 'چطور از درستی کالا پیش از پرداخت مطمئن شوم؟', a: 'با بازرسی پیش از حمل، بررسی نمونه و تطبیق مشخصات فنی با پیش‌فاکتور. این مرحله پیش از بارگیری انجام می‌شود، نه پس از رسیدن کالا.' },
 ];
+
+const answer =
+  'خدمات بازرگانی یعنی آماده‌سازی واردات پیش از حمل: یافتن و ارزیابی تأمین‌کننده، مذاکره و تنظیم قرارداد، آماده‌سازی اطلاعات ثبت سفارش، هماهنگی پرداخت و بازرسی پیش از بارگیری. برخلاف ترخیص کالا که پس از رسیدن محموله انجام می‌شود، این مرحله سرنوشت هزینه و زمان کل پرونده را تعیین می‌کند.';
 ---
 
 <BaseLayout
   title="خدمات بازرگانی؛ تأمین‌کننده، قرارداد و ثبت سفارش"
   description="خدمات بازرگانی اوکیان: یافتن و ارزیابی تأمین‌کننده، مذاکره و قرارداد خرید، ثبت سفارش، هماهنگی پرداخت و بازرسی پیش از حمل کالا."
-  jsonLd={[breadcrumbLd(crumbs, Astro.site)]}
+  jsonLd={[
+    breadcrumbLd(crumbs, Astro.site),
+    serviceLd(
+      {
+        name: 'خدمات بازرگانی و تأمین کالا',
+        serviceType: 'خدمات بازرگانی، تأمین‌کننده و ثبت سفارش',
+        description: 'یافتن و ارزیابی تأمین‌کننده، مذاکره و قرارداد خرید، آماده‌سازی ثبت سفارش، هماهنگی پرداخت و بازرسی پیش از حمل کالا.',
+        path,
+      },
+      Astro.site,
+    ),
+    faqLd(faqs, path, Astro.site),
+  ].filter((x) => x !== null)}
 >
   <PageHero
     eyebrow="خدمات"
@@ -59,6 +80,8 @@ const faqs = [
       <a class="btn btn--ghost" href="#process">روند کار</a>
     </div>
   </PageHero>
+
+  <AnswerBlock text={answer} />
 
   <section class="section" aria-labelledby="services-title">
     <div class="container">
@@ -125,6 +148,22 @@ const faqs = [
         <h2 id="faq-title">دربارهٔ خدمات بازرگانی</h2>
       </header>
       <Faq items={faqs} />
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="read-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="eyebrow">بیشتر بخوانید</span>
+        <h2 id="read-title">پیش از سفارش، این‌ها را بخوانید</h2>
+      </header>
+      <ul class="read-list">
+        <li><a href="/guides/import-process/">مراحل واردات کالا به ایران</a></li>
+        <li><a href="/guides/import-permits/">مجوزهای واردات و ترخیص</a></li>
+        <li><a href="/guides/customs-clearance-documents/">مدارک لازم برای ترخیص کالا</a></li>
+        <li><a href="/guides/customs-clearance-cost/">هزینهٔ ترخیص کالا</a></li>
+        <li><a href="/guides/goods-by-type/">ترخیص کالا بر اساس نوع کالا</a></li>
+      </ul>
     </div>
   </section>
 

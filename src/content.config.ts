@@ -18,7 +18,15 @@ const guides = defineCollection({
     relatedService: z.enum(["customs-clearance", "import-services"]),
     /** Other guides to link at the end (by entry id). */
     relatedGuides: z.array(z.string()).default([]),
+    /** Customs offices that are relevant to this guide (by entry id). */
+    relatedOffices: z.array(z.string()).default([]),
     summary: z.array(z.string()).min(2).max(5),
+    /**
+     * One-paragraph direct answer to the page's main question, rendered above
+     * the body. Answer engines (AI Overviews, ChatGPT Search, Perplexity)
+     * quote a self-contained paragraph far more reliably than a long intro.
+     */
+    answer: z.string().max(600).default(""),
     /** Search intents the page answers; emitted as schema.org `keywords`. */
     keywords: z.array(z.string()).default([]),
     /** Rendered as an FAQ block and as FAQPage structured data. */
@@ -63,6 +71,12 @@ const customs = defineCollection({
     /** Cargo the office is typically used for. */
     cargo: z.array(z.string()).default([]),
     summary: z.array(z.string()).min(2).max(5),
+    /**
+     * One-paragraph direct answer to the page's main question, rendered above
+     * the body. Answer engines (AI Overviews, ChatGPT Search, Perplexity)
+     * quote a self-contained paragraph far more reliably than a long intro.
+     */
+    answer: z.string().max(600).default(""),
     keywords: z.array(z.string()).default([]),
     faq: z
       .array(z.object({ q: z.string(), a: z.string() }))

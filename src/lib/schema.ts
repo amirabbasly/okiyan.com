@@ -10,6 +10,19 @@ export interface Crumb {
   path: string;
 }
 
+/** Topics the site actually covers — used as `knowsAbout` on the Organization. */
+export const TOPICS = [
+  "ترخیص کالا از گمرک",
+  "تشریفات گمرکی",
+  "واردات کالا",
+  "صادرات کالا",
+  "ثبت سفارش",
+  "واردات ملوانی (ته لنجی)",
+  "واردات کانتینری",
+  "حمل بین‌المللی",
+  "گمرکات و بنادر ایران",
+];
+
 export function organizationLd(base: URL | undefined) {
   const c = site.contact;
   const org: Record<string, unknown> = {
@@ -19,7 +32,13 @@ export function organizationLd(base: URL | undefined) {
     alternateName: site.nameLatin,
     url: absoluteUrl("/", base),
     logo: absoluteUrl("/logo.png", base),
+    image: absoluteUrl("/og/default.png", base),
     description: site.description,
+    knowsAbout: TOPICS,
+    areaServed: [
+      { "@type": "Country", name: "Iran" },
+      ...site.contact.offices.map((o) => ({ "@type": "City", name: o.city })),
+    ],
   };
   if (site.company.legalName) org.legalName = site.company.legalName;
   if (site.company.foundingYear)
@@ -104,7 +123,10 @@ export function serviceLd(
     serviceType: opts.serviceType,
     description: opts.description,
     url: absoluteUrl(opts.path, base),
-    areaServed: { "@type": "Country", name: "Iran" },
+    areaServed: [
+      { "@type": "Country", name: "Iran" },
+      ...site.contact.offices.map((o) => ({ "@type": "City", name: o.city })),
+    ],
     provider: { "@id": absoluteUrl("/#organization", base) },
     inLanguage: "fa-IR",
   };
@@ -122,6 +144,10 @@ export function articleLd(
     keywords?: string[];
     /** Top-level section, e.g. «ترخیص کالا». */
     section?: string;
+    /** Body word count, when the page knows it. */
+    wordCount?: number;
+    /** Short entity list the article is about (schema.org `about`). */
+    about?: string[];
   },
   base: URL | undefined,
 ) {
@@ -139,16 +165,15 @@ export function articleLd(
       ? { keywords: opts.keywords.join("، ") }
       : {}),
     ...(opts.section ? { articleSection: opts.section } : {}),
+    ...(opts.wordCount ? { wordCount: opts.wordCount } : {}),
+    ...(opts.about && opts.about.length
+      ? { about: opts.about.map((name) => ({ "@type": "Thing", name })) }
+      : {}),
     isAccessibleForFree: true,
-    author: {
-      "@type": "Organization",
-      name: site.name,
-      url: absoluteUrl("/", base),
-    },
-    publisher: {
-      "@type": "Organization",
-      name: site.name,
-      logo: { "@type": "ImageObject", url: absoluteUrl("/logo.png", base) },
-    },
+    // One Organization node for the whole graph: the article points at it
+    // instead of repeating a stripped-down copy.
+    author: { "@id": absoluteUrl("/#organization", base) },
+    publisher: { "@id": absoluteUrl("/#organization", base) },
+    isPartOf: absoluteUrl("/", base),
   };
 }

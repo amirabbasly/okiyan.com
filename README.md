@@ -23,7 +23,7 @@ Astro 7 + TypeScript, fully static, plain CSS, ~5 KB of gzipped JavaScript on th
 
 | Variable | Purpose |
 | --- | --- |
-| `SITE_URL` | Canonical production origin. Defaults to `https://okiyan.ir` (the domain in the logo). Drives canonicals, sitemap, OG URLs. Redirect `www.okiyan.ir` to it with a 301 at the host. |
+| `SITE_URL` | Canonical production origin. Defaults to `https://okiyan.com`. Drives canonicals, sitemap, OG URLs. Redirect `www.okiyan.com` (and the old `okiyan.ir`) to it with a 301 at the host. |
 | `SITE_ENV` | `production` makes the site indexable. **Anything else** (default `development`) emits `<meta name="robots" content="noindex, nofollow">`, a `Disallow: /` robots.txt, and an `X-Robots-Tag: noindex` rule in `dist/_headers`. |
 | `PUBLIC_FORM_ENDPOINT` | URL that receives the consultation form as a `POST` (multipart FormData, including the packing-list file). Empty = the form says online sending is unavailable and shows the phone numbers; it never fakes a success. |
 

@@ -17,7 +17,18 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const { Content, headings } = await render(entry);
 const all = await getCollection('guides');
+const offices = await getCollection('customs');
+const relatedOffices = entry.data.relatedOffices
+  .map((id) => offices.find((o) => o.id === id))
+  .filter((o): o is NonNullable<typeof o> => Boolean(o));
 const related = entry.data.relatedGuides.map((id) => all.find((g) => g.id === id)).filter((g): g is NonNullable<typeof g> => Boolean(g));
+// Topic cluster: every other guide that serves the same service, so each guide
+// is reachable from its siblings without hand-maintaining both directions.
+const siblings = all
+  .filter((g) => g.id !== entry.id && g.data.relatedService === entry.data.relatedService)
+  .filter((g) => !related.some((r) => r.id === g.id))
+  .sort((a, b) => a.data.order - b.data.order)
+  .slice(0, 5);
 const service = entry.data.relatedService === 'customs-clearance' ? services.clearance : services.import;
 const path = `/guides/${entry.id}/`;
 const crumbs = [
@@ -47,6 +58,8 @@ const toc = headings.filter((h) => h.depth === 2);
         modified: entry.data.updatedDate,
         keywords: entry.data.keywords,
         section: service.name,
+        wordCount: entry.body ? entry.body.trim().split(/\s+/).length : undefined,
+        about: entry.data.keywords.slice(0, 6),
       },
       Astro.site,
     ),
@@ -85,6 +98,15 @@ const toc = headings.filter((h) => h.depth === 2);
     </aside>
 
     <article class="guide__body">
+      {
+        entry.data.answer && (
+          <section class="guide__answer" aria-labelledby="answer-title">
+            <h2 id="answer-title">پاسخ کوتاه</h2>
+            <p>{entry.data.answer}</p>
+          </section>
+        )
+      }
+
       <div class="prose">
         <Content />
       </div>
@@ -141,6 +163,42 @@ const toc = headings.filter((h) => h.depth === 2);
                 <p>{item.a}</p>
               </details>
             ))}
+          </section>
+        )
+      }
+
+      {
+        siblings.length > 0 && (
+          <section class="guide__more" aria-labelledby="more-title">
+            <h2 id="more-title">بیشتر در همین موضوع</h2>
+            <ul>
+              {siblings.map((g) => (
+                <li>
+                  <a href={`/guides/${g.id}/`}>{g.data.navTitle}</a>
+                  <span>{g.data.description}</span>
+                </li>
+              ))}
+            </ul>
+            <a class="guide__more-all" href="/guides/">
+              همهٔ راهنماها
+              <Icon name="arrow" />
+            </a>
+          </section>
+        )
+      }
+
+      {
+        relatedOffices.length > 0 && (
+          <section class="guide__offices" aria-labelledby="offices-title">
+            <h2 id="offices-title">همین رویه در گمرکات</h2>
+            <ul>
+              {relatedOffices.map((o) => (
+                <li>
+                  <a href={`/customs/${o.id}/`}>{o.data.office}</a>
+                  <span>{o.data.city}</span>
+                </li>
+              ))}
+            </ul>
           </section>
         )
       }
@@ -210,6 +268,27 @@ const toc = headings.filter((h) => h.depth === 2);
     font-size: var(--step-0);
     font-weight: 800;
     margin-bottom: 0.9rem;
+  }
+  .guide__answer {
+    padding: 1.4rem 1.6rem;
+    margin-bottom: 2rem;
+    border-radius: var(--radius-m);
+    background: var(--white);
+    border: 1px solid var(--rule);
+    border-inline-start: 4px solid var(--petrol-500);
+  }
+  .guide__answer h2 {
+    font-size: var(--step--1);
+    letter-spacing: 0.04em;
+    text-transform: none;
+    color: var(--petrol-600);
+    margin-bottom: 0.5rem;
+  }
+  .guide__answer p {
+    margin: 0;
+    font-size: var(--step-0);
+    line-height: 1.9;
+    color: var(--navy-800);
   }
   .guide__summary {
     padding: 1.4rem;
@@ -282,6 +361,83 @@ const toc = headings.filter((h) => h.depth === 2);
   .guide__review ul {
     margin-top: 0.5rem;
     padding-inline-start: 1.2rem;
+  }
+  .guide__offices {
+    margin-block: 2rem 2.5rem;
+    padding-top: 1.75rem;
+    border-top: 1px solid var(--rule);
+  }
+  .guide__offices h2 {
+    font-size: var(--step-1);
+    margin-bottom: 1rem;
+  }
+  .guide__offices ul {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin: 0;
+    padding: 0;
+  }
+  .guide__offices a {
+    display: inline-block;
+    padding: 0.45rem 1rem;
+    font-weight: 700;
+    font-size: var(--step--1);
+    color: var(--navy-800);
+    background: var(--white);
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    text-decoration: none;
+  }
+  .guide__offices a:hover {
+    border-color: var(--petrol-300);
+    color: var(--petrol-600);
+  }
+  .guide__offices li span {
+    margin-inline-start: 0.4rem;
+    font-size: var(--step--1);
+    color: var(--text-muted);
+  }
+  .guide__more {
+    margin-block: 2.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--rule);
+  }
+  .guide__more h2 {
+    font-size: var(--step-1);
+    margin-bottom: 1rem;
+  }
+  .guide__more ul {
+    list-style: none;
+    display: grid;
+    gap: 0.9rem;
+    margin: 0 0 1.25rem;
+    padding: 0;
+  }
+  .guide__more li {
+    display: grid;
+    gap: 0.2rem;
+  }
+  .guide__more li a {
+    font-weight: 700;
+    color: var(--navy-900);
+    text-decoration-color: var(--petrol-300);
+    text-underline-offset: 4px;
+  }
+  .guide__more li span {
+    font-size: var(--step--1);
+    color: var(--text-muted);
+    line-height: 1.75;
+  }
+  .guide__more-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-weight: 700;
+    font-size: var(--step--1);
+    color: var(--petrol-600);
+    text-decoration: none;
   }
   .guide__faq h2 {
     font-size: var(--step-2);
