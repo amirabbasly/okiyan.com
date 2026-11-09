@@ -60,6 +60,9 @@ export default defineConfig({
         default: 'development',
       }),
       PUBLIC_FORM_ENDPOINT: envField.string({ context: 'server', access: 'public', optional: true }),
+      /** Optional Search Console / Bing Webmaster verification tokens (see deploy/README.md). */
+      GOOGLE_VERIFICATION_TOKEN: envField.string({ context: 'server', access: 'public', optional: true }),
+      BING_VERIFICATION_TOKEN: envField.string({ context: 'server', access: 'public', optional: true }),
     },
   },
   fonts: [

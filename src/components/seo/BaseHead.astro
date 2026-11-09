@@ -1,5 +1,6 @@
 ---
 import { Font } from 'astro:assets';
+import { GOOGLE_VERIFICATION_TOKEN, BING_VERIFICATION_TOKEN } from 'astro:env/server';
 import { site, isProduction } from '~/config/site';
 import { absoluteUrl } from '~/lib/url';
 
@@ -51,6 +52,8 @@ const ldJson = jsonLd.length
 <meta name="robots" content={robots} />
 <meta name="theme-color" content="#162c47" />
 <meta name="format-detection" content="telephone=no" />
+{GOOGLE_VERIFICATION_TOKEN && <meta name="google-site-verification" content={GOOGLE_VERIFICATION_TOKEN} />}
+{BING_VERIFICATION_TOKEN && <meta name="msvalidate.01" content={BING_VERIFICATION_TOKEN} />}
 
 <!-- Preload only what the first screen needs: body (400) and display headings (800). -->
 <Font cssVariable="--font-vazirmatn" preload={[{ weight: 400 }, { weight: 800 }]} />

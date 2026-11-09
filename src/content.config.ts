@@ -97,4 +97,47 @@ const customs = defineCollection({
   }),
 });
 
-export const collections = { guides, customs };
+/**
+ * Country / corridor pages: «واردات از چین»، «واردات از دبی»، «واردات از ترکیه».
+ * Each page answers a commercial-intent query about one origin country
+ * (route, documents, Incoterms, risks) rather than repeating general customs rules.
+ */
+const origins = defineCollection({
+  loader: glob({ pattern: "**/*.md", base: "./src/content/origins" }),
+  schema: z.object({
+    title: z.string(),
+    navTitle: z.string(),
+    description: z.string().max(170),
+    order: z.number(),
+    publishDate: z.coerce.date(),
+    updatedDate: z.coerce.date().optional(),
+    /** Origin country / market shown in the hero and the cards. */
+    country: z.string(),
+    /** Main freight corridors used from this origin. */
+    corridors: z.array(z.string()).default([]),
+    /** Cargo that is typically imported from here. */
+    goods: z.array(z.string()).default([]),
+    summary: z.array(z.string()).min(2).max(5),
+    answer: z.string().max(600).default(""),
+    keywords: z.array(z.string()).default([]),
+    faq: z
+      .array(z.object({ q: z.string(), a: z.string() }))
+      .max(10)
+      .default([]),
+    relatedGuides: z.array(z.string()).default([]),
+    relatedOffices: z.array(z.string()).default([]),
+    sources: z
+      .array(
+        z.object({
+          title: z.string(),
+          publisher: z.string(),
+          url: z.url(),
+          note: z.string().optional(),
+        }),
+      )
+      .default([]),
+    reviewNotes: z.array(z.string()).default([]),
+  }),
+});
+
+export const collections = { guides, customs, origins };

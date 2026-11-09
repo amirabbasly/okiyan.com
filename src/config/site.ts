@@ -62,7 +62,7 @@ export const site = {
   name: 'اوکیان',
   nameLatin: 'OKIYAN',
   /** Latin wordmark as it appears in the logo. */
-  wordmarkLatin: 'OKIYAN.IR',
+  wordmarkLatin: 'OKIYAN.COM',
   /** Short descriptor used in titles and Organization markup. */
   tagline: 'ترخیص کالا و خدمات واردات',
   description:
