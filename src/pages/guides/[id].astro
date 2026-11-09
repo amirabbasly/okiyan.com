@@ -47,7 +47,7 @@ const toc = headings.filter((h) => h.depth === 2);
 ---
 
 <BaseLayout
-  title={entry.data.title}
+  title={entry.data.seoTitle ?? entry.data.title}
   description={entry.data.description}
   ogType="article"
   publishedTime={entry.data.publishDate}
