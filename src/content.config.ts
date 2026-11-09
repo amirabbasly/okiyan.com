@@ -20,6 +20,8 @@ const guides = defineCollection({
     relatedGuides: z.array(z.string()).default([]),
     /** Customs offices that are relevant to this guide (by entry id). */
     relatedOffices: z.array(z.string()).default([]),
+    /** Origin-country pages that are relevant to this guide (by entry id). */
+    relatedOrigins: z.array(z.string()).default([]),
     summary: z.array(z.string()).min(2).max(5),
     /**
      * One-paragraph direct answer to the page's main question, rendered above
@@ -83,6 +85,8 @@ const customs = defineCollection({
       .max(10)
       .default([]),
     relatedGuides: z.array(z.string()).default([]),
+    /** Origin-country pages relevant to this office (by entry id). */
+    relatedOrigins: z.array(z.string()).default([]),
     sources: z
       .array(
         z.object({

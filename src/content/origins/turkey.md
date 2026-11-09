@@ -51,6 +51,8 @@ sources:
     note: "مقررات واردات و ترانزیت."
 reviewNotes:
   - "وضعیت گذرگاه‌های مرزی و محدودیت‌های تردد با آخرین اطلاعیه بازبینی شود."
+relatedGuides: ["customs-clearance-guide", "transit-and-warehousing", "customs-declaration-errors", "import-permits", "goods-by-type"]
+relatedOffices: ["bazargan", "imam-khomeini-airport"]
 ---
 
 ترکیه تنها مبدأ بزرگ واردات ایران است که مسیر زمینی‌اش برای مرکز کشور از مسیر دریایی سریع‌تر است. همین یک مزیت کافی است تا بخش زیادی از واردات کالاهای صنعتی، قطعات و ماشین‌آلات از این مسیر برود. اما این مسیر یک ویژگی دارد که آن را از همهٔ مسیرهای دیگر متفاوت می‌کند: **کامیون، انبار موقت است**.

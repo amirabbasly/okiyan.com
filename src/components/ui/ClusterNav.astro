@@ -1,0 +1,113 @@
+---
+/**
+ * «همهٔ محتوا» — a compact navigator shown at the end of every content page.
+ *
+ * It gives each guide, customs page and origin page a direct route to the three
+ * content hubs plus its most relevant sibling pages, so no page depends on
+ * the header menu to be reachable. Links are real, visible anchors — not a
+ * hidden link farm.
+ */
+import Icon from '~/components/ui/Icon.astro';
+
+export interface Link {
+  href: string;
+  label: string;
+}
+export interface Props {
+  /** Sibling pages inside the same cluster, rendered first. */
+  siblings?: Link[];
+  /** Heading for the block. */
+  title?: string;
+}
+const { siblings = [], title = 'ادامهٔ مسیر مطالعه' } = Astro.props;
+
+const hubs: Link[] = [
+  { href: '/guides/', label: 'همهٔ راهنماها' },
+  { href: '/customs/', label: 'گمرکات و بنادر' },
+  { href: '/imports/', label: 'واردات بر اساس مبدأ' },
+];
+---
+
+<nav class="cluster-nav" aria-labelledby="cluster-nav-title">
+  <h2 id="cluster-nav-title">{title}</h2>
+  <ul class="cluster-nav__list">
+    {
+      siblings.map((s) => (
+        <li>
+          <a href={s.href}>{s.label}</a>
+        </li>
+      ))
+    }
+  </ul>
+  <p class="cluster-nav__hubs">
+    <span>بخش‌های اصلی:</span>
+    {
+      hubs.map((h) => (
+        <a href={h.href}>
+          {h.label}
+          <Icon name="arrow" />
+        </a>
+      ))
+    }
+  </p>
+</nav>
+
+<style>
+  .cluster-nav {
+    margin-block: 2rem 2.5rem;
+    padding-top: 1.75rem;
+    border-top: 1px solid var(--rule);
+  }
+  .cluster-nav h2 {
+    font-size: var(--step-1);
+    margin-bottom: 1rem;
+  }
+  .cluster-nav__list {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+    gap: 0.5rem 1rem;
+    margin: 0 0 1.25rem;
+    padding: 0;
+  }
+  .cluster-nav__list a {
+    display: block;
+    padding: 0.55rem 0.85rem;
+    font-size: var(--step--1);
+    font-weight: 600;
+    color: var(--navy-800);
+    background: var(--white);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-s);
+    text-decoration: none;
+    line-height: 1.7;
+    transition:
+      border-color var(--dur-fast) ease,
+      color var(--dur-fast) ease;
+  }
+  .cluster-nav__list a:hover {
+    border-color: var(--petrol-300);
+    color: var(--petrol-600);
+  }
+  .cluster-nav__hubs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem 1rem;
+    margin: 0;
+    font-size: var(--step--1);
+    color: var(--text-muted);
+  }
+  .cluster-nav__hubs a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-weight: 700;
+    color: var(--petrol-600);
+    text-decoration: none;
+  }
+  .cluster-nav__hubs a :global(svg) {
+    inline-size: 0.9em;
+    block-size: 0.9em;
+  }
+</style>

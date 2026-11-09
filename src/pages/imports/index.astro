@@ -5,7 +5,7 @@ import PageHero from '~/components/layout/PageHero.astro';
 import CtaBand from '~/components/ui/CtaBand.astro';
 import Icon from '~/components/ui/Icon.astro';
 import AnswerBlock from '~/components/ui/AnswerBlock.astro';
-import { breadcrumbLd } from '~/lib/schema';
+import { breadcrumbLd, itemListLd } from '~/lib/schema';
 
 const origins = (await getCollection('origins')).sort((a, b) => a.data.order - b.data.order);
 const offices = (await getCollection('customs')).sort((a, b) => a.data.order - b.data.order);
@@ -22,7 +22,13 @@ const answer =
 <BaseLayout
   title="واردات بر اساس مبدأ: چین، دبی و ترکیه"
   description="واردات کالا به ایران از چین، دبی و ترکیه: مسیر حمل، اسناد، اینکوترمز، ریسک‌های هر مبدأ و نکاتی که پیش از بارگیری باید روشن شود."
-  jsonLd={[breadcrumbLd(crumbs, Astro.site)]}
+  jsonLd={[
+    breadcrumbLd(crumbs, Astro.site),
+    itemListLd(
+      { name: 'واردات بر اساس مبدأ', path: '/imports/', items: origins.map((o) => ({ name: o.data.title, path: `/imports/${o.id}/` })) },
+      Astro.site,
+    ),
+  ].filter((x) => x !== null)}
 >
   <PageHero
     eyebrow="واردات"
