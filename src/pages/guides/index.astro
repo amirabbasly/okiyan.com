@@ -1,17 +1,20 @@
 ---
 /**
- * بلاگ / راهنماها — the single index of every content page on the site:
- * guides, origin-country pages and customs-office pages. Kept as the target of
- * the «بلاگ» nav item, so all editorial content is reachable from one place.
+ * بلاگ — the single, calm index of every content page on the site.
+ *
+ * The brief for this page: one continuous feed (guides, customs offices and
+ * origin pages interleaved by topic order, not split into separate blocks) plus
+ * a sticky filter bar that works without JavaScript. Filters are radio inputs +
+ * `:has()` in CSS, so the page stays static, the markup stays one list, and
+ * every item is crawlable even if scripting is off.
  */
 import { getCollection } from 'astro:content';
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import PageHero from '~/components/layout/PageHero.astro';
 import GuidesArt from '~/components/illustrations/GuidesArt.astro';
 import CtaBand from '~/components/ui/CtaBand.astro';
-import Icon from '~/components/ui/Icon.astro';
 import { breadcrumbLd, itemListLd } from '~/lib/schema';
-import { formatFaDate, toFa } from '~/lib/format';
+import { formatFaDate, readingMinutes, toFa } from '~/lib/format';
 import { services } from '~/data/services';
 
 const guides = (await getCollection('guides')).sort((a, b) => a.data.order - b.data.order);
@@ -23,33 +26,71 @@ const crumbs = [
   { name: 'بلاگ', path: '/guides/' },
 ];
 
-const groups = [
-  { id: 'clearance', service: services.clearance, items: guides.filter((g) => g.data.relatedService === 'customs-clearance') },
-  { id: 'import', service: services.import, items: guides.filter((g) => g.data.relatedService === 'import-services') },
+type Kind = 'guide' | 'customs' | 'origin';
+interface Post {
+  kind: Kind;
+  cat: 'clearance' | 'import' | 'customs' | 'origin';
+  title: string;
+  desc: string;
+  href: string;
+  date: Date;
+  minutes: number;
+  order: number;
+}
+
+const posts: Post[] = [
+  ...guides.map((g) => ({
+    kind: 'guide' as const,
+    cat: (g.data.relatedService === 'customs-clearance' ? 'clearance' : 'import') as Post['cat'],
+    title: g.data.title,
+    desc: g.data.description,
+    href: `/guides/${g.id}/`,
+    date: g.data.updatedDate ?? g.data.publishDate,
+    minutes: readingMinutes(g.body ?? ''),
+    order: g.data.order,
+  })),
+  ...offices.map((o) => ({
+    kind: 'customs' as const,
+    cat: 'customs' as const,
+    title: o.data.office,
+    desc: o.data.description,
+    href: `/customs/${o.id}/`,
+    date: o.data.updatedDate ?? o.data.publishDate,
+    minutes: readingMinutes(o.body ?? ''),
+    order: o.data.order,
+  })),
+  ...origins.map((o) => ({
+    kind: 'origin' as const,
+    cat: 'origin' as const,
+    title: o.data.title,
+    desc: o.data.description,
+    href: `/imports/${o.id}/`,
+    date: o.data.updatedDate ?? o.data.publishDate,
+    minutes: readingMinutes(o.body ?? ''),
+    order: o.data.order,
+  })),
+].sort((a, b) => a.order - b.order || ['guide', 'customs', 'origin'].indexOf(a.kind) - ['guide', 'customs', 'origin'].indexOf(b.kind));
+
+const kindLabel: Record<Post['cat'], string> = {
+  clearance: 'راهنمای ترخیص',
+  import: 'راهنمای واردات',
+  customs: 'گمرک',
+  origin: 'مبدأ',
+};
+
+const filters = [
+  { id: 'all', label: 'همه', count: posts.length },
+  { id: 'clearance', label: 'ترخیص', count: posts.filter((p) => p.cat === 'clearance').length },
+  { id: 'import', label: 'واردات', count: posts.filter((p) => p.cat === 'import').length },
+  { id: 'customs', label: 'گمرک‌ها', count: posts.filter((p) => p.cat === 'customs').length },
+  { id: 'origin', label: 'مبدأها', count: posts.filter((p) => p.cat === 'origin').length },
 ];
 
-/** Every page listed below, in the order it appears — used for the ItemList. */
-const allItems = [
+/** Structured data keeps the editorial, then destination, then origin order. */
+const ldItems = [
   ...guides.map((g) => ({ name: g.data.title, path: `/guides/${g.id}/` })),
   ...origins.map((o) => ({ name: o.data.title, path: `/imports/${o.id}/` })),
-  ...offices.map((o) => ({ name: o.data.title, path: `/customs/${o.id}/` })),
-];
-
-const topics = [
-  { href: '/guides/customs-clearance-guide/', label: 'ترخیص کالا چیست' },
-  { href: '/guides/customs-clearance-cost/', label: 'هزینهٔ ترخیص' },
-  { href: '/guides/customs-clearance-documents/', label: 'مدارک ترخیص' },
-  { href: '/guides/customs-routes/', label: 'مسیر سبز، زرد و قرمز' },
-  { href: '/guides/customs-declaration-errors/', label: 'خطاهای اظهارنامه' },
-  { href: '/guides/import-permits/', label: 'مجوزهای واردات' },
-  { href: '/guides/import-process/', label: 'مراحل واردات' },
-  { href: '/guides/sailor-import-guide/', label: 'واردات ملوانی' },
-  { href: '/guides/goods-by-type/', label: 'ترخیص بر اساس کالا' },
-  { href: '/guides/transit-and-warehousing/', label: 'ترانزیت و انبار گمرکی' },
-  { href: '/guides/customs-glossary/', label: 'واژه‌نامهٔ گمرکی' },
-  { href: '/imports/china/', label: 'واردات از چین' },
-  { href: '/imports/dubai/', label: 'واردات از دبی' },
-  { href: '/imports/turkey/', label: 'واردات از ترکیه' },
+  ...offices.map((o) => ({ name: o.data.office, path: `/customs/${o.id}/` })),
 ];
 ---
 
@@ -58,321 +99,252 @@ const topics = [
   description="همهٔ راهنماهای اوکیان در یک صفحه: ترخیص کالا از گمرک، هزینه و مدارک، مجوزهای واردات، واردات از چین و دبی و ترکیه، و راهنمای عملیاتی هر گمرک."
   jsonLd={[
     breadcrumbLd(crumbs, Astro.site),
-    itemListLd({ name: 'راهنماهای ترخیص، واردات و گمرک', path: '/guides/', items: allItems }, Astro.site),
+    itemListLd({ name: 'راهنماهای ترخیص، واردات و گمرک', path: '/guides/', items: ldItems }, Astro.site),
   ].filter((x) => x !== null)}
 >
   <PageHero
-    eyebrow="بلاگ"
+    eyebrow="کتابخانهٔ محتوا"
     title="راهنمای ترخیص، واردات و گمرک"
-    lead="همهٔ محتوای تخصصی اوکیان در یک جا: مبانی ترخیص کالا، هزینه و مدارک، مجوزها، واردات از هر مبدأ و رویهٔ عملیاتی هر گمرک. هر صفحه به منابع رسمی ارجاع می‌دهد و جای بررسی پرونده را نمی‌گیرد."
+    lead="همهٔ محتوای تخصصی اوکیان در یک جریان پیوسته: مبانی ترخیص، هزینه و مدارک، مجوزها، رویهٔ هر گمرک و مسیر واردات از هر مبدأ. برای پیدا کردن سریع‌تر، از نوار بالای فهرست فیلتر کنید."
     crumbs={crumbs}
   >
     <GuidesArt slot="art" />
   </PageHero>
 
-  <section class="section" aria-labelledby="topics-title">
-    <div class="container">
-      <header class="section-head section-head--split reveal">
-        <div>
-          <span class="eyebrow">از کجا شروع کنم؟</span>
-          <h2 id="topics-title">موضوع‌های پرجست‌وجو</h2>
+  <div class="blog">
+    <div class="blog__filter" role="group" aria-label="فیلتر نوشته‌ها">
+      <div class="container blog__filter-inner">
+        <div class="blog__opts">
+          {
+            filters.map((f, i) => (
+              <span class="blog__opt">
+                <input
+                  class="blog__radio"
+                  type="radio"
+                  name="blog-filter"
+                  id={`bf-${f.id}`}
+                  value={f.id}
+                  checked={i === 0}
+                />
+                <label for={`bf-${f.id}`}>
+                  {f.label}
+                  <span class="blog__count">{toFa(f.count)}</span>
+                </label>
+              </span>
+            ))
+          }
         </div>
-        <p class="lead">
-          اگر دنبال یک پاسخ مشخص هستید، از این فهرست شروع کنید. فهرست کامل‌تر، پایین‌تر و به ترتیب موضوع آمده است.
+        <p class="blog__start">
+          تازه شروع کرده‌اید؟ از <a href="/guides/customs-clearance-guide/">ترخیص کالا چیست</a> و{' '}
+          <a href="/guides/customs-clearance-documents/">مدارک لازم</a> بخوانید.
         </p>
-      </header>
-      <ul class="topic-list">
-        {
-          topics.map((t) => (
-            <li>
-              <a href={t.href}>{t.label}</a>
-            </li>
-          ))
-        }
-      </ul>
+      </div>
     </div>
-  </section>
 
-  <section class="section section--alt" aria-label="فهرست راهنماها">
-    <div class="container guide-groups">
-      {
-        groups.map((group) => (
-          <section class="guide-group" aria-labelledby={`g-${group.id}`}>
-            <header class="guide-group__head">
-              <h2 id={`g-${group.id}`}>دربارهٔ {group.service.name}</h2>
-              <a class="arrow-link" href={group.service.href}>
-                صفحهٔ خدمات {group.service.name}
-                <Icon name="arrow" />
-              </a>
-            </header>
-            <ul class="guide-list">
-              {group.items.map((g) => (
-                <li>
-                  <article class="guide-item">
-                    <p class="guide-item__meta">
-                      <time datetime={(g.data.updatedDate ?? g.data.publishDate).toISOString().slice(0, 10)}>
-                        {formatFaDate(g.data.updatedDate ?? g.data.publishDate)}
-                      </time>
-                      <span aria-hidden="true">·</span>
-                      <span>{toFa(g.data.summary.length)} نکتهٔ کلیدی</span>
-                    </p>
-                    <h3>
-                      <a href={`/guides/${g.id}/`}>{g.data.title}</a>
-                    </h3>
-                    <p>{g.data.description}</p>
-                    <ul class="guide-item__points">
-                      {g.data.summary.slice(0, 2).map((s) => (
-                        <li>{s}</li>
-                      ))}
-                    </ul>
-                  </article>
-                </li>
-              ))}
-            </ul>
-          </section>
-        ))
-      }
-    </div>
-  </section>
-
-  <section class="section" aria-labelledby="origins-title">
-    <div class="container">
-      <header class="section-head section-head--split reveal">
-        <div>
-          <span class="eyebrow">مبدأ کالا</span>
-          <h2 id="origins-title">واردات بر اساس مبدأ</h2>
-        </div>
-        <a class="arrow-link" href="/imports/">
-          صفحهٔ واردات بر اساس مبدأ
-          <Icon name="arrow" />
-        </a>
-      </header>
-      <ul class="origin-grid">
-        {
-          origins.map((o) => (
-            <li class="origin-card">
-              <span class="origin-card__country">{o.data.country}</span>
-              <h3>
-                <a href={`/imports/${o.id}/`}>{o.data.navTitle}</a>
-              </h3>
-              <p>{o.data.description}</p>
-              <ul class="origin-card__chips">
-                {o.data.corridors.slice(0, 2).map((c) => (
-                  <li>{c}</li>
-                ))}
-              </ul>
-            </li>
-          ))
-        }
-      </ul>
-    </div>
-  </section>
-
-  <section class="section section--alt" aria-labelledby="ports-hub-title">
-    <div class="container">
-      <header class="section-head section-head--split reveal">
-        <div>
-          <span class="eyebrow">مقصد کالا</span>
-          <h2 id="ports-hub-title">راهنمای هر گمرک، جداگانه</h2>
-        </div>
-        <a class="arrow-link" href="/customs/">
-          همهٔ گمرکات
-          <Icon name="arrow" />
-        </a>
-      </header>
-      <p class="lead section-lead">
-        رویهٔ ترخیص یکی است، اما انبارها، مسیرها و نوع کالای هر گمرک متفاوت است. هفت گمرک پرتردد را با جزئیات عملیاتی بررسی
-        کرده‌ایم.
-      </p>
-      <ul class="port-grid">
-        {
-          offices.map((o) => (
-            <li class="port-card">
-              <h3>
-                <a href={`/customs/${o.id}/`}>{o.data.office}</a>
-              </h3>
-              <p class="port-card__city">{o.data.city}</p>
-              <p class="port-card__desc">{o.data.description}</p>
-              <ul class="origin-card__chips">
-                {o.data.cargo.slice(0, 3).map((c) => (
-                  <li>{c}</li>
-                ))}
-              </ul>
-            </li>
-          ))
-        }
-      </ul>
-    </div>
-  </section>
+    <section class="section blog__feed-wrap" aria-labelledby="feed-title">
+      <div class="container">
+        <h2 id="feed-title" class="sr-only">فهرست نوشته‌ها</h2>
+        <ul class="blog__feed">
+          {
+            posts.map((p) => (
+              <li class="post" data-cat={p.cat}>
+                <article class="post__inner">
+                  <p class="post__kind">{kindLabel[p.cat]}</p>
+                  <h3 class="post__title">
+                    <a href={p.href}>{p.title}</a>
+                  </h3>
+                  <p class="post__desc">{p.desc}</p>
+                  <p class="post__meta">
+                    <time datetime={p.date.toISOString().slice(0, 10)}>{formatFaDate(p.date)}</time>
+                    <span aria-hidden="true">·</span>
+                    <span>{toFa(p.minutes)} دقیقه مطالعه</span>
+                  </p>
+                </article>
+              </li>
+            ))
+          }
+        </ul>
+        <p class="blog__note">
+          این فهرست با هر راهنمای تازه به‌روز می‌شود. راهنمای هر خدمت هم جداگانه در{' '}
+          <a href={services.clearance.href}>صفحهٔ ترخیص کالا</a> و <a href={services.import.href}>صفحهٔ واردات کالا</a> آمده است.
+        </p>
+      </div>
+    </section>
+  </div>
 
   <CtaBand title="سؤال شما در راهنماها نبود؟" text="مشخصات کالا و پرسش خود را بفرستید. پس از بررسی، پاسخ متناسب با پروندهٔ شما را می‌دهیم." />
 </BaseLayout>
 
 <style>
-  .section-lead {
-    margin-top: 1rem;
-    max-width: 60ch;
-  }
-  .topic-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.55rem;
-    margin: 1.5rem 0 0;
-    padding: 0;
-    list-style: none;
-  }
-  .topic-list a {
-    display: inline-block;
-    padding: 0.5rem 1rem;
-    font-weight: 700;
-    font-size: var(--step--1);
-    color: var(--navy-800);
-    background: var(--mist-100);
-    border: 1px solid var(--rule);
-    border-radius: 999px;
-    text-decoration: none;
-    transition:
-      border-color var(--dur-fast) ease,
-      color var(--dur-fast) ease,
-      background-color var(--dur-fast) ease;
-  }
-  .topic-list a:hover {
-    border-color: var(--petrol-300);
-    color: var(--petrol-600);
+  /* ---------- Sticky filter bar ---------- */
+  .blog__filter {
+    position: sticky;
+    top: var(--header-h);
+    z-index: 20;
+    padding-block: 0.75rem;
     background: var(--white);
-  }
-  .guide-groups {
-    display: grid;
-    gap: clamp(3rem, 6vw, 5rem);
-  }
-  .guide-group__head {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: end;
-    justify-content: space-between;
-    gap: 1rem;
-    padding-bottom: 1.25rem;
-    border-bottom: 2px solid var(--navy-900);
-  }
-  .guide-group__head h2 {
-    font-size: var(--step-3);
-  }
-  .guide-list {
-    list-style: none;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));
-    gap: 0 3rem;
-  }
-  .guide-item {
-    position: relative;
-    display: grid;
-    gap: 0.75rem;
-    padding-block: 2rem;
     border-bottom: 1px solid var(--rule);
   }
-  .guide-item__meta {
+  .blog__filter-inner {
     display: flex;
-    gap: 0.6rem;
-    font-size: 0.85rem;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1.5rem;
+  }
+  .blog__opts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+  .blog__opt {
+    position: relative;
+    display: inline-flex;
+  }
+  .blog__radio {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .blog__opt label {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.35rem;
+    padding: 0.45rem 0.9rem;
+    font-size: var(--step--1);
+    font-weight: 700;
+    color: var(--navy-800);
+    background: var(--white);
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    cursor: pointer;
+    transition:
+      border-color var(--dur-fast) ease,
+      background-color var(--dur-fast) ease,
+      color var(--dur-fast) ease;
+  }
+  .blog__opt label:hover {
+    border-color: var(--petrol-300);
+    color: var(--petrol-600);
+  }
+  .blog__count {
+    font-size: 0.72rem;
+    font-weight: 500;
     color: var(--text-muted);
   }
-  .guide-item h3 {
-    font-size: var(--step-2);
-    line-height: 1.5;
+  .blog__radio:checked + label {
+    color: var(--white);
+    background: var(--navy-900);
+    border-color: var(--navy-900);
   }
-  .guide-item h3 a {
+  .blog__radio:checked + label .blog__count {
+    color: color-mix(in srgb, var(--white) 70%, transparent);
+  }
+  .blog__radio:focus-visible + label {
+    outline: 2px solid var(--petrol-600);
+    outline-offset: 2px;
+  }
+  .blog__start {
+    margin: 0;
+    font-size: var(--step--1);
+    color: var(--text-muted);
+  }
+  .blog__start a {
+    color: var(--petrol-600);
+    font-weight: 700;
+    text-underline-offset: 3px;
+  }
+
+  /* ---------- One continuous feed ---------- */
+  .blog__feed-wrap {
+    padding-block: clamp(1.5rem, 4vw, 2.75rem) clamp(3rem, 7vw, 5rem);
+  }
+  .blog__feed {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 24rem), 1fr));
+    column-gap: clamp(2rem, 4vw, 3.5rem);
+    margin: 0;
+    padding: 0;
+  }
+  .post__inner {
+    position: relative;
+    display: grid;
+    align-content: start;
+    gap: 0.4rem;
+    padding-block: 1.6rem;
+    border-top: 1px solid var(--rule);
+  }
+  .post__kind {
+    margin: 0;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--petrol-600);
+  }
+  .post__title {
+    font-size: var(--step-1);
+    line-height: 1.55;
+  }
+  .post__title a {
+    color: var(--navy-900);
     text-decoration: none;
   }
-  /* Whole item clickable, while the link text stays the accessible name */
-  .guide-item h3 a::after {
+  /* The whole row is clickable; the link text remains the accessible name. */
+  .post__title a::after {
     content: '';
     position: absolute;
     inset: 0;
   }
-  .guide-item:hover h3 a {
+  .post__inner:hover .post__title a {
     text-decoration: underline;
     text-decoration-color: var(--petrol-300);
     text-decoration-thickness: 2px;
-  }
-  .guide-item > p:not(.guide-item__meta) {
-    color: var(--text-muted);
-  }
-  .guide-item__points {
-    list-style: none;
-    display: grid;
-    gap: 0.35rem;
-    font-size: var(--step--1);
-    color: var(--slate-700);
-  }
-  .guide-item__points li {
-    padding-inline-start: 1rem;
-    position: relative;
-  }
-  .guide-item__points li::before {
-    content: '';
-    position: absolute;
-    inset-inline-start: 0;
-    top: 0.85em;
-    inline-size: 0.4rem;
-    block-size: 2px;
-    background: var(--petrol-500);
-  }
-  .origin-grid,
-  .port-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
-    gap: 1.25rem;
-    list-style: none;
-    margin: 1.5rem 0 0;
-    padding: 0;
-  }
-  .origin-card,
-  .port-card {
-    display: grid;
-    align-content: start;
-    gap: 0.55rem;
-    padding: clamp(1.3rem, 3vw, 1.8rem);
-    border: 1px solid var(--rule);
-    border-top: 4px solid var(--petrol-600);
-    border-radius: var(--radius-m);
-    background: var(--white);
-  }
-  .origin-card__country,
-  .port-card__city {
-    font-size: var(--step--1);
-    font-weight: 700;
-    color: var(--petrol-600);
-  }
-  .origin-card h3,
-  .port-card h3 {
-    font-size: var(--step-1);
-  }
-  .origin-card h3 a,
-  .port-card h3 a {
-    color: var(--navy-900);
-    text-decoration-color: var(--petrol-300);
     text-underline-offset: 4px;
   }
-  .origin-card p,
-  .port-card__desc {
+  .post__desc {
     margin: 0;
     font-size: var(--step--1);
-    color: var(--slate-700);
-    line-height: 1.8;
+    line-height: 1.85;
+    color: var(--text-muted);
   }
-  .origin-card__chips {
+  .post__meta {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.35rem;
-    list-style: none;
-    margin: 0.3rem 0 0;
-    padding: 0;
+    gap: 0.5rem;
+    margin: 0.15rem 0 0;
+    font-size: 0.76rem;
+    color: var(--slate-700);
   }
-  .origin-card__chips li {
-    font-size: 0.75rem;
-    padding: 0.2rem 0.55rem;
-    border-radius: 999px;
-    background: var(--mist-100);
+  .blog__note {
+    max-width: 62ch;
+    margin: clamp(2rem, 5vw, 3rem) 0 0;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--rule);
+    font-size: var(--step--1);
+    color: var(--text-muted);
+  }
+  .blog__note a {
     color: var(--navy-800);
+    font-weight: 700;
+  }
+
+  /* ---------- Filters (progressive: no JS, all items visible if :has() is missing) ---------- */
+  .blog:has(#bf-clearance:checked) .post:not([data-cat='clearance']),
+  .blog:has(#bf-import:checked) .post:not([data-cat='import']),
+  .blog:has(#bf-customs:checked) .post:not([data-cat='customs']),
+  .blog:has(#bf-origin:checked) .post:not([data-cat='origin']) {
+    display: none;
+  }
+
+  @media (max-width: 720px) {
+    .blog__filter {
+      position: static;
+    }
+    .blog__start {
+      display: none;
+    }
   }
 </style>
