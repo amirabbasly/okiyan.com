@@ -76,6 +76,29 @@ const groups = [
     </div>
   </section>
 
+  <section class="section section--alt" aria-labelledby="ports-hub-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="eyebrow">گمرکات</span>
+        <h2 id="ports-hub-title">راهنمای هر گمرک، جداگانه</h2>
+        <p class="lead">
+          رویهٔ ترخیص یکی است، اما انبارها، مسیرها و نوع کالای هر گمرک متفاوت است. هفت گمرک پرتردد را با جزئیات عملیاتی
+          بررسی کرده‌ایم.
+        </p>
+      </header>
+      <ul class="ports-list">
+        <li><a href="/customs/">همهٔ گمرکات</a></li>
+        <li><a href="/customs/bandar-abbas/">بندرعباس</a></li>
+        <li><a href="/customs/bushehr/">بوشهر</a></li>
+        <li><a href="/customs/imam-khomeini-port/">بندر امام خمینی</a></li>
+        <li><a href="/customs/khorramshahr/">خرمشهر و آبادان</a></li>
+        <li><a href="/customs/anzali/">انزلی</a></li>
+        <li><a href="/customs/imam-khomeini-airport/">فرودگاه امام</a></li>
+        <li><a href="/customs/bazargan/">بازرگان</a></li>
+      </ul>
+    </div>
+  </section>
+
   <CtaBand title="سؤال شما در راهنماها نبود؟" text="مشخصات کالا و پرسش خود را بفرستید. پس از بررسی، پاسخ متناسب با پروندهٔ شما را می‌دهیم." />
 </BaseLayout>
 
@@ -83,6 +106,32 @@ const groups = [
   .guide-groups {
     display: grid;
     gap: clamp(3rem, 6vw, 5rem);
+  }
+  .ports-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin: 1.25rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .ports-list a {
+    display: inline-block;
+    padding: 0.45rem 1rem;
+    font-weight: 700;
+    font-size: var(--step--1);
+    color: var(--navy-800);
+    background: var(--white);
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    text-decoration: none;
+    transition:
+      border-color var(--dur-fast) ease,
+      color var(--dur-fast) ease;
+  }
+  .ports-list a:hover {
+    border-color: var(--petrol-300);
+    color: var(--petrol-600);
   }
   .guide-group__head {
     display: flex;

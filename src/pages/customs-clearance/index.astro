@@ -304,6 +304,29 @@ const faqs = [
     </div>
   </section>
 
+  <!-- Which customs office: internal links to the per-office pages -->
+  <section class="section section--alt" aria-labelledby="ports-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="eyebrow">گمرکات</span>
+        <h2 id="ports-title">کالای شما از کدام گمرک می‌آید؟</h2>
+        <p class="lead">
+          رویهٔ ترخیص یکی است، اما نوع کالا، انبارها و مسیرهای هر گمرک متفاوت‌اند. راهنمای عملیاتی هر گمرک را ببینید.
+        </p>
+      </header>
+      <ul class="ports-grid">
+        <li><a href="/customs/bandar-abbas/">گمرک بندرعباس <small>کانتینر و کالای تجاری</small></a></li>
+        <li><a href="/customs/bushehr/">گمرک بوشهر <small>بار خرد و ملوانی</small></a></li>
+        <li><a href="/customs/imam-khomeini-port/">گمرک بندر امام خمینی <small>فله و کالای اساسی</small></a></li>
+        <li><a href="/customs/khorramshahr/">خرمشهر و آبادان <small>جنوب غرب و مرز عراق</small></a></li>
+        <li><a href="/customs/anzali/">گمرک انزلی <small>دریای خزر و CIS</small></a></li>
+        <li><a href="/customs/imam-khomeini-airport/">فرودگاه امام <small>بار هوایی و فوری</small></a></li>
+        <li><a href="/customs/bazargan/">گمرک بازرگان <small>مرز زمینی ترکیه</small></a></li>
+        <li><a href="/customs/">همهٔ گمرکات <small>فهرست کامل</small></a></li>
+      </ul>
+    </div>
+  </section>
+
   <!-- FAQ -->
   <section class="section" aria-labelledby="faq-title">
     <div class="container split split--wide">
@@ -327,6 +350,38 @@ const faqs = [
 </BaseLayout>
 
 <style>
+  .ports-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+    gap: 0.9rem;
+    margin: 1.25rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .ports-grid a {
+    display: grid;
+    gap: 0.15rem;
+    padding: 0.9rem 1.1rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-s);
+    text-decoration: none;
+    font-weight: 700;
+    color: var(--navy-800);
+    background: var(--white);
+    transition:
+      border-color var(--dur-fast) ease,
+      transform var(--dur-med) var(--ease-out);
+  }
+  .ports-grid a:hover {
+    border-color: var(--petrol-300);
+    transform: translateY(-2px);
+  }
+  .ports-grid small {
+    font-weight: 500;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+  }
+
   .clients-lead {
     margin: 0 0 1rem;
     font-size: var(--step--1);

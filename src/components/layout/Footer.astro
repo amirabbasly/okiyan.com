@@ -7,7 +7,12 @@ import { getCollection } from 'astro:content';
 
 const channels = contactChannels();
 const socials = socialLinks();
-const guides = (await getCollection('guides')).sort((a, b) => a.data.order - b.data.order);
+// Fixed shortlist: the footer stays the same height as before, no matter how
+// many guides are published under /guides/.
+const FOOTER_GUIDES = ['customs-clearance-cost', 'customs-clearance-documents', 'import-process'];
+const guides = (await getCollection('guides'))
+  .filter((g) => FOOTER_GUIDES.includes(g.id))
+  .sort((a, b) => FOOTER_GUIDES.indexOf(a.id) - FOOTER_GUIDES.indexOf(b.id));
 const year = persianYear();
 ---
 
