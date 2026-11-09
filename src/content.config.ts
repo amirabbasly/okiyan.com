@@ -5,8 +5,14 @@ import { z } from "astro/zod";
 const guides = defineCollection({
   loader: glob({ pattern: "**/*.md", base: "./src/content/guides" }),
   schema: z.object({
-    /** Used as the H1 and the <title>. */
+    /** Used as the H1 and in listings. */
     title: z.string(),
+    /**
+     * Optional shorter variant used ONLY in <title>. Needed when the display
+     * title would push the SERP title past ~60 characters: the H1 and every
+     * listing keep the full title, so no page content changes.
+     */
+    seoTitle: z.string().max(70).optional(),
     /** Short label for navigation and cards. */
     navTitle: z.string(),
     description: z.string().max(170),
