@@ -1,0 +1,231 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import PageHero from '~/components/layout/PageHero.astro';
+import CtaBand from '~/components/ui/CtaBand.astro';
+import Icon from '~/components/ui/Icon.astro';
+import AnswerBlock from '~/components/ui/AnswerBlock.astro';
+import { breadcrumbLd } from '~/lib/schema';
+
+const origins = (await getCollection('origins')).sort((a, b) => a.data.order - b.data.order);
+const offices = (await getCollection('customs')).sort((a, b) => a.data.order - b.data.order);
+
+const crumbs = [
+  { name: 'خانه', path: '/' },
+  { name: 'واردات بر اساس مبدأ', path: '/imports/' },
+];
+
+const answer =
+  'واردات به ایران از هر مبدأ، سه تصمیم مشترک دارد: کد تعرفه و مجوزها، شرط تحویل (اینکوترمز) و اسنادی که حمل را اثبات می‌کنند. تفاوت مبدأها در مسیر حمل و در ریسک اسناد است: چین با حمل دریایی طولانی و تعداد اقلام زیاد، دبی با نزدیکی و کالای بازصادراتی، و ترکیه با حمل زمینی و اسناد جاده‌ای.';
+---
+
+<BaseLayout
+  title="واردات بر اساس مبدأ: چین، دبی و ترکیه"
+  description="واردات کالا به ایران از چین، دبی و ترکیه: مسیر حمل، اسناد، اینکوترمز، ریسک‌های هر مبدأ و نکاتی که پیش از بارگیری باید روشن شود."
+  jsonLd={[breadcrumbLd(crumbs, Astro.site)]}
+>
+  <PageHero
+    eyebrow="واردات"
+    title="واردات کالا بر اساس مبدأ"
+    lead="هر مبدأ، مسیر و ریسک خودش را دارد. تصمیم‌های مشترک را یک‌بار برای همه می‌بینیم و بعد سراغ تفاوت‌هایی می‌رویم که پرونده را متفاوت می‌کند."
+    crumbs={crumbs}
+  >
+    <div class="hero-actions">
+      <a class="btn" href="/contact/">
+        استعلام قیمت
+        <Icon name="arrow" class="btn__icon" />
+      </a>
+      <a class="btn btn--ghost" href="/guides/import-process/">مراحل واردات</a>
+    </div>
+  </PageHero>
+
+  <AnswerBlock text={answer} />
+
+  <section class="section" aria-labelledby="origins-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="eyebrow">مبدأها</span>
+        <h2 id="origins-title">از کدام کشور وارد می‌کنید؟</h2>
+        <p class="lead">
+          برای هر مبدأ، مسیر حمل، اسناد کلیدی و دام‌های رایج آن را جدا کرده‌ایم. اگر مبدأ کالای شما در این فهرست نیست،
+          <a href="/contact/">مشخصات را بفرستید</a> تا مسیر را بررسی کنیم.
+        </p>
+      </header>
+      <ul class="origin-grid">
+        {
+          origins.map((o) => (
+            <li class="origin-card reveal">
+              <span class="origin-card__country">{o.data.country}</span>
+              <h3>
+                <a href={`/imports/${o.id}/`}>{o.data.navTitle}</a>
+              </h3>
+              <p>{o.data.description}</p>
+              <ul class="origin-card__chips">
+                {o.data.corridors.slice(0, 3).map((c) => (
+                  <li>{c}</li>
+                ))}
+              </ul>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section--alt" aria-labelledby="common-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="eyebrow">مشترک بین همهٔ مبدأها</span>
+        <h2 id="common-title">سه تصمیمی که مستقل از مبدأ است</h2>
+      </header>
+      <ol class="common-steps">
+        <li>
+          <h3>کد تعرفه و مجوز</h3>
+          <p>
+            تعرفه و نیاز به مجوز، به کالا بستگی دارد نه به کشور مبدأ. پیش از سفارش، این دو را قطعی کنید؛
+            <a href="/guides/import-permits/">مجوزهای واردات</a>.
+          </p>
+        </li>
+        <li>
+          <h3>شرط تحویل و بیمه</h3>
+          <p>
+            اینکوترمز مشخص می‌کند هزینه و ریسک هر بخش از مسیر با کیست. انتخاب نادرست آن، هزینه‌ای است که بعداً ظاهر می‌شود؛
+            <a href="/guides/import-process/">مراحل واردات کالا</a>.
+          </p>
+        </li>
+        <li>
+          <h3>اسناد هم‌خوان</h3>
+          <p>
+            فاکتور، بسته‌بندی، بارنامه و اظهارنامه باید یک داستان بگویند. ناهم‌خوانی، شایع‌ترین دلیل توقف پرونده است؛
+            <a href="/guides/customs-clearance-documents/">مدارک ترخیص کالا</a>.
+          </p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="ports-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="eyebrow">مقصد</span>
+        <h2 id="ports-title">کالا از کدام گمرک وارد می‌شود؟</h2>
+      </header>
+      <ul class="ports-list">
+        {
+          offices.map((o) => (
+            <li>
+              <a href={`/customs/${o.id}/`}>{o.data.city}</a>
+            </li>
+          ))
+        }
+        <li>
+          <a href="/customs/">همهٔ گمرکات</a>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <CtaBand
+    title="مبدأ کالا را مشخص کرده‌اید؟"
+    text="کشور مبدأ، شرح کالا و مقدار تقریبی را بفرستید تا مسیر حمل، اسناد لازم و بازهٔ زمانی را بررسی کنیم."
+  />
+</BaseLayout>
+
+<style>
+  .origin-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 21rem), 1fr));
+    gap: 1.25rem;
+    list-style: none;
+    margin: 1.5rem 0 0;
+    padding: 0;
+  }
+  .origin-card {
+    display: grid;
+    align-content: start;
+    gap: 0.6rem;
+    padding: clamp(1.4rem, 3vw, 1.9rem);
+    border: 1px solid var(--rule);
+    border-top: 4px solid var(--petrol-600);
+    border-radius: var(--radius-m);
+    background: var(--white);
+  }
+  .origin-card__country {
+    font-size: var(--step--1);
+    font-weight: 700;
+    color: var(--petrol-600);
+  }
+  .origin-card h3 {
+    font-size: var(--step-2);
+  }
+  .origin-card h3 a {
+    color: var(--navy-900);
+    text-decoration-color: var(--petrol-300);
+    text-underline-offset: 4px;
+  }
+  .origin-card p {
+    margin: 0;
+    color: var(--slate-700);
+    line-height: 1.85;
+  }
+  .origin-card__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    list-style: none;
+    margin: 0.4rem 0 0;
+    padding: 0;
+  }
+  .origin-card__chips li {
+    font-size: 0.78rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    background: var(--mist-100);
+    color: var(--navy-800);
+  }
+  .common-steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+    gap: 1.5rem;
+    counter-reset: none;
+    list-style: none;
+    margin: 1.5rem 0 0;
+    padding: 0;
+  }
+  .common-steps li {
+    padding-top: 1.1rem;
+    border-top: 2px solid var(--navy-900);
+  }
+  .common-steps h3 {
+    font-size: var(--step-1);
+    margin-bottom: 0.5rem;
+  }
+  .common-steps p {
+    margin: 0;
+    color: var(--slate-700);
+    line-height: 1.85;
+  }
+  .ports-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin: 1.25rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .ports-list a {
+    display: inline-block;
+    padding: 0.45rem 1rem;
+    font-weight: 700;
+    font-size: var(--step--1);
+    color: var(--navy-800);
+    background: var(--white);
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    text-decoration: none;
+  }
+  .ports-list a:hover {
+    border-color: var(--petrol-300);
+    color: var(--petrol-600);
+  }
+</style>

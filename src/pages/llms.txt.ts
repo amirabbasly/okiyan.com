@@ -18,6 +18,9 @@ export const GET: APIRoute = async ({ site: base }) => {
   const offices = (await getCollection("customs")).sort(
     (a, b) => a.data.order - b.data.order,
   );
+  const origins = (await getCollection("origins")).sort(
+    (a, b) => a.data.order - b.data.order,
+  );
 
   const link = (name: string, path: string, description: string) =>
     `- [${name}](${absoluteUrl(path, base)}): ${description}`;
@@ -62,6 +65,10 @@ export const GET: APIRoute = async ({ site: base }) => {
       "/commercial-services/",
       "تأمین‌کننده، قرارداد خرید، ثبت سفارش و بازرسی پیش از حمل.",
     ),
+    "",
+    "## واردات بر اساس مبدأ",
+    "",
+    ...origins.map((o) => link(o.data.title, `/imports/${o.id}/`, o.data.description)),
     "",
     "## راهنماهای تخصصی",
     "",

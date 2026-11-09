@@ -1,0 +1,445 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import PageHero from '~/components/layout/PageHero.astro';
+import CtaBand from '~/components/ui/CtaBand.astro';
+import Icon from '~/components/ui/Icon.astro';
+import { articleLd, breadcrumbLd, faqLd, serviceLd } from '~/lib/schema';
+import { formatFaDate, readingMinutes, toFa } from '~/lib/format';
+import { companyPhones, isProduction } from '~/config/site';
+
+export async function getStaticPaths() {
+  const origins = await getCollection('origins');
+  return origins.map((entry) => ({ params: { id: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content, headings } = await render(entry);
+const all = await getCollection('origins');
+const others = all.filter((o) => o.id !== entry.id).sort((a, b) => a.data.order - b.data.order);
+const guides = (await getCollection('guides')).filter((g) => entry.data.relatedGuides.includes(g.id));
+const offices = (await getCollection('customs')).filter((o) => entry.data.relatedOffices.includes(o.id));
+const path = `/imports/${entry.id}/`;
+const crumbs = [
+  { name: 'خانه', path: '/' },
+  { name: 'واردات بر اساس مبدأ', path: '/imports/' },
+  { name: entry.data.navTitle, path },
+];
+const updated = entry.data.updatedDate ?? entry.data.publishDate;
+const minutes = readingMinutes(entry.body ?? '');
+const toc = headings.filter((h) => h.depth === 2);
+const phone = companyPhones[0];
+---
+
+<BaseLayout
+  title={entry.data.title}
+  description={entry.data.description}
+  ogType="article"
+  publishedTime={entry.data.publishDate}
+  modifiedTime={updated}
+  jsonLd={[
+    breadcrumbLd(crumbs, Astro.site),
+    serviceLd(
+      {
+        name: `واردات کالا از ${entry.data.country}`,
+        description: entry.data.description,
+        path,
+        serviceType: 'واردات کالا',
+      },
+      Astro.site,
+    ),
+    articleLd(
+      {
+        title: entry.data.title,
+        description: entry.data.description,
+        path,
+        published: entry.data.publishDate,
+        modified: entry.data.updatedDate,
+        keywords: entry.data.keywords,
+        section: 'واردات بر اساس مبدأ',
+        wordCount: entry.body ? entry.body.trim().split(/\s+/).length : undefined,
+        about: [entry.data.country, 'واردات کالا', ...entry.data.goods.slice(0, 4)],
+      },
+      Astro.site,
+    ),
+    faqLd(entry.data.faq, path, Astro.site),
+  ].filter((x) => x !== null)}
+>
+  <PageHero
+    eyebrow={`واردات از ${entry.data.country}`}
+    title={entry.data.title}
+    lead={entry.data.description}
+    crumbs={crumbs}
+  >
+    <p class="guide-meta">
+      <span>به‌روزرسانی: <time datetime={updated.toISOString().slice(0, 10)}>{formatFaDate(updated)}</time></span>
+      <span>زمان مطالعه: حدود {toFa(minutes)} دقیقه</span>
+    </p>
+  </PageHero>
+
+  <div class="container guide">
+    <aside class="guide__aside" aria-label="خلاصه و فهرست مطالب">
+      <div class="guide__summary">
+        <h2>خلاصه در چند خط</h2>
+        <ul class="checklist">
+          {entry.data.summary.map((s) => <li>{s}</li>)}
+        </ul>
+      </div>
+      {
+        entry.data.corridors.length > 0 && (
+          <nav class="guide__toc" aria-labelledby="corridors-title">
+            <h2 id="corridors-title">مسیرهای این مبدأ</h2>
+            <ol>
+              {entry.data.corridors.map((c) => (
+                <li>{c}</li>
+              ))}
+            </ol>
+          </nav>
+        )
+      }
+      {
+        toc.length > 2 && (
+          <nav class="guide__toc" aria-labelledby="toc-title">
+            <h2 id="toc-title">در این صفحه</h2>
+            <ol>
+              {toc.map((h) => (
+                <li>
+                  <a href={`#${h.slug}`}>{h.text}</a>
+                </li>
+              ))}
+            </ol>
+          </nav>
+        )
+      }
+    </aside>
+
+    <article class="guide__body">
+      {
+        entry.data.answer && (
+          <section class="guide__answer" aria-labelledby="answer-title">
+            <h2 id="answer-title">پاسخ کوتاه</h2>
+            <p>{entry.data.answer}</p>
+          </section>
+        )
+      }
+
+      {entry.data.goods.length > 0 && (
+        <div class="cargo-strip">
+          <h2 class="cargo-strip__title">کالاهای رایج از این مبدأ</h2>
+          <ul>
+            {entry.data.goods.map((c) => (
+              <li>{c}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <div class="prose">
+        <Content />
+      </div>
+
+      {
+        entry.data.faq.length > 0 && (
+          <section class="guide__faq" aria-labelledby="faq-title">
+            <h2 id="faq-title">پرسش‌های رایج دربارهٔ واردات از {entry.data.country}</h2>
+            {entry.data.faq.map((item) => (
+              <details class="faq-item">
+                <summary>{item.q}</summary>
+                <p>{item.a}</p>
+              </details>
+            ))}
+          </section>
+        )
+      }
+
+      {
+        guides.length > 0 && (
+          <section class="guide__sources" aria-labelledby="more-title">
+            <h2 id="more-title">راهنماهای مرتبط</h2>
+            <ul class="related-list">
+              {guides.map((g) => (
+                <li>
+                  <a href={`/guides/${g.id}/`}>{g.data.navTitle}</a>
+                  <span class="muted"> — {g.data.description}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )
+      }
+
+      {
+        offices.length > 0 && (
+          <section class="guide__sources" aria-labelledby="offices-title">
+            <h2 id="offices-title">گمرک مقصد این مسیر</h2>
+            <ul class="related-list">
+              {offices.map((o) => (
+                <li>
+                  <a href={`/customs/${o.id}/`}>{o.data.office}</a>
+                  <span class="muted"> — {o.data.city}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )
+      }
+
+      <section class="guide__sources" aria-labelledby="other-title">
+        <h2 id="other-title">واردات از مبدأهای دیگر</h2>
+        <ul class="related-list">
+          {others.map((o) => (
+            <li>
+              <a href={`/imports/${o.id}/`}>{o.data.navTitle}</a>
+              <span class="muted"> — {o.data.country}</span>
+            </li>
+          ))}
+          <li>
+            <a href="/imports/">همهٔ مبدأها</a>
+          </li>
+        </ul>
+      </section>
+
+      <div class="notice guide__disclaimer">
+        <Icon name="info" />
+        <p>
+          <strong>این صفحه یک راهنمای عملی است، نه اعلام رویهٔ رسمی.</strong> شرایط حمل، تعرفه و مجوزها تغییر می‌کند. پیش از
+          اقدام، وضعیت پروندهٔ خود را با منابع رسمی یا یک کارشناس بررسی کنید.
+          {phone && (
+            <>
+              {' '}
+              برای بررسی پرونده: <a href={`tel:${phone.e164}`} dir="ltr">{phone.display}</a>
+            </>
+          )}
+        </p>
+      </div>
+
+      {
+        entry.data.sources.length > 0 && (
+          <section class="guide__sources" aria-labelledby="sources-title">
+            <h2 id="sources-title">منابع و مراجع</h2>
+            <ol>
+              {entry.data.sources.map((s) => (
+                <li>
+                  <a href={s.url} rel="noopener" target="_blank">
+                    {s.title}
+                    <Icon name="external" />
+                    <span class="sr-only">(در پنجرهٔ جدید)</span>
+                  </a>
+                  <span class="muted"> — {s.publisher}</span>
+                  {s.note && <p class="muted">{s.note}</p>}
+                </li>
+              ))}
+            </ol>
+          </section>
+        )
+      }
+
+      {!isProduction && entry.data.reviewNotes.length > 0 && (
+        <section class="placeholder guide__review" aria-label="موارد نیازمند بازبینی">
+          <strong>پیش از انتشار بازبینی شود (فقط در نسخهٔ آزمایشی نمایش داده می‌شود):</strong>
+          <ul>
+            {entry.data.reviewNotes.map((n) => (
+              <li>{n}</li>
+            ))}
+          </ul>
+        </section>
+      )}
+    </article>
+  </div>
+
+  <CtaBand
+    title={`خرید از ${entry.data.country} در پیش است؟`}
+    text="کشور مبدأ، شرح کالا و مقدار تقریبی را بفرستید؛ مسیر حمل، الزامات و بازهٔ زمانی را پیش از سفارش بررسی می‌کنیم."
+  />
+</BaseLayout>
+
+<style>
+  /* Same two-column shell as the guides: a sticky summary rail plus the article.
+     Kept local to this template so the guide page's own styles stay untouched. */
+  .guide-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.5rem;
+    font-size: var(--step--1);
+    color: var(--text-muted);
+  }
+  .guide-meta span + span::before {
+    content: '';
+    display: inline-block;
+    inline-size: 4px;
+    block-size: 4px;
+    border-radius: 50%;
+    background: var(--petrol-500);
+    margin-inline-end: 1.5rem;
+    vertical-align: middle;
+    margin-inline-start: -1rem;
+  }
+  .guide {
+    display: grid;
+    grid-template-columns: minmax(0, 17rem) minmax(0, 46rem);
+    justify-content: space-between;
+    gap: 3rem 4rem;
+    padding-block: clamp(2.5rem, 2rem + 3vw, 5rem);
+  }
+  .guide__aside {
+    display: grid;
+    gap: 2rem;
+    align-content: start;
+    position: sticky;
+    top: calc(var(--header-h) + 1.5rem);
+    align-self: start;
+  }
+  .guide__aside h2 {
+    font-size: var(--step-0);
+    font-weight: 800;
+    margin-bottom: 0.9rem;
+  }
+  .guide__summary {
+    padding: 1.4rem;
+    border-radius: var(--radius-m);
+    background: var(--mist-100);
+    border: 1px solid var(--rule);
+    font-size: var(--step--1);
+    line-height: 1.85;
+  }
+  .guide__summary .checklist li::before {
+    margin-top: 0.25rem;
+  }
+  .guide__toc ol {
+    list-style: none;
+    border-inline-start: 2px solid var(--rule);
+    display: grid;
+    gap: 0.15rem;
+    font-size: var(--step--1);
+  }
+  .guide__toc a {
+    display: block;
+    padding: 0.35rem 1rem;
+    margin-inline-start: -2px;
+    border-inline-start: 2px solid transparent;
+    color: var(--text-muted);
+    text-decoration: none;
+    line-height: 1.7;
+    transition:
+      color var(--dur-fast) ease,
+      border-color var(--dur-fast) ease;
+  }
+  .guide__toc a:hover {
+    color: var(--navy-900);
+    border-color: var(--petrol-300);
+  }
+  .guide__answer {
+    padding: 1.4rem 1.6rem;
+    margin-bottom: 2rem;
+    border-radius: var(--radius-m);
+    background: var(--white);
+    border: 1px solid var(--rule);
+    border-inline-start: 4px solid var(--petrol-500);
+  }
+  .guide__answer h2 {
+    font-size: var(--step--1);
+    letter-spacing: 0.04em;
+    color: var(--petrol-600);
+    margin-bottom: 0.5rem;
+  }
+  .guide__answer p {
+    margin: 0;
+    font-size: var(--step-0);
+    line-height: 1.9;
+    color: var(--navy-800);
+  }
+  .guide__body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 3rem;
+    align-content: start;
+  }
+  .guide__body .prose > :global(:first-child) {
+    margin-top: 0;
+  }
+  .guide__body .prose :global(h2) {
+    scroll-margin-top: calc(var(--header-h) + 1.5rem);
+  }
+  .guide__sources h2 {
+    font-size: var(--step-2);
+    margin-bottom: 1rem;
+  }
+  .guide__sources ol {
+    padding-inline-start: 1.3rem;
+    display: grid;
+    gap: 0.9rem;
+    font-size: var(--step--1);
+  }
+  .guide__sources a {
+    font-weight: 700;
+    color: var(--navy-800);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+  .guide__sources a :global(svg) {
+    inline-size: 0.95em;
+    block-size: 0.95em;
+  }
+  @media (max-width: 960px) {
+    .guide {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .guide__aside {
+      position: static;
+    }
+  }
+  .cargo-strip {
+    margin-bottom: 2rem;
+    padding: 1.25rem 1.5rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-m);
+    background: var(--bg-alt, #f4f7fa);
+  }
+  .cargo-strip__title {
+    margin: 0 0 0.75rem;
+    font-size: var(--step--1);
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    color: var(--text-muted);
+  }
+  .cargo-strip ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .cargo-strip li {
+    padding: 0.3rem 0.75rem;
+    font-size: var(--step--1);
+    font-weight: 600;
+    color: var(--navy-800);
+    background: var(--white);
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+  }
+  .guide__faq {
+    margin-top: 2.5rem;
+  }
+  .faq-item {
+    border-bottom: 1px solid var(--rule);
+  }
+  .faq-item summary {
+    cursor: pointer;
+    padding: 0.9rem 0;
+    font-weight: 700;
+  }
+  .faq-item p {
+    margin: 0 0 1rem;
+    color: var(--slate-700);
+  }
+  .related-list {
+    display: grid;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+</style>

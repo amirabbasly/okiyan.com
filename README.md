@@ -23,7 +23,7 @@ Astro 7 + TypeScript, fully static, plain CSS, ~5 KB of gzipped JavaScript on th
 
 | Variable | Purpose |
 | --- | --- |
-| `SITE_URL` | Canonical production origin. Defaults to `https://okiyan.com`. Drives canonicals, sitemap, OG URLs. Redirect `www.okiyan.com` (and the old `okiyan.ir`) to it with a 301 at the host. |
+| `SITE_URL` | Canonical production origin. Defaults to `https://okiyan.com`. Drives canonicals, sitemap, OG URLs. Redirect `www.okiyan.com` (and the old `okiyan.ir`) to it with a 301 at the host — see `deploy/README.md`. |
 | `SITE_ENV` | `production` makes the site indexable. **Anything else** (default `development`) emits `<meta name="robots" content="noindex, nofollow">`, a `Disallow: /` robots.txt, and an `X-Robots-Tag: noindex` rule in `dist/_headers`. |
 | `PUBLIC_FORM_ENDPOINT` | URL that receives the consultation form as a `POST` (multipart FormData, including the packing-list file). Empty = the form says online sending is unavailable and shows the phone numbers; it never fakes a success. |
 
@@ -221,3 +221,23 @@ The guides avoid rates, percentages and deadlines and link to official sources. 
 and each guide lists specific `reviewNotes` (visible on staging builds) for a qualified customs professional to
 confirm — e.g. the insurance-from-domestic-insurer requirement, the exchange-rate basis for duties, and current
 sequencing of order registration and currency allocation.
+
+## Content collections
+
+| Collection | Folder | Rendered at |
+| --- | --- | --- |
+| `guides` | `src/content/guides/*.md` | `/guides/<id>/` (+ hub `/guides/`) |
+| `customs` | `src/content/customs/*.md` | `/customs/<id>/` (+ hub `/customs/`) |
+| `origins` | `src/content/origins/*.md` | `/imports/<id>/` (+ hub `/imports/`) |
+
+Every entry carries `answer` (a self-contained direct answer shown under the hero and used
+for AEO), `keywords`, `faq` (rendered + `FAQPage` markup), `summary`, `sources` and
+`relatedGuides` / `relatedOffices` for the internal-link cluster. `publishDate` /
+`updatedDate` feed `Article` markup and the sitemap `lastmod`
+(`integrations/lastmod.mjs`).
+
+## Deployment
+
+`deploy/README.md` covers the nginx deploy, the 301 redirects that make
+`okiyan.com` the only canonical host, and the optional search-engine verification
+tokens (`GOOGLE_VERIFICATION_TOKEN`, `BING_VERIFICATION_TOKEN`).
