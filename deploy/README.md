@@ -165,6 +165,53 @@ Bing feeds ChatGPT Search, so this is an AI-visibility step as much as an SEO on
 
 ---
 
+## 1d. After the `.ir` redirect goes live — verification
+
+Run this from any machine with network access (laptop is enough):
+
+```bash
+npm run seo:hosts
+```
+
+It follows every hostname that still resolves — `http://okiyan.com`, `https://www.okiyan.com`,
+`https://okiyan.ir`, `https://www.okiyan.ir`, plus a deep path and a URL with a query string —
+and fails unless each one answers **one** permanent redirect to `https://okiyan.com` with the
+path and query intact.
+
+Expected output:
+
+```
+http://okiyan.com/                     1  200  ✓
+https://www.okiyan.com/                1  200  ✓
+https://okiyan.ir/                     1  200  ✓
+https://www.okiyan.ir/                 1  200  ✓
+https://okiyan.ir/guides/customs-valuation/  1  200  ✓
+https://okiyan.ir/guides/?utm_source=test   1  200  ✓
+```
+
+Anything with a `✗` is a leak: `302` instead of `301`, a second hop, a lost path, or a lost
+query string.
+
+### Cloudflare robots.txt warning
+
+A Cloudflare zone can serve a **managed `robots.txt`** that overrides the file the site ships.
+That is currently what `okiyan.ir` returns: it blocks GPTBot, ClaudeBot, Google-Extended,
+CCBot and others. On a redirect-only host that costs nothing — Googlebot still sees the 301 —
+but the same switch **must stay off on the `okiyan.com` zone**, because there it would replace
+our own `robots.txt` and remove the site from AI answers.
+
+Check after any Cloudflare change:
+
+```bash
+curl -s https://okiyan.com/robots.txt | head -5     # must be OUR file: "# okiyan.com — …"
+```
+
+If the output starts with `# As a condition of accessing this website…`, Cloudflare is
+overriding it: Cloudflare dashboard → the `okiyan.com` zone → **Security → Bots → AI Crawl
+Control / Managed robots.txt → off**.
+
+---
+
 ## 2. Verify the host before asking Google to crawl
 
 ```bash
