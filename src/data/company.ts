@@ -29,10 +29,6 @@ export const registry: Field[] = [
   { label: 'وضعیت شرکت', value: 'فعال', strong: true },
   { label: 'آخرین سرمایهٔ ثبتی', value: '۲۰۰٬۱۰۰٬۰۰۰٬۰۰۰ ریال' },
   { label: 'آخرین آگهی رسمی', value: '۱۴۰۵/۰۴/۲۳' },
-  { label: 'نماد بورسی', value: '—' },
-  { label: 'تاریخ انحلال', value: '—' },
-  { label: 'شناسهٔ ملی شعبهٔ اصلی', value: '—' },
-  { label: 'سایز شرکت', value: '—' },
 ];
 
 /**

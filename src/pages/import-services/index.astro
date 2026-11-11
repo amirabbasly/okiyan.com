@@ -12,6 +12,7 @@ import { breadcrumbLd, serviceLd } from '~/lib/schema';
 import { services } from '~/data/services';
 import { contactCta } from '~/config/site';
 import { toFa } from '~/lib/format';
+import Photo from '~/components/ui/Photo.astro';
 
 const path = '/import-services/';
 const crumbs = [
@@ -82,6 +83,8 @@ const faqs = [
 ---
 
 <BaseLayout
+  ogImage="/og/import.jpg"
+  ogImageAlt="بندر کانتینری در ساعت آبی"
   title="خدمات واردات کالا؛ از امکان‌سنجی تا ترخیص"
   description={description}
   jsonLd={[
@@ -106,6 +109,18 @@ const faqs = [
   </PageHero>
 
   <AnswerBlock text={"خدمات واردات کالا، همراهی در کل مسیر ورود کالا است: امکان‌سنجی و تعیین کد تعرفه، بررسی مجوزها و هزینهٔ تمام‌شده، هماهنگی اسناد با تأمین‌کننده، حمل بین‌المللی و در پایان ترخیص گمرکی تا تحویل. بیشتر تأخیرها و اختلاف هزینه‌ها در سه مرحلهٔ اول شکل می‌گیرد، نه در گمرک."} />
+
+  <section class="section section--tight" aria-label="تصویر مسیر واردات از پیش از خرید">
+    <div class="container">
+      <Photo
+        name="port-cranes"
+        alt="بندر کانتینری در ساعت آبی، با جرثقیل‌های دروازه‌ای، کشتی در اسکله و ردیف کانتینر"
+        width={1600}
+        height={900}
+        caption="مسیر واردات از پیش از خرید شروع می‌شود؛ آنچه در گمرک گران تمام می‌شود، معمولاً همان چیزی است که در مرحلهٔ تأمین‌کننده و سند نهایی شده است."
+      />
+    </div>
+  </section>
 
   <!-- Intro -->
   <section class="section" aria-labelledby="intro-title">
