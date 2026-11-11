@@ -12,6 +12,7 @@
     "assets": "node scripts/generate-assets.mjs",
     "verify": "node scripts/verify-dist.mjs",
     "seo:indexnow": "node scripts/indexnow.mjs",
+    "seo:hosts": "node scripts/check-hosts.mjs",
     "build:prod": "node scripts/build-production.mjs",
     "test:journey": "node scripts/test-journey.mjs"
   },
