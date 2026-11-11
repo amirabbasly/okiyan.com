@@ -111,12 +111,35 @@ export const site = {
     telegramChannel: null as string | null,
   },
 
-  /** Verifiable company facts. Leave null until confirmed with documents. */
+  /**
+   * Verifiable company facts, taken from the registry extract and the licence
+   * certificates themselves (see src/data/company.ts for the full set).
+   */
   company: {
-    legalName: null as string | null,
-    foundingYear: null as number | null,
-    /** Customs broker licence (پروانه حق‌العمل‌کاری) or other registrations. */
-    licences: [] as Array<{ title: string; number: string; issuer: string }>,
+    /** Registered legal name — «اوژن تجارت کیان»; the site trades as «اوکیان». */
+    legalName: 'اوژن تجارت کیان' as string | null,
+    /** ISO date (Gregorian) for schema.org foundingDate. */
+    foundingDate: '2014-05-10' as string | null,
+    /** Jalali registration date, shown to users. */
+    registrationDate: '1393/02/20' as string | null,
+    registrationNumber: '453947' as string | null,
+    nationalId: '14004048433' as string | null,
+    economicCode: '411448977887' as string | null,
+    companyType: 'شرکت با مسئولیت محدود' as string | null,
+    status: 'فعال' as string | null,
+    /** Licences that are valid today; expired ones live in src/data/company.ts. */
+    licences: [
+      {
+        title: 'پروانه کسب تعمیر انواع دستگاه‌های صنعتی و خانگی',
+        number: '18640938',
+        issuer: 'دبیرخانه هیئت عالی نظارت بر سازمان‌های صنفی کشور',
+      },
+      {
+        title: 'پروانه کسب فروش مواد اولیه کالاهای کشباف، گردباف و جوراب',
+        number: '9699074',
+        issuer: 'دبیرخانه هیئت عالی نظارت بر سازمان‌های صنفی کشور / اتحادیه صنفی',
+      },
+    ] as Array<{ title: string; number: string; issuer: string }>,
   },
 
   /** Ports/customs offices the business actually serves. Empty = not confirmed. */
@@ -206,8 +229,6 @@ export function missingBusinessInfo(): string[] {
   if (!c.email) missing.push('ایمیل (contact.email)');
   if (!c.address) missing.push('نشانی دفتر (contact.address)');
   if (!c.hours) missing.push('ساعات پاسخ‌گویی (contact.hours)');
-  if (!site.company.legalName) missing.push('نام حقوقی شرکت (company.legalName)');
-  if (site.company.licences.length === 0) missing.push('مجوزها و پروانه‌ها (company.licences)');
   if (site.serviceAreas.length === 0) missing.push('گمرکات و بنادر تحت پوشش (serviceAreas)');
   if (!site.scopeConfirmed) missing.push('تأیید دامنه خدمات (scopeConfirmed)');
   return missing;

@@ -44,9 +44,25 @@ export function organizationLd(base: URL | undefined) {
       ...site.contact.offices.map((o) => ({ "@type": "City", name: o.city })),
     ],
   };
-  if (site.company.legalName) org.legalName = site.company.legalName;
-  if (site.company.foundingYear)
-    org.foundingDate = String(site.company.foundingYear);
+  const co = site.company;
+  if (co.legalName) org.legalName = co.legalName;
+  if (co.foundingDate) org.foundingDate = co.foundingDate;
+  if (co.economicCode) org.taxID = co.economicCode;
+  // Registry identifiers: the numbers that let a search engine (or a customer)
+  // tie «اوکیان» to one registered company instead of an anonymous brand.
+  const ids: Array<Record<string, unknown>> = [];
+  if (co.nationalId) ids.push({ "@type": "PropertyValue", propertyID: "nationalId", name: "شناسه ملی", value: co.nationalId });
+  if (co.registrationNumber) ids.push({ "@type": "PropertyValue", propertyID: "registrationNumber", name: "شماره ثبت", value: co.registrationNumber });
+  if (ids.length) org.identifier = ids;
+  if (co.licences.length) {
+    org.hasCredential = co.licences.map((l) => ({
+      "@type": "EducationalOccupationalCredential",
+      name: l.title,
+      credentialCategory: "license",
+      identifier: l.number,
+      recognizedBy: { "@type": "Organization", name: l.issuer },
+    }));
+  }
   if (c.email) org.email = c.email;
   if (c.phone) org.telephone = c.phone;
   if (c.address) {
