@@ -4,6 +4,7 @@ import sitemap from '@astrojs/sitemap';
 import { loadEnv } from 'vite';
 import indexing from './integrations/indexing.mjs';
 import { guideLastmod } from './integrations/lastmod.mjs';
+import { pageImages } from './integrations/page-images.mjs';
 import samplePages from './src/data/sample-pages.json' with { type: 'json' };
 
 const env = loadEnv(process.env.NODE_ENV ?? 'production', process.cwd(), '');
@@ -44,9 +45,23 @@ export default defineConfig({
       // 404 and pages still holding sample content (src/data/sample-pages.json) stay out.
       filter: (page) => !page.includes('/404') && !samplePages.pages.includes(new URL(page).pathname),
       // lastmod only where we know the real edit date (guide front matter).
+      // Images: an editorial photo declared as belonging to its page, so it is
+      // eligible for image search without waiting to be crawled from the HTML.
       serialize(item) {
-        const date = guideLastmod(new URL(item.url).pathname);
-        return date ? { ...item, lastmod: date } : item;
+        const pathname = new URL(item.url).pathname;
+        const date = guideLastmod(pathname);
+        const imgs = pageImages[pathname];
+        /** @type {Record<string, any>} */
+        const out = { ...item };
+        if (date) out.lastmod = date;
+        if (imgs?.length) {
+          out.img = imgs.map((i) => ({
+            url: new URL(i.file, SITE_URL).href,
+            title: i.title,
+            caption: i.caption,
+          }));
+        }
+        return /** @type {any} */ (out);
       },
     }),
     indexing({ production: IS_PRODUCTION }),

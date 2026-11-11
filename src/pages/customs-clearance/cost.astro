@@ -1,0 +1,359 @@
+---
+/**
+ * /customs-clearance/cost/ — «هزینه ترخیص کالا»
+ *
+ * Why this page exists: the search demand around clearance is dominated by
+ * cost questions ("هزینه ترخیص کالا چقدر است", "حق العمل کاری ترخیص"), and
+ * until now the site answered those only inside a long guide. A service-level
+ * page with a cost table, a worked example and a quote form ranks for the
+ * money query and hands the reader to the guide for depth.
+ *
+ * Deliberate constraint: no tariff rates, no percentages, no "starting from"
+ * prices. Every number here is either the structure of the cost, or a clearly
+ * labelled illustrative example. See the notice under the table.
+ */
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import PageHero from '~/components/layout/PageHero.astro';
+import AnswerBlock from '~/components/ui/AnswerBlock.astro';
+import Photo from '~/components/ui/Photo.astro';
+import CustomsArt from '~/components/illustrations/ClearanceArt.astro';
+import CtaBand from '~/components/ui/CtaBand.astro';
+import Faq from '~/components/ui/Faq.astro';
+import Steps from '~/components/ui/Steps.astro';
+import Icon from '~/components/ui/Icon.astro';
+import ClusterNav from '~/components/ui/ClusterNav.astro';
+import { breadcrumbLd, serviceLd, faqLd } from '~/lib/schema';
+import { contactCta } from '~/config/site';
+
+const path = '/customs-clearance/cost/';
+const crumbs = [
+  { name: 'خانه', path: '/' },
+  { name: 'ترخیص کالا', path: '/customs-clearance/' },
+  { name: 'هزینهٔ ترخیص', path },
+];
+
+const title = 'هزینهٔ ترخیص کالا از گمرک؛ اجزا و روش برآورد';
+const description =
+  'هزینهٔ ترخیص کالا از چه بخش‌هایی ساخته می‌شود، چه اقلامی قطعی و چه اقلامی برآوردی‌اند و چطور یک برآورد مکتوب بگیریم. جدول اقلام، مثال محاسباتی و پرسش‌های رایج.';
+
+const answer =
+  'هزینهٔ ترخیص کالا از گمرک، مجموع چند قلم مستقل است: حقوق ورودی و مالیات بر ارزش افزوده، هزینه‌های انبارداری و بندری، حق‌العمل‌کارانهٔ ترخیص‌کار و هزینهٔ مجوزها و حمل داخلی. از این میان فقط حق‌العمل‌کارانه قابل مذاکره و از پیش مشخص است؛ بقیه از نرخ‌های مصوب و تصمیم گمرک پیروی می‌کند. به همین دلیل برآورد درست، تفکیک «قطعی» از «برآوردی» است، نه یک عدد سرانگشتی.';
+
+/** The cost structure — the actual deliverable of this page. */
+const rows = [
+  {
+    item: 'حقوق ورودی و مالیات',
+    kind: 'قطعی (پس از ارزیابی)',
+    basis: 'ارزش گمرکی کالا، کد تعرفه و نرخ روز',
+    note: 'مبنای محاسبه، ارزشی است که گمرک می‌پذیرد؛ نه لزوماً رقم فاکتور.',
+  },
+  {
+    item: 'مالیات بر ارزش افزوده',
+    kind: 'قطعی (پس از ارزیابی)',
+    basis: 'ارزش گمرکی + حقوق ورودی',
+    note: 'در بیشتر پرونده‌ها جدا از حقوق ورودی محاسبه و پرداخت می‌شود.',
+  },
+  {
+    item: 'هزینهٔ انبارداری و بندری',
+    kind: 'متغیر با زمان',
+    basis: 'تعداد روز توقف کالا در انبار و تعرفهٔ همان انبار',
+    note: 'هر روز تأخیر، یک قلم هزینهٔ تازه است؛ این قلم بیشتر از همه قابل مدیریت است.',
+  },
+  {
+    item: 'حق‌العمل‌کارانهٔ ترخیص‌کار',
+    kind: 'قابل مذاکره',
+    basis: 'دامنهٔ کار، تعداد اقلام، مسیر گمرکی و مجوزهای مورد نیاز',
+    note: 'تنها قلمی که پیش از شروع کار می‌توان آن را دقیق و مکتوب دانست.',
+  },
+  {
+    item: 'هزینهٔ مجوزها و آزمون‌ها',
+    kind: 'وابسته به کالا',
+    basis: 'نوع مجوز دستگاه صادرکننده (استاندارد، بهداشت، انرژی اتمی و…)',
+    note: 'برای هر گروه کالا متفاوت است؛ پیش از حمل باید روشن شود.',
+  },
+  {
+    item: 'حمل داخلی و تخلیه',
+    kind: 'قابل استعلام',
+    basis: 'مسافت، وزن، حجم و نوع بارگیری',
+    note: 'از بندر تا انبار شما؛ معمولاً با یک استعلام ساده مشخص می‌شود.',
+  },
+];
+
+const steps = [
+  {
+    title: 'کد تعرفه و شرح کالا را می‌گیریم',
+    text: 'بدون کد تعرفه، هیچ برآوردی معنی ندارد؛ چون نرخ حقوق ورودی و مجوزهای لازم از همین کد می‌آید.',
+  },
+  {
+    title: 'اسناد را بررسی می‌کنیم',
+    text: 'فاکتور، بارنامه و گواهی مبدأ با هم خوانده می‌شوند تا اختلاف ارزش پیش از اظهار معلوم شود، نه بعد از آن.',
+  },
+  {
+    title: 'برآورد را تفکیک‌شده می‌نویسیم',
+    text: 'هر قلم در جدول می‌آید و مشخص می‌شود قطعی است یا برآوردی. اقلام برآوردی با بازه اعلام می‌شوند، نه با یک عدد.',
+    note: 'این جدول را کتبی تحویل می‌دهیم؛ برآورد شفاهی، برآورد نیست.',
+  },
+  {
+    title: 'پس از ارزیابی، تسویهٔ نهایی',
+    text: 'وقتی ارزیابی گمرک انجام شد، ارقام قطعی می‌شوند و تفاوت با برآورد اولیه شفاف است.',
+  },
+];
+
+const faqs = [
+  {
+    q: 'هزینهٔ ترخیص کالا چند درصد از ارزش کالاست؟',
+    a: 'یک درصد ثابت برای همهٔ کالاها وجود ندارد. حقوق ورودی به کد تعرفه بستگی دارد و بین گروه‌های کالایی بسیار متفاوت است؛ مالیات بر ارزش افزوده هم روی مجموع ارزش گمرکی و حقوق ورودی محاسبه می‌شود. هر عددی که بدون کد تعرفه و ارزش گمرکی اعلام شود، برآورد نیست.',
+  },
+  {
+    q: 'چرا برآورد اولیه با مبلغ نهایی تفاوت دارد؟',
+    a: 'چون بخشی از اقلام تا زمان ارزیابی گمرکی قطعی نمی‌شود: ارزش گمرکی ممکن است با فاکتور تفاوت داشته باشد و تعداد روزهای انبارداری تا ترخیص مشخص نیست. تفاوت برآورد و صورت‌حساب نهایی، وقتی برآورد تفکیک‌شده باشد، قابل توضیح است.',
+  },
+  {
+    q: 'حق‌العمل‌کارانهٔ ترخیص‌کار چگونه تعیین می‌شود؟',
+    a: 'به دامنهٔ کار بستگی دارد: تعداد اقلام پرونده، مسیر گمرکی، مجوزهای مورد نیاز و اینکه حمل داخلی هم بخشی از کار باشد یا نه. ما این رقم را پیش از شروع، مکتوب و جدا از هزینه‌های دولتی اعلام می‌کنیم.',
+  },
+  {
+    q: 'آیا هزینهٔ انبارداری قابل کاهش است؟',
+    a: 'بله، و بیشترین صرفه‌جویی همین‌جاست. هر روزی که کالا در انبار می‌ماند هزینه دارد؛ تجمیع مدارک پیش از ورود کشتی و اظهار به‌موقع، تعداد این روزها را کم می‌کند.',
+  },
+  {
+    q: 'برای گرفتن برآورد چه اطلاعاتی لازم است؟',
+    a: 'شرح کالا و کاربرد آن، کد تعرفه اگر می‌دانید، فاکتور یا پیش‌فاکتور، بارنامه یا اطلاعات حمل، بندر ورود و شهر مقصد. با همین پنج مورد می‌توان برآورد تفکیک‌شده داد.',
+  },
+];
+
+const related = [
+  { href: '/guides/customs-clearance-cost/', label: 'راهنمای هزینهٔ ترخیص', hint: 'اقلام اصلی و روش برآورد، با جزئیات' },
+  { href: '/customs-clearance/', label: 'خدمات ترخیص کالا', hint: 'دامنهٔ کار و مراحل' },
+  { href: '/guides/customs-valuation/', label: 'ارزش‌گذاری گمرکی', hint: 'چرا ارزش با فاکتور تفاوت دارد' },
+  { href: '/guides/customs-clearance-documents/', label: 'مدارک لازم', hint: 'فهرست اسناد پایه' },
+];
+---
+
+<BaseLayout
+  ogImage="/og/clearance.jpg"
+  ogImageAlt="میز کار کارشناس گمرک با اسناد و مهر"
+  title={title}
+  description={description}
+  jsonLd={[
+    breadcrumbLd(crumbs, Astro.site),
+    serviceLd({ name: 'برآورد هزینهٔ ترخیص کالا', description, path, serviceType: 'Customs clearance cost estimate' }, Astro.site),
+    faqLd(faqs, path, Astro.site),
+  ].filter((x) => x !== null)}
+>
+  <PageHero eyebrow="ترخیص کالا" title="هزینهٔ ترخیص کالا از گمرک" lead={answer.split('.')[0] + '.'} crumbs={crumbs}>
+    <div class="hero-actions">
+      <a class="btn" href={contactCta.href}>
+        {contactCta.label}
+        <Icon name="arrow" class="btn__icon" />
+      </a>
+      <a class="btn btn--ghost" href="#structure">اجزای هزینه</a>
+    </div>
+    <CustomsArt slot="art" />
+  </PageHero>
+
+  <AnswerBlock text={answer} />
+
+  <section class="section" id="structure" aria-labelledby="structure-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="eyebrow">ساختار هزینه</span>
+        <h2 id="structure-title">هزینهٔ ترخیص از چه اقلامی ساخته می‌شود؟</h2>
+        <p class="lead">
+          شش قلم، تقریباً همهٔ صورت‌حساب یک پروندهٔ ترخیص را می‌سازند. ستون «نوع»، همان چیزی است که تفاوت برآورد و
+          صورت‌حساب نهایی را توضیح می‌دهد.
+        </p>
+      </header>
+
+      <div class="cost-wrap reveal">
+        <table class="cost">
+          <caption class="sr-only">اقلام هزینهٔ ترخیص کالا، نوع و مبنای محاسبه</caption>
+          <thead>
+            <tr>
+              <th scope="col">قلم هزینه</th>
+              <th scope="col">نوع</th>
+              <th scope="col">مبنای محاسبه</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              rows.map((r) => (
+                <tr>
+                  <th scope="row">
+                    <span class="cost__name">{r.item}</span>
+                    <span class="cost__note">{r.note}</span>
+                  </th>
+                  <td>
+                    <span class:list={['tag', r.kind === 'قطعی (پس از ارزیابی)' && 'tag--fixed', r.kind === 'قابل مذاکره' && 'tag--neg']}>
+                      {r.kind}
+                    </span>
+                  </td>
+                  <td>{r.basis}</td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="notice reveal">
+        <Icon name="info" />
+        <p>
+          این جدول ساختار هزینه را نشان می‌دهد، نه نرخ آن. نرخ حقوق ورودی، مالیات و تعرفهٔ انبارداری هر سال و برای هر کد
+          تعرفه تغییر می‌کند؛ عدد قابل استناد فقط از کتاب مقررات گمرکی همان سال و برای همان کد تعرفه می‌آید.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt" aria-labelledby="estimate-title">
+    <div class="container split split--wide">
+      <header class="section-head sticky-head reveal">
+        <span class="eyebrow">برآورد</span>
+        <h2 id="estimate-title">چطور یک برآورد مکتوب بگیریم؟</h2>
+        <p class="lead">چهار قدم، و چیزی که تحویل می‌گیرید: یک جدول، با ستون «قطعی» و «برآوردی».</p>
+      </header>
+      <Steps items={steps} />
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="why-title">
+    <div class="container split">
+      <div class="stack reveal" style="--stack: 1.1rem">
+        <span class="eyebrow">اختلاف‌ها</span>
+        <h2 id="why-title">چرا برآورد و صورتحساب نهایی یکی نمی‌شود؟</h2>
+        <p>
+          سه چیز، تقریباً همهٔ اختلاف‌ها را می‌سازد: ارزشی که گمرک می‌پذیرد، تعداد روزهای توقف کالا و مجوزی که دیر
+          شناسایی شده است. هیچ‌کدام از این سه در کنترل ترخیص‌کار نیست، اما هر سه پیش از رسیدن کالا قابل بررسی است.
+        </p>
+        <p>
+          کاری که در توان ما است این است که پیش از اظهار بگوییم کدام قلم جای تغییر دارد و کدام ندارد. تفاوت میان
+          «هزینهٔ قانونی» و «هزینهٔ بی‌دقتی» همین‌جاست.
+        </p>
+        <a class="arrow-link" href="/guides/customs-valuation/">
+          ارزش‌گذاری گمرکی چطور تعیین می‌شود؟
+          <Icon name="arrow" />
+        </a>
+      </div>
+      <Photo
+        name="warehouse"
+        alt="محوطهٔ انبار با قفسه‌های پالت و لیفتراک در راهرو"
+        width={1600}
+        height={900}
+        sizes="(max-width: 960px) 100vw, 520px"
+        caption="هر روز توقف در انبار، یک قلم هزینهٔ تازه است؛ بیشترین صرفه‌جویی در همین قلم انجام می‌شود."
+      />
+    </div>
+  </section>
+
+  <section class="section section--alt" aria-labelledby="faq-title">
+    <div class="container split split--wide">
+      <header class="section-head reveal">
+        <span class="eyebrow">پرسش‌های رایج</span>
+        <h2 id="faq-title">پرسش‌های رایج دربارهٔ هزینهٔ ترخیص</h2>
+      </header>
+      <Faq items={faqs} />
+    </div>
+  </section>
+
+  <ClusterNav siblings={related} title="بیشتر بخوانید" />
+  <CtaBand
+    title="برآورد تفکیک‌شده می‌خواهید؟"
+    text="شرح کالا، پیش‌فاکتور و بندر ورود را بفرستید. جدولی می‌گیرید که در آن مشخص است کدام قلم قطعی و کدام قلم برآوردی است."
+  />
+</BaseLayout>
+
+<style>
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+
+  .cost-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-m);
+    background: var(--white);
+  }
+  .cost {
+    width: 100%;
+    min-width: 46rem;
+    border-collapse: collapse;
+    font-size: var(--step--1);
+  }
+  .cost thead th {
+    padding: 0.8rem 1rem;
+    text-align: start;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    color: var(--slate-600);
+    background: var(--mist-100);
+    border-bottom: 1px solid var(--rule);
+  }
+  .cost tbody th,
+  .cost tbody td {
+    padding: 0.9rem 1rem;
+    text-align: start;
+    vertical-align: top;
+    border-bottom: 1px solid var(--rule);
+    font-weight: 400;
+    line-height: 1.8;
+  }
+  .cost tbody tr:last-child th,
+  .cost tbody tr:last-child td {
+    border-bottom: 0;
+  }
+  .cost__name {
+    display: block;
+    font-weight: 700;
+    color: var(--navy-800);
+  }
+  .cost__note {
+    display: block;
+    margin-top: 0.2rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+  .tag {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.74rem;
+    font-weight: 700;
+    white-space: nowrap;
+    color: var(--slate-700);
+    background: rgb(85 95 108 / 0.1);
+  }
+  .tag--fixed {
+    color: #1f6b45;
+    background: #ecf6f0;
+  }
+  .tag--neg {
+    color: var(--petrol-800, #234d66);
+    background: rgb(35 77 102 / 0.1);
+  }
+  .notice {
+    display: flex;
+    gap: 0.7rem;
+    align-items: flex-start;
+    margin-top: 1.25rem;
+    padding: 1rem 1.2rem;
+    border-radius: var(--radius-m);
+    border: 1px solid rgb(143 180 201 / 0.35);
+    background: var(--mist-50, #f7fafb);
+    line-height: 1.9;
+  }
+  .notice :global(svg) {
+    flex: none;
+    width: 1.1rem;
+    height: 1.1rem;
+    margin-top: 0.35rem;
+    color: var(--petrol);
+  }
+  .notice p {
+    margin: 0;
+  }
+</style>

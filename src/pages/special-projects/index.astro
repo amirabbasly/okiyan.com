@@ -11,6 +11,7 @@ import Faq from '~/components/ui/Faq.astro';
 import AnswerBlock from '~/components/ui/AnswerBlock.astro';
 import Icon from '~/components/ui/Icon.astro';
 import { breadcrumbLd, faqLd, serviceLd } from '~/lib/schema';
+import Photo from '~/components/ui/Photo.astro';
 
 const crumbs = [
   { name: 'خانه', path: '/' },
@@ -79,6 +80,8 @@ const differences = [
 ---
 
 <BaseLayout
+  ogImage="/og/special.jpg"
+  ogImageAlt="جابه‌جایی محمولهٔ سنگین با جرثقیل"
   title="پروژه‌های خاص؛ محموله‌های سنگین و حساس"
   description="ترخیص و واردات پروژه‌های خاص با اوکیان: محموله‌های سنگین و فوق‌ابعاد، خطوط تولید، کالای یخچالی و خطرناک و واردات چندمرحله‌ای."
   jsonLd={[
@@ -109,6 +112,18 @@ const differences = [
       <a class="btn btn--ghost" href="#cases">دسته‌بندی پروژه‌ها</a>
     </div>
   </PageHero>
+
+  <section class="section section--tight" aria-label="تصویر محمولهٔ فوق‌سنگین پیش از ه">
+    <div class="container">
+      <Photo
+        name="heavy-cargo"
+        alt="بلند کردن یک محمولهٔ فلزی بزرگ با جرثقیل چرخ‌زنجیری روی تریلر چندمحوره در یک محوطهٔ صنعتی"
+        width={1600}
+        height={900}
+        caption="محمولهٔ فوق‌سنگین پیش از هر مجوزی به نقشهٔ حمل نیاز دارد: مسیر، ظرفیت جرثقیل و نقطهٔ تخلیه، سه محدودیت قطعی‌اند."
+      />
+    </div>
+  </section>
 
   <AnswerBlock text={answer} />
 

@@ -12,6 +12,7 @@ import Placeholder from '~/components/ui/Placeholder.astro';
 import { breadcrumbLd, serviceLd } from '~/lib/schema';
 import { services } from '~/data/services';
 import { site, contactCta } from '~/config/site';
+import Photo from '~/components/ui/Photo.astro';
 
 const path = '/customs-clearance/';
 const crumbs = [
@@ -119,6 +120,8 @@ const faqs = [
 ---
 
 <BaseLayout
+  ogImage="/og/clearance.jpg"
+  ogImageAlt="میز کار کارشناس گمرک با اسناد و مهر"
   title="خدمات ترخیص کالا از گمرک؛ هزینه و مدارک"
   description={description}
   jsonLd={[
@@ -143,6 +146,19 @@ const faqs = [
   </PageHero>
 
   <AnswerBlock text={"خدمات ترخیص کالا، انجام تشریفات گمرکی کالای وارداتی از سوی صاحب کالا است: بررسی اسناد و کد تعرفه، برآورد مکتوب هزینه، ثبت اظهارنامه و گرفتن کوتاژ، همراهی در ارزیابی، اخذ مجوزها و پیگیری تا صدور پروانه و خروج کالا. زمان و هزینهٔ هر پرونده به مسیر گمرکی، کامل بودن مجوزها و زمان توقف کالا بستگی دارد."} />
+
+  <section class="section section--tight" aria-label="تصویر بیشتر توقف‌های ترخیص از ">
+    <div class="container">
+      <Photo
+        name="customs-desk"
+        alt="میز کار یک کارشناس گمرک با انبوه اسناد، مهر، خط‌کش و ماشین‌حساب از نمای بالا"
+        width={1600}
+        height={900}
+        sizes="(max-width: 780px) 100vw, 1120px"
+        caption="بیشتر توقف‌های ترخیص از ناهم‌خوانی اسناد شروع می‌شود، نه از گمرک. کنترل اسناد پیش از اظهار، همان کاری است که زمان می‌خرد."
+      />
+    </div>
+  </section>
 
   <!-- What it is -->
   <section class="section" aria-labelledby="what-title">

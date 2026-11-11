@@ -7,6 +7,7 @@ import Steps from '~/components/ui/Steps.astro';
 import Faq from '~/components/ui/Faq.astro';
 import CtaBand from '~/components/ui/CtaBand.astro';
 import AnswerBlock from '~/components/ui/AnswerBlock.astro';
+import Photo from '~/components/ui/Photo.astro';
 import Clients from '~/components/ui/Clients.astro';
 import Icon from '~/components/ui/Icon.astro';
 import { breadcrumbLd, serviceLd } from '~/lib/schema';
@@ -158,6 +159,8 @@ const faqs = [
 ---
 
 <BaseLayout
+  ogImage="/og/sailor-bushehr.jpg"
+  ogImageAlt="لنج‌های باری در بندر بوشهر"
   title="واردات ملوانی از دبی؛ حمل و ترخیص ته لنجی"
   description={description}
   jsonLd={[
@@ -182,6 +185,19 @@ const faqs = [
   </PageHero>
 
   <AnswerBlock text={"واردات ملوانی (ته لنجی)، ورود قانونی کالا با شناورهای سنتی و کوچک از بنادر جنوبی است. مسیر مستقیم دبی به بوشهر و بندرعباس، جابه‌جایی و انبار میانی را حذف می‌کند و برای محموله‌های کوچک و متوسط معمولاً سریع‌تر و کم‌هزینه‌تر از مسیرهای واسطه‌ای است؛ به شرط آنکه سهمیهٔ شناور، فهرست کالاهای مجاز و اسناد گمرکی از ابتدا روشن باشد."} />
+
+  <section class="section section--tight" aria-label="تصویر بندر ملوانی">
+    <div class="container">
+      <Photo
+        name="lenj-bushehr"
+        alt="لنج‌های باری سنتی در یک بندر جنوبی ایران، با بار کیسه‌ای روی عرشه و جرثقیل‌های بندری در پس‌زمینه"
+        width={1600}
+        height={900}
+        sizes="(max-width: 780px) 100vw, 1120px"
+        caption="رویهٔ ملوانی روی همین شناورهای سنتی انجام می‌شود؛ بار روی عرشه، اسناد شناور و سهمیهٔ همان سفر، سه چیزی است که پرونده را می‌سازد."
+      />
+    </div>
+  </section>
 
   <!-- What it is -->
   <section class="section" aria-labelledby="what-title">
@@ -285,6 +301,108 @@ const faqs = [
           <p><strong>دوبه چیست؟</strong> همان «دوویه»؛ شناور باری‌ای که مسیر حرکت بار شما را از دبی به بندرهای ایران ممکن می‌کند.</p>
         </div>
       </div>
+    </div>
+  </section>
+
+  <!-- Comparison: the table an assistant can quote -->
+  <section class="section" id="compare" aria-labelledby="compare-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="eyebrow">مقایسه</span>
+        <h2 id="compare-title">ملوانی یا کانتینری؟ تفاوت‌ها در یک نگاه</h2>
+        <p class="lead">
+          این جدول بر پایهٔ الزامات همین دو رویه نوشته شده است؛ برای هر محموله، وضعیت همان محموله را جداگانه بررسی می‌کنیم.
+        </p>
+      </header>
+
+      <div class="cmp-wrap reveal">
+        <table class="cmp">
+          <caption class="sr-only">مقایسهٔ واردات ملوانی و واردات کانتینری</caption>
+          <thead>
+            <tr>
+              <th scope="col">موضوع</th>
+              <th scope="col">ملوانی (ته لنجی)</th>
+              <th scope="col">کانتینری (FCL / LCL)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">ثبت سفارش</th>
+              <td><span class="yes">لازم نیست</span></td>
+              <td><span class="no">لازم است</span></td>
+            </tr>
+            <tr>
+              <th scope="row">کد سِلفا و روال بانکی</th>
+              <td><span class="yes">ندارد</span></td>
+              <td><span class="no">دارد</span></td>
+            </tr>
+            <tr>
+              <th scope="row">دِموراژ و زمان‌های آزاد کانتینر</th>
+              <td><span class="yes">مطرح نیست</span></td>
+              <td><span class="no">مطرح است</span></td>
+            </tr>
+            <tr>
+              <th scope="row">حجم مناسب بار</th>
+              <td>محموله‌های کوچک و متوسط</td>
+              <td>از خرده‌بار تا کانتینر کامل</td>
+            </tr>
+            <tr>
+              <th scope="row">فهرست کالای مجاز</th>
+              <td>محدود به فهرست این رویه</td>
+              <td>گسترده‌تر، ولی وابسته به مجوزها</td>
+            </tr>
+            <tr>
+              <th scope="row">مسیر رسیدگی گمرکی</th>
+              <td>رویهٔ ملوانی، با اسناد شناور</td>
+              <td>اظهارنامهٔ کانتینری و ارزیابی ارزش</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Where the cargo actually comes from -->
+  <section class="section section--alt" id="origin" aria-labelledby="origin-title">
+    <div class="container split">
+      <div class="stack reveal" style="--stack: 1.1rem">
+        <span class="eyebrow">مسیر واقعی</span>
+        <h2 id="origin-title">بار از کدام بندر دبی و به کدام گمرک می‌رسد؟</h2>
+        <p>
+          در سمت امارات، بارگیری بار ملوانی معمولاً از بندرهای دبی و امارات شمالی انجام می‌شود؛ در سمت ایران، اظهار و
+          ترخیص در گمرک بندری که شناور در آن تخلیه می‌کند صورت می‌گیرد. انتخاب از بین این‌ها به مبدأ بار، بندر تخلیه و
+          مقصد نهایی کالا بستگی دارد — نه به سلیقه.
+        </p>
+        <div class="ports-two">
+          <div>
+            <h3>سمت بارگیری (امارات)</h3>
+            <ul class="checklist">
+              <li>بندر رشید، دبی</li>
+              <li>بندر حمریه، شارجه</li>
+              <li>بندر جبل علی، دبی</li>
+            </ul>
+          </div>
+          <div>
+            <h3>گمرک‌های تخلیه (ایران)</h3>
+            <ul class="checklist">
+              <li>گمرک بوشهر — <a href="/sailor-import/bushehr/">صفحهٔ اختصاصی</a></li>
+              <li>گمرک بندرعباس — <a href="/sailor-import/bandar-abbas/">صفحهٔ اختصاصی</a></li>
+              <li>گمرک‌های دیر، گناوه، کنگان و بندرلنگه</li>
+            </ul>
+          </div>
+        </div>
+        <p class="muted">
+          گمرک تخلیه را پیش از حرکت شناور مشخص می‌کنیم؛ تغییر آن پس از حرکت، هم هزینه دارد و هم زمان.
+        </p>
+      </div>
+      <Photo
+        name="lenj-bushehr"
+        alt="لنج باری در بندر جنوبی ایران با بار بسته‌بندی‌شده روی عرشه"
+        width={1600}
+        height={900}
+        sizes="(max-width: 960px) 100vw, 520px"
+        caption="تخلیه در بندری انجام می‌شود که شناور در آن اظهار می‌کند؛ همین یک تصمیم، مسیر کل پرونده را می‌سازد."
+      />
     </div>
   </section>
 
@@ -433,6 +551,8 @@ const faqs = [
       <ul class="ports-grid">
         <li><a href="/guides/sailor-import-guide/">واردات ملوانی (ته لنجی) <small>شرایط، سهمیه و اسناد</small></a></li>
         <li><a href="/guides/sailor-clearance/">ترخیص ملوانی گام‌به‌گام <small>از ورود لنج تا پروانه</small></a></li>
+        <li><a href="/sailor-import/bushehr/">ملوانی بوشهر <small>مسیر دبی به گمرک بوشهر</small></a></li>
+        <li><a href="/sailor-import/bandar-abbas/">ملوانی بندرعباس <small>مسیر دبی به بندرعباس</small></a></li>
         <li><a href="/customs/bushehr/">گمرک بوشهر <small>رویهٔ ملوانی و مسیر دبی</small></a></li>
         <li><a href="/customs/bandar-abbas/">گمرک بندرعباس <small>کانتینر و ملوانی</small></a></li>
       </ul>
@@ -446,6 +566,71 @@ const faqs = [
 </BaseLayout>
 
 <style>
+  .cmp-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-m);
+    background: var(--white);
+  }
+  .cmp {
+    width: 100%;
+    min-width: 40rem;
+    border-collapse: collapse;
+    font-size: var(--step--1);
+  }
+  .cmp thead th {
+    padding: 0.8rem 1rem;
+    text-align: start;
+    font-size: 0.78rem;
+    letter-spacing: 0.03em;
+    color: var(--slate-600);
+    background: var(--mist-100);
+    border-bottom: 1px solid var(--rule);
+  }
+  .cmp tbody th,
+  .cmp tbody td {
+    padding: 0.85rem 1rem;
+    text-align: start;
+    border-bottom: 1px solid var(--rule);
+    line-height: 1.8;
+  }
+  .cmp tbody tr:last-child th,
+  .cmp tbody tr:last-child td {
+    border-bottom: 0;
+  }
+  .cmp tbody th {
+    font-weight: 700;
+    color: var(--navy-800);
+  }
+  .yes,
+  .no {
+    display: inline-block;
+    padding: 0.1rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.76rem;
+    font-weight: 700;
+  }
+  .yes {
+    color: #1f6b45;
+    background: #ecf6f0;
+  }
+  .no {
+    color: #8a4b1f;
+    background: #fbeee5;
+  }
+  .ports-two {
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  }
+  .ports-two h3 {
+    margin: 0 0 0.5rem;
+    font-size: var(--step-0);
+  }
+  .ports-two a {
+    font-weight: 600;
+  }
+
   .ports-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));

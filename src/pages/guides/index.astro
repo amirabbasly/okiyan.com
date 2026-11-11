@@ -16,6 +16,7 @@ import CtaBand from '~/components/ui/CtaBand.astro';
 import { breadcrumbLd, itemListLd } from '~/lib/schema';
 import { formatFaDate, readingMinutes, toFa } from '~/lib/format';
 import { services } from '~/data/services';
+import Photo from '~/components/ui/Photo.astro';
 
 const guides = (await getCollection('guides')).sort((a, b) => a.data.order - b.data.order);
 const origins = (await getCollection('origins')).sort((a, b) => a.data.order - b.data.order);
@@ -95,6 +96,8 @@ const ldItems = [
 ---
 
 <BaseLayout
+  ogImage="/og/guides.jpg"
+  ogImageAlt="میز مطالعه با کتاب و نقشهٔ دریایی"
   title="بلاگ و راهنمای ترخیص، واردات و گمرک"
   description="همهٔ راهنماهای اوکیان در یک صفحه: ترخیص کالا از گمرک، هزینه و مدارک، مجوزهای واردات، واردات از چین و دبی و ترکیه، و راهنمای عملیاتی هر گمرک."
   jsonLd={[
@@ -140,6 +143,18 @@ const ldItems = [
         </p>
       </div>
     </div>
+
+  <section class="section section--tight" aria-label="تصویر راهنماها با منابع رسمی نوش">
+    <div class="container">
+      <Photo
+        name="guides-desk"
+        alt="میز مطالعه در کنار پنجره با کتاب‌های مرجع، دفتر باز، نقشهٔ دریایی و فنجان چای"
+        width={1600}
+        height={900}
+        caption="راهنماها با منابع رسمی نوشته می‌شوند و تاریخ به‌روزرسانی دارند؛ مثال‌ها نمایشی‌اند و با برچسب مشخص شده‌اند."
+      />
+    </div>
+  </section>
 
     <section class="section blog__feed-wrap" aria-labelledby="feed-title">
       <div class="container">

@@ -1,0 +1,254 @@
+---
+/**
+ * /sailor-import/bandar-abbas/ — «واردات ملوانی بندرعباس»
+ *
+ * Sister page to /sailor-import/bushehr/. Same service, different port and a
+ * different decision: Bandar Abbas is the right answer when the cargo's final
+ * destination is east/south-east, or when the vessel is unloading there. Two
+ * port pages give the site a real answer for both port-level queries instead
+ * of one general page that satisfies neither.
+ */
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import PageHero from '~/components/layout/PageHero.astro';
+import AnswerBlock from '~/components/ui/AnswerBlock.astro';
+import Photo from '~/components/ui/Photo.astro';
+import CtaBand from '~/components/ui/CtaBand.astro';
+import Faq from '~/components/ui/Faq.astro';
+import Steps from '~/components/ui/Steps.astro';
+import Icon from '~/components/ui/Icon.astro';
+import ClusterNav from '~/components/ui/ClusterNav.astro';
+import SailorArt from '~/components/illustrations/SailorArt.astro';
+import { breadcrumbLd, serviceLd, faqLd } from '~/lib/schema';
+import { site, contactCta } from '~/config/site';
+
+const path = '/sailor-import/bandar-abbas/';
+const crumbs = [
+  { name: 'خانه', path: '/' },
+  { name: 'واردات ملوانی', path: '/sailor-import/' },
+  { name: 'بندرعباس', path },
+];
+
+const office = site.contact.offices.find((o) => o.city === 'بندرعباس');
+const phones = office?.phones ?? [];
+
+const title = 'واردات ملوانی در بندرعباس؛ مسیر دبی به شهید رجایی';
+const description =
+  'واردات ملوانی از دبی به بندرعباس: مسیر حمل، اسناد شناور، سهمیه، مراحل ترخیص و زمانی که بندرعباس انتخاب درست‌تری از بوشهر است. با دفتر محلی در بندرعباس.';
+
+const answer =
+  'واردات ملوانی در بندرعباس یعنی ورود کالا با لنج و دوبه از دبی به بندرعباس و ترخیص آن در گمرک بندرعباس. این مسیر وقتی انتخاب درست است که مقصد نهایی بار شرق یا جنوب شرق ایران باشد یا شناور در همین بندر تخلیه کند؛ انتخاب بین بوشهر و بندرعباس را مقصد و نوع شناور تعیین می‌کند، نه عادت.';
+
+const local = [
+  {
+    title: 'دفتر بندرعباس، در محدودهٔ مرکزی',
+    text: `${office?.address ?? ''}`,
+  },
+  {
+    title: 'پیگیری پرونده در بزرگ‌ترین بندر تجاری',
+    text: 'بندرعباس پرترافیک‌ترین بندر تجاری ایران است؛ پیگیری حضوری و آشنایی با رویهٔ همین گمرک، تفاوت را در زمان می‌سازد.',
+  },
+  {
+    title: 'حمل از بندر به شهر مقصد',
+    text: 'پس از پروانهٔ خروج، بار به انبار شما حمل می‌شود؛ برای مقاصد شرق کشور، مسیر کوتاه‌تر و ارزان‌تر است.',
+  },
+];
+
+const steps = [
+  {
+    title: 'بررسی کالا و سهمیه',
+    text: 'فهرست کالاهای مجاز، سهمیهٔ شناور و بندری که اظهار در آن انجام می‌شود، سه چیزی است که اول بررسی می‌شود.',
+  },
+  {
+    title: 'هماهنگی اسناد پیش از حرکت',
+    text: 'اسناد شناور و مدارک مالکیت کالا در مبدأ کنترل می‌شوند؛ ناهم‌خوانی اسناد، در بندرعباس گران‌تر از هر جای دیگری تمام می‌شود.',
+    note: 'شلوغی بندر، هزینهٔ هر روز توقف را بالا می‌برد.',
+  },
+  {
+    title: 'حمل دبی به بندرعباس',
+    text: 'بار با لنج یا دوبه به بندرعباس می‌آید؛ انتخاب شناور بر اساس حجم بار و بندر تخلیه انجام می‌شود.',
+  },
+  {
+    title: 'اظهار و ترخیص',
+    text: 'اظهارنامه ثبت و پرونده تا ارزیابی، پرداخت وجوه قانونی و صدور پروانهٔ خروج پیگیری می‌شود.',
+  },
+  {
+    title: 'حمل داخلی و تحویل',
+    text: 'کالا از بندرعباس به انبار شما در شهر مقصد حمل و تحویل می‌شود.',
+  },
+];
+
+const faqs = [
+  {
+    q: 'برای واردات ملوانی، بوشهر بهتر است یا بندرعباس؟',
+    a: 'به مقصد نهایی بار بستگی دارد. بوشهر برای مرکز و جنوب غرب ایران کوتاه‌تر است؛ بندرعباس برای شرق و جنوب شرق. نوع شناور و بندر تخلیه هم در این انتخاب اثر دارد. هر دو مسیر را برای همان محموله بررسی می‌کنیم.',
+  },
+  {
+    q: 'آیا کالای ملوانی در بندرعباس سریع‌تر ترخیص می‌شود؟',
+    a: 'زمان قطعی اعلام نمی‌کنیم، چون به شلوغی بندر، کامل بودن اسناد و زمان رسیدگی بستگی دارد. آنچه در کنترل ما است، آماده‌بودن پرونده پیش از ورود کالاست؛ همان چیزی که تعداد روزهای توقف را کم می‌کند.',
+  },
+  {
+    q: 'تفاوت ترخیص ملوانی و کانتینری در بندرعباس چیست؟',
+    a: 'در رویهٔ ملوانی، الزامات ثبت سفارش و روال بانکی مسیر رسمی وجود ندارد، اما اسناد شناور و مدارک مالکیت کالا الزامی است. مسیر رسیدگی گمرکی و ارزیابی هم متفاوت است. کانتینر برای محموله‌های بزرگ‌تر و کالاهای خارج از فهرست مجاز ملوانی مناسب‌تر است.',
+  },
+  {
+    q: 'دفتر بندرعباس چه کاری انجام می‌دهد؟',
+    a: 'ترخیص کالا و پیگیری حضوری پرونده در گمرک بندرعباس، هماهنگی تخلیه و حمل داخلی. این دفتر برای پرونده‌هایی است که کالا در همین بندر وارد یا تخلیه می‌شود.',
+  },
+  {
+    q: 'اگر کالا در فهرست مجاز نباشد؟',
+    a: 'پیش از هر هزینه‌ای اعلام می‌کنیم و مسیر جایگزین را بررسی می‌کنیم: واردات رسمی و کانتینری از همین بندر. تصمیم بر پایهٔ وضعیت همان محموله گرفته می‌شود.',
+  },
+];
+
+const related = [
+  { href: '/sailor-import/', label: 'واردات ملوانی', hint: 'مسیر، مزایا و دامنهٔ خدمت' },
+  { href: '/customs/bandar-abbas/', label: 'گمرک بندرعباس', hint: 'کالاهای رایج و نکات بندری' },
+  { href: '/guides/sailor-import-guide/', label: 'راهنمای واردات ملوانی', hint: 'شرایط، سهمیه و اسناد' },
+  { href: '/guides/sailor-clearance/', label: 'ترخیص ملوانی گام‌به‌گام', hint: 'از ورود لنج تا پروانه' },
+];
+---
+
+<BaseLayout
+  ogImage="/og/container.jpg"
+  ogImageAlt="محوطهٔ کانتینری بندر"
+  title={title}
+  description={description}
+  jsonLd={[
+    breadcrumbLd(crumbs, Astro.site),
+    serviceLd({ name: 'واردات ملوانی از دبی به بندرعباس', description, path, serviceType: 'Sailor import — Bandar Abbas' }, Astro.site),
+    faqLd(faqs, path, Astro.site),
+  ].filter((x) => x !== null)}
+>
+  <PageHero eyebrow="واردات ملوانی · بندرعباس" title="واردات ملوانی در بندرعباس" lead={answer.split('؛')[0] + '.'} crumbs={crumbs}>
+    <div class="hero-actions">
+      <a class="btn" href={contactCta.href}>
+        {contactCta.label}
+        <Icon name="arrow" class="btn__icon" />
+      </a>
+      {phones[0] && (
+        <a class="btn btn--ghost" href={`tel:${phones[0].e164}`}>
+          <Icon name="phone" class="btn__icon" />
+          دفتر بندرعباس {phones[0].display}
+        </a>
+      )}
+    </div>
+    <SailorArt slot="art" />
+  </PageHero>
+
+  <AnswerBlock text={answer} />
+
+  <section class="section section--tight" aria-label="تصویر محوطهٔ کانتینری بندر">
+    <div class="container">
+      <Photo
+        name="container-yard"
+        alt="محوطهٔ انبار کانتینر در بندر از نمای بالا، با ردیف‌های کانتینر و استکر در حال جابه‌جایی"
+        width={1600}
+        height={900}
+        caption="بندرعباس هم بار ملوانی و هم بار کانتینری را می‌پذیرد؛ انتخاب رویه، پیش از رزرو حمل تعیین می‌شود."
+      />
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="local-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="eyebrow">حضور محلی</span>
+        <h2 id="local-title">پروندهٔ بندرعباس، از بندرعباس</h2>
+      </header>
+      <div class="local-grid">
+        {
+          local.map((l) => (
+            <article class="local reveal">
+              <h3>{l.title}</h3>
+              <p>{l.text}</p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt" id="process" aria-labelledby="process-title">
+    <div class="container split split--wide">
+      <header class="section-head sticky-head reveal">
+        <span class="eyebrow">فرایند</span>
+        <h2 id="process-title">از دبی تا انبار شما در پنج مرحله</h2>
+        <p class="lead">همان ترتیبی که در عمل طی می‌شود؛ در بندرعباس، آماده‌بودن اسناد پیش از ورود، تعیین‌کننده‌تر است.</p>
+      </header>
+      <Steps items={steps} />
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="compare-title">
+    <div class="container split">
+      <div class="stack reveal" style="--stack: 1.1rem">
+        <span class="eyebrow">انتخاب مسیر</span>
+        <h2 id="compare-title">بندرعباس یا بوشهر؟</h2>
+        <p>
+          هر دو بندر رویهٔ ملوانی دارند. بندرعباس برای مقصدهای شرق و جنوب شرق و برای شناورهایی که در همین بندر تخلیه
+          می‌کنند منطقی‌تر است. اگر کالای شما ملوانی نیست، مسیر کانتینری از همین بندر جایگزین است.
+        </p>
+        <a class="arrow-link" href="/sailor-import/bushehr/">
+          واردات ملوانی در بوشهر
+          <Icon name="arrow" />
+        </a>
+      </div>
+      <Photo
+        name="port-cranes"
+        alt="بندر کانتینری در ساعت آبی با جرثقیل‌های دروازه‌ای و کشتی در اسکله"
+        width={1600}
+        height={900}
+        sizes="(max-width: 960px) 100vw, 520px"
+        caption="برای بارهای بیرون از فهرست مجاز ملوانی، مسیر کانتینری از همین بندر جایگزین است."
+      />
+    </div>
+  </section>
+
+  <section class="section section--alt" aria-labelledby="faq-title">
+    <div class="container split split--wide">
+      <header class="section-head reveal">
+        <span class="eyebrow">پرسش‌های رایج</span>
+        <h2 id="faq-title">پرسش‌های رایج واردات ملوانی بندرعباس</h2>
+      </header>
+      <Faq items={faqs} />
+    </div>
+  </section>
+
+  <ClusterNav siblings={related} title="بیشتر بخوانید" />
+  <CtaBand
+    title="کالایتان به بندرعباس می‌رسد؟"
+    text="شرح کالا، بندر تخلیه و مشخصات شناور را بفرستید. بررسی می‌کنیم این مسیر برای بار شما مناسب است یا مسیر جایگزین."
+  />
+</BaseLayout>
+
+<style>
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+  .local-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  .local {
+    padding: 1.3rem 1.35rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-m);
+    background: var(--white);
+    border-top: 3px solid var(--petrol-300, #8fb4c9);
+  }
+  .local h3 {
+    margin: 0 0 0.45rem;
+    font-size: var(--step-0);
+  }
+  .local p {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.9;
+    color: var(--slate-700);
+  }
+</style>

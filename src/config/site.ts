@@ -127,17 +127,22 @@ export const site = {
     economicCode: '411448977887' as string | null,
     companyType: 'شرکت با مسئولیت محدود' as string | null,
     status: 'فعال' as string | null,
-    /** Licences that are valid today; expired ones live in src/data/company.ts. */
+    /**
+     * Licences that are valid today. This is the single source the structured
+     * data reads from; src/data/company.ts holds the display copy (issuer,
+     * dates, reference) for the same two records. Expired certificates are
+     * deliberately not published anywhere.
+     */
     licences: [
       {
-        title: 'پروانه کسب تعمیر انواع دستگاه‌های صنعتی و خانگی',
+        title: 'تعمیر انواع دستگاه‌های صنعتی و خانگی',
         number: '18640938',
-        issuer: 'دبیرخانه هیئت عالی نظارت بر سازمان‌های صنفی کشور',
+        issuer: 'دبیرخانهٔ هیئت عالی نظارت بر سازمان‌های صنفی کشور',
       },
       {
-        title: 'پروانه کسب فروش مواد اولیه کالاهای کشباف، گردباف و جوراب',
+        title: 'فروش مواد اولیهٔ کالاهای کشباف، گردباف و جوراب',
         number: '9699074',
-        issuer: 'دبیرخانه هیئت عالی نظارت بر سازمان‌های صنفی کشور / اتحادیه صنفی',
+        issuer: 'دبیرخانهٔ هیئت عالی نظارت بر سازمان‌های صنفی کشور / اتحادیهٔ صنفی',
       },
     ] as Array<{ title: string; number: string; issuer: string }>,
   },
@@ -161,7 +166,18 @@ export interface NavLink {
   icon?: NavIcon;
 }
 /** Icon names used by the navigation — must exist in src/components/ui/Icon.astro. */
-export type NavIcon = 'stamp' | 'route' | 'ship' | 'globe' | 'shield' | 'briefcase' | 'cube' | 'headset';
+export type NavIcon =
+  | 'stamp'
+  | 'route'
+  | 'ship'
+  | 'globe'
+  | 'shield'
+  | 'briefcase'
+  | 'cube'
+  | 'headset'
+  | 'calc'
+  | 'doc'
+  | 'pin';
 /** The highlight card shown beside the links in the dark mega menu. */
 export interface NavFeature {
   title: string;
@@ -189,9 +205,13 @@ export const nav: NavItem[] = [
     },
     children: [
       { href: '/customs-clearance/', label: 'ترخیص کالا', hint: 'از بررسی اسناد تا خروج کالا از گمرک', icon: 'stamp' },
+      { href: '/customs-clearance/cost/', label: 'هزینهٔ ترخیص', hint: 'اجزای هزینه و روش برآورد', icon: 'calc' },
+      { href: '/customs-clearance/required-documents/', label: 'مدارک ترخیص', hint: 'فهرست اسناد و اینکه از چه کسی گرفته می‌شود', icon: 'doc' },
       { href: '/container-import/', label: 'واردات کانتینری', hint: 'FCL و LCL، ترخیص کانتینر و حمل تا انبار', icon: 'cube' },
       { href: '/import-services/', label: 'واردات کالا', hint: 'همراهی از برنامه‌ریزی خرید تا تحویل', icon: 'route' },
       { href: '/sailor-import/', label: 'واردات ملوانی', hint: 'ورود کالا با شناورهای ملوانی در بنادر جنوبی', icon: 'ship' },
+      { href: '/sailor-import/bushehr/', label: 'ملوانی بوشهر', hint: 'مسیر دبی به گمرک بوشهر', icon: 'pin' },
+      { href: '/sailor-import/bandar-abbas/', label: 'ملوانی بندرعباس', hint: 'مسیر دبی به بندرعباس', icon: 'pin' },
       { href: '/export-services/', label: 'صادرات کالا', hint: 'از مجوز و گواهی مبدأ تا بارنامه و تحویل', icon: 'globe' },
     ],
   },

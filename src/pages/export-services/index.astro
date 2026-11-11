@@ -10,6 +10,7 @@ import Clients from '~/components/ui/Clients.astro';
 import Icon from '~/components/ui/Icon.astro';
 import { breadcrumbLd, serviceLd } from '~/lib/schema';
 import { contactCta } from '~/config/site';
+import Photo from '~/components/ui/Photo.astro';
 
 const path = '/export-services/';
 const crumbs = [
@@ -113,6 +114,8 @@ const faqs = [
 ---
 
 <BaseLayout
+  ogImage="/og/export.jpg"
+  ogImageAlt="صف کامیون در گذرگاه مرزی"
   title="صادرات کالا؛ مجوز، گواهی مبدأ و حمل بین‌المللی"
   description={description}
   jsonLd={[
@@ -137,6 +140,19 @@ const faqs = [
   </PageHero>
 
   <AnswerBlock text={"صادرات کالا از ایران با تعیین کد تعرفهٔ صادراتی، بررسی ممنوعیت‌ها و مجوزهای مرتبط، آماده‌سازی اظهارنامهٔ صادراتی، اخذ گواهی مبدأ و هماهنگی حمل بین‌المللی انجام می‌شود. الزامات کشور مقصد — از بسته‌بندی و برچسب تا مدارک بهداشتی — بخشی از پروندهٔ صادرات است که پیش از حمل باید روشن شود."} />
+
+  <section class="section section--tight" aria-label="تصویر در مسیرهای زمینی، بارنام">
+    <div class="container">
+      <Photo
+        name="export-truck"
+        alt="صف کامیون‌های باری در یک گذرگاه مرزی کوهستانی، با بار بسته‌بندی‌شده روی یکی از تریلرها"
+        width={1600}
+        height={900}
+        sizes="(max-width: 780px) 100vw, 1120px"
+        caption="در مسیرهای زمینی، بارنامه و اسناد گمرکی همان اندازهٔ بارنامهٔ دریایی اهمیت دارند؛ ناهماهنگی همین دو، بیشترین توقف مرزی را می‌سازد."
+      />
+    </div>
+  </section>
 
   <!-- What it is -->
   <section class="section" aria-labelledby="what-title">

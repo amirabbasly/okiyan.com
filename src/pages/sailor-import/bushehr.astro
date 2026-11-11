@@ -1,0 +1,255 @@
+---
+/**
+ * /sailor-import/bushehr/ — «واردات ملوانی بوشهر»
+ *
+ * The owner's own complaint was that the site does not surface for
+ * «شرکت واردات ملوانی کالا». That is a port-level commercial query, and the
+ * site only answered it in a general service page plus a customs page. This
+ * page binds the service, the port and the office into one answer — the shape
+ * an assistant quotes when someone asks who does sailor import in Bushehr.
+ */
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import PageHero from '~/components/layout/PageHero.astro';
+import AnswerBlock from '~/components/ui/AnswerBlock.astro';
+import Photo from '~/components/ui/Photo.astro';
+import CtaBand from '~/components/ui/CtaBand.astro';
+import Faq from '~/components/ui/Faq.astro';
+import Steps from '~/components/ui/Steps.astro';
+import Icon from '~/components/ui/Icon.astro';
+import ClusterNav from '~/components/ui/ClusterNav.astro';
+import SailorArt from '~/components/illustrations/SailorArt.astro';
+import { breadcrumbLd, serviceLd, faqLd } from '~/lib/schema';
+import { site, contactCta } from '~/config/site';
+
+const path = '/sailor-import/bushehr/';
+const crumbs = [
+  { name: 'خانه', path: '/' },
+  { name: 'واردات ملوانی', path: '/sailor-import/' },
+  { name: 'بوشهر', path },
+];
+
+const office = site.contact.offices.find((o) => o.city === 'بوشهر');
+const phones = office?.phones ?? [];
+
+const title = 'واردات ملوانی در بوشهر؛ مسیر دبی به گمرک بوشهر';
+const description =
+  'واردات ملوانی از دبی به بوشهر: مسیر حمل، اسناد شناور، سهمیه، مراحل ترخیص در گمرک بوشهر و آنچه پیش از حرکت بار باید روشن باشد. با دفتر محلی در بوشهر.';
+
+const answer =
+  'واردات ملوانی در بوشهر یعنی ورود کالا با لنج و دوبه از دبی مستقیم به بندر بوشهر و ترخیص آن در گمرک بوشهر. این مسیر برای محموله‌های کوچک و متوسط، جابه‌جایی میانی را حذف می‌کند؛ به شرط آنکه کالا در فهرست مجاز باشد، سهمیهٔ شناور اجازه بدهد و اسناد شناور و مالکیت کالا پیش از حرکت بررسی شده باشد.';
+
+const local = [
+  {
+    title: 'دفتر بوشهر، در جوار گمرک',
+    text: `${office?.address ?? ''}`,
+  },
+  {
+    title: 'حضور در انبار و ارزیابی',
+    text: 'پرونده‌های بوشهر حضوری پیگیری می‌شوند؛ حضور در انبار و جلسهٔ ارزیابی، بخشی از کار است نه استثنا.',
+  },
+  {
+    title: 'حمل از بندر به شهر مقصد',
+    text: 'پس از پروانهٔ خروج، بار از بوشهر به انبار شما در هر شهر کشور حمل می‌شود.',
+  },
+];
+
+const steps = [
+  {
+    title: 'بررسی کالا و سهمیه',
+    text: 'شرح کالا با فهرست کالاهای مجاز این رویه تطبیق داده می‌شود و شرایط شناور و سهمیهٔ همان سفر بررسی می‌شود.',
+  },
+  {
+    title: 'آماده‌سازی اسناد در مبدأ',
+    text: 'فهرست بار، اسناد شناور و مدارک مالکیت کالا پیش از حرکت در دبی کنترل می‌شوند تا بار در بندر بوشهر متوقف نشود.',
+    note: 'بیشتر توقف‌های این مسیر از همین مرحله شروع می‌شود.',
+  },
+  {
+    title: 'حمل مستقیم دبی به بوشهر',
+    text: 'بار با لنج یا دوبه، بسته به حجم و بندر تخلیه، مستقیم به بوشهر می‌آید؛ بدون جابه‌جایی از مسیر خصب.',
+  },
+  {
+    title: 'اظهار و ترخیص در گمرک بوشهر',
+    text: 'اظهارنامه تنظیم و ثبت می‌شود و پرونده تا ارزیابی، پرداخت وجوه قانونی و صدور پروانهٔ خروج پیگیری می‌شود.',
+  },
+  {
+    title: 'حمل داخلی و تحویل',
+    text: 'کالا از بندر بوشهر به انبار شما حمل و تحویل می‌شود.',
+  },
+];
+
+const faqs = [
+  {
+    q: 'واردات ملوانی از دبی به بوشهر چقدر طول می‌کشد؟',
+    a: 'زمان کل به سه چیز بستگی دارد: زمان حرکت شناور، زمان رسیدگی در گمرک و کامل بودن اسناد. به همین دلیل زمان قطعی اعلام نمی‌کنیم؛ اما اگر اسناد پیش از حرکت بررسی شده باشد، متغیرهای قابل کنترل حذف می‌شوند.',
+  },
+  {
+    q: 'چه کالاهایی از این مسیر وارد می‌شوند؟',
+    a: 'هر کالایی که در فهرست کالاهای مجاز رویهٔ ملوانی باشد و ارزش و حجم آن با سهمیهٔ شناور بخواند. برای کالاهای خارج از این فهرست، مسیر واردات رسمی و کانتینری جایگزین است.',
+  },
+  {
+    q: 'آیا برای واردات ملوانی به ثبت سفارش نیاز است؟',
+    a: 'یکی از تفاوت‌های اصلی این رویه با واردات کانتینری همین است: رویهٔ ملوانی الزامات ثبت سفارش و روال بانکی مسیر رسمی را ندارد. اما اسناد شناور، مدارک مالکیت کالا و تشریفات گمرکی همچنان الزامی است.',
+  },
+  {
+    q: 'دفتر بوشهر چه کاری انجام می‌دهد؟',
+    a: 'پیگیری حضوری پرونده در گمرک بوشهر، حضور در انبار و ارزیابی، هماهنگی تخلیه و حمل داخلی. این دفتر در جوار گمرک است و همین، زمان رفت‌وبرگشت پرونده را کم می‌کند.',
+  },
+  {
+    q: 'اگر کالا در فهرست مجاز نباشد چه می‌شود؟',
+    a: 'پیش از هر هزینه‌ای اعلام می‌کنیم. در آن حالت دو گزینه هست: تغییر مسیر به واردات رسمی، یا بررسی اینکه آیا کالا با شرایط دیگری قابل ورود است. تصمیم با شما و بر پایهٔ وضعیت همان محموله است.',
+  },
+];
+
+const related = [
+  { href: '/sailor-import/', label: 'واردات ملوانی', hint: 'مسیر، مزایا و دامنهٔ خدمت' },
+  { href: '/customs/bushehr/', label: 'گمرک بوشهر', hint: 'رویه و نکات عملیاتی بندر' },
+  { href: '/guides/sailor-import-guide/', label: 'راهنمای واردات ملوانی', hint: 'شرایط، سهمیه و اسناد' },
+  { href: '/guides/sailor-clearance/', label: 'ترخیص ملوانی گام‌به‌گام', hint: 'از ورود لنج تا پروانه' },
+];
+---
+
+<BaseLayout
+  ogImage="/og/sailor-bushehr.jpg"
+  ogImageAlt="لنج‌های باری در بندر بوشهر"
+  title={title}
+  description={description}
+  jsonLd={[
+    breadcrumbLd(crumbs, Astro.site),
+    serviceLd({ name: 'واردات ملوانی از دبی به بوشهر', description, path, serviceType: 'Sailor import — Bushehr' }, Astro.site),
+    faqLd(faqs, path, Astro.site),
+  ].filter((x) => x !== null)}
+>
+  <PageHero eyebrow="واردات ملوانی · بوشهر" title="واردات ملوانی در بوشهر" lead={answer.split('؛')[0] + '.'} crumbs={crumbs}>
+    <div class="hero-actions">
+      <a class="btn" href={contactCta.href}>
+        {contactCta.label}
+        <Icon name="arrow" class="btn__icon" />
+      </a>
+      {phones[0] && (
+        <a class="btn btn--ghost" href={`tel:${phones[0].e164}`}>
+          <Icon name="phone" class="btn__icon" />
+          دفتر بوشهر {phones[0].display}
+        </a>
+      )}
+    </div>
+    <SailorArt slot="art" />
+  </PageHero>
+
+  <AnswerBlock text={answer} />
+
+  <section class="section section--tight" aria-label="تصویر بندر بوشهر">
+    <div class="container">
+      <Photo
+        name="lenj-bushehr"
+        alt="لنج‌های باری سنتی در بندر بوشهر با بار کیسه‌ای روی عرشه و جرثقیل بندری در پس‌زمینه"
+        width={1600}
+        height={900}
+        caption="بوشهر، بندر اصلی این رویه برای بارهای کوچک و متوسط از دبی است؛ تخلیه در همین اسکله انجام می‌شود."
+      />
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="local-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="eyebrow">حضور محلی</span>
+        <h2 id="local-title">چرا پروندهٔ بوشهر را از بوشهر پیگیری می‌کنیم</h2>
+      </header>
+      <div class="local-grid">
+        {
+          local.map((l) => (
+            <article class="local reveal">
+              <h3>{l.title}</h3>
+              <p>{l.text}</p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt" id="process" aria-labelledby="process-title">
+    <div class="container split split--wide">
+      <header class="section-head sticky-head reveal">
+        <span class="eyebrow">فرایند</span>
+        <h2 id="process-title">از دبی تا انبار شما در پنج مرحله</h2>
+        <p class="lead">همان ترتیبی که در عمل طی می‌شود؛ بسته به شناور و نوع کالا ممکن است برخی مراحل هم‌زمان پیش برود.</p>
+      </header>
+      <Steps items={steps} />
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="compare-title">
+    <div class="container split">
+      <div class="stack reveal" style="--stack: 1.1rem">
+        <span class="eyebrow">انتخاب مسیر</span>
+        <h2 id="compare-title">بوشهر یا بندرعباس؟</h2>
+        <p>
+          هر دو بندر رویهٔ ملوانی دارند. انتخاب معمولاً به مقصد نهایی بار بستگی دارد: بوشهر برای مرکز و جنوب غرب ایران
+          کوتاه‌تر است، بندرعباس برای شرق و جنوب شرق. اگر بار در دبی آماده است، مسیر را بر اساس مقصد و نوع شناور
+          انتخاب می‌کنیم، نه بر اساس عادت.
+        </p>
+        <a class="arrow-link" href="/sailor-import/bandar-abbas/">
+          واردات ملوانی در بندرعباس
+          <Icon name="arrow" />
+        </a>
+      </div>
+      <Photo
+        name="port-cranes"
+        alt="بندر کانتینری در ساعت آبی با جرثقیل‌های دروازه‌ای و کشتی در اسکله"
+        width={1600}
+        height={900}
+        sizes="(max-width: 960px) 100vw, 520px"
+        caption="برای بارهایی که از فهرست مجاز ملوانی بیرون‌اند، مسیر کانتینری از همین بنادر جایگزین است."
+      />
+    </div>
+  </section>
+
+  <section class="section section--alt" aria-labelledby="faq-title">
+    <div class="container split split--wide">
+      <header class="section-head reveal">
+        <span class="eyebrow">پرسش‌های رایج</span>
+        <h2 id="faq-title">پرسش‌های رایج واردات ملوانی بوشهر</h2>
+      </header>
+      <Faq items={faqs} />
+    </div>
+  </section>
+
+  <ClusterNav siblings={related} title="بیشتر بخوانید" />
+  <CtaBand
+    title="بارتان در دبی آماده است؟"
+    text="شرح کالا، بندر تخلیه و مشخصات شناور را بفرستید. بررسی می‌کنیم کالا در فهرست مجاز است یا نه و قدم بعدی چیست."
+  />
+</BaseLayout>
+
+<style>
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+  .local-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  .local {
+    padding: 1.3rem 1.35rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-m);
+    background: var(--white);
+    border-top: 3px solid var(--petrol-300, #8fb4c9);
+  }
+  .local h3 {
+    margin: 0 0 0.45rem;
+    font-size: var(--step-0);
+  }
+  .local p {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.9;
+    color: var(--slate-700);
+  }
+</style>

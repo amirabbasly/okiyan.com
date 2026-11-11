@@ -10,6 +10,7 @@ import Clients from '~/components/ui/Clients.astro';
 import Icon from '~/components/ui/Icon.astro';
 import { breadcrumbLd, serviceLd } from '~/lib/schema';
 import { contactCta } from '~/config/site';
+import Photo from '~/components/ui/Photo.astro';
 
 const path = '/container-import/';
 const crumbs = [
@@ -132,6 +133,19 @@ const containerLd = serviceLd({ name: 'واردات کانتینری', descripti
   </PageHero>
 
   <AnswerBlock text={"واردات کانتینری، حمل کالا در کانتینر کامل (FCL) یا کانتینر گروهی (LCL) است. انتخاب بین این دو به حجم محموله بستگی دارد و هزینهٔ واقعی آن فقط کرایهٔ حمل نیست: زمان‌های آزاد کانتینر، دموراژ و انبارداری می‌توانند از کرایه بیشتر شوند."} />
+
+  <section class="section section--tight" aria-label="تصویر در حمل FCL تصمیم‌های اصل">
+    <div class="container">
+      <Photo
+        name="container-yard"
+        alt="محوطهٔ انبار کانتینر در بندر از نمای بالا، با ردیف‌های کانتینر و استکر در حال جابه‌جایی"
+        width={1600}
+        height={900}
+        sizes="(max-width: 780px) 100vw, 1120px"
+        caption="در حمل FCL تصمیم‌های اصلی پیش از حرکت گرفته می‌شود؛ روزهای آزاد کانتینر و مقصد تخلیه، همان چیزی است که بعداً هزینه را تعیین می‌کند."
+      />
+    </div>
+  </section>
 
   <!-- What it is -->
   <section class="section" aria-labelledby="what-title">

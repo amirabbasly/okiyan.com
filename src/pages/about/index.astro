@@ -17,6 +17,7 @@ import { breadcrumbLd } from '~/lib/schema';
 import { site, contactCta } from '~/config/site';
 import { toFa } from '~/lib/format';
 import { registry, registryContact, people, licences, trademark } from '~/data/company';
+import Photo from '~/components/ui/Photo.astro';
 
 const crumbs = [
   { name: 'خانه', path: '/' },
@@ -61,6 +62,8 @@ const aboutLd = {
 ---
 
 <BaseLayout
+  ogImage="/og/about.jpg"
+  ogImageAlt="دفتر کار اوکیان در تهران"
   title="دربارهٔ اوکیان | اوژن تجارت کیان"
   fullTitle
   description="شناسنامهٔ حقوقی اوکیان (اوژن تجارت کیان): شناسهٔ ملی، شمارهٔ ثبت، مجوزها، دفترها، اشخاص و علامت تجاری ثبت‌شده."
@@ -74,6 +77,25 @@ const aboutLd = {
   >
     <AboutArt slot="art" />
   </PageHero>
+
+  <div class="facts">
+    <div class="container facts__inner">
+      {
+        [
+          { k: 'تأسیس', v: '۱۳۹۳', s: 'ثبت در تهران' },
+          { k: 'دفترها', v: toFa(site.contact.offices.length), s: 'تهران، بوشهر، بندرعباس' },
+          { k: 'مجوزها', v: toFa(licences.length), s: 'در حال اعتبار' },
+          { k: 'تیم', v: toFa(people.reduce((n, g) => n + g.people.length, 0)), s: 'نفر در چهار گروه' },
+        ].map((f) => (
+          <div class="facts__item">
+            <span class="facts__k">{f.k}</span>
+            <strong class="facts__v">{f.v}</strong>
+            <span class="facts__s">{f.s}</span>
+          </div>
+        ))
+      }
+    </div>
+  </div>
 
   <nav class="sec-nav" aria-label="فهرست بخش‌های این صفحه">
     <div class="container sec-nav__inner">
@@ -109,13 +131,6 @@ const aboutLd = {
         }
       </dl>
 
-      <p class="note">
-        <Icon name="info" />
-        <span>
-          این اطلاعات از اسناد رسمی شرکت استخراج شده است. برای استعلام حقوقی، به سامانهٔ رسمی ثبت شرکت‌ها یا
-          <a href="/contact/">دفتر تهران</a> مراجعه کنید.
-        </span>
-      </p>
     </div>
   </section>
 
@@ -176,6 +191,15 @@ const aboutLd = {
         <h2 id="offices-title">دفترهای اوکیان</h2>
         <p class="sec-head__lead">سه دفتر فعال؛ دو دفتر بندری برای پیگیری حضوری پرونده.</p>
       </header>
+
+      <Photo
+        name="office-tehran"
+        alt="دفتر تهران اوکیان با میزهای کار، مانیتور و نقشهٔ خلیج فارس روی دیوار"
+        width={1600}
+        height={900}
+        sizes="(max-width: 780px) 100vw, 1120px"
+        caption="دفتر تهران؛ پرونده‌هایی که از بندر می‌رسند، در همین دفتر جمع‌بندی و صورتحساب می‌شوند."
+      />
 
       <ul class="office-grid">
         {
@@ -379,6 +403,33 @@ const aboutLd = {
   <CtaBand />
 </BaseLayout>
 
+<script>
+  // Marks the section currently in view in the sticky chip nav. Progressive:
+  // without JS every chip still works as a plain anchor link.
+  const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('.sec-nav a[href^="#"]'));
+  const targets = links
+    .map((a) => document.querySelector<HTMLElement>(a.getAttribute('href') || ''))
+    .filter((el): el is HTMLElement => Boolean(el));
+
+  if (targets.length) {
+    const setCurrent = (id: string) => {
+      for (const a of links) {
+        a.setAttribute('aria-current', String(a.getAttribute('href') === `#${id}`));
+      }
+    };
+    const io = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (visible?.target.id) setCurrent(visible.target.id);
+      },
+      { rootMargin: '-45% 0px -45% 0px', threshold: [0, 0.25, 0.5, 1] },
+    );
+    targets.forEach((t) => io.observe(t));
+  }
+</script>
+
 <style>
   /* ---------- sticky section navigation ---------- */
   .sec-nav {
@@ -421,6 +472,11 @@ const aboutLd = {
     border-color: var(--petrol-300);
     background: var(--mist-50);
   }
+  .sec-nav a[aria-current='true'] {
+    color: var(--white);
+    background: var(--navy-800);
+    border-color: var(--navy-800);
+  }
 
   /* Anchors must clear both the site header and this page's sticky nav. */
   .section[id] {
@@ -446,6 +502,53 @@ const aboutLd = {
   }
 
   /* ---------- registry grid ---------- */
+  .facts {
+    border-bottom: 1px solid var(--rule);
+    background: linear-gradient(180deg, var(--white), var(--mist-50, #f7fafb));
+  }
+  .facts__inner {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+    gap: 1.25rem;
+    padding-block: 1.35rem;
+  }
+  .facts__item {
+    display: grid;
+    gap: 0.1rem;
+    padding-inline-start: 1.1rem;
+    border-inline-start: 2px solid var(--rule);
+  }
+  .facts__item:first-child {
+    padding-inline-start: 0;
+    border-inline-start: 0;
+  }
+  .facts__k {
+    font-size: 0.76rem;
+    letter-spacing: 0.04em;
+    color: var(--slate-500);
+  }
+  .facts__v {
+    font-size: 1.5rem;
+    line-height: 1.15;
+    font-weight: 800;
+    color: var(--ink, #162c47);
+    font-variant-numeric: tabular-nums;
+  }
+  .facts__s {
+    font-size: 0.8rem;
+    color: var(--slate-600);
+  }
+  @media (max-width: 640px) {
+    .facts__item {
+      padding-inline-start: 0;
+      border-inline-start: 0;
+    }
+    .facts__inner {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem 1.25rem;
+    }
+  }
+
   .reg {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
