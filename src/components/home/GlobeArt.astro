@@ -1,0 +1,276 @@
+---
+/**
+ * The dotted globe from the reference — but alive.
+ *
+ * Everything is drawn here: no raster to download, crisp at any size.
+ *
+ * Visual layers, from back to front:
+ *  1. body + atmosphere, so the sphere has depth;
+ *  2. latitude rings drawn as *dotted strokes* — a round-capped dashed stroke
+ *     gives hundreds of dots for one line of markup, and animating its dash
+ *     offset makes them travel around the ring. This is what gives the density
+ *     of the reference image without shipping a bitmap;
+ *  3. a few brighter, individually animated dots, so the rotation is readable
+ *     even at a glance;
+ *  4. meridians sweeping at the same angular speed (they make the turn read as
+ *     a turn rather than a wobble);
+ *  5. the blue trade routes: dashed arcs whose dash offset travels, each with a
+ *     node running the line, plus a slowly turning orbit ring.
+ *
+ * Motion is decorative: `prefers-reduced-motion` pauses the SMIL timeline and
+ * turns off the CSS animations, leaving a complete, static globe.
+ */
+export interface Props {
+  class?: string;
+  /** Accessible name. Omit for a purely decorative globe. */
+  label?: string;
+}
+
+const { class: className, label } = Astro.props;
+
+const CX = 210;
+const CY = 210;
+const R = 168;
+
+/* ---------- latitude rings (dotted, travelling) ---------- */
+interface Ring {
+  cy: number;
+  rx: number;
+  ry: number;
+  opacity: number;
+  dur: number;
+}
+
+const rings: Ring[] = [];
+for (let lat = -70; lat <= 70; lat += 7) {
+  const phi = (lat * Math.PI) / 180;
+  const c = Math.cos(phi);
+  rings.push({
+    cy: Number((CY - R * Math.sin(phi)).toFixed(1)),
+    rx: Number((R * c).toFixed(1)),
+    // the ring is seen at a glancing angle: it flattens toward the poles
+    ry: Number((R * c * 0.30).toFixed(1)),
+    opacity: Number((0.2 + 0.35 * c).toFixed(2)),
+    // all speeds are whole multiples of one dash period, so the loop is seamless
+    dur: Number((16 + 26 * Math.abs(lat) / 70).toFixed(1)),
+  });
+}
+
+/* ---------- brighter travelling dots ---------- */
+interface Dot {
+  cy: number;
+  r: number;
+  x: string;
+  o: string;
+}
+
+const STEPS = 8; // nine samples per turn
+const dots: Dot[] = [];
+for (let lat = -56; lat <= 56; lat += 28) {
+  const phi = (lat * Math.PI) / 180;
+  const ringR = R * Math.cos(phi);
+  const cy = CY - R * Math.sin(phi);
+  const perRing = 6;
+  for (let i = 0; i < perRing; i++) {
+    // offset each dot's phase so the field never looks like rows
+    const lambda = ((i + (lat + 56) / 112) / perRing) * Math.PI * 2;
+    const xs: number[] = [];
+    const os: number[] = [];
+    for (let s = 0; s <= STEPS; s++) {
+      const a = lambda + (s / STEPS) * Math.PI * 2;
+      xs.push(Number((CX + ringR * Math.sin(a)).toFixed(1)));
+      os.push(Number((0.1 + 0.9 * Math.max(0, Math.cos(a))).toFixed(2)));
+    }
+    dots.push({
+      cy: Number(cy.toFixed(1)),
+      r: 2.4,
+      x: xs.join(';'),
+      o: os.join(';'),
+    });
+  }
+}
+
+/** Meridians sweep 0 → R → 0; four of them, evenly phased. */
+const meridians = [
+  { begin: '0s', op: 0.30 },
+  { begin: '-4.5s', op: 0.24 },
+  { begin: '-9s', op: 0.18 },
+  { begin: '-13.5s', op: 0.12 },
+];
+---
+
+<svg
+  class={className}
+  viewBox="0 0 420 420"
+  fill="none"
+  role={label ? 'img' : undefined}
+  aria-label={label}
+  aria-hidden={label ? undefined : 'true'}
+  focusable="false"
+  data-globe
+>
+  <defs>
+    <radialGradient id="gl-body" cx="38%" cy="32%" r="72%">
+      <stop offset="0" stop-color="#1d6f8c" stop-opacity="0.5"></stop>
+      <stop offset="0.55" stop-color="#0f3350" stop-opacity="0.45"></stop>
+      <stop offset="1" stop-color="#0b2036" stop-opacity="0.1"></stop>
+    </radialGradient>
+    <radialGradient id="gl-rim" cx="50%" cy="50%" r="50%">
+      <stop offset="0.88" stop-color="#5fd6e6" stop-opacity="0"></stop>
+      <stop offset="1" stop-color="#7fe3ef" stop-opacity="0.5"></stop>
+    </radialGradient>
+  </defs>
+
+  <!-- atmosphere and body -->
+  <circle cx={CX} cy={CY} r={R + 30} fill="url(#gl-body)" opacity="0.5"></circle>
+  <circle cx={CX} cy={CY} r={R} fill="url(#gl-body)" opacity="0.8"></circle>
+  <circle cx={CX} cy={CY} r={R} fill="url(#gl-rim)"></circle>
+
+  <!-- dotted latitude rings; the dash offset travels, so the dots march -->
+  <g stroke="#8ce8f3" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="0.01 7">
+    {
+      rings.map((r) => (
+        <ellipse cx={CX} cy={r.cy} rx={r.rx} ry={r.ry} opacity={r.opacity}>
+          <animate
+            attributeName="stroke-dashoffset"
+            values="0;-7"
+            dur={`${r.dur}s`}
+            repeatCount="indefinite"
+          />
+        </ellipse>
+      ))
+    }
+  </g>
+
+  <!-- meridians: rx sweeps 0 → R → 0, which reads as a sphere turning -->
+  <g stroke="#7fe3ef" stroke-width="1">
+    {
+      meridians.map((m) => (
+        <ellipse cx={CX} cy={CY} rx={R} ry={R} opacity={m.op}>
+          <animate
+            attributeName="rx"
+            values={`0;${R};0`}
+            dur="18s"
+            begin={m.begin}
+            repeatCount="indefinite"
+            calcMode="spline"
+            keyTimes="0;0.5;1"
+            keySplines="0.4 0 0.6 1;0.4 0 0.6 1"
+          />
+        </ellipse>
+      ))
+    }
+  </g>
+
+  <!-- brighter dots drifting across the front of the sphere -->
+  <g fill="#d9f5f9">
+    {
+      dots.map((d) => (
+        <circle cy={d.cy} cx={CX} r={d.r}>
+          <animate
+            attributeName="cx"
+            values={d.x}
+            keyTimes="0;0.125;0.25;0.375;0.5;0.625;0.75;0.875;1"
+            dur="26s"
+            repeatCount="indefinite"
+          />
+          <animate
+            attributeName="opacity"
+            values={d.o}
+            keyTimes="0;0.125;0.25;0.375;0.5;0.625;0.75;0.875;1"
+            dur="26s"
+            repeatCount="indefinite"
+          />
+        </circle>
+      ))
+    }
+  </g>
+
+  <!-- sphere edge, drawn over the dots so the silhouette stays clean -->
+  <circle cx={CX} cy={CY} r={R} stroke="#5fd6e6" stroke-opacity="0.34" stroke-width="1.2"></circle>
+
+  <!-- trade routes: dashed, dash offset travelling, a node running each line -->
+  <g class="gl-routes" stroke="#7fe3ef" stroke-opacity="0.95" stroke-width="2.2" stroke-linecap="round">
+    <path class="gl-route gl-route--a" d="M96 258C150 196 250 150 330 176" stroke-dasharray="10 14"></path>
+    <path class="gl-route gl-route--b" d="M84 190C140 234 250 268 340 236" stroke-dasharray="8 16"></path>
+  </g>
+  <g class="gl-nodes">
+    <circle r="3.6" fill="#eafcff">
+      <animateMotion path="M96 258C150 196 250 150 330 176" dur="7s" repeatCount="indefinite"></animateMotion>
+      <animate
+        attributeName="opacity"
+        values="0;1;1;0"
+        keyTimes="0;0.1;0.85;1"
+        dur="7s"
+        repeatCount="indefinite"></animate>
+    </circle>
+    <circle r="3.2" fill="#bfeff8">
+      <animateMotion path="M84 190C140 234 250 268 340 236" dur="9s" begin="-4.5s" repeatCount="indefinite"
+      ></animateMotion>
+      <animate
+        attributeName="opacity"
+        values="0;1;1;0"
+        keyTimes="0;0.1;0.85;1"
+        dur="9s"
+        begin="-4.5s"
+        repeatCount="indefinite"></animate>
+    </circle>
+  </g>
+  <g fill="#eafcff">
+    <circle cx="96" cy="258" r="3.4"></circle>
+    <circle cx="330" cy="176" r="3.4"></circle>
+    <circle cx="84" cy="190" r="3"></circle>
+    <circle cx="340" cy="236" r="3"></circle>
+  </g>
+
+  <!-- orbit ring, slowly turning -->
+  <g class="gl-orbit">
+    <circle
+      cx={CX}
+      cy={CY}
+      r={R + 16}
+      stroke="#5fd6e6"
+      stroke-opacity="0.3"
+      stroke-width="1.2"
+      stroke-dasharray="3 12"
+      stroke-linecap="round"></circle>
+  </g>
+</svg>
+
+<style>
+  .gl-route {
+    animation: gl-dash 3.6s linear infinite;
+  }
+  .gl-route--b {
+    animation-duration: 4.8s;
+    animation-direction: reverse;
+  }
+  .gl-orbit {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: gl-turn 60s linear infinite;
+  }
+  @keyframes gl-dash {
+    to {
+      stroke-dashoffset: -48;
+    }
+  }
+  @keyframes gl-turn {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gl-route,
+    .gl-orbit {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  // SMIL ignores the media query, so pause the timeline for reduced-motion users.
+  const svg = document.querySelector<SVGSVGElement>('svg[data-globe]');
+  if (svg && matchMedia('(prefers-reduced-motion: reduce)').matches) svg.pauseAnimations();
+</script>
