@@ -1,22 +1,20 @@
 ---
 /**
- * «حوزه‌های فعالیت» — the five cargo families the site's goods guide actually
- * covers, shown as photographic cards.
+ * «حوزه‌های فعالیت» — five cargo families, laid out like the reference:
+ * a heading on the right, five flat white cards in a row, each with a drawn
+ * icon above its label. No photographs here: the reference reads as a quick
+ * index, and photos turned it into a gallery that competed with the hero.
  *
- * Each card links to the matching section of /guides/goods-by-type/, so the
- * block is navigational, not decorative. The photographs are used instead of
- * generic line icons: a pallet of steel coils says "raw materials" faster than
- * any glyph, and it is a real image a search engine can index.
+ * Icons are purpose-drawn for these five families (not a generic icon pack):
+ * stacked coils for raw materials, a gear for parts, a flask for chemicals,
+ * a leaf for agri-food, a carton for consumer goods.
  */
 import Icon from '~/components/ui/Icon.astro';
-import { toFa } from '~/lib/format';
 
 export interface Category {
   title: string;
-  /** One short line: what is typical for this family. */
-  note: string;
-  image: string;
-  alt: string;
+  /** Icon name from Icon.astro. */
+  icon: 'coils' | 'gear' | 'flask' | 'leaf' | 'carton';
   href: string;
 }
 
@@ -27,38 +25,22 @@ export interface Props {
 const { categories } = Astro.props;
 ---
 
-<section class="cats section" id="categories" aria-labelledby="cats-title">
-  <div class="container">
-    <header class="cats__head">
-      <div>
-        <span class="eyebrow">حوزه‌های فعالیت</span>
-        <h2 id="cats-title">با کدام گروه کالا کار می‌کنیم؟</h2>
-      </div>
-      <a class="arrow-link" href="/guides/goods-by-type/">
-        جزئیات هر گروه
-        <Icon name="arrow" />
-      </a>
-    </header>
+<section class="cats" id="categories" aria-labelledby="cats-title">
+  <div class="container cats__inner">
+    <h2 id="cats-title" class="cats__title">
+      <span class="cats__rule" aria-hidden="true"></span>
+      حوزه‌های فعالیت
+    </h2>
 
     <ul class="cats__grid">
       {
-        categories.map((c, i) => (
-          <li class="cat reveal" style={`--i:${i}`}>
+        categories.map((c) => (
+          <li class="cat">
             <a class="cat__link" href={c.href}>
-              <span class="cat__media">
-                <picture>
-                  <source type="image/webp" srcset={`/img/${c.image}-480.webp 480w, /img/${c.image}-960.webp 960w`} sizes="(max-width: 640px) 50vw, (max-width: 1100px) 33vw, 20vw" />
-                  <img src={`/img/${c.image}.jpg`} alt={c.alt} width={1200} height={896} loading="lazy" decoding="async" />
-                </picture>
+              <span class="cat__icon" aria-hidden="true">
+                <Icon name={c.icon} />
               </span>
-              <span class="cat__body">
-                <span class="cat__n" aria-hidden="true">{toFa(String(i + 1).padStart(2, '0'))}</span>
-                <span class="cat__title">{c.title}</span>
-                <span class="cat__note">{c.note}</span>
-              </span>
-              <span class="cat__arrow" aria-hidden="true">
-                <Icon name="arrow" />
-              </span>
+              <span class="cat__title">{c.title}</span>
             </a>
           </li>
         ))
@@ -69,25 +51,40 @@ const { categories } = Astro.props;
 
 <style>
   .cats {
-    padding-block: clamp(2.5rem, 2rem + 2.4vw, 4.25rem);
-    border-bottom: 1px solid var(--rule);
+    /* icon blue sampled from the reference board: a deep azure, not the site aqua */
+    --cat-icon: #0b4a7d;
+    background: var(--mist-50);
+    border-block: 1px solid var(--rule);
   }
-  .cats__head {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem 2rem;
-    align-items: end;
-    justify-content: space-between;
-    margin-bottom: clamp(1.25rem, 1rem + 1.2vw, 2rem);
+  .cats__inner {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(1rem, 2vw, 2.25rem);
+    padding-block: clamp(1.1rem, 0.9rem + 0.8vw, 1.7rem);
   }
-  .cats__head h2 {
-    margin: 0.35rem 0 0;
-    font-size: clamp(1.35rem, 1.1rem + 1vw, 1.85rem);
+  /* Heading sits at the reading-start edge, separated by a short aqua rule. */
+  .cats__title {
+    display: grid;
+    justify-items: start;
+    gap: 0.45rem;
+    margin: 0;
+    font-size: clamp(1rem, 0.92rem + 0.4vw, 1.2rem);
+    font-weight: 800;
+    white-space: nowrap;
+    color: var(--navy-950);
   }
+  .cats__rule {
+    inline-size: 2.1rem;
+    block-size: 3px;
+    border-radius: 2px;
+    background: var(--aqua-500);
+  }
+
   .cats__grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12.5rem), 1fr));
-    gap: clamp(0.7rem, 1.4vw, 1.1rem);
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: clamp(0.5rem, 1vw, 0.9rem);
     margin: 0;
     padding: 0;
     list-style: none;
@@ -96,94 +93,66 @@ const { categories } = Astro.props;
     min-inline-size: 0;
   }
   .cat__link {
-    position: relative;
-    display: grid;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
     block-size: 100%;
+    padding: 0.85rem 0.7rem 0.95rem;
+    text-align: center;
     border: 1px solid var(--rule);
-    border-radius: var(--radius-l);
+    border-radius: var(--radius-m);
     background: var(--white);
-    overflow: hidden;
     text-decoration: none;
-    color: inherit;
+    color: var(--navy-900);
     transition:
       border-color var(--dur-med, 220ms) ease,
       box-shadow var(--dur-med, 220ms) ease,
-      transform var(--dur-med, 220ms) var(--ease-out, ease);
+      transform var(--dur-med, 220ms) var(--ease-out, ease),
+      color var(--dur-med, 220ms) ease;
   }
   .cat__link:hover {
     border-color: var(--aqua-300);
-    box-shadow: 0 22px 44px -30px rgb(13 26 44 / 0.55);
-    transform: translateY(-3px);
-  }
-  .cat__media {
-    display: block;
-    aspect-ratio: 16 / 11;
-    overflow: hidden;
-    background: var(--mist-100);
-  }
-  .cat__media img {
-    display: block;
-    inline-size: 100%;
-    block-size: 100%;
-    object-fit: cover;
-    transform: scale(1.01);
-    transition: transform 600ms var(--ease-out, ease);
-  }
-  .cat__link:hover .cat__media img {
-    transform: scale(1.07);
-  }
-  .cat__body {
-    display: grid;
-    gap: 0.2rem;
-    padding: 0.85rem 0.95rem 1rem;
-  }
-  .cat__n {
-    font-size: 0.72rem;
-    font-weight: 800;
-    letter-spacing: 0.06em;
     color: var(--aqua-600);
+    box-shadow: 0 14px 30px -24px rgb(13 26 44 / 0.5);
+    transform: translateY(-2px);
   }
-  .cat__title {
-    font-weight: 800;
-    font-size: 0.98rem;
-    line-height: 1.5;
-    color: var(--navy-950);
-  }
-  .cat__note {
-    font-size: 0.8rem;
-    line-height: 1.75;
-    color: var(--slate-600);
-  }
-  .cat__arrow {
-    position: absolute;
-    inset-block-start: 0.7rem;
-    inset-inline-start: 0.7rem;
+  .cat__icon {
     display: grid;
     place-items: center;
-    inline-size: 1.9rem;
-    block-size: 1.9rem;
-    border-radius: 999px;
-    background: rgb(255 255 255 / 0.92);
-    color: var(--navy-900);
-    opacity: 0;
-    transform: translateX(6px);
-    transition:
-      opacity var(--dur-fast, 160ms) ease,
-      transform var(--dur-fast, 160ms) ease;
+    flex: none;
+    inline-size: 2.1rem;
+    block-size: 2.1rem;
+    color: var(--cat-icon);
   }
-  .cat__arrow :global(svg) {
-    inline-size: 1rem;
-    block-size: 1rem;
+  .cat__icon :global(svg) {
+    inline-size: 1.65rem;
+    block-size: 1.65rem;
   }
-  .cat__link:hover .cat__arrow,
-  .cat__link:focus-visible .cat__arrow {
-    opacity: 1;
-    transform: none;
+  .cat__title {
+    font-size: clamp(0.78rem, 0.72rem + 0.18vw, 0.88rem);
+    font-weight: 700;
+    line-height: 1.5;
+    text-wrap: balance;
+  }
+
+  @media (max-width: 1100px) {
+    .cats__inner {
+      grid-template-columns: 1fr;
+      gap: 0.9rem;
+    }
+    .cats__grid {
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
+    }
+  }
+  @media (max-width: 560px) {
+    .cats__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
   @media (prefers-reduced-motion: reduce) {
-    .cat__link,
-    .cat__media img,
-    .cat__arrow {
+    .cat__link {
       transition: none;
     }
   }

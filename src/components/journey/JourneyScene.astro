@@ -190,34 +190,19 @@ const lattice = (x0: number, x1: number, y: number, hgt: number) => {
   </g>
   <rect class="j-flat j-flat--sky" x="-800" width="2400" height="560" fill="url(#j-grid)"></rect>
 
-  <!-- ===== Parallax backdrop: sun, skyline, cloud streaks (view space, shifted) ===== -->
+  <!-- ===== Parallax backdrop: cloud streaks only =====
+       The mountains, the city skyline and the far shores that used to be drawn
+       here are gone: the header now sits on a photograph of open water, and any
+       drawn landmass on top of it read as two different places at once. What is
+       left are a few soft cloud streaks for depth, shifted with the camera. -->
   <g data-j="bg" transform={`translate(${bgShift.toFixed(1)} 0)`}>
-
     <g fill="#e8ecee">
-      <rect x="-520" y="118" width="210" height="4" rx="2" opacity="0.07"></rect>
-      <rect x="-470" y="128" width="120" height="3" rx="1.5" opacity="0.05"></rect>
-      <rect x="150" y="214" width="260" height="4" rx="2" opacity="0.1"></rect>
-      <rect x="220" y="224" width="150" height="3" rx="1.5" opacity="0.07"></rect>
-      <rect x="560" y="166" width="180" height="3" rx="1.5" opacity="0.06"></rect>
-      <rect x="900" y="132" width="230" height="4" rx="2" opacity="0.06"></rect>
-    </g>
-    <path
-      d="M-1100 330 L-1100 292 Q-980 268 -860 284 T-600 278 T-340 288 L-300 330Z M-260 330 L-260 300 Q-120 274 20 292 T300 286 T560 294 L600 330Z M700 330 L700 296 Q860 276 1000 290 T1300 288 T1700 292 L1700 330Z"
-      fill="#1b3650"></path>
-    <g fill="#1d3c57">
-      <rect x="-760" y="258" width="22" height="74"></rect><rect x="-732" y="242" width="16" height="90"></rect><rect x="-710" y="266" width="28" height="66"></rect>
-      <rect x="-200" y="256" width="18" height="76"></rect><rect x="-176" y="238" width="12" height="94"></rect><rect x="-158" y="264" width="30" height="68"></rect><rect x="-122" y="250" width="16" height="82"></rect>
-      <rect x="200" y="262" width="24" height="70"></rect><rect x="230" y="248" width="14" height="84"></rect>
-      <rect x="880" y="258" width="20" height="74"></rect><rect x="904" y="246" width="12" height="86"></rect><rect x="920" y="268" width="26" height="64"></rect>
-    </g>
-    <g fill={LIT} opacity="0.7">
-      <rect x="-754" y="270" width="3" height="2"></rect><rect x="-746" y="282" width="3" height="2"></rect><rect x="-727" y="256" width="3" height="2"></rect>
-      <rect x="-702" y="280" width="3" height="2"></rect><rect x="-194" y="270" width="3" height="2"></rect><rect x="-172" y="252" width="3" height="2"></rect>
-      <rect x="-150" y="276" width="3" height="2"></rect><rect x="-116" y="262" width="3" height="2"></rect><rect x="206" y="276" width="3" height="2"></rect>
-      <rect x="234" y="262" width="3" height="2"></rect><rect x="886" y="272" width="3" height="2"></rect><rect x="908" y="258" width="3" height="2"></rect>
+      <rect x="-520" y="118" width="210" height="4" rx="2" opacity="0.05"></rect>
+      <rect x="-470" y="128" width="120" height="3" rx="1.5" opacity="0.04"></rect>
+      <rect x="150" y="214" width="260" height="4" rx="2" opacity="0.06"></rect>
+      <rect x="220" y="224" width="150" height="3" rx="1.5" opacity="0.04"></rect>
     </g>
   </g>
-
 
   <!-- ===== Daylight cycle (view space, so the sun and the moon stay in the sky) ===== -->
   <g data-j="sun" opacity={f.sky.sunO.toFixed(3)} transform={`translate(0 ${f.sky.sunDy.toFixed(2)})`}>
@@ -241,14 +226,6 @@ const lattice = (x0: number, x1: number, y: number, hgt: number) => {
     <rect class="j-flat j-flat--sea" x="-400" y={WORLD.horizon} width="3600" height="420" fill="url(#j-sea)"></rect>
     <rect x="-400" y={WORLD.horizon} width="3600" height="46" fill="url(#j-horizon)"></rect>
     <line x1="-400" y1={WORLD.horizon} x2="3200" y2={WORLD.horizon} stroke="#dbe8ef" stroke-opacity="0.35"></line>
-
-    <!-- Far shores with a few lights -->
-    <path d="M-400 372 L-400 352 Q-200 340 0 350 T420 346 T820 352 T1240 362 L1300 372Z" fill="#1c3953"></path>
-    <path d="M2000 372 L2060 360 Q2300 342 2520 352 T2900 344 T3200 352 L3200 372Z" fill="#1c3953"></path>
-    <g fill={LIT} opacity="0.65">
-      <circle cx="60" cy="356" r="1.4"></circle><circle cx="230" cy="352" r="1.4"></circle><circle cx="520" cy="352" r="1.4"></circle>
-      <circle cx="860" cy="357" r="1.4"></circle><circle cx="2330" cy="352" r="1.4"></circle><circle cx="2600" cy="353" r="1.4"></circle><circle cx="2950" cy="351" r="1.4"></circle>
-    </g>
 
     <!-- Swell (independent loop; paused offscreen and for reduced motion) -->
     <g class="j-waves" fill="none" stroke="#e8ecee" stroke-linecap="round">

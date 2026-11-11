@@ -1,102 +1,95 @@
 ---
 /**
- * «درباره ما» + «مسیر ما در اعداد» in one split band.
+ * «درباره ما» — structure follows the reference:
  *
- * Layout matches the reference: the copy (or, in RTL, the panel that reads
- * first) sits on one side and the numbers stack on the other. In RTL the
- * numbers take the right column and the about-copy the left, exactly as asked.
+ *   [ dotted globe, bleeding to the band's left edge ]  «درباره ما» + «اوکیان»
+ *                                                       + lead + «اطلاعات بیشتر»
+ *                                        | + figures column at the far right
  *
- * The figures are the same ones the site already publishes (Counters); nothing
- * new is claimed here. The single-line counters use the existing count-up
- * script, so the block reads correctly without JavaScript.
+ * Reading order in RTL is figures → copy → globe, matching the reference exactly.
+ * The figures are the ones the site already publishes (۲۰۰۰ محموله، ۵۰۰ میلیون
+ * یورو، ۱۵ سال سابقه) — the reference's own numbers are not copied.
+ *
+ * The globe is a rendered dotted-Earth illustration; its black field is blended
+ * with `mix-blend-mode: screen`, so only the lit dots land on the navy band.
  */
 import Icon from '~/components/ui/Icon.astro';
 import { toFaNumber } from '~/lib/format';
 
 export interface Figure {
   value: number;
-  unit: string;
-  /** Shown after the number, e.g. «+» for an approximate figure. */
+  /** Renders a «+» in front of the number, as in the reference. */
   approx?: boolean;
-  /** Small line under the unit. */
-  note?: string;
+  /** Unit that sits on the number line, e.g. «محموله» or «سال». */
+  unit?: string;
+  /** The short line under the number. */
+  label: string;
+  icon: 'cube' | 'briefcase' | 'award';
 }
 
 export interface Props {
   title: string;
   lead: string;
   figures: Figure[];
-  bullets: string[];
   href: string;
   cta: string;
-  image: string;
-  imageAlt: string;
 }
 
-const { title, lead, figures, bullets, href, cta, image, imageAlt } = Astro.props;
+const { title, lead, figures, href, cta } = Astro.props;
 ---
 
-<section class="about-figures section" id="about-numbers" aria-labelledby="about-figures-title">
-  <div class="container about-figures__grid">
-    <!-- numbers: the right-hand column in RTL -->
-    <div class="af-nums">
-      <header class="af-nums__head">
-        <span class="eyebrow">مسیر ما در اعداد</span>
-        <h2 id="about-figures-title">مسیر ما، در اعداد</h2>
-      </header>
+<section class="about-band" id="about" aria-labelledby="about-title">
+  <div class="about-band__globe" aria-hidden="true">
+    <img
+      src="/img/globe-dots-1408.webp"
+      srcset="/img/globe-dots-960.webp 960w, /img/globe-dots-1408.webp 1408w"
+      sizes="(max-width: 1024px) 100vw, 48vw"
+      width="1408"
+      height="768"
+      alt=""
+      loading="lazy"
+      decoding="async"
+    />
+  </div>
 
-      <dl class="af-nums__list">
-        {
-          figures.map((f) => (
-            <div class="af-fig">
-              <dt class="af-fig__unit">{f.unit}</dt>
-              <dd class="af-fig__value">
-                <span class="af-fig__num" data-count={f.value}>
+  <div class="container about-band__grid">
+    <!-- figures — right column in RTL -->
+    <ul class="stats">
+      {
+        figures.map((f) => (
+          <li class="stat">
+            <span class="stat__icon" aria-hidden="true">
+              <Icon name={f.icon} />
+            </span>
+            <span class="stat__body">
+              <span class="stat__value">
+                {f.approx && <span class="stat__plus" aria-hidden="true">+</span>}
+                <span class="stat__num" data-count={f.value}>
                   {toFaNumber(f.value)}
                 </span>
-                {f.approx && <span class="af-fig__plus" aria-hidden="true">+</span>}
+                {f.unit && <span class="stat__unit">{f.unit}</span>}
                 {f.approx && <span class="sr-only">حدود</span>}
-              </dd>
-              {f.note && <p class="af-fig__note">{f.note}</p>}
-            </div>
-          ))
-        }
-      </dl>
-    </div>
+              </span>
+              <span class="stat__label">{f.label}</span>
+            </span>
+          </li>
+        ))
+      }
+    </ul>
 
-    <!-- about: the left-hand column in RTL -->
-    <div class="af-about">
-      <figure class="af-about__media">
-        <picture>
-          <source type="image/webp" srcset={`/img/${image}-800.webp 800w, /img/${image}-1600.webp 1600w`} sizes="(max-width: 940px) 100vw, 46vw" />
-          <img src={`/img/${image}.jpg`} alt={imageAlt} width={1600} height={900} loading="lazy" decoding="async" />
-        </picture>
-        <figcaption class="af-about__badge">
-          <Icon name="ship" />
-          <span>از ۱۳۹۳ در مسیر واردات و ترخیص</span>
-        </figcaption>
-      </figure>
-
+    <!-- copy — middle column in RTL -->
+    <div class="about-copy">
       <span class="eyebrow">درباره ما</span>
-      <h3 class="af-about__title">{title}</h3>
-      <p class="af-about__lead">{lead}</p>
-
-      <ul class="af-about__list">
-        {
-          bullets.map((b) => (
-            <li>
-              <Icon name="check" />
-              <span>{b}</span>
-            </li>
-          ))
-        }
-      </ul>
-
-      <a class="btn" href={href}>
+      <h2 id="about-title" class="about-copy__title">{title}</h2>
+      <p class="about-copy__lead">{lead}</p>
+      <a class="btn btn--ghost about-copy__cta" href={href}>
         {cta}
         <Icon name="arrow" class="btn__icon" />
       </a>
     </div>
+
+    <!-- reserved for the globe behind the band; the illustration itself is a layer -->
+    <div class="about-band__space" aria-hidden="true"></div>
   </div>
 </section>
 
@@ -105,168 +98,196 @@ const { title, lead, figures, bullets, href, cta, image, imageAlt } = Astro.prop
 </script>
 
 <style>
-  .about-figures {
-    padding-block: clamp(2.75rem, 2rem + 3vw, 5rem);
-    background:
-      radial-gradient(46rem 24rem at 88% 0%, rgb(0 176 200 / 0.07), transparent 62%),
-      var(--mist-50, #f4f6f7);
-    border-block: 1px solid var(--rule);
-  }
-  .about-figures__grid {
-    display: grid;
-    /* RTL: first column is the right-hand side. Numbers right, about left. */
-    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
-    gap: clamp(1.5rem, 1rem + 3vw, 3.5rem);
-    align-items: center;
-  }
-
-  /* ---------- numbers ---------- */
-  .af-nums__head h2 {
-    margin: 0.35rem 0 1.25rem;
-    font-size: clamp(1.15rem, 1rem + 0.7vw, 1.4rem);
-  }
-  .af-nums__list {
-    display: grid;
-    gap: 0;
-    margin: 0;
-    border-top: 1px solid var(--rule);
-  }
-  .af-fig {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: baseline;
-    gap: 0.15rem 0.75rem;
-    padding-block: clamp(0.9rem, 0.7rem + 0.6vw, 1.25rem);
-    border-bottom: 1px solid var(--rule);
-  }
-  .af-fig__value {
-    grid-column: 2;
-    grid-row: 1 / span 2;
-    margin: 0;
-    display: flex;
-    align-items: baseline;
-    gap: 0.1rem;
-    justify-self: end;
-  }
-  .af-fig__num {
-    font-size: clamp(2rem, 1.4rem + 2.2vw, 2.85rem);
-    font-weight: 800;
-    line-height: 1;
-    letter-spacing: -0.02em;
-    color: var(--navy-950);
-    font-variant-numeric: tabular-nums;
-  }
-  .af-fig__plus {
-    font-size: 1.4rem;
-    font-weight: 800;
-    color: var(--aqua-500);
-  }
-  .af-fig__unit {
-    grid-column: 1;
-    align-self: end;
-    font-weight: 700;
-    font-size: 0.98rem;
-    color: var(--navy-900);
-  }
-  .af-fig__note {
-    grid-column: 1;
-    margin: 0;
-    font-size: 0.78rem;
-    line-height: 1.7;
-    color: var(--slate-600);
-  }
-
-  /* ---------- about ---------- */
-  .af-about {
-    display: grid;
-    gap: 0.7rem;
-    justify-items: start;
-    padding: clamp(1.1rem, 0.9rem + 1vw, 1.75rem);
-    border-radius: var(--radius-l);
-    background: var(--white);
-    border: 1px solid var(--rule);
-    box-shadow: 0 30px 60px -46px rgb(13 26 44 / 0.35);
-  }
-  .af-about__media {
+  .about-band {
     position: relative;
-    margin: 0 0 0.35rem;
-    inline-size: 100%;
-    border-radius: var(--radius-m);
+    isolation: isolate;
+    padding-block: clamp(2rem, 1.4rem + 3vw, 3.6rem);
+    color: var(--mist-100);
+    background:
+      radial-gradient(55rem 28rem at 78% 0%, rgb(0 176 200 / 0.16), transparent 62%),
+      radial-gradient(45rem 30rem at 96% 100%, rgb(35 77 102 / 0.5), transparent 68%),
+      linear-gradient(120deg, #0e2136 0%, #14304a 52%, #0f2a42 100%);
     overflow: hidden;
-    aspect-ratio: 16 / 8;
-    background: var(--mist-100);
   }
-  .af-about__media img {
-    inline-size: 100%;
-    block-size: 100%;
-    object-fit: cover;
-    display: block;
-  }
-  .af-about__badge {
+  /* the dotted globe: pinned to the band's left edge, oversized so it bleeds off
+     the top and left like the reference, then faded into the navy */
+  .about-band__globe {
     position: absolute;
-    inset-block-end: 0.6rem;
-    inset-inline-start: 0.6rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.3rem 0.6rem;
-    border-radius: 999px;
-    background: rgb(13 26 44 / 0.78);
-    -webkit-backdrop-filter: blur(6px);
-    backdrop-filter: blur(6px);
-    color: var(--white);
-    font-size: 0.76rem;
-    font-weight: 700;
+    inset-block: 0;
+    left: 0;
+    inline-size: min(48%, 40rem);
+    overflow: hidden;
+    mask-image: linear-gradient(to right, #000 30%, transparent 84%);
+    -webkit-mask-image: linear-gradient(to right, #000 30%, transparent 84%);
+    pointer-events: none;
+    z-index: -1;
   }
-  .af-about__badge :global(svg) {
-    inline-size: 0.95rem;
-    block-size: 0.95rem;
-    color: var(--aqua-300);
+  .about-band__globe img {
+    position: absolute;
+    left: min(-14%, -2.5rem);
+    top: -12%;
+    inline-size: auto;
+    max-inline-size: none;
+    block-size: 155%;
+    mix-blend-mode: screen;
+    opacity: 0.95;
   }
-  .af-about__title {
-    margin: 0;
-    font-size: clamp(1.3rem, 1.1rem + 1vw, 1.75rem);
-    color: var(--navy-950);
-  }
-  .af-about__lead {
-    margin: 0;
-    line-height: 1.95;
-    color: var(--slate-700);
-    max-inline-size: 58ch;
-  }
-  .af-about__list {
+
+  .about-band__grid {
+    position: relative;
     display: grid;
-    gap: 0.4rem;
-    margin: 0.2rem 0 0.4rem;
+    /* RTL: stats right, copy middle, (globe occupies the left edge behind) */
+    grid-template-columns: auto minmax(0, 1fr) minmax(0, 1.15fr);
+    gap: clamp(1.25rem, 1rem + 2.6vw, 3.25rem);
+    align-items: center;
+  }
+
+  /* ---------- figures ---------- */
+  .stats {
+    display: grid;
+    gap: clamp(0.9rem, 0.7rem + 0.6vw, 1.35rem);
+    margin: 0;
     padding: 0;
+    /* the hairline sits between the copy and the figures, as in the reference */
+    padding-inline-end: clamp(0.9rem, 0.5rem + 1.4vw, 1.6rem);
+    border-inline-end: 1px solid rgb(143 180 201 / 0.22);
     list-style: none;
   }
-  .af-about__list li {
+  .stat {
     display: flex;
-    gap: 0.5rem;
-    align-items: flex-start;
-    font-size: 0.9rem;
-    line-height: 1.8;
-    color: var(--slate-700);
+    align-items: center;
+    gap: 0.7rem;
   }
-  .af-about__list :global(svg) {
+  .stat__icon {
+    display: grid;
+    place-items: center;
     flex: none;
-    inline-size: 1.05rem;
-    block-size: 1.05rem;
-    margin-top: 0.3rem;
-    color: var(--aqua-600);
+    order: 2; /* icon sits at the outer edge, like the reference */
+    inline-size: 2.3rem;
+    block-size: 2.3rem;
+    color: var(--aqua-300);
+  }
+  .stat__icon :global(svg) {
+    inline-size: 1.5rem;
+    block-size: 1.5rem;
+  }
+  .stat__body {
+    display: grid;
+    gap: 0.02rem;
+  }
+  .stat__value {
+    display: flex;
+    align-items: baseline;
+    gap: 0.05rem;
+    color: var(--white);
+  }
+  .stat__num {
+    font-size: clamp(1.25rem, 1.05rem + 0.7vw, 1.6rem);
+    font-weight: 800;
+    line-height: 1.2;
+    font-variant-numeric: tabular-nums;
+  }
+  .stat__plus {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--aqua-300);
+  }
+  .stat__unit {
+    font-size: clamp(0.82rem, 0.76rem + 0.25vw, 0.95rem);
+    font-weight: 700;
+    color: rgb(232 236 238 / 0.9);
+  }
+  .stat__label {
+    font-size: 0.74rem;
+    line-height: 1.6;
+    color: rgb(232 236 238 / 0.7);
   }
 
-  @media (max-width: 940px) {
-    .about-figures__grid {
+  /* ---------- copy ---------- */
+  .about-copy {
+    display: grid;
+    gap: 0.7rem;
+    justify-items: center;
+    text-align: center;
+    padding-block: 0.5rem;
+  }
+  .about-copy .eyebrow {
+    color: var(--aqua-300);
+  }
+  .about-copy .eyebrow::before {
+    background: var(--aqua-500);
+  }
+  .about-copy__title {
+    margin: 0;
+    font-size: clamp(1.55rem, 1.2rem + 1.6vw, 2.35rem);
+    font-weight: 800;
+    color: var(--white);
+    letter-spacing: -0.01em;
+  }
+  .about-copy__lead {
+    margin: 0;
+    max-inline-size: 46ch;
+    font-size: clamp(0.85rem, 0.8rem + 0.22vw, 0.95rem);
+    line-height: 2;
+    color: rgb(232 236 238 / 0.8);
+  }
+  .about-copy__cta {
+    margin-top: 0.3rem;
+    border-radius: 999px;
+    border-color: rgb(232 236 238 / 0.4);
+    color: var(--white);
+  }
+  .about-copy__cta:hover {
+    background: var(--white);
+    color: var(--navy-950);
+    border-color: var(--white);
+  }
+
+  @media (max-width: 1024px) {
+    .about-band__grid {
       grid-template-columns: 1fr;
+      justify-items: center;
+      gap: 1.5rem;
     }
-    /* On one column the copy reads first and the numbers follow it. */
-    .af-about {
+    .about-band__space {
+      display: none;
+    }
+    .stats {
+      order: 2;
+      grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+      justify-items: center;
+      inline-size: 100%;
+      max-inline-size: 34rem;
+      gap: 1rem;
+      padding-inline-end: 0;
+      padding-block-start: 1.25rem;
+      border-inline-end: 0;
+      border-block-start: 1px solid rgb(143 180 201 / 0.22);
+    }
+    .about-copy {
       order: 1;
     }
-    .af-nums {
-      order: 2;
+    .about-band__space {
+      display: none;
+    }
+    .about-band__globe {
+      inline-size: 100%;
+      opacity: 0.3;
+      -webkit-mask-image: linear-gradient(to right, #000 0%, transparent 100%);
+      mask-image: linear-gradient(to right, #000 0%, transparent 100%);
+    }
+  }
+
+  @media (max-width: 560px) {
+    .stats {
+      grid-template-columns: 1fr;
+      max-inline-size: 18rem;
+    }
+    .stat {
+      justify-content: center;
+    }
+    .stat__body {
+      text-align: start;
     }
   }
 </style>

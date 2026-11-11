@@ -81,15 +81,6 @@ const headerPhones = companyPhones.filter((p) => p.kind === 'mobile').slice(0, 1
 
     <!-- Brand and actions grow equally, so the dark capsule stays centred. -->
     <div class="site-header__actions">
-      <!-- Search: a link to the guide library, the only part of the site that
-           behaves like a search (client-side filter). No dead input box. -->
-      <a class="site-header__icon-btn site-header__search" href="/guides/#feed-title" aria-label="جست‌وجو در راهنماها">
-        <Icon name="search" />
-      </a>
-      <span class="site-header__lang" aria-label="زبان سایت">
-        <Icon name="globe" />
-        <span>FA</span>
-      </span>
       {
         site.contact.phone && (
           <span class="site-header__phones">
@@ -222,47 +213,6 @@ const headerPhones = companyPhones.filter((p) => p.kind === 'mobile').slice(0, 1
     /* A band of its own: a touch wider than the page column so the brand, the
        seven-item capsule and the phone/CTA cluster never fight for space. */
     inline-size: min(100% - 2 * var(--gutter), 82rem);
-  }
-  .site-header__icon-btn {
-    display: grid;
-    place-items: center;
-    inline-size: 2.4rem;
-    block-size: 2.4rem;
-    flex: none;
-    border: 1px solid var(--rule);
-    border-radius: 999px;
-    color: var(--navy-800);
-    background: var(--white);
-    transition:
-      color var(--dur-fast) ease,
-      border-color var(--dur-fast) ease,
-      background-color var(--dur-fast) ease;
-  }
-  .site-header__icon-btn :global(svg) {
-    inline-size: 1.1rem;
-    block-size: 1.1rem;
-  }
-  .site-header__icon-btn:hover {
-    color: var(--aqua-600);
-    border-color: var(--aqua-300);
-    background: var(--aqua-100);
-  }
-  .site-header__lang {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    padding: 0.3rem 0.6rem;
-    border-radius: 999px;
-    border: 1px solid var(--rule);
-    font-size: 0.8rem;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    color: var(--navy-800);
-  }
-  .site-header__lang :global(svg) {
-    inline-size: 1rem;
-    block-size: 1rem;
-    color: var(--aqua-600);
   }
   .site-header__brand {
     /* Brand and actions split the free space around the capsule. A slightly smaller
@@ -774,8 +724,7 @@ const headerPhones = companyPhones.filter((p) => p.kind === 'mobile').slice(0, 1
 
   @media (max-width: 860px) {
     .site-nav,
-    .site-header__cta,
-    .site-header__lang {
+    .site-header__cta {
       display: none;
     }
     .menu-toggle {
