@@ -1,276 +1,383 @@
 ---
 /**
- * The dotted globe from the reference — but alive.
+ * The dotted globe of the «درباره ما» band — real continents, not latitude rings.
  *
- * Everything is drawn here: no raster to download, crisp at any size.
+ * The point set is real geography: `src/data/globe-points.json` holds ~4700
+ * uniform points (Fibonacci lattice) filtered through a Natural Earth land mask,
+ * built by `scripts/generate-globe-points.mjs`. Both the server render and the
+ * client canvas decode the same file, so what you see before and after the
+ * animation starts is the same world.
  *
- * Visual layers, from back to front:
- *  1. body + atmosphere, so the sphere has depth;
- *  2. latitude rings drawn as *dotted strokes* — a round-capped dashed stroke
- *     gives hundreds of dots for one line of markup, and animating its dash
- *     offset makes them travel around the ring. This is what gives the density
- *     of the reference image without shipping a bitmap;
- *  3. a few brighter, individually animated dots, so the rotation is readable
- *     even at a glance;
- *  4. meridians sweeping at the same angular speed (they make the turn read as
- *     a turn rather than a wobble);
- *  5. the blue trade routes: dashed arcs whose dash offset travels, each with a
- *     node running the line, plus a slowly turning orbit ring.
- *
- * Motion is decorative: `prefers-reduced-motion` pauses the SMIL timeline and
- * turns off the CSS animations, leaving a complete, static globe.
+ * Server: a complete SVG globe with trade lanes and nodes, so the band reads
+ * correctly with no JavaScript at all.
+ * Client: a canvas takes over — it rotates the sphere, sizes and fades each dot
+ * by depth, and runs the lanes. It only swaps in once it has painted its first
+ * frame, and it leaves the SVG alone under `prefers-reduced-motion`.
  */
+import pointsJson from '~/data/globe-points.json';
+
 export interface Props {
   class?: string;
-  /** Accessible name. Omit for a purely decorative globe. */
-  label?: string;
+  /** Initial rotation, in degrees. */
+  rotate?: number;
+  /** Seconds for one full turn. */
+  period?: number;
 }
 
-const { class: className, label } = Astro.props;
+const { class: className, rotate = 16, period = 70 } = Astro.props;
 
-const CX = 210;
-const CY = 210;
-const R = 168;
+/** The globe's own coordinate system: a 640×640 box with a 260 radius. */
+const CX = 320;
+const CY = 320;
+const R = 260;
 
-/* ---------- latitude rings (dotted, travelling) ---------- */
-interface Ring {
-  cy: number;
-  rx: number;
-  ry: number;
-  opacity: number;
-  dur: number;
-}
+/**
+ * Trade routes, as cubic beziers in the globe's own coordinates. The canvas
+ * redraws these every frame, so the animated arcs and the static fallback
+ * always show the same lanes.
+ */
+const routes = [
+  { start: [120, 306], c1: [170, 214], c2: [300, 150], end: [452, 176], dur: 9 },
+  { start: [138, 214], c1: [190, 292], c2: [330, 340], end: [470, 300], dur: 12 },
+  { start: [96, 268], c1: [170, 250], c2: [330, 236], end: [486, 250], dur: 15 },
+  { start: [60, 380], c1: [210, 330], c2: [470, 300], end: [618, 232], dur: 18 },
+].map((r) => ({
+  ...r,
+  d: `M${r.start[0]} ${r.start[1]}C${r.c1[0]} ${r.c1[1]} ${r.c2[0]} ${r.c2[1]} ${r.end[0]} ${r.end[1]}`,
+}));
 
-const rings: Ring[] = [];
-for (let lat = -70; lat <= 70; lat += 7) {
-  const phi = (lat * Math.PI) / 180;
-  const c = Math.cos(phi);
-  rings.push({
-    cy: Number((CY - R * Math.sin(phi)).toFixed(1)),
-    rx: Number((R * c).toFixed(1)),
-    // the ring is seen at a glancing angle: it flattens toward the poles
-    ry: Number((R * c * 0.30).toFixed(1)),
-    opacity: Number((0.2 + 0.35 * c).toFixed(2)),
-    // all speeds are whole multiples of one dash period, so the loop is seamless
-    dur: Number((16 + 26 * Math.abs(lat) / 70).toFixed(1)),
-  });
-}
-
-/* ---------- brighter travelling dots ---------- */
-interface Dot {
-  cy: number;
-  r: number;
-  x: string;
-  o: string;
-}
-
-const STEPS = 8; // nine samples per turn
-const dots: Dot[] = [];
-for (let lat = -56; lat <= 56; lat += 28) {
-  const phi = (lat * Math.PI) / 180;
-  const ringR = R * Math.cos(phi);
-  const cy = CY - R * Math.sin(phi);
-  const perRing = 6;
-  for (let i = 0; i < perRing; i++) {
-    // offset each dot's phase so the field never looks like rows
-    const lambda = ((i + (lat + 56) / 112) / perRing) * Math.PI * 2;
-    const xs: number[] = [];
-    const os: number[] = [];
-    for (let s = 0; s <= STEPS; s++) {
-      const a = lambda + (s / STEPS) * Math.PI * 2;
-      xs.push(Number((CX + ringR * Math.sin(a)).toFixed(1)));
-      os.push(Number((0.1 + 0.9 * Math.max(0, Math.cos(a))).toFixed(2)));
-    }
-    dots.push({
-      cy: Number(cy.toFixed(1)),
-      r: 2.4,
-      x: xs.join(';'),
-      o: os.join(';'),
+/**
+ * The static dots, baked into one path: a zero-length horizontal segment with a
+ * round cap paints as a dot, so ~4700 points cost one element instead of 4700.
+ */
+const decode = () => {
+  const bytes = Buffer.from(pointsJson.data, 'base64');
+  const out = [];
+  for (let i = 0; i < bytes.length; i += 2) {
+    out.push({
+      lon: (bytes[i] / 255) * 360 - 180,
+      lat: (bytes[i + 1] / 255) * 180 - 90,
     });
   }
-}
+  return out;
+};
 
-/** Meridians sweep 0 → R → 0; four of them, evenly phased. */
-const meridians = [
-  { begin: '0s', op: 0.30 },
-  { begin: '-4.5s', op: 0.24 },
-  { begin: '-9s', op: 0.18 },
-  { begin: '-13.5s', op: 0.12 },
-];
+const rad = (deg: number) => (deg * Math.PI) / 180;
+const spin = rad(rotate);
+const dotPath = decode()
+  .map((p) => {
+    const la = rad(p.lat);
+    const lo = rad(p.lon) - spin;
+    const z = Math.cos(la) * Math.cos(lo);
+    if (z <= 0.06) return '';
+    const x = CX + R * Math.cos(la) * Math.sin(lo);
+    const y = CY - R * Math.sin(la);
+    return `M${x.toFixed(1)} ${y.toFixed(1)}h.01`;
+  })
+  .join('');
 ---
 
-<svg
-  class={className}
-  viewBox="0 0 420 420"
-  fill="none"
-  role={label ? 'img' : undefined}
-  aria-label={label}
-  aria-hidden={label ? undefined : 'true'}
-  focusable="false"
-  data-globe
->
-  <defs>
-    <radialGradient id="gl-body" cx="38%" cy="32%" r="72%">
-      <stop offset="0" stop-color="#1d6f8c" stop-opacity="0.5"></stop>
-      <stop offset="0.55" stop-color="#0f3350" stop-opacity="0.45"></stop>
-      <stop offset="1" stop-color="#0b2036" stop-opacity="0.1"></stop>
-    </radialGradient>
-    <radialGradient id="gl-rim" cx="50%" cy="50%" r="50%">
-      <stop offset="0.88" stop-color="#5fd6e6" stop-opacity="0"></stop>
-      <stop offset="1" stop-color="#7fe3ef" stop-opacity="0.5"></stop>
-    </radialGradient>
-  </defs>
+<div class:list={['globe', className]} data-rotate={rotate} data-period={period}>
+  <svg class="globe__svg" viewBox={`0 0 ${CX * 2} ${CY * 2}`} role="presentation" focusable="false">
+    <defs>
+      <radialGradient id="gl-halo" cx="50%" cy="50%" r="50%">
+        <stop offset="0.62" stop-color="#2f8fd8" stop-opacity="0.28"></stop>
+        <stop offset="0.86" stop-color="#2f8fd8" stop-opacity="0.1"></stop>
+        <stop offset="1" stop-color="#2f8fd8" stop-opacity="0"></stop>
+      </radialGradient>
+      <radialGradient id="gl-core" cx="42%" cy="36%" r="66%">
+        <stop offset="0" stop-color="#145696" stop-opacity="0.55"></stop>
+        <stop offset="0.62" stop-color="#082a56" stop-opacity="0.6"></stop>
+        <stop offset="1" stop-color="#030e1e" stop-opacity="0.5"></stop>
+      </radialGradient>
+      <radialGradient id="gl-limb" cx="50%" cy="50%" r="50%">
+        <stop offset="0.84" stop-color="#0b3a6b" stop-opacity="0"></stop>
+        <stop offset="0.965" stop-color="#1f6ea8" stop-opacity="0.55"></stop>
+        <stop offset="1" stop-color="#56b7ea" stop-opacity="0.85"></stop>
+      </radialGradient>
+      <clipPath id="gl-clip">
+        <circle cx={CX} cy={CY} r={R}></circle>
+      </clipPath>
+    </defs>
 
-  <!-- atmosphere and body -->
-  <circle cx={CX} cy={CY} r={R + 30} fill="url(#gl-body)" opacity="0.5"></circle>
-  <circle cx={CX} cy={CY} r={R} fill="url(#gl-body)" opacity="0.8"></circle>
-  <circle cx={CX} cy={CY} r={R} fill="url(#gl-rim)"></circle>
+    <circle class="globe__halo" cx={CX} cy={CY} r={R * 1.34} fill="url(#gl-halo)"></circle>
+    <circle class="globe__body" cx={CX} cy={CY} r={R} fill="url(#gl-core)"></circle>
+    <g clip-path="url(#gl-clip)">
+      <path class="globe__dots" d={dotPath} fill="none" stroke="#e2fbff" stroke-width="1.7" stroke-linecap="round"></path>
+      <circle class="globe__limb" cx={CX} cy={CY} r={R} fill="url(#gl-limb)"></circle>
+    </g>
+    <g clip-path="url(#gl-clip)" class="globe__routes" stroke="#9beeff" stroke-width="1.8" stroke-linecap="round" stroke-opacity="0.75">
+      {routes.map((r) => <path class="globe__route" d={r.d} fill="none" stroke-dasharray="7 12"></path>)}
+    </g>
+    <g clip-path="url(#gl-clip)" class="globe__nodes" fill="#ffffff">
+      {routes.flatMap((r) =>
+        [r.start, r.end].map(([x, y]) => <circle cx={x} cy={y} r="2.2"></circle>)
+      )}
+    </g>
+    <circle class="globe__edge" cx={CX} cy={CY} r={R} fill="none" stroke="#8fd8f5" stroke-opacity="0.32"></circle>
+  </svg>
 
-  <!-- dotted latitude rings; the dash offset travels, so the dots march -->
-  <g stroke="#8ce8f3" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="0.01 7">
-    {
-      rings.map((r) => (
-        <ellipse cx={CX} cy={r.cy} rx={r.rx} ry={r.ry} opacity={r.opacity}>
-          <animate
-            attributeName="stroke-dashoffset"
-            values="0;-7"
-            dur={`${r.dur}s`}
-            repeatCount="indefinite"
-          />
-        </ellipse>
-      ))
+  <canvas class="globe__canvas" width={CX * 2} height={CY * 2} aria-hidden="true"></canvas>
+</div>
+
+<script>
+  import pointsJson from '~/data/globe-points.json';
+
+  /** Same lanes as the server-rendered fallback (viewBox coordinates). */
+  const routes = [
+    { start: [120, 306], c1: [170, 214], c2: [300, 150], end: [452, 176], dur: 9,
+      d: 'M120 306C170 214 300 150 452 176' },
+    { start: [138, 214], c1: [190, 292], c2: [330, 340], end: [470, 300], dur: 12,
+      d: 'M138 214C190 292 330 340 470 300' },
+    { start: [96, 268], c1: [170, 250], c2: [330, 236], end: [486, 250], dur: 15,
+      d: 'M96 268C170 250 330 236 486 250' },
+    { start: [60, 380], c1: [210, 330], c2: [470, 300], end: [618, 232], dur: 18,
+      d: 'M60 380C210 330 470 300 618 232' },
+  ];
+
+  const CX = 320;
+  const CY = 320;
+  const R = 260;
+
+  const decode = () => {
+    const bin = atob(pointsJson.data);
+    const pts: Array<{ lat: number; lon: number }> = [];
+    for (let i = 0; i < bin.length; i += 2) {
+      pts.push({
+        lon: (bin.charCodeAt(i) / 255) * 360 - 180,
+        lat: (bin.charCodeAt(i + 1) / 255) * 180 - 90,
+      });
     }
-  </g>
+    return pts;
+  };
 
-  <!-- meridians: rx sweeps 0 → R → 0, which reads as a sphere turning -->
-  <g stroke="#7fe3ef" stroke-width="1">
-    {
-      meridians.map((m) => (
-        <ellipse cx={CX} cy={CY} rx={R} ry={R} opacity={m.op}>
-          <animate
-            attributeName="rx"
-            values={`0;${R};0`}
-            dur="18s"
-            begin={m.begin}
-            repeatCount="indefinite"
-            calcMode="spline"
-            keyTimes="0;0.5;1"
-            keySplines="0.4 0 0.6 1;0.4 0 0.6 1"
-          />
-        </ellipse>
-      ))
-    }
-  </g>
+  const boot = (root: HTMLElement) => {
+    const canvas = root.querySelector<HTMLCanvasElement>('.globe__canvas');
+    const ctx = canvas?.getContext('2d');
+    if (!canvas || !ctx) return;
 
-  <!-- brighter dots drifting across the front of the sphere -->
-  <g fill="#d9f5f9">
-    {
-      dots.map((d) => (
-        <circle cy={d.cy} cx={CX} r={d.r}>
-          <animate
-            attributeName="cx"
-            values={d.x}
-            keyTimes="0;0.125;0.25;0.375;0.5;0.625;0.75;0.875;1"
-            dur="26s"
-            repeatCount="indefinite"
-          />
-          <animate
-            attributeName="opacity"
-            values={d.o}
-            keyTimes="0;0.125;0.25;0.375;0.5;0.625;0.75;0.875;1"
-            dur="26s"
-            repeatCount="indefinite"
-          />
-        </circle>
-      ))
-    }
-  </g>
+    const points = decode();
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+    const period = Number(root.dataset.period) || 70;
+    const start = Number(root.dataset.rotate) || 16;
+    let raf = 0;
+    let t0 = 0;
+    let visible = false;
 
-  <!-- sphere edge, drawn over the dots so the silhouette stays clean -->
-  <circle cx={CX} cy={CY} r={R} stroke="#5fd6e6" stroke-opacity="0.34" stroke-width="1.2"></circle>
+    /** One frame of the sphere at rotation `rot` (degrees). */
+    const draw = (rotDeg: number, now: number) => {
+      const rot = (rotDeg * Math.PI) / 180;
+      ctx.clearRect(0, 0, CX * 2, CY * 2);
 
-  <!-- trade routes: dashed, dash offset travelling, a node running each line -->
-  <g class="gl-routes" stroke="#7fe3ef" stroke-opacity="0.95" stroke-width="2.2" stroke-linecap="round">
-    <path class="gl-route gl-route--a" d="M96 258C150 196 250 150 330 176" stroke-dasharray="10 14"></path>
-    <path class="gl-route gl-route--b" d="M84 190C140 234 250 268 340 236" stroke-dasharray="8 16"></path>
-  </g>
-  <g class="gl-nodes">
-    <circle r="3.6" fill="#eafcff">
-      <animateMotion path="M96 258C150 196 250 150 330 176" dur="7s" repeatCount="indefinite"></animateMotion>
-      <animate
-        attributeName="opacity"
-        values="0;1;1;0"
-        keyTimes="0;0.1;0.85;1"
-        dur="7s"
-        repeatCount="indefinite"></animate>
-    </circle>
-    <circle r="3.2" fill="#bfeff8">
-      <animateMotion path="M84 190C140 234 250 268 340 236" dur="9s" begin="-4.5s" repeatCount="indefinite"
-      ></animateMotion>
-      <animate
-        attributeName="opacity"
-        values="0;1;1;0"
-        keyTimes="0;0.1;0.85;1"
-        dur="9s"
-        begin="-4.5s"
-        repeatCount="indefinite"></animate>
-    </circle>
-  </g>
-  <g fill="#eafcff">
-    <circle cx="96" cy="258" r="3.4"></circle>
-    <circle cx="330" cy="176" r="3.4"></circle>
-    <circle cx="84" cy="190" r="3"></circle>
-    <circle cx="340" cy="236" r="3"></circle>
-  </g>
+      // halo
+      const halo = ctx.createRadialGradient(CX, CY, R * 0.86, CX, CY, R * 1.34);
+      halo.addColorStop(0, 'rgba(47,143,216,0.26)');
+      halo.addColorStop(0.55, 'rgba(47,143,216,0.1)');
+      halo.addColorStop(1, 'rgba(47,143,216,0)');
+      ctx.fillStyle = halo;
+      ctx.beginPath();
+      ctx.arc(CX, CY, R * 1.34, 0, Math.PI * 2);
+      ctx.fill();
 
-  <!-- orbit ring, slowly turning -->
-  <g class="gl-orbit">
-    <circle
-      cx={CX}
-      cy={CY}
-      r={R + 16}
-      stroke="#5fd6e6"
-      stroke-opacity="0.3"
-      stroke-width="1.2"
-      stroke-dasharray="3 12"
-      stroke-linecap="round"></circle>
-  </g>
-</svg>
+      // body
+      const core = ctx.createRadialGradient(CX - R * 0.16, CY - R * 0.28, R * 0.1, CX, CY, R);
+      core.addColorStop(0, 'rgba(20,86,150,0.55)');
+      core.addColorStop(0.62, 'rgba(8,42,86,0.6)');
+      core.addColorStop(1, 'rgba(3,14,30,0.5)');
+      ctx.fillStyle = core;
+      ctx.beginPath();
+      ctx.arc(CX, CY, R, 0, Math.PI * 2);
+      ctx.fill();
+
+      // everything below stays inside the sphere
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(CX, CY, R, 0, Math.PI * 2);
+      ctx.clip();
+
+      // dots: a soft halo per point gives the glow, a crisp core keeps the
+      // coastlines readable
+      for (const p of points) {
+        const la = (p.lat * Math.PI) / 180;
+        const lo = (p.lon * Math.PI) / 180 - rot;
+        const z = Math.cos(la) * Math.cos(lo);
+        if (z <= 0.06) continue;
+        const x = CX + R * Math.cos(la) * Math.sin(lo);
+        const y = CY - R * Math.sin(la);
+        const s = 0.85 + z * 1.05;
+        ctx.globalAlpha = 0.1 + z * 0.24;
+        ctx.fillStyle = '#7fe6fb';
+        ctx.beginPath();
+        ctx.arc(x, y, s * 1.35, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 0.55 + z * 0.45;
+        ctx.fillStyle = '#eafdff';
+        ctx.beginPath();
+        ctx.arc(x, y, s * 0.55, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+
+      // trade routes: dashed lanes that travel, clipped to the sphere, with a
+      // node running each one
+      const secs = (now - t0) / 1000;
+      for (const [i, r] of routes.entries()) {
+        const path = new Path2D(r.d);
+        ctx.save();
+        ctx.strokeStyle = 'rgba(190,244,255,0.85)';
+        ctx.lineWidth = 1.9;
+        ctx.lineCap = 'round';
+        ctx.setLineDash([7, 12]);
+        ctx.lineDashOffset = -((secs * 26) % 19) * (i === 1 ? -1 : 1);
+        ctx.shadowColor = 'rgba(120,230,255,0.9)';
+        ctx.shadowBlur = 8;
+        ctx.stroke(path);
+        ctx.restore();
+
+        const t = (secs / r.dur) % 1;
+        const mt = 1 - t;
+        const nx =
+          mt * mt * mt * r.start[0] + 3 * mt * mt * t * r.c1[0] + 3 * mt * t * t * r.c2[0] + t * t * t * r.end[0];
+        const ny =
+          mt * mt * mt * r.start[1] + 3 * mt * mt * t * r.c1[1] + 3 * mt * t * t * r.c2[1] + t * t * t * r.end[1];
+        const g = ctx.createRadialGradient(nx, ny, 0, nx, ny, 9);
+        g.addColorStop(0, 'rgba(255,255,255,0.95)');
+        g.addColorStop(0.35, 'rgba(150,240,255,0.55)');
+        g.addColorStop(1, 'rgba(120,230,255,0)');
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(nx, ny, 9, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // fixed nodes at the route ends, each with the same soft bloom
+      for (const r of routes) {
+        for (const [x, y] of [r.start, r.end]) {
+          const ng = ctx.createRadialGradient(x, y, 0, x, y, 7);
+          ng.addColorStop(0, 'rgba(255,255,255,0.95)');
+          ng.addColorStop(0.4, 'rgba(150,240,255,0.5)');
+          ng.addColorStop(1, 'rgba(120,230,255,0)');
+          ctx.fillStyle = ng;
+          ctx.beginPath();
+          ctx.arc(x, y, 7, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = 'rgba(255,255,255,0.98)';
+          ctx.beginPath();
+          ctx.arc(x, y, 1.9, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      // limb light
+      const limb = ctx.createRadialGradient(CX, CY, R * 0.84, CX, CY, R);
+      limb.addColorStop(0, 'rgba(11,58,107,0)');
+      limb.addColorStop(0.72, 'rgba(31,110,168,0.55)');
+      limb.addColorStop(1, 'rgba(86,183,234,0.85)');
+      ctx.fillStyle = limb;
+      ctx.beginPath();
+      ctx.arc(CX, CY, R, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    };
+
+    const frame = (timestamp: number) => {
+      if (!t0) t0 = timestamp;
+      const elapsed = (timestamp - t0) / 1000;
+      draw(start + (elapsed * 360) / period, timestamp);
+      raf = requestAnimationFrame(frame);
+    };
+
+    const play = () => {
+      if (raf || reduce.matches) return;
+      raf = requestAnimationFrame(frame);
+    };
+    const pause = () => {
+      cancelAnimationFrame(raf);
+      raf = 0;
+      t0 = 0;
+    };
+
+    // paint one frame first, then reveal the canvas over the SVG
+    t0 = performance.now();
+    draw(start, t0);
+    root.classList.add('is-active');
+
+    if (reduce.matches) return;
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          visible = entry.isIntersecting;
+          if (visible && !document.hidden) play();
+          else pause();
+        }
+      },
+      { rootMargin: '120px' }
+    );
+    io.observe(root);
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) pause();
+      else if (visible) play();
+    });
+  };
+
+  document.querySelectorAll<HTMLElement>('.globe').forEach(boot);
+</script>
 
 <style>
-  .gl-route {
-    animation: gl-dash 3.6s linear infinite;
+  .globe {
+    position: relative;
+    display: block;
+    aspect-ratio: 1;
+    inline-size: 100%;
   }
-  .gl-route--b {
-    animation-duration: 4.8s;
-    animation-direction: reverse;
+  .globe__svg,
+  .globe__canvas {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    display: block;
   }
-  .gl-orbit {
-    transform-box: fill-box;
-    transform-origin: center;
-    animation: gl-turn 60s linear infinite;
+  .globe__svg {
+    transition: opacity 420ms ease;
   }
-  @keyframes gl-dash {
-    to {
-      stroke-dashoffset: -48;
-    }
+  .globe__canvas {
+    opacity: 0;
+    transition: opacity 420ms ease;
   }
-  @keyframes gl-turn {
-    to {
-      transform: rotate(360deg);
-    }
+  /* the canvas only fades in once it has painted */
+  .globe.is-active .globe__svg {
+    opacity: 0;
+  }
+  .globe.is-active .globe__canvas {
+    opacity: 1;
   }
 
+  /* the lanes travel on the fallback too */
+  .globe__route {
+    animation: gl-travel 9s linear infinite;
+  }
+  .globe__route:nth-child(2) {
+    animation-duration: 12s;
+    animation-direction: reverse;
+  }
+  .globe__route:nth-child(3) {
+    animation-duration: 15s;
+  }
+  .globe__route:nth-child(4) {
+    animation-duration: 18s;
+    animation-direction: reverse;
+  }
+  @keyframes gl-travel {
+    to {
+      stroke-dashoffset: -190;
+    }
+  }
   @media (prefers-reduced-motion: reduce) {
-    .gl-route,
-    .gl-orbit {
+    .globe__route {
       animation: none;
     }
   }
 </style>
-
-<script>
-  // SMIL ignores the media query, so pause the timeline for reduced-motion users.
-  const svg = document.querySelector<SVGSVGElement>('svg[data-globe]');
-  if (svg && matchMedia('(prefers-reduced-motion: reduce)').matches) svg.pauseAnimations();
-</script>

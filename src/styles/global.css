@@ -5,12 +5,12 @@
 
 :root {
   /* Palette — OKIYAN brand colours (marked ★) and tints derived from them */
-  --navy-950: #0d1a2c;
-  --navy-900: #162c47; /* ★ سرمه‌ای عمیق — deep navy */
-  --navy-800: #1d3a5a;
-  --petrol-700: #1b3d52;
-  --petrol-600: #234d66; /* ★ آبی نفتی — petrol blue; the accent */
-  --petrol-500: #2e6282;
+  --navy-950: #000f28;
+  --navy-900: #001b42; /* ★ سرمه‌ای عمیق — deep navy */
+  --navy-800: #052547;
+  --petrol-700: #06406e;
+  --petrol-600: #005793; /* ★ آبی نفتی — petrol blue; the accent */
+  --petrol-500: #0a6ea8;
   --petrol-300: #8fb4c9; /* accent on dark backgrounds */
   --petrol-200: #b9d1de;
   --petrol-100: #dde9ef;
@@ -21,26 +21,40 @@
   --aqua-500: #00b0c8;
   --aqua-300: #5fd6e6;
   --aqua-100: #d9f5f9;
-  --silver-400: #a8b0ba; /* ★ نقره‌ای خنثی — neutral silver (decoration, not body text) */
-  --mist-300: #cfd5db;
-  --mist-200: #dde2e6;
-  --mist-100: #e8ecee; /* ★ خاکستری روشن — light grey */
-  --mist-50: #f4f6f7;
+  /* ---- Section palette, taken from the reference band (round 25) ----
+     Near-white paper, the deep navy of the arc panel and the mid blue that
+     lights it. Section bands use these through the semantic slots below;
+     the brand primitives above are left as they are, so the hero slider and
+     the shipment journey keep exactly the colours they had. */
+  --ink-950: var(--navy-950);
+  --ink-900: var(--navy-900);
+  --ink-800: #021438;
+  --ink-700: var(--navy-800);
+  --blue-700: var(--petrol-600);
+  --blue-300: #6fbfe8;
+  --paper: #fafbff;
+  --paper-alt: #eef2fa;
+
+  --silver-400: #a3aec2; /* ★ نقره‌ای خنثی — neutral silver (decoration, not body text) */
+  --mist-300: #cdd6e6;
+  --mist-200: #dbe2f0;
+  --mist-100: #e9eef8; /* ★ خاکستری روشن — light grey */
+  --mist-50: #f3f6fc;
   --white: #ffffff; /* ★ سفید */
-  --slate-700: #33404f;
-  --slate-600: #555f6c;
+  --slate-700: #2c3a52;
+  --slate-600: #4e5c72;
   --danger: #a3261f;
   --success: #1f6b45;
 
   /* Semantic */
-  --bg: var(--white);
-  --bg-alt: var(--mist-100);
-  --text: var(--navy-900);
+  --bg: var(--paper);
+  --bg-alt: var(--paper-alt);
+  --text: var(--ink-900);
   --text-muted: var(--slate-600);
-  --rule: rgb(22 44 71 / 0.14);
-  --rule-strong: rgb(22 44 71 / 0.28);
-  --accent: var(--petrol-600);
-  --focus: var(--petrol-500);
+  --rule: rgb(0 27 66 / 0.14);
+  --rule-strong: rgb(0 27 66 / 0.28);
+  --accent: var(--blue-700);
+  --focus: #0a6ea8;
 
   /* Type */
   --font-sans: var(--font-vazirmatn), Tahoma, 'Segoe UI', sans-serif;
@@ -69,7 +83,7 @@
   --dur-med: 320ms;
 
   /* Subtle paper grain, reused across light sections */
-  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .04 0 0 0 0 .11 0 0 0 0 .22 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .02 0 0 0 0 .08 0 0 0 0 .24 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 
   color-scheme: light;
 }
@@ -247,12 +261,14 @@ textarea {
   background-image: var(--grain);
 }
 .section--dark {
-  background-color: var(--navy-900);
+  background-color: var(--ink-900);
+  /* the same sweep as the about band's panel */
+  background-image: radial-gradient(120% 132% at 8% 0%, #0a5078 0%, #06407a 26%, #04295c 58%, #001b42 82%, #021438 100%);
   color: var(--mist-100);
-  --text-muted: #bcc3cb;
-  --rule: rgb(232 236 238 / 0.14);
-  --rule-strong: rgb(232 236 238 / 0.3);
-  --accent: var(--petrol-200);
+  --text-muted: #b9c6db;
+  --rule: rgb(210 228 255 / 0.16);
+  --rule-strong: rgb(210 228 255 / 0.34);
+  --accent: var(--blue-300);
 }
 
 .stack > * + * {
