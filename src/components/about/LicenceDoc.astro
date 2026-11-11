@@ -1,0 +1,204 @@
+---
+/**
+ * A licence, drawn as a document rather than a table row.
+ *
+ * Persian text is set as real text (not baked into a raster) so it stays
+ * crisp, searchable, selectable and printable at any size. The ornaments are
+ * decorative vector shapes — this is a *redesign of the licence data*, not a
+ * facsimile of the issued certificate; the page says so under each card.
+ */
+import type { Licence } from '~/data/company';
+
+export interface Props {
+  licence: Licence;
+}
+const { licence } = Astro.props;
+---
+
+<figure class="doc" aria-labelledby={`doc-${licence.id}`}>
+  <div class="doc__paper">
+    <svg class="doc__frame" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+      <rect x="0.6" y="0.6" width="98.8" height="98.8" fill="none" stroke="currentColor" stroke-width="0.5" />
+      <rect x="2.2" y="2.2" width="95.6" height="95.6" fill="none" stroke="currentColor" stroke-width="0.18" />
+      <path d="M0 0 L14 0 L0 14 Z" fill="currentColor" opacity="0.06" />
+      <path d="M100 0 L86 0 L100 14 Z" fill="currentColor" opacity="0.06" />
+      <path d="M0 100 L14 100 L0 86 Z" fill="currentColor" opacity="0.06" />
+      <path d="M100 100 L86 100 L100 86 Z" fill="currentColor" opacity="0.06" />
+    </svg>
+
+    <header class="doc__head">
+      <span class="doc__kind">{licence.kind}</span>
+      <span class="doc__status is-valid">معتبر</span>
+    </header>
+
+    <svg class="doc__mark" viewBox="0 0 120 60" aria-hidden="true" focusable="false">
+      <path d="M60 6 L104 30 L60 54 L16 30 Z" fill="none" stroke="currentColor" stroke-width="1.1" />
+      <path d="M60 14 L92 30 L60 46 L28 30 Z" fill="none" stroke="currentColor" stroke-width="0.5" stroke-opacity="0.55" />
+    </svg>
+
+    <p class="doc__title" id={`doc-${licence.id}`}>{licence.title}</p>
+    <p class="doc__issuer">{licence.issuer}</p>
+
+    <dl class="doc__grid">
+      <div>
+        <dt>اعتبار از</dt>
+        <dd>{licence.from}</dd>
+      </div>
+      <div>
+        <dt>اعتبار تا</dt>
+        <dd>{licence.to}</dd>
+      </div>
+      {licence.province && (
+        <div>
+          <dt>استان</dt>
+          <dd>{licence.province}</dd>
+        </div>
+      )}
+      {licence.reference && (
+        <div>
+          <dt>شناسهٔ پیگیری</dt>
+          <dd class="doc__ref">{licence.reference}</dd>
+        </div>
+      )}
+    </dl>
+
+    <footer class="doc__foot">
+      <span class="doc__brand">
+        <span lang="en">OKIYAN</span>
+        <span>اوژن تجارت کیان</span>
+      </span>
+      <span class="doc__note">بازطراحی اطلاعات مجوز</span>
+    </footer>
+  </div>
+
+  <figcaption>این مجوز در تاریخ انتشار این صفحه معتبر است.</figcaption>
+</figure>
+
+<style>
+  .doc {
+    margin: 0;
+    display: grid;
+    gap: 0.6rem;
+  }
+  .doc__paper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    padding: clamp(1.25rem, 3vw, 1.9rem);
+    min-height: 20rem;
+    color: var(--navy-800);
+    background:
+      repeating-linear-gradient(135deg, rgb(35 77 102 / 0.045) 0 1px, transparent 1px 9px),
+      linear-gradient(180deg, #fdfefe, #f3f7f9);
+    border-radius: var(--radius-m);
+    box-shadow: 0 12px 28px rgb(13 26 44 / 0.12);
+  }
+  .doc__frame {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    color: var(--petrol-600);
+    pointer-events: none;
+  }
+  .doc__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+  .doc__kind {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--petrol-600);
+  }
+  .doc__status {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+    border: 1px solid currentColor;
+  }
+  .doc__status.is-valid {
+    color: var(--success);
+    background: rgb(31 107 69 / 0.08);
+  }
+  .doc__mark {
+    inline-size: 3.4rem;
+    block-size: 1.7rem;
+    color: var(--petrol-500);
+    margin-block: 0.15rem;
+  }
+  .doc__title {
+    margin: 0;
+    font-size: var(--step-1);
+    font-weight: 800;
+    line-height: 1.6;
+    color: var(--navy-900);
+  }
+  .doc__issuer {
+    margin: 0;
+    font-size: 0.78rem;
+    line-height: 1.8;
+    color: var(--text-muted);
+  }
+  .doc__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+    gap: 0.55rem 1rem;
+    margin: 0.4rem 0 0;
+    padding-top: 0.7rem;
+    border-top: 1px solid rgb(35 77 102 / 0.18);
+  }
+  .doc__grid dt {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+  }
+  .doc__grid dd {
+    margin: 0;
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: var(--navy-900);
+  }
+  .doc__ref {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
+  }
+  .doc__foot {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid rgb(35 77 102 / 0.18);
+    font-size: 0.66rem;
+    color: var(--slate-600);
+  }
+  .doc__brand {
+    display: grid;
+    line-height: 1.5;
+  }
+  .doc__brand [lang='en'] {
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    color: var(--navy-900);
+  }
+  .doc__note {
+    color: var(--slate-600);
+  }
+  figcaption {
+    font-size: 0.74rem;
+    color: var(--text-muted);
+  }
+
+  @media print {
+    .doc__paper {
+      box-shadow: none;
+      border: 1px solid #999;
+      break-inside: avoid;
+    }
+  }
+</style>

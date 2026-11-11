@@ -1,144 +1,378 @@
 ---
+/**
+ * /about/ — the company's public record.
+ *
+ * Layout follows the registry-lookup sites (linka / sabteno): a short hero, a
+ * sticky in-page navigation, then independent, anchor-linked sections —
+ * identity, contact, offices, people, licences, trademark, working method.
+ * Data lives in src/data/company.ts so every number has one source.
+ */
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import PageHero from '~/components/layout/PageHero.astro';
 import AboutArt from '~/components/illustrations/AboutArt.astro';
 import CtaBand from '~/components/ui/CtaBand.astro';
 import Icon from '~/components/ui/Icon.astro';
-import Placeholder from '~/components/ui/Placeholder.astro';
+import LicenceDoc from '~/components/about/LicenceDoc.astro';
 import { breadcrumbLd } from '~/lib/schema';
-import { site, isProduction, formattedAddress } from '~/config/site';
+import { site, contactCta } from '~/config/site';
 import { toFa } from '~/lib/format';
+import { registry, registryContact, people, licences, trademark } from '~/data/company';
 
 const crumbs = [
   { name: 'خانه', path: '/' },
   { name: 'درباره ما', path: '/about/' },
 ];
-const facts = [
-  site.company.legalName && { label: 'نام حقوقی', value: site.company.legalName },
-  site.company.foundingYear && { label: 'سال شروع فعالیت', value: toFa(site.company.foundingYear) },
-  ...site.company.licences.map((l) => ({ label: l.title, value: `${toFa(l.number)} — ${l.issuer}` })),
-  site.serviceAreas.length > 0 && { label: 'گمرکات و بنادر', value: site.serviceAreas.join('، ') },
-  formattedAddress() && { label: 'نشانی', value: formattedAddress() as string },
-  site.contact.phone && { label: 'تلفن', value: site.contact.phoneDisplay ?? site.contact.phone },
-].filter(Boolean) as Array<{ label: string; value: string }>;
+
+const sections = [
+  { id: 'identity', label: 'شناسنامهٔ شرکت' },
+  { id: 'contact', label: 'راه‌های ارتباطی' },
+  { id: 'offices', label: 'دفترها' },
+  { id: 'people', label: 'اشخاص' },
+  { id: 'licences', label: 'مجوزها' },
+  { id: 'trademark', label: 'علامت تجاری' },
+  { id: 'method', label: 'روش کار' },
+];
+
+
+const mapHref = (city: string, address: string) =>
+  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${city}، ${address}`)}`;
+
+const peopleLd = people.flatMap((group) =>
+  group.people
+    .filter(() => group.id === 'board')
+    .map((person) => ({
+      '@type': 'Person',
+      '@id': `${Astro.site}about/#person-${encodeURIComponent(person.name)}`,
+      name: person.name,
+      jobTitle: person.role,
+      worksFor: { '@id': new URL('/#organization', Astro.site).href },
+      url: new URL('/about/#people', Astro.site).href,
+    })),
+);
+
+const aboutLd = {
+  '@type': 'AboutPage',
+  '@id': new URL('/about/', Astro.site).href,
+  name: 'دربارهٔ اوکیان (اوژن تجارت کیان)',
+  inLanguage: 'fa-IR',
+  mainEntity: { '@id': new URL('/#organization', Astro.site).href },
+  about: { '@id': new URL('/#organization', Astro.site).href },
+};
 ---
 
 <BaseLayout
-  title="درباره ما؛ ترخیص و واردات کالا"
-  description="اوکیان در ترخیص کالا و هماهنگی مراحل واردات همراه بازرگانان و شرکت‌هاست. با روش کار، مرز مسئولیت‌ها و سیاست محتوایی ما آشنا شوید."
-  jsonLd={[breadcrumbLd(crumbs, Astro.site)]}
+  title="دربارهٔ اوکیان | اوژن تجارت کیان"
+  fullTitle
+  description="شناسنامهٔ حقوقی اوکیان (اوژن تجارت کیان): شناسهٔ ملی، شمارهٔ ثبت، مجوزها، دفترها، اشخاص و علامت تجاری ثبت‌شده."
+  jsonLd={[breadcrumbLd(crumbs, Astro.site), aboutLd, ...peopleLd]}
 >
   <PageHero
     eyebrow="درباره ما"
-    title="دربارهٔ اوکیان"
-    lead="اوکیان برای کسب‌وکارهایی کار می‌کند که می‌خواهند واردات و ترخیص کالا را با تصویر روشن از مراحل، مسئولیت‌ها و هزینه‌ها پیش ببرند."
+    title="اوکیان؛ اوژن تجارت کیان"
+    lead="شرکت با مسئولیت محدود، ثبت‌شده در تهران از سال ۱۳۹۳؛ فعال در ترخیص کالا، واردات و صادرات، با دفتر در تهران، بوشهر و بندرعباس."
     crumbs={crumbs}
   >
     <AboutArt slot="art" />
   </PageHero>
 
-  <section class="section" aria-labelledby="why-title">
-    <div class="container split">
-      <div class="stack prose-lite reveal" style="--stack: 1.1rem">
-        <h2 id="why-title">چرا «مسیر روشن»؟</h2>
-        <p>
-          واردات کالا معمولاً نه به خاطر یک مشکل بزرگ، بلکه به خاطر چند ابهام کوچک گران تمام می‌شود: سندی که با سند دیگر نمی‌خواند، مجوزی که دیر شناسایی
-          می‌شود، یا هزینه‌ای که کسی از قبل درباره‌اش حرف نزده بود.
-        </p>
-        <p>
-          کار ما کم کردن همین ابهام‌هاست. پیش از شروع، پرونده را بررسی می‌کنیم، مرز کار خودمان، کار صاحب کالا و تصمیم نهادهای مسئول را مشخص می‌کنیم و در هر
-          مرحله می‌گوییم پرونده کجاست و قدم بعدی چیست.
-        </p>
-        <p>
-          خدمات ما در دو بخش ارائه می‌شود: <a href="/customs-clearance/">ترخیص کالا</a> برای کالایی که خریداری شده، و
-          <a href="/import-services/">خدمات واردات کالا</a> برای همراهی از مرحلهٔ برنامه‌ریزی خرید.
-        </p>
-      </div>
-      <aside class="fit-card reveal" aria-labelledby="facts-title">
-        <h3 id="facts-title">اطلاعات رسمی</h3>
+  <nav class="sec-nav" aria-label="فهرست بخش‌های این صفحه">
+    <div class="container sec-nav__inner">
+      <ul>
         {
-          facts.length > 0 ? (
-            <dl class="facts">
-              {facts.map((f) => (
-                <div>
-                  <dt>{f.label}</dt>
-                  <dd>{f.value}</dd>
-                </div>
-              ))}
-            </dl>
-          ) : isProduction ? (
-            <p class="muted">برای دریافت اطلاعات رسمی شرکت، از طریق صفحهٔ تماس با ما در ارتباط باشید.</p>
-          ) : null
+          sections.map((s) => (
+            <li>
+              <a href={`#${s.id}`}>{s.label}</a>
+            </li>
+          ))
         }
-        <Placeholder field="نام حقوقی، سال شروع فعالیت، مجوزها و گمرکات تحت پوشش (company / serviceAreas)" />
-      </aside>
+      </ul>
+    </div>
+  </nav>
+
+  {/* ───────────────────────── شناسنامه ───────────────────────── */}
+  <section class="section section--tight" id="identity" aria-labelledby="identity-title">
+    <div class="container">
+      <header class="sec-head">
+        <span class="eyebrow">شناسنامه</span>
+        <h2 id="identity-title">هویت حقوقی</h2>
+        <p class="sec-head__lead">اطلاعات ثبت‌شده در ادارهٔ ثبت شرکت‌ها، بدون تغییر.</p>
+      </header>
+
+      <dl class="reg">
+        {
+          registry.map((f) => (
+            <div class:list={['reg__row', f.strong && 'reg__row--strong']}>
+              <dt>{f.label}</dt>
+              <dd>{f.value}</dd>
+            </div>
+          ))
+        }
+      </dl>
+
+      <p class="note">
+        <Icon name="info" />
+        <span>
+          این اطلاعات از اسناد رسمی شرکت استخراج شده است. برای استعلام حقوقی، به سامانهٔ رسمی ثبت شرکت‌ها یا
+          <a href="/contact/">دفتر تهران</a> مراجعه کنید.
+        </span>
+      </p>
     </div>
   </section>
 
-  <section class="section section--alt section--grain" aria-labelledby="commit-title">
+  {/* ───────────────────────── ارتباط ───────────────────────── */}
+  <section class="section section--alt section--tight" id="contact" aria-labelledby="contact-title">
     <div class="container">
-      <header class="section-head reveal">
-        <span class="eyebrow">تعهد ما</span>
-        <h2 id="commit-title">آنچه وعده می‌دهیم و آنچه نمی‌دهیم</h2>
+      <header class="sec-head">
+        <span class="eyebrow">ارتباط</span>
+        <h2 id="contact-title">راه‌های ارتباطی</h2>
+        <p class="sec-head__lead">مسیرهای تماس با دفاتر و نشانی رسمی شرکت.</p>
       </header>
-      <div class="commit">
-        <div class="commit__col reveal">
-          <h3><Icon name="check" /> وعده می‌دهیم</h3>
-          <ul>
-            <li>پیش از اعلام هزینه، پرونده را بررسی کنیم.</li>
-            <li>برآورد را مکتوب و با تفکیک اقلام قطعی و برآوردی بدهیم.</li>
-            <li>مرز مسئولیت‌ها را پیش از شروع کار روشن کنیم.</li>
-            <li>وضعیت هر مرحله را به‌موقع گزارش کنیم.</li>
+
+      <div class="contact-grid">
+        <dl class="reg reg--flat">
+          {
+            registryContact.map((c) => (
+              <div class="reg__row">
+                <dt>{c.label}</dt>
+                <dd>
+                  {c.href ? (
+                    <a href={c.href} rel={c.href.startsWith('http') ? 'noopener' : undefined} target={c.href.startsWith('http') ? '_blank' : undefined}>
+                      {c.value}
+                      {c.href.startsWith('http') && <Icon name="external" />}
+                    </a>
+                  ) : (
+                    c.value
+                  )}
+                </dd>
+              </div>
+            ))
+          }
+        </dl>
+
+        <div class="contact-cta">
+          <h3>تماس با تیم</h3>
+          <ul class="phone-list">
+            {site.contact.phones.map((p) => (
+              <li>
+                <a href={`tel:${p.e164}`}>{p.display}</a>
+                <span>{p.kind === 'mobile' ? 'همراه' : 'دفتر'}</span>
+              </li>
+            ))}
           </ul>
-        </div>
-        <div class="commit__col commit__col--no reveal">
-          <h3><Icon name="close" /> وعده نمی‌دهیم</h3>
-          <ul>
-            <li>زمان قطعی ترخیص، چون به تصمیم و زمان رسیدگی نهادهای دیگر بستگی دارد.</li>
-            <li>نتیجهٔ ارزیابی گمرک یا صدور مجوزها.</li>
-            <li>دور زدن مقررات یا راه‌های غیررسمی.</li>
-          </ul>
+          <a class="btn btn--primary" href={contactCta.href}>
+            {contactCta.label}
+            <Icon name="arrow" />
+          </a>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="section" aria-labelledby="services-title">
+  {/* ───────────────────────── دفترها ───────────────────────── */}
+  <section class="section section--tight" id="offices" aria-labelledby="offices-title">
     <div class="container">
-      <header class="section-head reveal">
-        <span class="eyebrow">خدمات</span>
-        <h2 id="services-title">اوکیان کجای مسیر واردات می‌ایستد؟</h2>
-        <p class="lead">
-          هر خدمت، یک بازهٔ مشخص از مسیر است. اگر نمی‌دانید از کجا شروع کنید، <a href="/contact/">مشخصات کالا را بفرستید</a> تا
-          قدم درست را مشخص کنیم.
-        </p>
+      <header class="sec-head">
+        <span class="eyebrow">حضور</span>
+        <h2 id="offices-title">دفترهای اوکیان</h2>
+        <p class="sec-head__lead">سه دفتر فعال؛ دو دفتر بندری برای پیگیری حضوری پرونده.</p>
       </header>
-      <ul class="service-links">
-        <li><a href="/customs-clearance/">ترخیص کالا از گمرک</a><span>پس از رسیدن کالا</span></li>
-        <li><a href="/import-services/">واردات کالا</a><span>از پیش از خرید تا تحویل</span></li>
-        <li><a href="/container-import/">واردات کانتینری</a><span>FCL و LCL</span></li>
-        <li><a href="/sailor-import/">واردات ملوانی</a><span>بنادر جنوبی</span></li>
-        <li><a href="/export-services/">صادرات کالا</a><span>مجوز و گواهی مبدأ</span></li>
-        <li><a href="/commercial-services/">خدمات بازرگانی</a><span>تأمین‌کننده و ثبت سفارش</span></li>
-        <li><a href="/special-projects/">پروژه‌های خاص</a><span>محموله‌های سنگین و حساس</span></li>
-        <li><a href="/imports/">واردات بر اساس مبدأ</a><span>چین، دبی و ترکیه</span></li>
-        <li><a href="/customs/">گمرکات و بنادر</a><span>راهنمای هر گمرک</span></li>
+
+      <ul class="office-grid">
+        {
+          site.contact.offices.map((o) => (
+            <li class="office">
+              <h3>{o.city}</h3>
+              <p class="office__addr">{o.address}</p>
+              {o.phones && (
+                <ul class="office__phones">
+                  {o.phones.map((p) => (
+                    <li>
+                      <a href={`tel:${p.e164}`}>{p.display}</a>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <a class="office__map" href={mapHref(o.city, o.address)} target="_blank" rel="noopener">
+                موقعیت روی نقشه
+                <Icon name="external" />
+              </a>
+            </li>
+          ))
+        }
       </ul>
     </div>
   </section>
 
-  <section class="section" aria-labelledby="editorial-title">
-    <div class="container--narrow stack prose-lite reveal" style="--stack: 1.1rem">
-      <span class="eyebrow">سیاست محتوا</span>
-      <h2 id="editorial-title">راهنماهای این وب‌سایت چطور نوشته می‌شوند؟</h2>
-      <p>
-        <a href="/guides/">راهنماهای اوکیان</a> برای این نوشته می‌شوند که پیش از تصمیم، تصویر درستی از مسیر داشته باشید. در این راهنماها نرخ‌ها، درصدها یا
-        مهلت‌هایی را که به‌سرعت تغییر می‌کنند ذکر نمی‌کنیم و به‌جای آن، مبنای هر موضوع و منبع رسمی آن را معرفی می‌کنیم.
+  {/* ───────────────────────── اشخاص ───────────────────────── */}
+  <section class="section section--alt section--tight" id="people" aria-labelledby="people-title">
+    <div class="container">
+      <header class="sec-head">
+        <span class="eyebrow">تیم</span>
+        <h2 id="people-title">اشخاص</h2>
+        <p class="sec-head__lead">
+          {toFa(people.reduce((n, g) => n + g.people.length, 0))} نفر در چهار گروه؛ هر نفر با نقش مشخص.
+        </p>
+      </header>
+
+      <div class="people-grid">
+        {
+          people.map((group) => (
+            <section class="people-group" aria-labelledby={`pg-${group.id}`}>
+              <header>
+                <h3 id={`pg-${group.id}`}>{group.title}</h3>
+                {group.note && <p>{group.note}</p>}
+              </header>
+              <ul>
+                {group.people.map((p) => (
+                  <li>
+                    <span class="avatar" aria-hidden="true">{p.name.slice(0, 1)}</span>
+                    <span class="person">
+                      <span class="person__name">{p.name}</span>
+                      <span class="person__role">{p.role}</span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  {/* ───────────────────────── مجوزها ───────────────────────── */}
+  <section class="section section--tight" id="licences" aria-labelledby="licences-title">
+    <div class="container">
+      <header class="sec-head">
+        <span class="eyebrow">مجوزها</span>
+        <h2 id="licences-title">مجوزهای صنفی</h2>
+        <p class="sec-head__lead">مجوزهای در حال اعتبار، با شمارهٔ پیگیری و تاریخ اعتبار.</p>
+      </header>
+
+      <div class="doc-grid">
+        {licences.map((l) => <LicenceDoc licence={l} />)}
+      </div>
+
+      <p class="note">
+        <Icon name="info" />
+        <span>
+          کارت‌های بالا بازطراحی اطلاعات مجوزها هستند، نه تصویر سند اصلی؛ اصل مدارک در دفتر تهران نگهداری می‌شود.
+          پروانهٔ حق‌العمل‌کاری گمرکی، در صورت صدور، به همین بخش اضافه خواهد شد.
+        </span>
       </p>
-      <p>
-        هر راهنما تاریخ به‌روزرسانی دارد و منابع آن در پایان صفحه آمده است. مثال‌ها نمایشی‌اند و با برچسب مشخص شده‌اند. اگر نکته‌ای را نادرست یا قدیمی
-        دیدید، از طریق <a href="/contact/">صفحهٔ تماس</a> به ما اطلاع دهید.
-      </p>
+    </div>
+  </section>
+
+  {/* ───────────────────────── علامت تجاری ───────────────────────── */}
+  <section class="section section--alt section--tight" id="trademark" aria-labelledby="trademark-title">
+    <div class="container">
+      <header class="sec-head">
+        <span class="eyebrow">برند</span>
+        <h2 id="trademark-title">علامت تجاری {trademark.word}</h2>
+        <p class="sec-head__lead">ثبت‌شده به نام {trademark.owner} در هفت طبقه.</p>
+      </header>
+
+      <div class="tm">
+        <figure class="tm__mark">
+          <svg viewBox="0 0 240 160" role="img" aria-label={`نشان ${trademark.word} در کادر لوزی`}>
+            <defs>
+              <linearGradient id="tm-bg" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#f7fafb" />
+                <stop offset="1" stop-color="#e6eef2" />
+              </linearGradient>
+            </defs>
+            <rect x="4" y="4" width="232" height="152" rx="10" fill="url(#tm-bg)" stroke="#162c47" stroke-opacity="0.14" />
+            <path d="M120 14 L212 80 L120 146 L28 80 Z" fill="none" stroke="#1b3d52" stroke-width="2.2" />
+            <path d="M120 24 L200 80 L120 136 L40 80 Z" fill="none" stroke="#234d66" stroke-width="0.8" stroke-opacity="0.45" />
+            <text
+              x="120"
+              y="80"
+              text-anchor="middle"
+              dominant-baseline="central"
+              font-size="25"
+              font-weight="800"
+              letter-spacing="7"
+              fill="#162c47"
+            >
+              {trademark.word}
+            </text>
+          </svg>
+          <figcaption>{trademark.description}</figcaption>
+        </figure>
+
+        <dl class="reg reg--flat tm__facts">
+          <div class="reg__row">
+            <dt>شمارهٔ ثبت</dt>
+            <dd>{trademark.registrationNumber}</dd>
+          </div>
+          <div class="reg__row">
+            <dt>شمارهٔ اظهارنامه</dt>
+            <dd>{trademark.applicationNumber}</dd>
+          </div>
+          <div class="reg__row">
+            <dt>تاریخ ثبت اظهارنامه</dt>
+            <dd>{trademark.applicationDate}</dd>
+          </div>
+          <div class="reg__row">
+            <dt>مالک</dt>
+            <dd>{trademark.owner}</dd>
+          </div>
+          <div class="reg__row">
+            <dt>طبقه‌های ثبت‌شده</dt>
+            <dd>{trademark.classes}</dd>
+          </div>
+        </dl>
+      </div>
+
+      <details class="tm__classes">
+        <summary>شرح طبقه‌ها ({toFa(trademark.classes_notes.length)} طبقه)</summary>
+        <ul>
+          {trademark.classes_notes.map((c) => <li>{c}</li>)}
+        </ul>
+      </details>
+    </div>
+  </section>
+
+  {/* ───────────────────────── روش کار ───────────────────────── */}
+  <section class="section section--tight" id="method" aria-labelledby="method-title">
+    <div class="container">
+      <header class="sec-head">
+        <span class="eyebrow">روش کار</span>
+        <h2 id="method-title">چهار قاعده و سه چیزی که وعده نمی‌دهیم</h2>
+      </header>
+
+      <div class="method">
+        <ol class="method__do">
+          <li>
+            <h3>اول بررسی، بعد برآورد</h3>
+            <p>برآورد مکتوب و تفکیک‌شده؛ اقلام قطعی و برآوردی جدا.</p>
+          </li>
+          <li>
+            <h3>مرز مسئولیت از ابتدا</h3>
+            <p>روشن است چه کاری با ما، چه کاری با صاحب کالا و چه تصمیمی با گمرک است.</p>
+          </li>
+          <li>
+            <h3>گفتن ریسک، نه وعده</h3>
+            <p>نقاط احتمالی توقف پیش از شروع کار توضیح داده می‌شود.</p>
+          </li>
+          <li>
+            <h3>گزارش هر مرحله</h3>
+            <p>در هر لحظه می‌دانید پرونده کجاست و قدم بعدی با کیست.</p>
+          </li>
+        </ol>
+
+        <div class="method__dont">
+          <h3>وعده نمی‌دهیم</h3>
+          <ul>
+            <li>زمان قطعی ترخیص</li>
+            <li>نتیجهٔ ارزیابی گمرک یا صدور مجوز</li>
+            <li>دور زدن مقررات یا مسیر غیررسمی</li>
+          </ul>
+          <p class="method__link">
+            <a href="/guides/">راهنماهای تخصصی</a> با همین قاعده نوشته شده‌اند: بدون وعده، با منبع.
+          </p>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -146,100 +380,432 @@ const facts = [
 </BaseLayout>
 
 <style>
-  .service-links {
+  /* ---------- sticky section navigation ---------- */
+  .sec-nav {
+    position: sticky;
+    top: var(--header-h);
+    z-index: 20;
+    background: var(--white);
+    border-block: 1px solid var(--rule);
+  }
+  .sec-nav__inner {
+    display: flex;
+    align-items: center;
+    min-block-size: 3.25rem;
+  }
+  .sec-nav ul {
+    display: flex;
+    gap: 0.4rem;
+    list-style: none;
+    margin: 0;
+    padding-block: 0.55rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .sec-nav ul::-webkit-scrollbar {
+    display: none;
+  }
+  .sec-nav a {
+    display: inline-block;
+    white-space: nowrap;
+    padding: 0.4rem 0.8rem;
+    font-size: var(--step--1);
+    font-weight: 700;
+    color: var(--navy-800);
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    text-decoration: none;
+  }
+  .sec-nav a:hover {
+    color: var(--petrol-600);
+    border-color: var(--petrol-300);
+    background: var(--mist-50);
+  }
+
+  /* Anchors must clear both the site header and this page's sticky nav. */
+  .section[id] {
+    scroll-margin-top: calc(var(--header-h) + 3.5rem);
+  }
+
+  /* ---------- section rhythm ---------- */
+  .section--tight {
+    padding-block: clamp(2.75rem, 2rem + 3vw, 4.5rem);
+  }
+  .sec-head {
+    display: grid;
+    gap: 0.5rem;
+    margin-bottom: clamp(1.5rem, 1rem + 1.5vw, 2.25rem);
+  }
+  .sec-head h2 {
+    font-size: var(--step-3);
+  }
+  .sec-head__lead {
+    margin: 0;
+    color: var(--text-muted);
+    max-width: 60ch;
+  }
+
+  /* ---------- registry grid ---------- */
+  .reg {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
-    gap: 0.75rem;
-    list-style: none;
-    margin: 1.25rem 0 0;
-    padding: 0;
+    gap: 1px;
+    margin: 0;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-m);
+    overflow: hidden;
   }
-  .service-links a {
-    display: block;
+  .reg__row {
+    display: grid;
+    gap: 0.25rem;
+    padding: 0.95rem 1.1rem;
+    background: var(--white);
+  }
+  .reg__row--strong dd {
+    font-weight: 800;
+    font-size: var(--step-0);
+  }
+  .reg dt {
+    font-size: 0.74rem;
+    color: var(--text-muted);
+  }
+  .reg dd {
+    margin: 0;
     font-weight: 700;
     color: var(--navy-900);
-    text-decoration-color: var(--petrol-300);
-    text-underline-offset: 4px;
+    line-height: 1.7;
   }
-  .service-links li {
+  .reg dd a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: var(--petrol-600);
+    text-decoration-color: var(--petrol-300);
+    text-underline-offset: 3px;
+  }
+  .reg a :global(svg) {
+    inline-size: 0.85em;
+    block-size: 0.85em;
+  }
+  .reg--flat {
+    grid-template-columns: 1fr;
+    border-radius: var(--radius-s);
+  }
+
+  .note {
+    display: flex;
+    gap: 0.6rem;
+    margin: 1.5rem 0 0;
+    padding: 0.9rem 1.1rem;
+    font-size: var(--step--1);
+    color: var(--slate-700);
+    background: var(--mist-50);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-s);
+  }
+  .note :global(svg) {
+    flex: none;
+    inline-size: 1.1rem;
+    block-size: 1.1rem;
+    margin-top: 0.2rem;
+    color: var(--petrol-600);
+  }
+  .note a {
+    color: var(--navy-800);
+    font-weight: 700;
+  }
+
+  /* ---------- contact ---------- */
+  .contact-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    gap: 1.25rem;
+    align-items: start;
+  }
+  .contact-cta {
+    display: grid;
+    gap: 1rem;
+    align-content: start;
+    padding: clamp(1.2rem, 3vw, 1.8rem);
+    background: var(--navy-900);
+    color: #d3dbe7;
+    border-radius: var(--radius-m);
+  }
+  .contact-cta h3 {
+    color: var(--white);
+    font-size: var(--step-1);
+  }
+  .phone-list {
+    display: grid;
+    gap: 0.5rem;
+    list-style: none;
+    margin: 0;
+  }
+  .phone-list li {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.6rem;
+    padding-bottom: 0.45rem;
+    border-bottom: 1px solid rgb(232 236 238 / 0.14);
+  }
+  .phone-list a {
+    color: var(--white);
+    font-weight: 700;
+    text-decoration: none;
+    direction: ltr;
+  }
+  .phone-list span {
+    font-size: 0.72rem;
+    color: var(--petrol-200);
+  }
+
+  /* ---------- offices ---------- */
+  .office-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+    gap: 1rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .office {
+    display: grid;
+    gap: 0.6rem;
+    align-content: start;
+    padding: clamp(1.1rem, 2.5vw, 1.5rem);
+    border: 1px solid var(--rule);
+    border-top: 3px solid var(--petrol-600);
+    border-radius: var(--radius-m);
+    background: var(--white);
+  }
+  .office h3 {
+    font-size: var(--step-1);
+  }
+  .office__addr {
+    margin: 0;
+    font-size: var(--step--1);
+    line-height: 1.85;
+    color: var(--slate-700);
+  }
+  .office__phones {
+    display: grid;
+    gap: 0.25rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .office__phones a {
+    font-weight: 700;
+    color: var(--navy-900);
+    text-decoration: none;
+    direction: ltr;
+  }
+  .office__map {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-top: 0.25rem;
+    font-size: var(--step--1);
+    font-weight: 700;
+    color: var(--petrol-600);
+  }
+  .office__map :global(svg) {
+    inline-size: 0.85em;
+    block-size: 0.85em;
+  }
+
+  /* ---------- people ---------- */
+  .people-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
+    gap: 1.25rem;
+  }
+  .people-group {
+    padding: clamp(1.1rem, 2.5vw, 1.5rem);
+    background: var(--white);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-m);
+  }
+  .people-group header {
+    margin-bottom: 0.9rem;
+    padding-bottom: 0.7rem;
+    border-bottom: 2px solid var(--navy-900);
+  }
+  .people-group h3 {
+    font-size: var(--step-1);
+  }
+  .people-group header p {
+    margin: 0.2rem 0 0;
+    font-size: 0.74rem;
+    color: var(--text-muted);
+  }
+  .people-group ul {
+    display: grid;
+    gap: 0.55rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .people-group li {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .avatar {
+    flex: none;
+    display: grid;
+    place-items: center;
+    inline-size: 2rem;
+    block-size: 2rem;
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--white);
+    background: var(--petrol-600);
+    border-radius: 50%;
+  }
+  .person {
+    display: grid;
+    line-height: 1.4;
+  }
+  .person__name {
+    font-weight: 700;
+    font-size: var(--step--1);
+    color: var(--navy-900);
+  }
+  .person__role {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+  }
+
+  /* ---------- licences ---------- */
+  .doc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 21rem), 1fr));
+    gap: 1.5rem;
+  }
+
+  /* ---------- trademark ---------- */
+  .tm {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 1.5rem;
+    align-items: start;
+  }
+  .tm__mark {
+    margin: 0;
+    display: grid;
+    gap: 0.6rem;
+  }
+  .tm__mark svg {
+    inline-size: 100%;
+    block-size: auto;
+  }
+  .tm__mark figcaption {
+    font-size: 0.76rem;
+    color: var(--text-muted);
+  }
+  .tm__facts {
+    background: var(--white);
+  }
+  .tm__classes {
+    margin-top: 1.25rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-s);
+    background: var(--white);
+    padding: 0.9rem 1.1rem;
+  }
+  .tm__classes summary {
+    cursor: pointer;
+    font-weight: 700;
+    font-size: var(--step--1);
+    color: var(--navy-800);
+  }
+  .tm__classes ul {
+    display: grid;
+    gap: 0.4rem;
+    margin: 0.8rem 0 0;
+    padding-inline-start: 1.1rem;
+    font-size: 0.82rem;
+    line-height: 1.85;
+    color: var(--slate-700);
+  }
+
+  /* ---------- method ---------- */
+  .method {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    gap: 1.25rem;
+    align-items: start;
+  }
+  .method__do {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr));
+    gap: 1rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .method__do li {
     padding: 1rem 1.1rem;
     border: 1px solid var(--rule);
     border-radius: var(--radius-s);
     background: var(--white);
   }
-  .service-links span {
-    display: block;
-    margin-top: 0.15rem;
+  .method__do h3 {
+    font-size: var(--step-0);
+    margin-bottom: 0.3rem;
+  }
+  .method__do p {
+    margin: 0;
     font-size: var(--step--1);
+    line-height: 1.8;
     color: var(--text-muted);
   }
-  .facts {
-    margin: 0;
+  .method__dont {
+    padding: clamp(1.1rem, 2.5vw, 1.5rem);
+    border: 1px dashed var(--rule-strong);
+    border-radius: var(--radius-m);
+    background: var(--mist-50);
+  }
+  .method__dont h3 {
+    font-size: var(--step-0);
+    margin-bottom: 0.6rem;
+  }
+  .method__dont ul {
     display: grid;
-    gap: 0.9rem;
+    gap: 0.35rem;
+    margin: 0;
+    padding-inline-start: 1rem;
+    font-size: var(--step--1);
+    color: var(--slate-700);
   }
-  .facts dt {
+  .method__link {
+    margin: 0.9rem 0 0;
     font-size: var(--step--1);
     color: var(--text-muted);
   }
-  .facts dd {
-    margin: 0;
+  .method__link a {
+    color: var(--navy-800);
     font-weight: 700;
   }
-  .commit {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.25rem;
-  }
-  .commit__col {
-    padding: clamp(1.5rem, 3vw, 2.25rem);
-    border-radius: var(--radius-l);
-    background: var(--navy-900);
-    color: #d3dbe7;
-  }
-  .commit__col h3 {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    font-size: var(--step-2);
-    color: var(--white);
-    margin-bottom: 1.25rem;
-  }
-  .commit__col h3 :global(svg) {
-    inline-size: 2rem;
-    block-size: 2rem;
-    padding: 0.35rem;
-    border-radius: 50%;
-    background: var(--petrol-300);
-    color: var(--navy-950);
-  }
-  .commit__col ul {
-    list-style: none;
-    display: grid;
-    gap: 0.75rem;
-  }
-  .commit__col li {
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid rgb(232 236 238 / 0.12);
-  }
-  .commit__col--no {
-    background: var(--white);
-    color: var(--slate-700);
-    border: 1px dashed var(--rule-strong);
-  }
-  .commit__col--no h3 {
-    color: var(--navy-900);
-  }
-  .commit__col--no h3 :global(svg) {
-    background: var(--mist-200);
-    color: var(--navy-900);
-  }
-  .commit__col--no li {
-    border-color: var(--rule);
-  }
-  @media (max-width: 760px) {
-    .commit {
+
+  @media (max-width: 860px) {
+    .contact-grid,
+    .tm,
+    .method {
       grid-template-columns: 1fr;
+    }
+  }
+  @media (max-width: 720px) {
+    .sec-nav {
+      position: static;
+    }
+  }
+  @media print {
+    .sec-nav {
+      display: none;
     }
   }
 </style>
