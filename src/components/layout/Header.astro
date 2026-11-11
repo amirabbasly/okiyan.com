@@ -81,6 +81,15 @@ const headerPhones = companyPhones.filter((p) => p.kind === 'mobile').slice(0, 1
 
     <!-- Brand and actions grow equally, so the dark capsule stays centred. -->
     <div class="site-header__actions">
+      <!-- Search: a link to the guide library, the only part of the site that
+           behaves like a search (client-side filter). No dead input box. -->
+      <a class="site-header__icon-btn site-header__search" href="/guides/#feed-title" aria-label="جست‌وجو در راهنماها">
+        <Icon name="search" />
+      </a>
+      <span class="site-header__lang" aria-label="زبان سایت">
+        <Icon name="globe" />
+        <span>FA</span>
+      </span>
       {
         site.contact.phone && (
           <span class="site-header__phones">
@@ -201,7 +210,9 @@ const headerPhones = companyPhones.filter((p) => p.kind === 'mobile').slice(0, 1
     z-index: 50;
     /* Solid (no backdrop-filter): cheaper to composite while scrolling and overscrolling. */
     background: var(--white);
-    border-bottom: 1px solid var(--rule);
+    /* The reference bar ends in a thin aqua rule rather than a grey border. */
+    border-bottom: 1px solid rgb(0 176 200 / 0.28);
+    box-shadow: 0 1px 0 rgb(0 176 200 / 0.1);
   }
   .site-header__inner {
     display: flex;
@@ -211,6 +222,47 @@ const headerPhones = companyPhones.filter((p) => p.kind === 'mobile').slice(0, 1
     /* A band of its own: a touch wider than the page column so the brand, the
        seven-item capsule and the phone/CTA cluster never fight for space. */
     inline-size: min(100% - 2 * var(--gutter), 82rem);
+  }
+  .site-header__icon-btn {
+    display: grid;
+    place-items: center;
+    inline-size: 2.4rem;
+    block-size: 2.4rem;
+    flex: none;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    color: var(--navy-800);
+    background: var(--white);
+    transition:
+      color var(--dur-fast) ease,
+      border-color var(--dur-fast) ease,
+      background-color var(--dur-fast) ease;
+  }
+  .site-header__icon-btn :global(svg) {
+    inline-size: 1.1rem;
+    block-size: 1.1rem;
+  }
+  .site-header__icon-btn:hover {
+    color: var(--aqua-600);
+    border-color: var(--aqua-300);
+    background: var(--aqua-100);
+  }
+  .site-header__lang {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: 999px;
+    border: 1px solid var(--rule);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--navy-800);
+  }
+  .site-header__lang :global(svg) {
+    inline-size: 1rem;
+    block-size: 1rem;
+    color: var(--aqua-600);
   }
   .site-header__brand {
     /* Brand and actions split the free space around the capsule. A slightly smaller
@@ -227,29 +279,26 @@ const headerPhones = companyPhones.filter((p) => p.kind === 'mobile').slice(0, 1
     justify-content: flex-end;
     gap: 1.5rem;
   }
-  /* ----- Dark nav capsule -----
-     The menu sits as one dark, fully rounded bar in the middle of the white
-     header; every label inside it is white. The header itself stays light, so
-     the logo and the CTA keep their contrast. */
+  /* ----- Nav: light bar, aqua underline on the current item -----
+     Matches the reference: labels sit directly on the white header, the active
+     one is marked by a short aqua rule underneath, and the dropdowns open in a
+     floating white card instead of a full-bleed dark slab. */
   .site-nav {
-    flex: none;
+    flex: 1 1 auto;
     display: flex;
     align-items: center;
+    justify-content: center;
   }
   .site-nav > ul {
     display: flex;
     align-items: center;
-    gap: 0.05rem;
-    padding: 0.3rem;
+    gap: clamp(0.1rem, 0.6vw, 0.55rem);
+    padding: 0;
     list-style: none;
-    border-radius: 999px;
-    border: 1px solid rgb(255 255 255 / 0.09);
-    background:
-      radial-gradient(22rem 8rem at 50% -60%, rgb(46 98 130 / 0.65), transparent 70%),
-      linear-gradient(180deg, var(--navy-900) 0%, var(--navy-950) 100%);
-    box-shadow:
-      inset 0 1px 0 rgb(255 255 255 / 0.08),
-      0 14px 28px -18px rgb(13 26 44 / 0.75);
+    border-radius: 0;
+    border: 0;
+    background: none;
+    box-shadow: none;
   }
   .site-nav > ul > li {
     display: flex;
@@ -260,34 +309,35 @@ const headerPhones = companyPhones.filter((p) => p.kind === 'mobile').slice(0, 1
   .site-nav > ul > li > a {
     position: relative;
     display: block;
-    padding: 0.36rem 0.62rem;
+    padding: 0.5rem 0.55rem;
     font-weight: 600;
-    font-size: 0.88rem;
+    font-size: 0.9rem;
     line-height: 1.6;
     white-space: nowrap;
-    color: var(--mist-100);
+    color: var(--navy-800);
     text-decoration: none;
-    border-radius: 999px;
+    border-radius: var(--radius-s);
     transition:
       color var(--dur-fast) ease,
       background-color var(--dur-fast) ease;
   }
   .site-nav > ul > li > a:hover {
-    color: var(--white);
-    background: rgb(255 255 255 / 0.1);
+    color: var(--navy-950);
+    background: var(--mist-50);
   }
   .site-nav > ul > li > a[aria-current='page'] {
-    color: var(--white);
-    background: rgb(255 255 255 / 0.06);
+    color: var(--navy-950);
+    font-weight: 700;
   }
-  .site-nav > ul > li > a[aria-current='page']::after {
+  .site-nav > ul > li > a[aria-current='page']::after,
+  .nav-group__btn.is-current::after {
     content: '';
     position: absolute;
-    inset-inline: 0.62rem;
-    bottom: 0.12rem;
+    inset-inline: 0.55rem;
+    bottom: 0.1rem;
     height: 2px;
     border-radius: 2px;
-    background: var(--petrol-200);
+    background: var(--aqua, #00b0c8);
   }
   /* ----- Dropdown groups ----- */
   .nav-group {
@@ -298,16 +348,16 @@ const headerPhones = companyPhones.filter((p) => p.kind === 'mobile').slice(0, 1
     display: inline-flex;
     align-items: center;
     gap: 0.25rem;
-    padding: 0.36rem 0.62rem;
+    padding: 0.5rem 0.55rem;
     border: 0;
-    border-radius: 999px;
+    border-radius: var(--radius-s);
     background: transparent;
     font: inherit;
     font-weight: 600;
-    font-size: 0.88rem;
+    font-size: 0.9rem;
     line-height: 1.6;
     white-space: nowrap;
-    color: var(--mist-100);
+    color: var(--navy-800);
     cursor: pointer;
     transition:
       color var(--dur-fast) ease,
@@ -320,70 +370,66 @@ const headerPhones = companyPhones.filter((p) => p.kind === 'mobile').slice(0, 1
   }
   .nav-group__btn:hover,
   .nav-group__btn[aria-expanded='true'] {
-    color: var(--white);
-    background: rgb(255 255 255 / 0.1);
+    color: var(--navy-950);
+    background: var(--mist-50);
   }
   .nav-group__btn[aria-expanded='true'] :global(svg) {
     transform: rotate(180deg);
   }
   .nav-group__btn.is-current {
-    color: var(--white);
+    color: var(--navy-950);
+    font-weight: 700;
   }
   .nav-group__btn.is-current::after {
-    content: '';
-    position: absolute;
-    inset-inline: 0.62rem 1.45rem;
-    bottom: 0.12rem;
-    height: 2px;
-    border-radius: 2px;
-    background: var(--petrol-200);
+    inset-inline: 0.55rem 1.4rem;
   }
   /* ----- Mega dropdown -----
-     A full-bleed dark slab under the header: the edges stay dark while every
-     piece of copy sits on its own surface — glass link cards for navigation and
-     a light feature card for the next step — so no text is painted straight
-     onto the section. */
+     A floating white card under the bar. It keeps the menu readable over any
+     page background and stays visually quiet, like the reference. */
   .nav-group__panel {
     display: none;
+    /* Fixed to the viewport and centred, not anchored to the button: a panel
+       this wide would otherwise run off the edge for the first/last item. */
     position: fixed;
     inset-inline: 0;
-    top: var(--header-h);
+    margin-inline: auto;
+    top: calc(var(--header-h) + 0.35rem);
     z-index: 10;
-    max-height: calc(100dvh - var(--header-h));
+    inline-size: min(58rem, calc(100vw - 2 * var(--gutter)));
+    max-height: calc(100dvh - var(--header-h) - 1.5rem);
     overflow-y: auto;
     overscroll-behavior: contain;
-    padding-block: clamp(1.25rem, 1rem + 1.5vw, 2rem);
-    border-bottom: 1px solid rgb(232 236 238 / 0.12);
-    color: var(--mist-100);
-    background:
-      radial-gradient(70rem 26rem at 50% -35%, rgb(46 98 130 / 0.55), transparent 66%),
-      linear-gradient(180deg, var(--navy-950) 0%, #0a1421 100%);
+    padding: clamp(0.9rem, 0.7rem + 0.8vw, 1.35rem);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-l);
+    color: var(--text);
+    background: var(--white);
     box-shadow:
-      inset 0 1px 0 rgb(255 255 255 / 0.06),
-      0 34px 60px -30px rgb(0 0 0 / 0.75);
+      0 1px 0 rgb(22 44 71 / 0.04),
+      0 30px 60px -30px rgb(13 26 44 / 0.45);
   }
   @media (prefers-reduced-motion: no-preference) {
     .nav-group__panel {
-      animation: mega-in 240ms var(--ease-out) both;
+      animation: mega-in 180ms var(--ease-out) both;
     }
   }
   @keyframes mega-in {
     from {
       opacity: 0;
-      transform: translateY(-10px);
+      transform: translateY(-6px);
     }
   }
   .nav-group__btn[aria-expanded='true'] + .nav-group__panel {
     display: block;
   }
   /* Invisible strip that keeps the pointer inside the group while it travels
-     from the capsule down to the panel. It exists only while hovering. */
+     from the bar down to the panel. It exists only while hovering. */
   .nav-group:hover::after {
     content: '';
     position: absolute;
     inset-inline: -0.5rem;
     top: 100%;
-    height: 1.5rem;
+    height: 1rem;
   }
   @media (hover: hover) {
     .nav-group:hover .nav-group__panel {
@@ -413,10 +459,10 @@ const headerPhones = companyPhones.filter((p) => p.kind === 'mobile').slice(0, 1
     align-items: center;
     block-size: 100%;
     padding: 0.8rem 0.95rem;
-    border: 1px solid rgb(232 236 238 / 0.13);
+    border: 1px solid var(--rule);
     border-radius: var(--radius-m);
-    background: rgb(255 255 255 / 0.045);
-    color: var(--white);
+    background: var(--white);
+    color: var(--navy-800);
     font-weight: 400;
     text-decoration: none;
     transition:
@@ -426,15 +472,15 @@ const headerPhones = companyPhones.filter((p) => p.kind === 'mobile').slice(0, 1
   }
   .mega__link:hover,
   .mega__link:focus-visible {
-    background: rgb(255 255 255 / 0.1);
-    border-color: rgb(143 180 201 / 0.5);
-    color: var(--white);
+    background: var(--mist-50);
+    border-color: var(--aqua-300);
+    color: var(--navy-950);
     transform: translateY(-2px);
   }
   .mega__link[aria-current='page'] {
-    background: rgb(143 180 201 / 0.14);
-    border-color: rgb(143 180 201 / 0.55);
-    color: var(--white);
+    background: var(--aqua-100);
+    border-color: var(--aqua-300);
+    color: var(--navy-950);
   }
   .mega__link[aria-current='page']::after {
     display: none;
@@ -445,8 +491,8 @@ const headerPhones = companyPhones.filter((p) => p.kind === 'mobile').slice(0, 1
     inline-size: 2.5rem;
     block-size: 2.5rem;
     border-radius: 0.75rem;
-    background: rgb(143 180 201 / 0.16);
-    color: var(--petrol-200);
+    background: var(--aqua-100);
+    color: var(--aqua-600);
   }
   .mega__icon :global(svg) {
     inline-size: 1.25rem;
@@ -464,12 +510,12 @@ const headerPhones = companyPhones.filter((p) => p.kind === 'mobile').slice(0, 1
     font-size: 0.82rem;
     font-weight: 400;
     line-height: 1.7;
-    color: #b3c0cf;
+    color: var(--slate-600);
   }
   .mega :global(.mega__arrow) {
     inline-size: 1.15rem;
     block-size: 1.15rem;
-    color: var(--petrol-300);
+    color: var(--aqua-500);
     transition: transform var(--dur-med) var(--ease-out);
   }
   .mega__link:hover :global(.mega__arrow) {
@@ -482,9 +528,11 @@ const headerPhones = companyPhones.filter((p) => p.kind === 'mobile').slice(0, 1
     justify-items: start;
     padding: clamp(1.2rem, 2vw, 1.6rem);
     border-radius: var(--radius-m);
-    background: var(--white);
+    background:
+      radial-gradient(20rem 10rem at 100% 0%, rgb(0 176 200 / 0.16), transparent 70%),
+      var(--mist-50);
     color: var(--navy-900);
-    box-shadow: 0 30px 60px -34px rgb(0 0 0 / 0.85);
+    border: 1px solid var(--rule);
   }
   .mega__feature-title {
     font-size: var(--step-1);
@@ -726,7 +774,8 @@ const headerPhones = companyPhones.filter((p) => p.kind === 'mobile').slice(0, 1
 
   @media (max-width: 860px) {
     .site-nav,
-    .site-header__cta {
+    .site-header__cta,
+    .site-header__lang {
       display: none;
     }
     .menu-toggle {

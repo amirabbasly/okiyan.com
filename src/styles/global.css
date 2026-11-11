@@ -14,6 +14,13 @@
   --petrol-300: #8fb4c9; /* accent on dark backgrounds */
   --petrol-200: #b9d1de;
   --petrol-100: #dde9ef;
+  /* ★ فیروزه‌ای — the bright aqua accent used by the header rule and the
+     primary CTA. Kept separate from the petrol scale so the calm navy/petrol
+     palette of the content stays intact and only the primary action glows. */
+  --aqua-600: #0093a8;
+  --aqua-500: #00b0c8;
+  --aqua-300: #5fd6e6;
+  --aqua-100: #d9f5f9;
   --silver-400: #a8b0ba; /* ★ نقره‌ای خنثی — neutral silver (decoration, not body text) */
   --mist-300: #cfd5db;
   --mist-200: #dde2e6;

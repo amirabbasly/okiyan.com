@@ -4,7 +4,9 @@ import ShipmentJourney from '~/components/journey/ShipmentJourney.astro';
 import Icon from '~/components/ui/Icon.astro';
 import Faq from '~/components/ui/Faq.astro';
 import CtaBand from '~/components/ui/CtaBand.astro';
-import Counters from '~/components/ui/Counters.astro';
+import HeroSlider from '~/components/home/HeroSlider.astro';
+import ActivityCategories from '~/components/home/ActivityCategories.astro';
+import AboutFigures from '~/components/home/AboutFigures.astro';
 import Clients from '~/components/ui/Clients.astro';
 import { services } from '~/data/services';
 import { site, contactCta } from '~/config/site';
@@ -58,6 +60,76 @@ const tally = [
 const homepageServices = [services.import, services.clearance];
 const relatedServices = [services.sailor, services.container, services.export];
 
+/** Hero slides. Each one points at a page that actually exists. */
+const slides = [
+  {
+    image: 'hero-sailor-port',
+    alt: 'بندر جنوبی در غروب؛ لنج باری در پیش‌زمینه و کشتی کانتینری در اسکله',
+    eyebrow: 'واردات ملوانی',
+    title: 'از دبی تا انبار شما، با لنج و با اسناد درست',
+    text: 'مسیر مستقیم دبی به بوشهر و بندرعباس، بدون جابه‌جایی میانی؛ با بررسی سهمیه و اسناد پیش از حرکت بار.',
+    href: '/sailor-import/',
+    cta: 'مسیر ملوانی',
+  },
+  {
+    image: 'hero-customs-hall',
+    alt: 'سالن بررسی گمرکی با میزهای بازرسی و صندوق‌های کالا',
+    eyebrow: 'ترخیص کالا',
+    title: 'ترخیصی که از کنترل اسناد شروع می‌شود، نه از انبار',
+    text: 'اظهارنامه، ارزیابی، مجوزها و پروانهٔ خروج؛ با برآورد مکتوب و تفکیک‌شدهٔ هزینه‌ها پیش از اظهار.',
+    href: '/customs-clearance/',
+    cta: 'خدمات ترخیص',
+  },
+  {
+    image: 'hero-warehouse-night',
+    alt: 'انبار شبانه با قفسه‌های پالت و لیفتراک در راهرو',
+    eyebrow: 'حمل و تحویل',
+    title: 'کالا تا انبار شما همراهی می‌شود، نه تا درب گمرک',
+    text: 'پس از پروانهٔ خروج، حمل داخلی و تحویل برنامه‌ریزی می‌شود؛ وضعیت هر مرحله هم به‌موقع گزارش می‌شود.',
+    href: '/import-services/',
+    cta: 'مسیر واردات',
+  },
+];
+
+/** Cargo families, each linked to the matching section of the goods guide. */
+const categories = [
+  {
+    title: 'مواد اولیه و محصولات صنعتی',
+    note: 'فولاد، آلومینیوم، پلیمر و نخ',
+    image: 'cat-industrial',
+    alt: 'کلاف فولادی، پروفیل آلومینیوم و رول پارچه در انبار صنعتی',
+    href: '/guides/goods-by-type/#ماشین‌آلات-و-قطعات-صنعتی',
+  },
+  {
+    title: 'ماشین‌آلات و قطعات',
+    note: 'بلبرینگ، پمپ، موتور و ابزار',
+    image: 'cat-parts',
+    alt: 'قطعات صنعتی دقیق شامل بلبرینگ، چرخ‌دنده و موتور برقی روی میز کار',
+    href: '/guides/goods-by-type/#ماشین‌آلات-و-قطعات-صنعتی',
+  },
+  {
+    title: 'مواد شیمیایی',
+    note: 'مجوز و حمل تخصصی',
+    image: 'cat-chemical',
+    alt: 'بشکه‌های صنعتی شیمیایی روی پالت و ظروف آزمایشگاهی شیشه‌ای',
+    href: '/guides/goods-by-type/#مواد-شیمیایی',
+  },
+  {
+    title: 'محصولات کشاورزی و غذایی',
+    note: 'بهداشت، قرنطینه و گواهی',
+    image: 'cat-agri',
+    alt: 'کیسه‌های گونی غله و جعبه‌های میوه در یک سالن انبار روشن',
+    href: '/guides/goods-by-type/#مواد-غذایی-و-کشاورزی',
+  },
+  {
+    title: 'کالای مصرفی و خانگی',
+    note: 'لوازم برقی، پوشاک و ظروف',
+    image: 'cat-consumer',
+    alt: 'کارتن و بسته‌بندی کالای مصرفی روی قفسه‌های توزیع',
+    href: '/guides/goods-by-type/#لوازم-برقی-و-الکترونیک',
+  },
+];
+
 const faqs = [
   {
     q: 'ترخیص کالا معمولاً چقدر طول می‌کشد؟',
@@ -93,6 +165,7 @@ const faqs = [
 >
   <!-- ============ HEADER: SHIPMENT JOURNEY (H1 + scroll-driven scene) ============ -->
   <ShipmentJourney>
+    <HeroSlider slot="backdrop" slides={slides} />
     <div slot="intro" class="hero-intro">
       <h1 class="hero__title">
         <span class="hero__l1">ترخیص کالا و واردات،</span>
@@ -110,11 +183,23 @@ const faqs = [
     </button>
   </ShipmentJourney>
 
-  <!-- ============ TALLY (counting numbers) ============ -->
-  <Counters
-    title="مسیر ما، در اعداد"
-    lead="این اعداد نتیجهٔ همکاری با بازرگانان و شرکت‌هایی است که مسیر ورود کالایشان را به ما سپرده‌اند؛ از اولین برآورد تا تحویل."
-    items={tally}
+  <!-- ============ CATEGORIES (حوزه‌های فعالیت) ============ -->
+  <ActivityCategories categories={categories} />
+
+  <!-- ============ ABOUT + NUMBERS (درباره ما / مسیر ما در اعداد) ============ -->
+  <AboutFigures
+    title="اوکیان؛ یک شرکت بازرگانی، نه یک واسطه"
+    lead="شرکت با مسئولیت محدود، ثبت‌شده در تهران از سال ۱۳۹۳ و فعال در ترخیص کالا، واردات و صادرات، با دفتر در تهران، بوشهر و بندرعباس. کار ما کم کردن ابهام در مسیر ورود کالاست: بررسی پیش از حمل، برآورد مکتوب و پیگیری تا تحویل."
+    figures={tally}
+    bullets={[
+      'دفتر محلی در دو بندر جنوبی، برای پیگیری حضوری پرونده',
+      'برآورد مکتوب با تفکیک اقلام قطعی و برآوردی',
+      'مرز مسئولیت‌ها پیش از شروع کار، مکتوب می‌شود',
+    ]}
+    href="/about/"
+    cta="دربارهٔ اوکیان"
+    image="office-tehran"
+    imageAlt="دفتر تهران اوکیان با میزهای کار و نقشهٔ خلیج فارس"
   />
 
   <!-- ============ CLIENTS ============ -->

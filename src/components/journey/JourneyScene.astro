@@ -16,8 +16,14 @@ import { toFa } from '~/lib/format';
 
 export interface Props {
   initialP?: number;
+  /**
+   * True when a photograph is rendered behind the scene. The two flat gradient
+   * fills (sky, water) then go translucent so the photo shows through; every
+   * drawn object keeps its own opacity. Nothing about the timeline changes.
+   */
+  photoBackdrop?: boolean;
 }
-const { initialP = 0 } = Astro.props;
+const { initialP = 0, photoBackdrop = false } = Astro.props;
 const f = computeFrame(initialP);
 const C = WORLD.container;
 
@@ -81,7 +87,7 @@ const lattice = (x0: number, x1: number, y: number, hgt: number) => {
 ---
 
 <svg
-  class="j-svg"
+  class:list={['j-svg', { 'j-svg--photo': photoBackdrop }]}
   direction="ltr"
   viewBox="0 0 800 560"
   preserveAspectRatio="xMidYMid slice"
@@ -170,8 +176,9 @@ const lattice = (x0: number, x1: number, y: number, hgt: number) => {
   <!-- ===== Sky (view space) =====
        It starts as daylight: a day gradient sits over the night sky and fades
        away once the shipment passes stage 2, together with sun, moon and stars. -->
-  <rect x="-800" width="2400" height="560" fill="url(#j-sky)"></rect>
+  <rect class="j-flat j-flat--sky" x="-800" width="2400" height="560" fill="url(#j-sky)"></rect>
   <rect
+    class="j-flat j-flat--sky"
     data-j="sky-day"
     x="-800"
     width="2400"
@@ -181,7 +188,7 @@ const lattice = (x0: number, x1: number, y: number, hgt: number) => {
   <g data-j="stars" fill="#e8ecee" opacity={f.sky.starsO.toFixed(3)}>
     {stars.map((s) => <circle cx={s.x.toFixed(1)} cy={s.y.toFixed(1)} r={s.r.toFixed(2)} opacity={s.o.toFixed(2)} />)}
   </g>
-  <rect x="-800" width="2400" height="560" fill="url(#j-grid)"></rect>
+  <rect class="j-flat j-flat--sky" x="-800" width="2400" height="560" fill="url(#j-grid)"></rect>
 
   <!-- ===== Parallax backdrop: sun, skyline, cloud streaks (view space, shifted) ===== -->
   <g data-j="bg" transform={`translate(${bgShift.toFixed(1)} 0)`}>
@@ -231,7 +238,7 @@ const lattice = (x0: number, x1: number, y: number, hgt: number) => {
   <!-- ===== World (camera space) ===== -->
   <g data-j="camera" transform={cameraTransform(f.camera)}>
     <!-- Sea, horizon glow -->
-    <rect x="-400" y={WORLD.horizon} width="3600" height="420" fill="url(#j-sea)"></rect>
+    <rect class="j-flat j-flat--sea" x="-400" y={WORLD.horizon} width="3600" height="420" fill="url(#j-sea)"></rect>
     <rect x="-400" y={WORLD.horizon} width="3600" height="46" fill="url(#j-horizon)"></rect>
     <line x1="-400" y1={WORLD.horizon} x2="3200" y2={WORLD.horizon} stroke="#dbe8ef" stroke-opacity="0.35"></line>
 
@@ -273,7 +280,7 @@ const lattice = (x0: number, x1: number, y: number, hgt: number) => {
       stroke-dashoffset={(1 - f.route).toFixed(4)}></path>
 
     <!-- ===== Destination land: road, warehouse, customs, port ===== -->
-    <rect x="-400" y={WORLD.ground} width="1560" height="200" fill="url(#j-quay)"></rect>
+    <rect class="j-flat j-flat--quay" x="-400" y={WORLD.ground} width="1560" height="200" fill="url(#j-quay)"></rect>
     <rect x="-400" y={WORLD.ground} width="1560" height="3" fill="#3a6480"></rect>
     <path d="M1160 470V640" stroke="#e8ecee" stroke-opacity="0.22" stroke-width="2"></path>
     <path d="M-400 520H1160M-400 572H1160M-300 474V640M-100 474V640M100 474V640M300 474V640M500 474V640M700 474V640M900 474V640" stroke="#e8ecee" stroke-opacity="0.035"></path>
@@ -386,7 +393,7 @@ const lattice = (x0: number, x1: number, y: number, hgt: number) => {
     </g>
 
     <!-- ===== Origin land: yard, crane, office ===== -->
-    <rect x="2150" y={WORLD.ground} width="1100" height="200" fill="url(#j-quay)"></rect>
+    <rect class="j-flat j-flat--quay" x="2150" y={WORLD.ground} width="1100" height="200" fill="url(#j-quay)"></rect>
     <rect x="2150" y={WORLD.ground} width="1100" height="3" fill="#3a6480"></rect>
     <path d="M2150 470V640" stroke="#e8ecee" stroke-opacity="0.22" stroke-width="2"></path>
     <path d="M2150 520H3250M2150 572H3250M2300 474V640M2500 474V640M2700 474V640M2900 474V640" stroke="#e8ecee" stroke-opacity="0.035"></path>

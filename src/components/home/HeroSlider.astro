@@ -1,0 +1,325 @@
+---
+/**
+ * Homepage hero slides.
+ *
+ * A plain HTML/CSS slider: every slide is a <li> containing its own photograph
+ * and its own copy, so the text is in the HTML (crawlable, selectable, and
+ * correct before the script runs). CSS shows one at a time; the small inline
+ * script only flips the `is-active` class.
+ *
+ * With JavaScript off the first slide simply stays — nothing is hidden.
+ */
+import Icon from '~/components/ui/Icon.astro';
+
+export interface Slide {
+  /** Base image name in /public/img (expects -960/-1440/-1920 webp + .jpg). */
+  image: string;
+  alt: string;
+  eyebrow: string;
+  title: string;
+  text: string;
+  href: string;
+  cta: string;
+}
+
+export interface Props {
+  slides: Slide[];
+}
+
+const { slides } = Astro.props;
+---
+
+<div class="hero-slider" data-hero-slider>
+  <ul class="hero-slider__list">
+    {
+      slides.map((s, i) => (
+        <li class:list={['hero-slider__slide', { 'is-active': i === 0 }]} data-slide={i} aria-hidden={i === 0 ? undefined : 'true'}>
+          <picture>
+            <source
+              type="image/webp"
+              srcset={`/img/${s.image}-960.webp 960w, /img/${s.image}-1440.webp 1440w, /img/${s.image}-1920.webp 1920w`}
+              sizes="100vw"
+            />
+            <img
+              src={`/img/${s.image}.jpg`}
+              alt={s.alt}
+              width={1920}
+              height={900}
+              loading={i === 0 ? 'eager' : 'lazy'}
+              decoding={i === 0 ? 'sync' : 'async'}
+              fetchpriority={i === 0 ? 'high' : 'low'}
+            />
+          </picture>
+
+          <div class="hero-slider__copy">
+            <span class="hero-slider__eyebrow">{s.eyebrow}</span>
+            <p class="hero-slider__title">{s.title}</p>
+            <p class="hero-slider__text">{s.text}</p>
+            <a class="hero-slider__cta" href={s.href} tabindex={i === 0 ? undefined : -1}>
+              {s.cta}
+              <Icon name="arrow" />
+            </a>
+          </div>
+        </li>
+      ))
+    }
+  </ul>
+
+  <div class="hero-slider__shade" aria-hidden="true"></div>
+
+  <div class="hero-slider__dots" role="group" aria-label="تصاویر هیرو">
+    {
+      slides.map((s, i) => (
+        <button
+          type="button"
+          role="tab"
+          class:list={['hero-slider__dot', { 'is-active': i === 0 }]}
+          data-dot={i}
+          aria-current={i === 0 ? 'true' : 'false'}
+          aria-label={`نمایش ${s.eyebrow}`}
+        />
+      ))
+    }
+  </div>
+</div>
+
+<script>
+  // Auto-advances every 7s. Pauses on hover, on keyboard focus, when the tab is
+  // hidden, and never starts at all for prefers-reduced-motion.
+  const DELAY = 7000;
+
+  for (const root of document.querySelectorAll<HTMLElement>('[data-hero-slider]')) {
+    const slides = Array.from(root.querySelectorAll<HTMLElement>('[data-slide]'));
+    const dots = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-dot]'));
+    if (slides.length < 2) continue;
+
+    let index = 0;
+    let timer: number | undefined;
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const show = (next: number) => {
+      index = (next + slides.length) % slides.length;
+      slides.forEach((s, i) => s.classList.toggle('is-active', i === index));
+      dots.forEach((d, i) => {
+        d.classList.toggle('is-active', i === index);
+        d.setAttribute('aria-current', String(i === index));
+      });
+      // Hide the slides that are not on screen from assistive technology.
+      slides.forEach((s, i) => {
+        if (i === index) s.removeAttribute('aria-hidden');
+        else s.setAttribute('aria-hidden', 'true');
+      });
+      // Keep the hidden CTA out of the tab order.
+      root.querySelectorAll<HTMLAnchorElement>('.hero-slider__cta').forEach((a, i) => {
+        if (i === index) a.removeAttribute('tabindex');
+        else a.setAttribute('tabindex', '-1');
+      });
+    };
+
+    const stop = () => {
+      if (timer) window.clearInterval(timer);
+      timer = undefined;
+    };
+    const start = () => {
+      if (reduce || timer) return;
+      timer = window.setInterval(() => show(index + 1), DELAY);
+    };
+
+    dots.forEach((d, i) =>
+      d.addEventListener('click', () => {
+        stop();
+        show(i);
+        start();
+      }),
+    );
+
+    // Pause while the visitor is reading or tabbing through the hero.
+    root.addEventListener('mouseenter', stop);
+    root.addEventListener('mouseleave', start);
+    root.addEventListener('focusin', stop);
+    root.addEventListener('focusout', start);
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) stop();
+      else start();
+    });
+
+    // Don't burn cycles (or bandwidth) while the hero is off-screen.
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver((entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) start();
+          else stop();
+        }
+      }).observe(root);
+    } else {
+      start();
+    }
+  }
+</script>
+
+<style>
+  .hero-slider {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    background: var(--navy-950);
+  }
+  .hero-slider__list {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .hero-slider__slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 900ms var(--ease-out, ease);
+    will-change: opacity;
+  }
+  .hero-slider__slide.is-active {
+    opacity: 1;
+  }
+  .hero-slider__slide img {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+    /* A slow push-in on the active slide: motion without a slideshow feel. */
+    transform: scale(1.04);
+    transition: transform 8s linear;
+  }
+  .hero-slider__slide.is-active img {
+    transform: scale(1.12);
+  }
+
+  /* The copy sits over the picture, never under the H1: the hero's own text is
+     top-start, so this block is pinned to the free bottom-start corner. */
+  .hero-slider__copy {
+    position: absolute;
+    inset-block-end: clamp(1rem, 2.5vw, 2rem);
+    inset-inline-start: clamp(1rem, 3vw, 2.5rem);
+    z-index: 3;
+    display: grid;
+    gap: 0.3rem;
+    max-inline-size: min(26rem, 60%);
+    opacity: 0;
+    transform: translateY(8px);
+    transition:
+      opacity 600ms 320ms var(--ease-out, ease),
+      transform 600ms 320ms var(--ease-out, ease);
+    pointer-events: none;
+  }
+  .hero-slider__slide.is-active .hero-slider__copy {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+  .hero-slider__eyebrow {
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    color: var(--aqua-300, #5fd6e6);
+  }
+  .hero-slider__title {
+    margin: 0;
+    font-size: clamp(0.95rem, 0.85rem + 0.5vw, 1.15rem);
+    font-weight: 800;
+    line-height: 1.6;
+    color: var(--white);
+  }
+  .hero-slider__text {
+    margin: 0;
+    font-size: 0.82rem;
+    line-height: 1.85;
+    color: rgb(232 236 238 / 0.8);
+  }
+  .hero-slider__cta {
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.45rem;
+    padding: 0.35rem 0.7rem;
+    border-radius: 999px;
+    border: 1px solid rgb(255 255 255 / 0.35);
+    background: rgb(255 255 255 / 0.1);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--white);
+    text-decoration: none;
+    transition:
+      background-color var(--dur-fast, 160ms) ease,
+      color var(--dur-fast, 160ms) ease;
+  }
+  .hero-slider__cta:hover {
+    background: var(--white);
+    color: var(--navy-950);
+  }
+  .hero-slider__cta :global(svg) {
+    inline-size: 0.9rem;
+    block-size: 0.9rem;
+  }
+
+  /* A wash from the copy side, so white text has contrast on every photo. */
+  .hero-slider__shade {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background:
+      linear-gradient(to top, rgb(8 16 28 / 0.72) 0%, rgb(8 16 28 / 0.1) 42%, transparent 62%),
+      linear-gradient(to left, rgb(8 16 28 / 0.35) 0%, transparent 45%);
+  }
+
+  .hero-slider__dots {
+    position: absolute;
+    z-index: 4;
+    inset-block-end: 1.15rem;
+    inset-inline-end: clamp(1rem, 3vw, 2.5rem);
+    display: flex;
+    gap: 0.4rem;
+  }
+  .hero-slider__dot {
+    inline-size: 0.5rem;
+    block-size: 0.5rem;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.4);
+    cursor: pointer;
+    transition:
+      background-color var(--dur-fast, 160ms) ease,
+      inline-size var(--dur-fast, 160ms) ease;
+  }
+  .hero-slider__dot.is-active {
+    inline-size: 1.4rem;
+    background: var(--aqua-500, #00b0c8);
+  }
+  .hero-slider__dot:focus-visible {
+    outline: 2px solid var(--aqua-300, #5fd6e6);
+    outline-offset: 3px;
+  }
+
+  @media (max-width: 780px) {
+    .hero-slider__copy {
+      max-inline-size: 92%;
+    }
+    .hero-slider__text {
+      display: none;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-slider__slide,
+    .hero-slider__slide img,
+    .hero-slider__copy {
+      transition: none;
+    }
+    .hero-slider__slide.is-active img {
+      transform: none;
+    }
+  }
+</style>

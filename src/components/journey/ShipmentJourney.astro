@@ -24,8 +24,11 @@ const pad = (n: number) => toFa(String(n).padStart(2, '0'));
   <div class="hj__track" data-track>
     <div class="hj__pin" data-pin>
       <div class="hj__stage">
-        <div class="j-frame" data-scene>
-          <JourneyScene initialP={0} />
+        <div class:list={['j-frame', { 'j-frame--photo': Astro.slots.has('backdrop') }]} data-scene>
+          <div class="j-frame__backdrop" data-backdrop>
+            <slot name="backdrop" />
+          </div>
+          <JourneyScene initialP={0} photoBackdrop={Astro.slots.has('backdrop')} />
           <div class="hj__intro" data-intro>
             <div class="hj__intro-copy">
               <slot name="intro" />
@@ -127,23 +130,56 @@ const pad = (n: number) => toFa(String(n).padStart(2, '0'));
       inset 0 1px 0 rgb(232 236 238 / 0.06);
   }
   .j-frame :global(.j-svg) {
+    position: relative;
+    z-index: 1;
+    display: block;
     width: 100%;
     height: 100%;
   }
+  /* Optional photographic backdrop behind the illustrated harbour. It sits under
+     the SVG and is hidden when no slide is provided (other pages, or if the
+     slot is empty). The scene keeps full control of its own layers. */
+  /* Stacking order inside the frame:
+       0  photograph      ·  1  illustrated scene  ·  2  highlight scrim
+       3  vignette        ·  4  headline + controls  ·  5  step bar          */
+  .j-frame__backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+  .j-frame__backdrop:empty {
+    display: none;
+  }
+  /* With a photograph behind it, the scene stops painting flat sky and water:
+     those gradient fills go translucent so the photo reads through, while every
+     drawn element (ships, cranes, route, markers) keeps its own opacity. The
+     timeline, the pin and the stage bar are untouched. */
+  .j-frame :global(.j-svg--photo .j-flat--sky) {
+    opacity: 0.45;
+  }
+  .j-frame :global(.j-svg--photo .j-flat--sea) {
+    opacity: 0.6;
+  }
+  .j-frame :global(.j-svg--photo .j-flat--quay) {
+    opacity: 0.7;
+  }
+
   .j-frame::before {
     /* legibility wash behind the headline (start side, top) and the step bar */
     content: '';
     position: absolute;
     inset: 0;
-    z-index: 1;
+    z-index: 2;
     pointer-events: none;
     background: radial-gradient(60% 75% at 100% 0%, rgb(13 26 44 / 0.85), rgb(13 26 44 / 0.4) 45%, transparent 72%);
+    transition: background 300ms ease;
     opacity: var(--intro-o, 1);
   }
   .j-frame::after {
     content: '';
     position: absolute;
     inset: 0;
+    z-index: 3;
     border-radius: inherit;
     pointer-events: none;
     background: radial-gradient(130% 100% at 50% 45%, transparent 62%, rgb(8 16 28 / 0.45));
@@ -212,7 +248,7 @@ const pad = (n: number) => toFa(String(n).padStart(2, '0'));
      it can always start — or stop — the animation. */
   .hj__intro {
     position: absolute;
-    z-index: 2;
+    z-index: 4;
     top: clamp(1.5rem, 6%, 3.5rem);
     inset-inline-start: clamp(1.5rem, 4%, 3.5rem);
     display: grid;
@@ -238,7 +274,7 @@ const pad = (n: number) => toFa(String(n).padStart(2, '0'));
   /* Scroll hint at the very start */
   .hj__hint {
     position: absolute;
-    z-index: 2;
+    z-index: 4;
     bottom: 1.1rem;
     inset-inline: 0;
     margin-inline: auto;

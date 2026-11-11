@@ -1,0 +1,190 @@
+---
+/**
+ * «حوزه‌های فعالیت» — the five cargo families the site's goods guide actually
+ * covers, shown as photographic cards.
+ *
+ * Each card links to the matching section of /guides/goods-by-type/, so the
+ * block is navigational, not decorative. The photographs are used instead of
+ * generic line icons: a pallet of steel coils says "raw materials" faster than
+ * any glyph, and it is a real image a search engine can index.
+ */
+import Icon from '~/components/ui/Icon.astro';
+import { toFa } from '~/lib/format';
+
+export interface Category {
+  title: string;
+  /** One short line: what is typical for this family. */
+  note: string;
+  image: string;
+  alt: string;
+  href: string;
+}
+
+export interface Props {
+  categories: Category[];
+}
+
+const { categories } = Astro.props;
+---
+
+<section class="cats section" id="categories" aria-labelledby="cats-title">
+  <div class="container">
+    <header class="cats__head">
+      <div>
+        <span class="eyebrow">حوزه‌های فعالیت</span>
+        <h2 id="cats-title">با کدام گروه کالا کار می‌کنیم؟</h2>
+      </div>
+      <a class="arrow-link" href="/guides/goods-by-type/">
+        جزئیات هر گروه
+        <Icon name="arrow" />
+      </a>
+    </header>
+
+    <ul class="cats__grid">
+      {
+        categories.map((c, i) => (
+          <li class="cat reveal" style={`--i:${i}`}>
+            <a class="cat__link" href={c.href}>
+              <span class="cat__media">
+                <picture>
+                  <source type="image/webp" srcset={`/img/${c.image}-480.webp 480w, /img/${c.image}-960.webp 960w`} sizes="(max-width: 640px) 50vw, (max-width: 1100px) 33vw, 20vw" />
+                  <img src={`/img/${c.image}.jpg`} alt={c.alt} width={1200} height={896} loading="lazy" decoding="async" />
+                </picture>
+              </span>
+              <span class="cat__body">
+                <span class="cat__n" aria-hidden="true">{toFa(String(i + 1).padStart(2, '0'))}</span>
+                <span class="cat__title">{c.title}</span>
+                <span class="cat__note">{c.note}</span>
+              </span>
+              <span class="cat__arrow" aria-hidden="true">
+                <Icon name="arrow" />
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .cats {
+    padding-block: clamp(2.5rem, 2rem + 2.4vw, 4.25rem);
+    border-bottom: 1px solid var(--rule);
+  }
+  .cats__head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 2rem;
+    align-items: end;
+    justify-content: space-between;
+    margin-bottom: clamp(1.25rem, 1rem + 1.2vw, 2rem);
+  }
+  .cats__head h2 {
+    margin: 0.35rem 0 0;
+    font-size: clamp(1.35rem, 1.1rem + 1vw, 1.85rem);
+  }
+  .cats__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12.5rem), 1fr));
+    gap: clamp(0.7rem, 1.4vw, 1.1rem);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .cat {
+    min-inline-size: 0;
+  }
+  .cat__link {
+    position: relative;
+    display: grid;
+    block-size: 100%;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-l);
+    background: var(--white);
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    transition:
+      border-color var(--dur-med, 220ms) ease,
+      box-shadow var(--dur-med, 220ms) ease,
+      transform var(--dur-med, 220ms) var(--ease-out, ease);
+  }
+  .cat__link:hover {
+    border-color: var(--aqua-300);
+    box-shadow: 0 22px 44px -30px rgb(13 26 44 / 0.55);
+    transform: translateY(-3px);
+  }
+  .cat__media {
+    display: block;
+    aspect-ratio: 16 / 11;
+    overflow: hidden;
+    background: var(--mist-100);
+  }
+  .cat__media img {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+    transform: scale(1.01);
+    transition: transform 600ms var(--ease-out, ease);
+  }
+  .cat__link:hover .cat__media img {
+    transform: scale(1.07);
+  }
+  .cat__body {
+    display: grid;
+    gap: 0.2rem;
+    padding: 0.85rem 0.95rem 1rem;
+  }
+  .cat__n {
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    color: var(--aqua-600);
+  }
+  .cat__title {
+    font-weight: 800;
+    font-size: 0.98rem;
+    line-height: 1.5;
+    color: var(--navy-950);
+  }
+  .cat__note {
+    font-size: 0.8rem;
+    line-height: 1.75;
+    color: var(--slate-600);
+  }
+  .cat__arrow {
+    position: absolute;
+    inset-block-start: 0.7rem;
+    inset-inline-start: 0.7rem;
+    display: grid;
+    place-items: center;
+    inline-size: 1.9rem;
+    block-size: 1.9rem;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.92);
+    color: var(--navy-900);
+    opacity: 0;
+    transform: translateX(6px);
+    transition:
+      opacity var(--dur-fast, 160ms) ease,
+      transform var(--dur-fast, 160ms) ease;
+  }
+  .cat__arrow :global(svg) {
+    inline-size: 1rem;
+    block-size: 1rem;
+  }
+  .cat__link:hover .cat__arrow,
+  .cat__link:focus-visible .cat__arrow {
+    opacity: 1;
+    transform: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cat__link,
+    .cat__media img,
+    .cat__arrow {
+      transition: none;
+    }
+  }
+</style>
