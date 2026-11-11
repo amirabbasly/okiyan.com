@@ -11,6 +11,7 @@ import Clients from '~/components/ui/Clients.astro';
 import { services } from '~/data/services';
 import { site, contactCta } from '~/config/site';
 import { toFa } from '~/lib/format';
+import { faqLd } from '~/lib/schema';
 import { getCollection } from 'astro:content';
 
 // The homepage teaser is intentionally a fixed set of three guides: adding new
@@ -115,7 +116,7 @@ const categories = [
     title: 'قطعات و تجهیزات',
     image: 'cat-parts',
     alt: 'قطعات صنعتی دقیق شامل بلبرینگ، چرخ‌دنده و موتور برقی روی میز کار',
-    href: '/guides/goods-by-type/#ماشین‌آلات-و-قطعات-صنعتی',
+    href: '/guides/goods-by-type/#ماشینآلات-و-قطعات-صنعتی',
   },
   {
     title: 'مواد اولیه و محصولات صنعتی',
@@ -157,6 +158,7 @@ const faqs = [
   fullTitle
   description="اوکیان؛ شرکت بازرگانی واردات و صادرات و ترخیص کالا از گمرک. بررسی اسناد پیش از حمل، برآورد شفاف هزینه و پیگیری پرونده تا تحویل کالا."
   includeWebsiteLd
+  jsonLd={[faqLd(faqs, '/', Astro.site)].filter((x) => x !== null)}
 >
   <!-- ============ HEADER: SHIPMENT JOURNEY (H1 + scroll-driven scene) ============ -->
   <ShipmentJourney>
@@ -183,8 +185,8 @@ const faqs = [
 
   <!-- ============ ABOUT (درباره ما + figures) ============ -->
   <AboutFigures
-    title="اوکیان؛ یک شرکت بازرگانی، نه یک واسطه"
-    lead="شرکت با مسئولیت محدود، ثبت‌شده در تهران از سال ۱۳۹۳ و فعال در ترخیص کالا، واردات و صادرات، با دفتر در تهران، بوشهر و بندرعباس. کار ما کم کردن ابهام در مسیر ورود کالاست: بررسی پیش از حمل، برآورد مکتوب و پیگیری تا تحویل."
+    title="از بندر تا انبار، مسیر کالا روشن باشد"
+    lead="اوکیان از سال ۱۳۹۳ در ترخیص کالا، واردات و صادرات کار می‌کند؛ با دفتر در تهران، بوشهر و بندرعباس. کارمان این است که پیش از حرکت بار بدانید چه سندی لازم است، چه هزینه‌ای در انتظار شماست و هر مرحله دست کیست."
     figures={tally}
     href="/about/"
     cta="اطلاعات بیشتر"

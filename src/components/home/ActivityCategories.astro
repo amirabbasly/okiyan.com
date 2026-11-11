@@ -150,17 +150,25 @@ const { categories } = Astro.props;
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }
+  /* Phones keep the desktop rhythm: all five boxes stay on one row. The cards
+     get narrow, so the photo turns square and the caption drops to the
+     smallest legible size rather than wrapping the row. */
   @media (max-width: 700px) {
     .cats__grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 0.3rem;
     }
-    /* five cards over two columns: the fifth takes the full row rather than
-       leaving a hole beside it */
-    .cat:last-child {
-      grid-column: 1 / -1;
-    }
+    .cat__media,
     .cat:last-child .cat__media {
-      aspect-ratio: 16 / 9;
+      aspect-ratio: 1;
+    }
+    .cat__link {
+      border-radius: 0.55rem;
+    }
+    .cat__title {
+      padding: 0.4rem 0.15rem 0.5rem;
+      font-size: 0.62rem;
+      line-height: 1.5;
     }
   }
   @media (prefers-reduced-motion: reduce) {

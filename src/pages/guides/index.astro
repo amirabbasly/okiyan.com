@@ -79,6 +79,14 @@ const kindLabel: Record<Post['cat'], string> = {
   origin: 'مبدأ',
 };
 
+/** Posts grouped by kind so the feed reads in blocks instead of interleaving
+ *  a customs page between two guides. */
+const groups = [
+  { kind: 'guide' as const, id: 'guides', title: 'راهنماهای ترخیص و واردات', hint: 'مبانی، هزینه، مدارک و مسیر هر مبدأ' },
+  { kind: 'customs' as const, id: 'offices', title: 'گمرک‌ها و بندرها', hint: 'رویه و نکات هر گمرک، از بوشهر تا بازرگان' },
+  { kind: 'origin' as const, id: 'origins', title: 'واردات از مبدأها', hint: 'چین، دبی، ترکیه و مسیرهای دیگر' },
+] as const;
+
 const filters = [
   { id: 'all', label: 'همه', count: posts.length },
   { id: 'clearance', label: 'ترخیص', count: posts.filter((p) => p.cat === 'clearance').length },
@@ -87,11 +95,11 @@ const filters = [
   { id: 'origin', label: 'مبدأها', count: posts.filter((p) => p.cat === 'origin').length },
 ];
 
-/** Structured data keeps the editorial, then destination, then origin order. */
+/** Structured data follows the same order the page shows: guides, customs, origins. */
 const ldItems = [
   ...guides.map((g) => ({ name: g.data.title, path: `/guides/${g.id}/` })),
-  ...origins.map((o) => ({ name: o.data.title, path: `/imports/${o.id}/` })),
   ...offices.map((o) => ({ name: o.data.office, path: `/customs/${o.id}/` })),
+  ...origins.map((o) => ({ name: o.data.title, path: `/imports/${o.id}/` })),
 ];
 ---
 
@@ -159,26 +167,39 @@ const ldItems = [
     <section class="section blog__feed-wrap" aria-labelledby="feed-title">
       <div class="container">
         <h2 id="feed-title" class="sr-only">فهرست نوشته‌ها</h2>
-        <ul class="blog__feed">
-          {
-            posts.map((p) => (
-              <li class="post" data-cat={p.cat}>
-                <article class="post__inner">
-                  <p class="post__kind">{kindLabel[p.cat]}</p>
-                  <h3 class="post__title">
-                    <a href={p.href}>{p.title}</a>
-                  </h3>
-                  <p class="post__desc">{p.desc}</p>
-                  <p class="post__meta">
-                    <time datetime={p.date.toISOString().slice(0, 10)}>{formatFaDate(p.date)}</time>
-                    <span aria-hidden="true">·</span>
-                    <span>{toFa(p.minutes)} دقیقه مطالعه</span>
-                  </p>
-                </article>
-              </li>
-            ))
-          }
-        </ul>
+        {
+          groups.map((g) => {
+            const items = posts.filter((p) => p.kind === g.kind);
+            if (!items.length) return null;
+            return (
+              <section class="blog__group" aria-labelledby={`grp-${g.id}`}>
+                <header class="blog__group-head">
+                  <h3 id={`grp-${g.id}`} class="blog__group-title">{g.title}</h3>
+                  <p class="blog__group-hint">{g.hint}</p>
+                  <span class="blog__group-count">{toFa(items.length)} نوشته</span>
+                </header>
+                <ul class="blog__feed">
+                  {items.map((p) => (
+                    <li class="post" data-cat={p.cat}>
+                      <article class="post__inner">
+                        <p class="post__kind">{kindLabel[p.cat]}</p>
+                        <h4 class="post__title">
+                          <a href={p.href}>{p.title}</a>
+                        </h4>
+                        <p class="post__desc">{p.desc}</p>
+                        <p class="post__meta">
+                          <time datetime={p.date.toISOString().slice(0, 10)}>{formatFaDate(p.date)}</time>
+                          <span aria-hidden="true">·</span>
+                          <span>{toFa(p.minutes)} دقیقه مطالعه</span>
+                        </p>
+                      </article>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            );
+          })
+        }
         <p class="blog__note">
           این فهرست با هر راهنمای تازه به‌روز می‌شود. راهنمای هر خدمت هم جداگانه در{' '}
           <a href={services.clearance.href}>صفحهٔ ترخیص کالا</a> و <a href={services.import.href}>صفحهٔ واردات کالا</a> آمده است.
@@ -344,6 +365,40 @@ const ldItems = [
   .blog__note a {
     color: var(--navy-800);
     font-weight: 700;
+  }
+
+  /* ---------- Groups ---------- */
+  .blog__group + .blog__group {
+    margin-top: clamp(2rem, 1.4rem + 2vw, 3.25rem);
+  }
+  .blog__group-head {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: baseline;
+    gap: 0.15rem 1rem;
+    margin-bottom: 0.35rem;
+    padding-bottom: 0.7rem;
+    border-bottom: 2px solid var(--navy-900);
+  }
+  .blog__group-title {
+    margin: 0;
+    font-size: clamp(1.1rem, 0.98rem + 0.5vw, 1.35rem);
+    font-weight: 800;
+    color: var(--navy-900);
+  }
+  .blog__group-hint {
+    grid-column: 1;
+    margin: 0;
+    font-size: var(--step--1);
+    color: var(--text-muted);
+  }
+  .blog__group-count {
+    grid-column: 2;
+    grid-row: 1;
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--petrol-600);
+    white-space: nowrap;
   }
 
   /* ---------- Filters (progressive: no JS, all items visible if :has() is missing) ---------- */
