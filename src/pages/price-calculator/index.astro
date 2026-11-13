@@ -1,56 +1,90 @@
 ---
 /**
- * محاسبه قیمت — SAMPLE CONTENT. The rates live in src/data/pricing.ts and are placeholders.
- * The result is computed in the browser (src/scripts/calculator.ts); the server renders the
- * same estimate for the default inputs so the page works before JS loads.
+ * محاسبهٔ هزینهٔ ترخیص — a transparent formula engine.
+ *
+ * This page used to ship with placeholder rates (a fixed VAT %, a fixed port %, a
+ * fixed service fee). Those numbers were removed: a default rate on a public page
+ * looks authoritative and quietly enters a real business decision.
+ *
+ * What the page does now:
+ * - prints the FORMULA of every cost line, server-side, before any input;
+ * - takes every rate from the visitor (duty, VAT, exchange rate) — no defaults;
+ * - computes in the browser with the same `estimate()` used for the markup, so the
+ *   numbers on screen are exactly the printed formulas applied to typed values;
+ * - points at the official source of each rate instead of guessing it.
  */
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import PageHero from '~/components/layout/PageHero.astro';
 import CtaBand from '~/components/ui/CtaBand.astro';
+import AnswerBlock from '~/components/ui/AnswerBlock.astro';
 import Faq from '~/components/ui/Faq.astro';
 import Icon from '~/components/ui/Icon.astro';
-import { breadcrumbLd } from '~/lib/schema';
-import { pricing, estimate } from '~/data/pricing';
+import ClusterNav from '~/components/ui/ClusterNav.astro';
+import { breadcrumbLd, faqLd } from '~/lib/schema';
+import { currencies, excluded, formulae } from '~/data/pricing';
 import { toFa } from '~/lib/format';
 
+const path = '/price-calculator/';
 const crumbs = [
   { name: 'خانه', path: '/' },
-  { name: 'محاسبه قیمت', path: '/price-calculator/' },
+  { name: 'ابزارها', path: '/tools/' },
+  { name: 'ماشین‌حساب هزینهٔ ترخیص', path },
 ];
 
-const d = pricing.defaults;
-const initial = estimate(d);
-const fmt = (n: number) => new Intl.NumberFormat('fa-IR', { maximumFractionDigits: 0 }).format(Math.round(n));
-const num = (n: number) => new Intl.NumberFormat('fa-IR').format(n);
-
-const rows = [
-  { key: 'customsValue', label: 'ارزش گمرکی کالا (CIF)', note: 'ارزش کالا + حمل و بیمه، به تومان' },
-  { key: 'duty', label: 'حقوق ورودی', note: 'بر اساس نرخی که وارد کرده‌اید' },
-  { key: 'vat', label: `مالیات و عوارض ارزش افزوده (${toFa(pricing.vatPercent)}٪)`, note: 'روی ارزش گمرکی + حقوق ورودی' },
-  { key: 'port', label: 'هزینه‌های بندری و انبارداری', note: `حدود ${toFa(pricing.portPercent)}٪ ارزش گمرکی` },
-  { key: 'fee', label: 'کارمزد خدمات اوکیان', note: `${toFa(pricing.feePercent)}٪ ارزش گمرکی، حداقل ${fmt(pricing.feeMinimum)} تومان` },
-] as const;
+const answer =
+  'هزینهٔ ترخیص یک محموله از پنج قلم ساخته می‌شود: ارزش گمرکی کالا که از جمع بهای خرید، حمل و بیمه در نرخ ارز روز اظهار به دست می‌آید؛ حقوق ورودی که ماخذ کد تعرفه بر ارزش گمرکی اعمال می‌شود؛ مالیات و عوارض ارزش افزوده که بر جمع ارزش گمرکی و حقوق ورودی حساب می‌شود؛ هزینه‌های بندری و انبارداری؛ و کارمزد خدمات ترخیص. این ماشین‌حساب، همان پنج فرمول را اجرا می‌کند و نرخ‌ها را از شما می‌گیرد، چون ماخذ تعرفه سالانه، نرخ ارزش افزوده با قانون بودجه و نرخ ارز روزانه تغییر می‌کند.';
 
 const faqs = [
-  { q: 'این عدد چقدر دقیق است؟', a: 'نتیجهٔ ماشین‌حساب فقط یک برآورد اولیه است. هزینهٔ واقعی به کد تعرفه، ارزش پذیرفته‌شده در گمرک، نوع کالا، مجوزها و زمان ترخیص بستگی دارد.' },
-  { q: 'نرخ حقوق ورودی را از کجا بدانم؟', a: 'نرخ حقوق ورودی بر اساس کد تعرفهٔ کالا در کتاب مقررات صادرات و واردات تعیین می‌شود. اگر کد تعرفه را نمی‌دانید، در تعیین آن کمکتان می‌کنیم.' },
-  { q: 'چه هزینه‌هایی در این برآورد نیست؟', a: 'هزینه‌های استاندارد و آزمایشگاه، حمل داخلی، بیمهٔ داخلی، هزینه‌های بانکی و هزینه‌های خاص بعضی کالاها در این برآورد لحاظ نشده‌اند.' },
+  {
+    q: 'چرا این ماشین‌حساب نرخ پیش‌فرض ندارد؟',
+    a: 'چون سه عددی که نتیجه را می‌سازند، هیچ‌کدام ثابت نیستند: ماخذ حقوق ورودی هر کد ملی با اصلاحیهٔ سالانهٔ کتاب مقررات صادرات و واردات عوض می‌شود، نرخ مالیات و عوارض ارزش افزوده در قانون بودجهٔ هر سال تعیین می‌شود، و نرخ ارز مبنای محاسبهٔ ارزش گمرکی روزانه اعلام می‌شود. عدد پیش‌فرض، یک عدد قدیمی است که با ظاهر اطمینان نمایش داده می‌شود و وارد برآورد واقعی می‌شود.',
+  },
+  {
+    q: 'ماخذ حقوق ورودی را از کجا پیدا کنم؟',
+    a: 'کد تعرفهٔ ملی کالا را در کتاب مقررات صادرات و واردات همان سال ببینید؛ مرجع رسمی آن وزارت صنعت، معدن و تجارت است. اگر کد کالا را نمی‌دانید، از <a href="/hs-code/">جدول کد تعرفه</a> شروع کنید و فهرست مرجع‌ها را در <a href="/official-sources/">سامانه‌های رسمی</a> ببینید.',
+  },
+  {
+    q: 'نرخ ارز را با چه عددی وارد کنم؟',
+    a: 'با نرخ ارز اعلامی بانک مرکزی در روز اظهار، که مبنای محاسبهٔ ارزش گمرکی است — نه با نرخی که هنگام خرید یا ثبت سفارش دیده‌اید. قاعدهٔ آن و مرجع استعلامش در <a href="/customs-exchange-rate/">نرخ ارز گمرکی</a> توضیح داده شده است.',
+  },
+  {
+    q: 'این برآورد چقدر به هزینهٔ واقعی نزدیک است؟',
+    a: 'به دقت نرخ‌هایی که وارد کرده‌اید. اگر ماخذ و نرخ ارز واقعی پرونده را وارد کنید، سه قلم اول دقیق است. دو قلم بعدی — بندری و انبارداری، و کارمزد — به خود پرونده بستگی دارد و باید از ترمینال، انبار و قرارداد خدمات گرفته شود.',
+  },
+  {
+    q: 'چه هزینه‌هایی در این برآورد نیست؟',
+    a: 'هزینهٔ استاندارد و آزمون، بازرسی پیش از حمل، دموراژ و توقف کانتینر، حمل داخلی، بیمه، هزینه‌های بانکی و انتقال ارز، حق‌العمل‌کاری و هزینهٔ اخذ مجوزها. فهرست کامل همین پایین آمده است؛ در پرونده‌های واقعی، این اقلام می‌توانند سهم قابل توجهی از بهای تمام‌شده باشند.',
+  },
+  {
+    q: 'چطور برآورد دقیق‌تری بگیرم؟',
+    a: 'شرح کالا، کد تعرفهٔ پیشنهادی فروشنده، ارزش سیاهه، شرط تحویل و مبدأ را بفرستید. با دیدن اسناد، هم کد تعرفه قطعی می‌شود و هم اجزای هزینهٔ همان پرونده مشخص می‌شود؛ کاری که با یک فرمول عمومی ممکن نیست.',
+  },
 ];
 ---
 
 <BaseLayout
-  title="محاسبه قیمت ترخیص کالا؛ برآورد اولیهٔ هزینه"
-  description="با ماشین‌حساب اوکیان برآورد اولیه‌ای از هزینهٔ ترخیص کالا بگیرید: حقوق ورودی، مالیات بر ارزش افزوده، هزینه‌های بندری و کارمزد خدمات."
-  jsonLd={[breadcrumbLd(crumbs, Astro.site)]}
+  title="ماشین‌حساب هزینهٔ ترخیص کالا: فرمول و اجزای هزینه"
+  description="محاسبهٔ شفاف هزینهٔ ترخیص: ارزش گمرکی، حقوق ورودی، مالیات و عوارض ارزش افزوده، هزینه‌های بندری و کارمزد؛ با فرمول هر قلم و نرخ‌هایی که خودتان وارد می‌کنید."
+  jsonLd={[breadcrumbLd(crumbs, Astro.site), faqLd(faqs, path, Astro.site)].filter((x) => x !== null)}
 >
   <PageHero
     eyebrow="ابزار"
-    title="محاسبه قیمت ترخیص"
-    lead="ارزش کالا، نرخ ارز و نرخ حقوق ورودی را وارد کنید تا تصویر اولیه‌ای از هزینه‌های ترخیص داشته باشید."
+    title="ماشین‌حساب هزینهٔ ترخیص"
+    lead="فرمول پنج قلم هزینه، بدون عدد پیش‌فرض. نرخ روز پروندهٔ خودتان را وارد کنید تا جمع برآوردی ساخته شود."
     crumbs={crumbs}
-  />
+  >
+    <div class="hero-actions">
+      <a class="btn" href="#calc">
+        شروع محاسبه
+        <Icon name="arrow" class="btn__icon" />
+      </a>
+      <a class="btn btn--ghost" href="/customs-clearance/cost/">اجزای هزینهٔ ترخیص</a>
+    </div>
+  </PageHero>
 
-  <section class="section" aria-labelledby="calc-title">
+  <AnswerBlock text={answer} />
+
+  <section class="section" id="calc" aria-labelledby="calc-title">
     <div class="container">
       <h2 id="calc-title" class="sr-only">ماشین‌حساب هزینهٔ ترخیص</h2>
       <div class="calc" data-calc>
@@ -60,69 +94,174 @@ const faqs = [
             <div class="field">
               <label for="c-value">ارزش کالا (FOB)</label>
               <div class="field__row">
-                <input id="c-value" name="value" inputmode="decimal" autocomplete="off" value={num(d.value)} aria-describedby="c-value-hint" />
-                <select name="currency" aria-label="ارز">
-                  {pricing.currencies.map((c) => <option value={c.code}>{c.label}</option>)}
+                <input id="c-value" name="value" inputmode="decimal" autocomplete="off" placeholder="مبلغ سیاههٔ خرید" aria-describedby="c-value-hint" />
+                <select name="currency" aria-label="ارز سیاهه">
+                  {currencies.map((c) => <option value={c.code}>{c.label}</option>)}
                 </select>
               </div>
-              <p class="field__hint" id="c-value-hint">مبلغ پیش‌فاکتور، بدون هزینهٔ حمل</p>
+              <p class="field__hint" id="c-value-hint">بهای خرید بر پایهٔ سیاهه، بدون هزینهٔ حمل</p>
             </div>
             <div class="field">
-              <label for="c-freight">هزینهٔ حمل و بیمه تا مقصد</label>
-              <input id="c-freight" name="freight" inputmode="decimal" autocomplete="off" value={num(d.freight)} aria-describedby="c-freight-hint" />
-              <p class="field__hint" id="c-freight-hint">به همان ارز ارزش کالا</p>
+              <label for="c-freight">هزینهٔ حمل و بیمه تا نخستین نقطهٔ ورود</label>
+              <input id="c-freight" name="freight" inputmode="decimal" autocomplete="off" placeholder="اختیاری" aria-describedby="c-freight-hint" />
+              <p class="field__hint" id="c-freight-hint">به همان ارز سیاهه. اگر شرط تحویل CIF است، این دو در بهای خرید هست؛ خالی بگذارید.</p>
             </div>
           </fieldset>
+
           <fieldset>
-            <legend>نرخ‌ها</legend>
+            <legend>نرخ‌ها — همه از شما</legend>
             <div class="field">
               <label for="c-rate">نرخ ارز (تومان)</label>
-              <input id="c-rate" name="rate" inputmode="decimal" autocomplete="off" value={num(d.rate)} aria-describedby="c-rate-hint" />
-              <p class="field__hint" id="c-rate-hint">نرخ ارز مورد عمل گمرک را وارد کنید</p>
+              <input id="c-rate" name="rate" inputmode="decimal" autocomplete="off" placeholder="نرخ روز اظهار" aria-describedby="c-rate-hint" />
+              <p class="field__hint" id="c-rate-hint">
+                نرخ اعلامی بانک مرکزی در روز اظهار؛ قاعده‌اش در
+                <a href="/customs-exchange-rate/">نرخ ارز گمرکی</a>
+              </p>
             </div>
             <div class="field">
-              <label for="c-duty">نرخ حقوق ورودی (٪)</label>
-              <input id="c-duty" name="duty" inputmode="decimal" autocomplete="off" value={num(d.duty)} aria-describedby="c-duty-hint" />
-              <p class="field__hint" id="c-duty-hint">بر اساس کد تعرفهٔ کالا</p>
+              <label for="c-duty">ماخذ حقوق ورودی (٪)</label>
+              <input id="c-duty" name="duty" inputmode="decimal" autocomplete="off" placeholder="ماخذ کد تعرفه" aria-describedby="c-duty-hint" />
+              <p class="field__hint" id="c-duty-hint">
+                از کتاب مقررات صادرات و واردات همان سال؛ کد کالا را در <a href="/hs-code/">جدول تعرفه</a> پیدا کنید
+              </p>
+            </div>
+            <div class="field">
+              <label for="c-vat">نرخ مالیات و عوارض ارزش افزوده (٪)</label>
+              <input id="c-vat" name="vat" inputmode="decimal" autocomplete="off" placeholder="نرخ مصوب سال جاری" aria-describedby="c-vat-hint" />
+              <p class="field__hint" id="c-vat-hint">در قانون بودجهٔ همان سال تعیین می‌شود؛ بر جمع ارزش گمرکی و حقوق ورودی اعمال می‌شود</p>
             </div>
           </fieldset>
+
+          <fieldset>
+            <legend>اقلام پرونده‌محور (اختیاری)</legend>
+            <div class="field">
+              <label for="c-port">هزینه‌های بندری و انبارداری (تومان)</label>
+              <input id="c-port" name="port" inputmode="decimal" autocomplete="off" placeholder="اختیاری" aria-describedby="c-port-hint" />
+              <p class="field__hint" id="c-port-hint">از قبض‌های ترمینال و انبار؛ روزشمار است و با تأخیر در ترخیص بزرگ می‌شود</p>
+            </div>
+            <div class="field">
+              <label for="c-fee">کارمزد خدمات ترخیص (تومان)</label>
+              <input id="c-fee" name="fee" inputmode="decimal" autocomplete="off" placeholder="اختیاری" aria-describedby="c-fee-hint" />
+              <p class="field__hint" id="c-fee-hint">مبلغ قرارداد خدمات. اگر وارد نکنید، در جمع لحاظ نمی‌شود</p>
+            </div>
+          </fieldset>
+
           <p class="calc__note">
             <Icon name="info" />
-            اعداد پیش‌فرض فقط برای نمونه‌اند. نرخ‌های واقعی را جایگزین کنید.
+            این ابزار هیچ نرخ پیش‌فرضی ندارد. هر عددی که در نتیجه می‌بینید، از ورودی خودتان ساخته شده است.
           </p>
         </form>
 
         <div class="calc__result reveal" aria-labelledby="result-title">
-          <h3 id="result-title">برآورد هزینه‌ها</h3>
+          <h3 id="result-title">اجزای هزینه و فرمول هر قلم</h3>
           <dl class="calc__rows">
             {
-              rows.map((r) => (
-                <div class:list={['calc__row', { 'calc__row--base': r.key === 'customsValue' }]}>
+              formulae.map((f) => (
+                <div class:list={['calc__row', { 'calc__row--base': f.key === 'customsValue' }]}>
                   <dt>
-                    {r.label}
-                    <small>{r.note}</small>
+                    {f.label}
+                    <small>{f.note}</small>
                   </dt>
                   <dd>
-                    <output data-out={r.key}>{fmt(initial[r.key])}</output> <span>تومان</span>
+                    <output data-out={f.key}>{f.formula}</output>{' '}
+                    <span data-calc-unit hidden>تومان</span>
                   </dd>
                 </div>
               ))
             }
           </dl>
           <div class="calc__total">
-            <span>جمع برآوردی هزینه‌های ترخیص</span>
+            <span>جمع برآوردی حقوق ورودی، ارزش افزوده و هزینه‌های واردشده</span>
             <strong>
-              <output data-out="total" aria-live="polite">{fmt(initial.total)}</output> تومان
+              <output data-out="total">جمع اقلام بالا</output> <span data-calc-unit hidden>تومان</span>
             </strong>
           </div>
-          <p class="calc__error" data-calc-error hidden>لطفاً همهٔ مقادیر را به‌صورت عدد وارد کنید.</p>
+          <p class="calc__status" data-calc-status data-state="pending" aria-live="polite">
+            برای محاسبه، {toFa(4)} نرخ لازم را وارد کنید: ارزش کالا، نرخ ارز، ماخذ حقوق ورودی و نرخ ارزش افزوده. تا آن زمان،
+            فرمول هر قلم نمایش داده می‌شود.
+          </p>
           <a class="btn btn--accent" href="/contact/">
-            برآورد دقیق بگیرید
+            برآورد دقیق با دیدن اسناد
             <Icon name="arrow" class="btn__icon" />
           </a>
-          <noscript><p class="calc__noscript">برای محاسبهٔ مقادیر دیگر، جاوااسکریپت مرورگر را فعال کنید.</p></noscript>
+          <noscript>
+            <p class="calc__noscript">
+              بدون جاوااسکریپت، فرمول هر قلم در همین پنل نمایش داده می‌شود و محاسبهٔ عددی انجام نمی‌شود. اجزای کامل هزینه را در
+              راهنمای هزینهٔ ترخیص ببینید.
+            </p>
+          </noscript>
         </div>
       </div>
+    </div>
+  </section>
+
+  <section class="section section--alt" aria-labelledby="excluded-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="eyebrow">مرز این برآورد</span>
+        <h2 id="excluded-title">چه هزینه‌هایی در این محاسبه نیست</h2>
+        <p class="lead">
+          این پنج قلم، ساختار حقوقی و گمرکی هزینه‌اند. اقلام زیر پرونده‌محورند و از روی ارزش کالا و دو نرخ نمی‌شود برآوردشان
+          کرد؛ در پرونده‌های واقعی سهم بزرگی دارند.
+        </p>
+      </header>
+      <ul class="excluded">
+        {excluded.map((e) => <li class="reveal">{e}</li>)}
+      </ul>
+      <p class="excluded__note">
+        تفصیل هر قلم و اینکه چه زمانی ظاهر می‌شود، در <a href="/customs-clearance/cost/">هزینهٔ ترخیص کالا</a> و
+        <a href="/guides/customs-clearance-cost/">راهنمای هزینهٔ ترخیص</a> آمده است.
+      </p>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="rates-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="eyebrow">ورودی‌ها</span>
+        <h2 id="rates-title">سه نرخ لازم را از کجا بگیریم</h2>
+      </header>
+      <ol class="rate-cards">
+        <li class="reveal">
+          <h3>
+            <Icon name="doc" />
+            ماخذ حقوق ورودی
+          </h3>
+          <p>
+            به کد تعرفهٔ ملی کالا گره خورده و هر سال با اصلاحیهٔ کتاب مقررات صادرات و واردات تغییر می‌کند. اول کد کالا را
+            قطعی کنید.
+          </p>
+          <a class="arrow-link" href="/hs-code/">
+            جدول کد تعرفه
+            <Icon name="arrow" />
+          </a>
+        </li>
+        <li class="reveal">
+          <h3>
+            <Icon name="route" />
+            نرخ ارز مبنای محاسبه
+          </h3>
+          <p>نرخ اعلامی بانک مرکزی در روز اظهار است، نه نرخ روز خرید. قاعدهٔ محاسبهٔ ارزش گمرکی همان‌جا توضیح داده شده.</p>
+          <a class="arrow-link" href="/customs-exchange-rate/">
+            ارزش گمرکی و نرخ ارز
+            <Icon name="arrow" />
+          </a>
+        </li>
+        <li class="reveal">
+          <h3>
+            <Icon name="shield" />
+            نرخ ارزش افزوده و مرجع‌ها
+          </h3>
+          <p>
+            در قانون بودجهٔ همان سال تعیین می‌شود و بر جمع ارزش گمرکی و حقوق ورودی اعمال می‌شود. مرجع هر استعلام در فهرست
+            سامانه‌های رسمی هست.
+          </p>
+          <a class="arrow-link" href="/official-sources/">
+            سامانه‌های رسمی
+            <Icon name="arrow" />
+          </a>
+        </li>
+      </ol>
     </div>
   </section>
 
@@ -136,6 +275,18 @@ const faqs = [
       <Faq items={faqs} />
     </div>
   </section>
+
+  <div class="container">
+    <ClusterNav
+      siblings={[
+        { href: '/hs-code/', label: 'کد تعرفه (HS)' },
+        { href: '/customs-exchange-rate/', label: 'نرخ ارز گمرکی' },
+        { href: '/official-sources/', label: 'سامانه‌های رسمی' },
+        { href: '/guides/customs-clearance-cost/', label: 'راهنمای هزینهٔ ترخیص' },
+        { href: '/guides/customs-valuation/', label: 'ارزش‌گذاری گمرکی' },
+      ]}
+    />
+  </div>
 
   <CtaBand />
 </BaseLayout>
@@ -204,6 +355,11 @@ const faqs = [
     text-align: right;
     font-weight: 700;
   }
+  .field input::placeholder {
+    font-weight: 400;
+    color: var(--slate-600);
+    opacity: 0.75;
+  }
   .field input:focus,
   .field select:focus {
     border-color: var(--petrol-500);
@@ -214,6 +370,10 @@ const faqs = [
   .field__hint {
     font-size: 0.85rem;
     color: var(--slate-600);
+  }
+  .field__hint a {
+    color: var(--petrol-600);
+    font-weight: 700;
   }
   .calc__note {
     display: flex;
@@ -268,16 +428,24 @@ const faqs = [
   .calc__row dd {
     margin: 0;
     flex: none;
-    white-space: nowrap;
+    max-width: 15rem;
+    text-align: end;
     font-weight: 700;
     color: var(--white);
+  }
+  /* Before any rate is typed the cell holds the formula, not a number. */
+  .calc__row dd output {
+    font-size: 0.86rem;
+    font-weight: 600;
+    line-height: 1.7;
+    color: var(--petrol-200);
   }
   .calc__row dd span {
     font-size: 0.8rem;
     font-weight: 400;
     color: #bcc3cb;
   }
-  .calc__row--base dd {
+  .calc__row--base dd output {
     color: var(--petrol-200);
   }
   .calc__total {
@@ -296,11 +464,22 @@ const faqs = [
     line-height: 1.3;
     color: var(--white);
   }
+  .calc__total output {
+    font-size: var(--step-0);
+    font-weight: 700;
+    color: var(--petrol-200);
+  }
   .calc__result .btn {
     justify-self: start;
   }
-  .calc__error {
-    color: #f3b4ae;
+  .calc__status {
+    margin: 0;
+    font-size: var(--step--1);
+    line-height: 1.85;
+    color: #bcc3cb;
+  }
+  .calc__status[data-state='done'] {
+    color: var(--petrol-200);
     font-weight: 700;
   }
   .calc__noscript {
@@ -314,5 +493,72 @@ const faqs = [
     .calc__result {
       position: static;
     }
+  }
+
+  .excluded {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+    gap: 0.75rem;
+    list-style: none;
+    margin: 1.5rem 0 0;
+    padding: 0;
+  }
+  .excluded li {
+    position: relative;
+    padding: 0.9rem 1.1rem 0.9rem 2.4rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-s);
+    background: var(--white);
+    font-size: var(--step--1);
+    line-height: 1.75;
+    color: var(--slate-700);
+  }
+  .excluded li::after {
+    content: '—';
+    position: absolute;
+    inset-inline-start: 1rem;
+    top: 0.9rem;
+    color: var(--rule-strong);
+    font-weight: 700;
+  }
+  .excluded__note {
+    margin: 1.25rem 0 0;
+    font-size: var(--step--1);
+    color: var(--text-muted);
+  }
+  .rate-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+    gap: 1.25rem;
+    list-style: none;
+    margin: 1.5rem 0 0;
+    padding: 0;
+  }
+  .rate-cards li {
+    display: grid;
+    align-content: start;
+    gap: 0.6rem;
+    padding: 1.4rem 1.5rem;
+    border: 1px solid var(--rule);
+    border-top: 3px solid var(--petrol-600);
+    border-radius: var(--radius-m);
+    background: var(--white);
+  }
+  .rate-cards h3 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: var(--step-0);
+  }
+  .rate-cards h3 :global(svg) {
+    inline-size: 1.2em;
+    block-size: 1.2em;
+    color: var(--petrol-600);
+  }
+  .rate-cards p {
+    margin: 0;
+    font-size: var(--step--1);
+    color: var(--slate-700);
+    line-height: 1.85;
   }
 </style>
