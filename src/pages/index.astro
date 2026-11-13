@@ -637,17 +637,16 @@ const faqs = [
     gap: 1.25rem;
   }
   .prepare-band {
-    background-color: var(--navy-900);
+    background-color: var(--ink-900);
+    /* the about band's sweep, plus the blueprint grid this section always had */
     background-image:
-      radial-gradient(48rem 26rem at 100% 0%, rgb(143 180 201 / 0.12), transparent 65%),
-      radial-gradient(40rem 30rem at 0% 100%, rgb(35 77 102 / 0.5), transparent 60%),
-      linear-gradient(rgb(232 236 238 / 0.035) 1px, transparent 1px),
-      linear-gradient(90deg, rgb(232 236 238 / 0.035) 1px, transparent 1px);
+      linear-gradient(rgb(210 228 255 / 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(210 228 255 / 0.035) 1px, transparent 1px),
+      radial-gradient(120% 132% at 8% 0%, #0a5078 0%, #06407a 26%, #04295c 58%, #001b42 82%, #021438 100%);
     background-size:
-      auto,
-      auto,
       44px 44px,
-      44px 44px;
+      44px 44px,
+      auto;
   }
   .prepare-band h2 {
     color: var(--white);

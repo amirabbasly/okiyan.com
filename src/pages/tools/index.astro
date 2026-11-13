@@ -1,0 +1,338 @@
+---
+/**
+ * /tools/ — hub for the four working tools.
+ *
+ * The policy that holds them together is stated on the page itself: a tool that
+ * cannot show a verified number, shows the rule and the official source instead of
+ * inventing a figure. That is why none of these tools prints a tariff rate.
+ */
+import { getCollection } from 'astro:content';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import PageHero from '~/components/layout/PageHero.astro';
+import CtaBand from '~/components/ui/CtaBand.astro';
+import AnswerBlock from '~/components/ui/AnswerBlock.astro';
+import Faq from '~/components/ui/Faq.astro';
+import Icon from '~/components/ui/Icon.astro';
+import ClusterNav from '~/components/ui/ClusterNav.astro';
+import { breadcrumbLd, faqLd, itemListLd } from '~/lib/schema';
+
+const goods = (await getCollection('goods')).sort((a, b) => a.data.order - b.data.order);
+const path = '/tools/';
+const crumbs = [
+  { name: 'خانه', path: '/' },
+  { name: 'ابزارها', path },
+];
+
+const tools = [
+  {
+    href: '/hs-code/',
+    title: 'کد تعرفه (HS)',
+    text: 'جدول ۲۱ بخش و ۹۷ فصل نظام هماهنگ، با سرفصل‌های پرکاربرد واردات، ساختار کد هشت‌رقمی و شش قاعدهٔ عمومی تفسیر.',
+    tag: 'مرجع طبقه‌بندی',
+    icon: 'doc' as const,
+  },
+  {
+    href: '/price-calculator/',
+    title: 'ماشین‌حساب هزینهٔ ترخیص',
+    text: 'فرمول کامل اجزای هزینه از ارزش گمرکی تا جمع نهایی. نرخ‌ها را خودتان وارد می‌کنید؛ هیچ عدد پیش‌فرضی در کار نیست.',
+    tag: 'محاسبهٔ شفاف',
+    icon: 'calc' as const,
+  },
+  {
+    href: '/customs-exchange-rate/',
+    title: 'نرخ ارز گمرکی و ارزش کالا',
+    text: 'زنجیرهٔ محاسبهٔ ارزش گمرکی از سیاهه تا پروانهٔ خروج، مرجع اعلام نرخ ارز و چهار اشتباهی که ارزش کالا را به بحث می‌کشاند.',
+    tag: 'قاعدهٔ ارزش‌گذاری',
+    icon: 'route' as const,
+  },
+  {
+    href: '/official-sources/',
+    title: 'سامانه‌های رسمی',
+    text: 'مرجع هر مجوز و هر استعلام، دسته‌بندی‌شده بر پایهٔ کاری که در پرونده انجام می‌دهد؛ از ثبت سفارش تا رجیستری.',
+    tag: 'مرجع استعلام',
+    icon: 'shield' as const,
+  },
+];
+
+const answer =
+  'چهار ابزار این صفحه، یک قاعدهٔ مشترک دارند: عددی را چاپ نمی‌کنند که نمی‌توانند از آن دفاع کنند. ماخذ حقوق ورودی و نرخ ارز، هر دو متغیرند و هر دو در مرجع رسمی منتشر می‌شوند؛ پس ابزارهای ما ساختار، فرمول و مرجع استعلام را می‌دهند و عدد روزِ پرونده را از شما می‌گیرند. نتیجهٔ محاسبه، با نرخ واقعی همان پرونده ساخته می‌شود نه با یک میانگین قدیمی.';
+
+const faqs = [
+  {
+    q: 'چرا ماشین‌حساب شما نرخ پیش‌فرض ندارد؟',
+    a: 'چون نرخ پیش‌فرض، یک عدد قدیمی است که با اطمینان نمایش داده می‌شود. ماخذ حقوق ورودی با اصلاحیهٔ سالانهٔ کتاب مقررات عوض می‌شود و نرخ ارز روزانه اعلام می‌شود. ابزاری که عدد قدیمی را چاپ می‌کند، برآورد شما را خراب می‌کند؛ پس نرخ را از شما می‌گیریم و فرمول را شفاف نشان می‌دهیم.',
+  },
+  {
+    q: 'اگر نرخ را نداشته باشم چه کنم؟',
+    a: 'ماخذ حقوق ورودی کد کالای خود را از کتاب مقررات صادرات و واردات استعلام کنید و نرخ ارز را از اعلام رسمی بانک مرکزی یا گمرک بگیرید. اگر هیچ‌کدام در دسترس نبود، شرح کالا و مبدأ را برای ما بفرستید تا مبنای محاسبهٔ همان پرونده را مشخص کنیم.',
+  },
+  {
+    q: 'کد تعرفهٔ کالایم را از همین سایت پیدا می‌کنم؟',
+    a: 'جدول فصل‌ها و سرفصل‌های پرکاربرد در صفحهٔ کد تعرفه هست و با جست‌وجو فیلتر می‌شود. اما رقم هشتم و ماخذ آن، ملی و سالانه است؛ برای قطعی کردن کد، شرح فنی کالا باید بررسی شود.',
+  },
+  {
+    q: 'این ابزارها جای مشاوره را می‌گیرد؟',
+    a: 'خیر. ابزارها برای این است که بدانید چه چیزی را باید بپرسید و از کجا بپرسید. تصمیم دربارهٔ یک پروندهٔ مشخص، با دیدن اسناد همان پرونده گرفته می‌شود.',
+  },
+];
+---
+
+<BaseLayout
+  title="ابزارهای واردات و ترخیص: کد تعرفه، ماشین‌حساب و مرجع‌ها"
+  description="چهار ابزار کاربردی برای پروندهٔ واردات: جدول کد تعرفه (HS)، ماشین‌حساب شفاف هزینهٔ ترخیص، قاعدهٔ ارزش گمرکی و نرخ ارز، و فهرست سامانه‌های رسمی هر مجوز."
+  jsonLd={
+    [
+      breadcrumbLd(crumbs, Astro.site),
+      itemListLd({ name: 'ابزارهای واردات و ترخیص', path, items: tools.map((t) => ({ name: t.title, path: t.href })) }, Astro.site),
+      faqLd(faqs, path, Astro.site),
+    ].filter((x) => x !== null)
+  }
+>
+  <PageHero
+    eyebrow="ابزارها"
+    title="ابزارهای پروندهٔ واردات"
+    lead="سه چیز پیش از خرید باید روشن شود: کد کالا، مجوزها و ساختار هزینه. این چهار ابزار، همان سه چیز را بدون عدد ساختگی روشن می‌کنند."
+    crumbs={crumbs}
+  >
+    <div class="hero-actions">
+      <a class="btn" href="/hs-code/">
+        پیدا کردن کد تعرفه
+        <Icon name="arrow" class="btn__icon" />
+      </a>
+      <a class="btn btn--ghost" href="/goods/">صفحات کالا</a>
+    </div>
+  </PageHero>
+
+  <AnswerBlock text={answer} />
+
+  <section class="section" aria-labelledby="tools-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="eyebrow">چهار ابزار</span>
+        <h2 id="tools-title">از کد کالا تا برآورد هزینه</h2>
+      </header>
+      <ul class="tool-grid">
+        {
+          tools.map((t) => (
+            <li class="tool-card reveal">
+              <span class="tool-card__tag">
+                <Icon name={t.icon} />
+                {t.tag}
+              </span>
+              <h3>
+                <a href={t.href}>{t.title}</a>
+              </h3>
+              <p>{t.text}</p>
+              <a class="arrow-link" href={t.href}>
+                باز کردن ابزار
+                <Icon name="arrow" />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section--alt" aria-labelledby="policy-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="eyebrow">سیاست محتوایی</span>
+        <h2 id="policy-title">چرا هیچ‌کجا نرخ چاپ نمی‌کنیم</h2>
+        <p class="lead">
+          یک عدد قدیمی که با اطمینان چاپ شده باشد، از نبود آن عدد خطرناک‌تر است؛ چون وارد برآورد واقعی می‌شود و تصمیم را
+          عوض می‌کند.
+        </p>
+      </header>
+      <div class="policy">
+        <div class="policy__col">
+          <h3>آنچه چاپ می‌کنیم</h3>
+          <ul class="checklist">
+            <li>ساختار کد تعرفه و سرفصل‌های بین‌المللی نظام هماهنگ</li>
+            <li>قواعد طبقه‌بندی و مرجع هر مجوز</li>
+            <li>فرمول و اجزای هزینه، بدون عدد</li>
+            <li>مبنای قانونی محاسبهٔ ارزش گمرکی</li>
+            <li>تاریخ به‌روزرسانی هر صفحه</li>
+          </ul>
+        </div>
+        <div class="policy__col">
+          <h3>آنچه چاپ نمی‌کنیم</h3>
+          <ul class="checklist checklist--no">
+            <li>ماخذ حقوق ورودی یک کد ملی</li>
+            <li>نرخ ارز روز یا نرخ میانگین</li>
+            <li>نرخ مالیات و عوارض مصوب یک سال</li>
+            <li>هزینهٔ خدمات، تا پیش از دیدن اسناد پرونده</li>
+            <li>زمان قطعی ترخیص یک پروندهٔ مشخص</li>
+          </ul>
+        </div>
+      </div>
+      <p class="policy__note">
+        دلیل هر دو فهرست یکی است: موارد بالا یا بین‌المللی و پایدارند یا در مرجع رسمی، به‌روز و قابل استناد منتشر می‌شوند.
+        مرجع‌های رسمی را در <a href="/official-sources/">فهرست سامانه‌ها</a> ببینید.
+      </p>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="goods-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="eyebrow">کالاها</span>
+        <h2 id="goods-title">ابزار را روی کالای خودتان امتحان کنید</h2>
+        <p class="lead">
+          برای {goods.length} گروه کالایی پرتکرار، سرفصل‌های تعرفه، مجوزهای دستگاهی و عوامل هزینه را جدا نوشته‌ایم.
+        </p>
+      </header>
+      <ul class="goods-chips">
+        {
+          goods.map((g) => (
+            <li>
+              <a href={`/goods/${g.id}/`}>
+                <strong>{g.data.product}</strong>
+                <span>{g.data.hs.slice(0, 2).map((h) => h.code).join(' · ')}</span>
+              </a>
+            </li>
+          ))
+        }
+        <li>
+          <a href="/goods/">
+            <strong>همهٔ کالاها</strong>
+            <span>فهرست کامل</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section--alt" aria-labelledby="faq-title">
+    <div class="container split split--wide">
+      <header class="stack reveal" style="--stack: 1rem">
+        <span class="eyebrow">پرسش‌های رایج</span>
+        <h2 id="faq-title">دربارهٔ ابزارها</h2>
+        <p class="lead">اگر ابزار پاسخ پروندهٔ شما را نمی‌دهد، شرح کالا را بفرستید تا مبنای محاسبه را روشن کنیم.</p>
+        <a class="btn btn--ghost" href="/contact/">ارسال شرح کالا</a>
+      </header>
+      <Faq items={faqs} />
+    </div>
+  </section>
+
+  <div class="container">
+    <ClusterNav
+      siblings={[
+        { href: '/goods/', label: 'واردات بر اساس کالا' },
+        { href: '/imports/', label: 'واردات بر اساس مبدأ' },
+        { href: '/customs/', label: 'گمرکات و بنادر' },
+        { href: '/guides/', label: 'همهٔ راهنماها' },
+      ]}
+    />
+  </div>
+
+  <CtaBand
+    title="برآورد دقیق، فقط با دیدن پرونده"
+    text="شرح کالا، کد تعرفهٔ پیشنهادی، ارزش سیاهه و مبدأ را بفرستید؛ اجزای هزینه، مجوزهای لازم و بازهٔ زمانی را برای همان پرونده مشخص می‌کنیم."
+  />
+</BaseLayout>
+
+<style>
+  .tool-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
+    gap: 1.25rem;
+    list-style: none;
+    margin: 1.5rem 0 0;
+    padding: 0;
+  }
+  .tool-card {
+    display: grid;
+    align-content: start;
+    gap: 0.6rem;
+    padding: clamp(1.4rem, 3vw, 1.9rem);
+    border: 1px solid var(--rule);
+    border-top: 4px solid var(--petrol-600);
+    border-radius: var(--radius-m);
+    background: var(--white);
+  }
+  .tool-card__tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: var(--step--1);
+    font-weight: 700;
+    color: var(--petrol-600);
+  }
+  .tool-card__tag :global(svg) {
+    inline-size: 1.05em;
+    block-size: 1.05em;
+  }
+  .tool-card h3 {
+    font-size: var(--step-1);
+  }
+  .tool-card h3 a {
+    color: var(--navy-900);
+    text-decoration-color: var(--petrol-300);
+    text-underline-offset: 4px;
+  }
+  .tool-card p {
+    margin: 0;
+    font-size: var(--step--1);
+    color: var(--slate-700);
+    line-height: 1.85;
+  }
+  .policy {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+    gap: 1.5rem;
+    margin: 1.5rem 0 0;
+  }
+  .policy__col {
+    padding: 1.4rem 1.5rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-m);
+    background: var(--white);
+  }
+  .policy__col h3 {
+    font-size: var(--step-0);
+    margin-bottom: 0.8rem;
+  }
+  .policy__col .checklist {
+    font-size: var(--step--1);
+    line-height: 1.9;
+  }
+  .checklist--no li::before {
+    background: var(--slate-700);
+  }
+  .policy__note {
+    margin: 1.25rem 0 0;
+    font-size: var(--step--1);
+    color: var(--text-muted);
+    line-height: 1.85;
+  }
+  .goods-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    list-style: none;
+    margin: 1.5rem 0 0;
+    padding: 0;
+  }
+  .goods-chips a {
+    display: grid;
+    gap: 0.1rem;
+    padding: 0.55rem 1rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-s);
+    background: var(--white);
+    text-decoration: none;
+  }
+  .goods-chips a:hover {
+    border-color: var(--petrol-300);
+  }
+  .goods-chips strong {
+    font-size: var(--step--1);
+    color: var(--navy-900);
+  }
+  .goods-chips span {
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 0.72rem;
+    color: var(--text-muted);
+  }
+</style>

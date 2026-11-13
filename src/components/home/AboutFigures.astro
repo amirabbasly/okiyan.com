@@ -1,14 +1,18 @@
 ---
 /**
- * «درباره ما» — the reference's composition with the copy pulled to the left.
+ * «از بندر تا انبار، مسیر کالا روشن باشد» — built to the reference photo.
  *
- * Desktop, RTL:  [ figures, stacked · far right ]  [ copy · centre ]  [ globe · left, cropped ]
- * The whole block is deliberately NOT centred: the grid is capped and pushed
- * toward the inline-end (visually left), and the globe spills past the band's
- * left edge, so the composition leans left the way the reference does.
+ * The band itself is white; a navy crescent panel sits on the RTL-left and one
+ * big arc is its right-hand edge. The globe is a real-geography dot sphere
+ * sitting inside that panel and cropped by it, so the sphere reads against
+ * white only through the arc, exactly like the photo.
  *
- * Phones: copy and globe stay in one row — copy on the right, globe on the
- * left — and the figures follow underneath, each on its own line.
+ * Geometry, measured off the reference (share of the band's width):
+ *   panel edge ~36% at the top, ~46% at mid, ~48% at the bottom
+ *   globe      ~46% wide, flush with the left edge
+ *   copy       49% → 78%
+ *   divider    ~78%
+ *   figures    79% → 96%
  *
  * Figures are the site's own verified numbers: ۲۰۰۰ محموله · ۵۰۰ میلیون یورو ·
  * ۱۵ سال سابقه (تأسیس ۱۳۹۳).
@@ -47,7 +51,13 @@ const spoken = (f: Figure) =>
 ---
 
 <section class="about-band" id="about" aria-labelledby="about-title">
-  <div class="container about-band__grid">
+  <div class="about-band__crescent" aria-hidden="true">
+    <div class="about-band__globe">
+      <GlobeArt class="about-band__globe-art" rotate={16} period={80} />
+    </div>
+  </div>
+
+  <div class="about-band__grid">
     <!-- figures — far right column, stacked -->
     <ul class="af-figs">
       {
@@ -82,11 +92,6 @@ const spoken = (f: Figure) =>
         <Icon name="arrow" class="btn__icon" />
       </a>
     </div>
-
-    <!-- globe — left column, animated and cropped by the band edge -->
-    <div class="af-art" aria-hidden="true">
-      <GlobeArt class="af-art__svg" />
-    </div>
   </div>
 </section>
 
@@ -98,36 +103,107 @@ const spoken = (f: Figure) =>
   .about-band {
     position: relative;
     isolation: isolate;
-    padding-block: clamp(1.8rem, 1.3rem + 2.4vw, 3rem);
-    color: var(--mist-100);
+    /* explicit layers: white band (0) → crescent (0) → globe (1) → content (2) */
+    overflow: hidden;
+    /* the section is white; only the crescent carries the navy */
+    background: var(--white);
+    border-block: 1px solid var(--rule);
+    padding-block: clamp(1.6rem, 1.1rem + 1.8vw, 2.4rem);
+  }
+
+  /* The panel's right edge is one big arc, measured off the reference: the
+     white band starts at ~36% of the width at the top, ~46% at mid and ~48%
+     at the bottom, which is an ellipse centred below the band. */
+  .about-band__crescent {
+    position: absolute;
+    inset: 0;
     background:
-      radial-gradient(46rem 26rem at 8% 6%, rgb(0 176 200 / 0.16), transparent 62%),
-      radial-gradient(38rem 26rem at 96% 96%, rgb(35 77 102 / 0.5), transparent 68%),
-      linear-gradient(118deg, #0e2136 0%, #14304a 52%, #0f2a42 100%);
+      radial-gradient(120% 120% at 8% 34%, #0b559c 0%, #073a6d 40%, #052547 72%, #04182e 100%);
+    clip-path: ellipse(24% 112% at 24% 100%);
+    z-index: 0;
+    /* the globe is a child, so the same arc trims it, exactly like the photo */
     overflow: hidden;
   }
 
+  .about-band__globe {
+    position: absolute;
+    left: -1%;
+    top: 50%;
+    translate: 0 -50%;
+    inline-size: 46%;
+    z-index: 1;
+    pointer-events: none;
+  }
+  .about-band__globe-art {
+    inline-size: 100%;
+    opacity: 0.95;
+  }
+
   .about-band__grid {
+    position: relative;
+    z-index: 2;
     display: grid;
-    /* RTL: figures · copy · globe */
-    grid-template-columns: minmax(0, 0.7fr) minmax(0, 1fr) minmax(0, 1.28fr);
-    gap: clamp(1rem, 0.6rem + 2.2vw, 2.5rem);
+    /* Measured off the reference (share of the band's width):
+       figures 78–100% · copy 49–78% · globe 0–48%.
+       In RTL grid column 1 is the right-hand edge, so the figures take 1,
+       the copy 2, and the wide 3 is the globe's empty track. */
+    grid-template-columns: 22% 29% 49%;
     align-items: center;
-    /* the block leans left: capped width, pushed to the inline-end edge
-       (inline-end is the visual left in RTL), so the empty space sits on the right */
-    max-inline-size: 64rem;
-    margin-inline-start: auto;
-    margin-inline-end: 0;
+    gap: clamp(1rem, 0.6rem + 2vw, 2.5rem);
+  }
+
+  /* ---------- copy ---------- */
+  .af-copy {
+    grid-column: 2;
+    display: grid;
+    justify-items: center;
+    gap: 0.5rem;
+    padding-inline: 0.5rem 1.25rem;
+    text-align: center;
+  }
+  .af-copy .eyebrow {
+    color: var(--accent);
+  }
+  .af-copy .eyebrow::before {
+    background: var(--aqua-500);
+  }
+  .af-copy__title {
+    margin: 0;
+    font-size: clamp(1.4rem, 1.12rem + 1.15vw, 1.95rem);
+    font-weight: 800;
+    color: var(--navy-900);
+    letter-spacing: -0.01em;
+    line-height: 1.4;
+    text-wrap: balance;
+  }
+  .af-copy__lead {
+    margin: 0;
+    max-inline-size: 46ch;
+    font-size: clamp(0.8rem, 0.76rem + 0.16vw, 0.88rem);
+    line-height: 1.85;
+    color: var(--slate-600);
+  }
+  .af-copy__cta {
+    margin-top: 0.25rem;
+    border-radius: 999px;
+    border-color: var(--navy-900);
+    color: var(--navy-900);
+  }
+  .af-copy__cta:hover {
+    background: var(--navy-900);
+    color: var(--white);
   }
 
   /* ---------- figures: vertical stack, far right ---------- */
   .af-figs {
+    grid-column: 1;
     display: grid;
     gap: clamp(0.8rem, 0.6rem + 0.7vw, 1.25rem);
     margin: 0;
     padding: 0;
-    padding-inline-end: clamp(0.9rem, 0.5rem + 1.2vw, 1.5rem);
-    border-inline-end: 1px solid rgb(143 180 201 / 0.22);
+    /* in RTL `inline-end` is the left side, where the divider belongs */
+    padding-inline: var(--gutter) clamp(1rem, 0.6rem + 1.4vw, 2rem);
+    border-inline-end: 1px solid var(--rule);
     list-style: none;
   }
   .af-fig {
@@ -142,7 +218,7 @@ const spoken = (f: Figure) =>
     place-items: center;
     inline-size: 2.1rem;
     block-size: 2.1rem;
-    color: var(--aqua-300);
+    color: var(--accent);
   }
   .af-fig__icon :global(svg) {
     inline-size: 1.45rem;
@@ -157,7 +233,7 @@ const spoken = (f: Figure) =>
     display: flex;
     align-items: baseline;
     gap: 0.12rem;
-    color: var(--white);
+    color: var(--navy-950);
     white-space: nowrap;
   }
   .af-fig__num {
@@ -169,146 +245,130 @@ const spoken = (f: Figure) =>
   .af-fig__plus {
     font-size: 1rem;
     font-weight: 800;
-    color: var(--aqua-300);
+    color: var(--aqua-600);
   }
   .af-fig__unit {
     font-size: clamp(0.78rem, 0.72rem + 0.2vw, 0.9rem);
     font-weight: 700;
-    color: rgb(232 236 238 / 0.92);
+    color: var(--navy-800);
   }
   .af-fig__label {
-    font-size: 0.72rem;
+    font-size: 0.74rem;
     line-height: 1.55;
-    color: rgb(232 236 238 / 0.66);
+    color: var(--slate-600);
   }
 
-  /* ---------- copy ---------- */
-  .af-copy {
-    display: grid;
-    gap: 0.6rem;
-    justify-items: center;
-    text-align: center;
-  }
-  .af-copy .eyebrow {
-    color: var(--aqua-300);
-  }
-  .af-copy .eyebrow::before {
-    background: var(--aqua-500);
-  }
-  .af-copy__title {
-    margin: 0;
-    font-size: clamp(1.45rem, 1.15rem + 1.35vw, 2.1rem);
-    font-weight: 800;
-    color: var(--white);
-    letter-spacing: -0.01em;
-    line-height: 1.4;
-    text-wrap: balance;
-  }
-  .af-copy__lead {
-    margin: 0;
-    max-inline-size: 42ch;
-    font-size: clamp(0.82rem, 0.78rem + 0.18vw, 0.92rem);
-    line-height: 1.95;
-    color: rgb(232 236 238 / 0.78);
-  }
-  .af-copy__cta {
-    margin-top: 0.25rem;
-    border-radius: 999px;
-    border-color: rgb(232 236 238 / 0.42);
-    color: var(--white);
-  }
-  .af-copy__cta:hover {
-    background: var(--white);
-    color: var(--navy-950);
-    border-color: var(--white);
-  }
-
-  /* ---------- globe ---------- */
-  .af-art {
-    position: relative;
-    min-inline-size: 0;
-    /* spill past the band's left edge so the sphere is cropped, as in the reference */
-    margin-inline-end: clamp(-4rem, -3vw, -1rem);
-  }
-  .af-art__svg {
-    display: block;
-    inline-size: 118%;
-    max-inline-size: none;
-    block-size: auto;
-    margin-inline-end: -18%;
-    filter: drop-shadow(0 18px 42px rgb(0 176 200 / 0.22));
-  }
-
-  /* ---------- tablet: copy and globe keep their row, figures below ---------- */
+  /* ---------- tablet: copy above, figures in a row ---------- */
   @media (max-width: 1024px) {
+    /* the figures strip carries its own white bed, so it takes the band's
+       bottom padding — otherwise a sliver of navy shows underneath it */
+    .about-band {
+      padding-block-end: 0;
+    }
+    .about-band__crescent {
+      clip-path: ellipse(38% 120% at 6% 100%);
+    }
+    .about-band__globe {
+      inline-size: 36%;
+      left: 0;
+      top: 38%;
+    }
     .about-band__grid {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 0.72fr);
+      grid-template-columns: 1fr;
       grid-template-areas:
-        'copy art'
-        'figs figs';
-      gap: 1.1rem 1rem;
-      max-inline-size: 46rem;
-      /* centred again on narrow screens: there is no room to lean */
-      margin-inline: auto;
-      align-items: center;
+        'copy'
+        'figs';
+      gap: 1.4rem;
     }
     .af-copy {
       grid-area: copy;
-      justify-items: start;
+      grid-column: auto;
+      /* the copy sits in the white right-hand side, clear of the arc.
+         In RTL `inline-end` is the left side, so the auto margin goes there. */
+      margin-inline: 0 auto;
+      max-inline-size: min(30rem, 54%);
+      padding-inline: var(--gutter);
       text-align: start;
-    }
-    .af-art {
-      grid-area: art;
-      margin-inline-end: clamp(-3rem, -4vw, -1rem);
-    }
-    .af-art__svg {
-      inline-size: 132%;
-      margin-inline-end: -32%;
+      justify-items: start;
     }
     .af-figs {
       grid-area: figs;
-      grid-template-columns: 1fr;
-      gap: 0.9rem;
-      padding-inline-end: 0;
-      padding-block-start: 1.1rem;
+      grid-column: auto;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1rem;
+      padding-inline: var(--gutter);
+      padding-block: 1.1rem 1.5rem;
+      /* the row crosses the arc, so it carries its own white bed */
+      background: var(--white);
       border-inline-end: 0;
-      border-block-start: 1px solid rgb(143 180 201 / 0.22);
+      border-block-start: 1px solid var(--rule);
+    }
+    .af-fig {
+      grid-template-columns: 1fr;
+      justify-items: center;
+      text-align: center;
+      gap: 0.35rem;
+    }
+    .af-fig__value {
+      justify-content: center;
     }
   }
 
-  /* ---------- phone: same row, tighter ---------- */
-  @media (max-width: 620px) {
+  /* ---------- phone: copy on the right, globe on the left, figures below ---------- */
+  @media (max-width: 640px) {
     .about-band {
-      padding-block: 1.4rem;
+      padding-block: 1.5rem 0;
+    }
+    .about-band__crescent {
+      /* same arc, scaled down: the panel edge runs 28% → 38% → 41% */
+      clip-path: ellipse(38% 132% at 3% 100%);
+    }
+    .about-band__globe {
+      /* sphere ≈ 0.81 × the box, so 14rem leaves ~180 px of globe on screen */
+      inline-size: 14rem;
+      left: -4rem;
+      top: 41%;
     }
     .about-band__grid {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 0.62fr);
-      gap: 0.75rem 0.5rem;
+      grid-template-columns: 1fr;
+      grid-template-areas:
+        'copy'
+        'figs';
+      gap: 1.2rem;
+    }
+    .af-copy {
+      max-inline-size: none;
+      /* inline-end is the left side in RTL: keep the text off the globe */
+      padding-inline: var(--gutter) 9.4rem;
+      text-align: start;
+      justify-items: start;
     }
     .af-copy__title {
-      font-size: 1.18rem;
-      line-height: 1.5;
+      font-size: 1.1rem;
+      line-height: 1.55;
     }
     .af-copy__lead {
       font-size: 0.78rem;
-      line-height: 1.85;
+      line-height: 1.8;
     }
     .af-copy__cta {
       font-size: 0.78rem;
-      padding: 0.5rem 0.9rem;
+      padding: 0.5rem 1rem;
     }
-    .af-art__svg {
-      inline-size: 150%;
-      margin-inline-end: -50%;
+    .af-figs {
+      grid-template-columns: 1fr;
+      gap: 0.8rem;
+      padding-inline: var(--gutter);
+      padding-block: 1rem 1.4rem;
     }
     .af-fig {
-      gap: 0.5rem;
+      grid-template-columns: auto minmax(0, 1fr);
+      justify-items: start;
+      text-align: start;
+      gap: 0.6rem;
     }
-    .af-fig__num {
-      font-size: 1.15rem;
-    }
-    .af-fig__label {
-      font-size: 0.7rem;
+    .af-fig__value {
+      justify-content: start;
     }
   }
 </style>

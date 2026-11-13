@@ -162,6 +162,13 @@ const { slides } = Astro.props;
     position: absolute;
     inset: 0;
     overflow: hidden;
+    /* Pinned to the slider's own colours: the site-wide palette changed in
+       round 25, the hero must look exactly as it did before. */
+    --navy-950: #0d1a2c;
+    --navy-900: #162c47;
+    --navy-800: #1d3a5a;
+    --petrol-600: #234d66;
+    --petrol-500: #2e6282;
     background: var(--navy-950);
   }
   .hero-slider__list {

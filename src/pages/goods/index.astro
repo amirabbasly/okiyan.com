@@ -1,0 +1,280 @@
+---
+/**
+ * Commodity hub — the transactional layer of the import cluster.
+ *
+ * /imports/ answers «from where», /goods/ answers «what». Both hubs point at the
+ * same guides and customs offices, so a visitor can enter from either intent and
+ * still reach the commercial pages without going through the header menu.
+ */
+import { getCollection } from 'astro:content';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import PageHero from '~/components/layout/PageHero.astro';
+import CtaBand from '~/components/ui/CtaBand.astro';
+import Icon from '~/components/ui/Icon.astro';
+import AnswerBlock from '~/components/ui/AnswerBlock.astro';
+import { breadcrumbLd, itemListLd } from '~/lib/schema';
+import { toFa } from '~/lib/format';
+
+const goods = (await getCollection('goods')).sort((a, b) => a.data.order - b.data.order);
+const origins = (await getCollection('origins')).sort((a, b) => a.data.order - b.data.order);
+
+const crumbs = [
+  { name: 'خانه', path: '/' },
+  { name: 'واردات بر اساس کالا', path: '/goods/' },
+];
+
+const answer = `واردات هر کالا، سه پرسش جدا دارد که پاسخشان به هم ربطی ندارد: کد تعرفهٔ کالا که ماخذ حقوق ورودی را تعیین می‌کند، مجوز دستگاهی که اجازهٔ ثبت سفارش و ورود می‌دهد، و مسیر حمل که هزینه و زمان را می‌سازد. اوکیان برای ${toFa(goods.length)} گروه کالایی پرتکرار، این سه پرسش را جدا نوشته است تا پیش از خرید روشن شود کدام مجوز لازم است و پرونده از کدام گمرک وارد می‌شود.`;
+---
+
+<BaseLayout
+  title="واردات بر اساس کالا: تعرفه و مجوز هر گروه"
+  description="راهنمای عملی واردات و ترخیص کالاهای هدف: کد تعرفه، مجوزهای دستگاهی، مبدأهای رایج، گمرک مقصد و عواملی که هزینه و زمان پرونده را تعیین می‌کند."
+  jsonLd={
+    [
+      breadcrumbLd(crumbs, Astro.site),
+      itemListLd(
+        {
+          name: 'واردات بر اساس کالا',
+          path: '/goods/',
+          items: goods.map((g) => ({ name: g.data.title, path: `/goods/${g.id}/` })),
+        },
+        Astro.site,
+      ),
+    ].filter((x) => x !== null)
+  }
+>
+  <PageHero
+    eyebrow="کالاها"
+    title="واردات و ترخیص کالا، گروه به گروه"
+    lead="هر کالا قواعد خودش را دارد: تعرفهٔ متفاوت، مجوز متفاوت و دام متفاوت. این صفحات برای همین نوشته شده‌اند — تا پیش از خرید بدانید پروندهٔ شما به کدام مجوز و کدام گمرک می‌خورد."
+    crumbs={crumbs}
+  >
+    <div class="hero-actions">
+      <a class="btn" href="/contact/">
+        استعلام قیمت
+        <Icon name="arrow" class="btn__icon" />
+      </a>
+      <a class="btn btn--ghost" href="/hs-code/">پیدا کردن کد تعرفه</a>
+    </div>
+  </PageHero>
+
+  <AnswerBlock text={answer} />
+
+  <section class="section" aria-labelledby="goods-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="eyebrow">کالاهای هدف</span>
+        <h2 id="goods-title">کالای شما در کدام گروه است؟</h2>
+        <p class="lead">
+          برای هر گروه، سرفصل‌های تعرفه، مجوزهای دستگاهی و عوامل هزینه جدا نوشته شده است. اگر کالای شما در این فهرست نیست،
+          <a href="/contact/">شرح کالا را بفرستید</a> تا گروه تعرفه‌ای و مجوزهایش را مشخص کنیم.
+        </p>
+      </header>
+      <ul class="goods-grid">
+        {
+          goods.map((g) => (
+            <li class="goods-card reveal">
+              <span class="goods-card__product">{g.data.product}</span>
+              <h3>
+                <a href={`/goods/${g.id}/`}>{g.data.navTitle}</a>
+              </h3>
+              <p>{g.data.description}</p>
+              {g.data.hs.length > 0 && (
+                <ul class="goods-card__hs">
+                  {g.data.hs.slice(0, 3).map((h) => (
+                    <li>
+                      <code dir="ltr">{h.code}</code>
+                      <span>{h.label}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section--alt" aria-labelledby="tools-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="eyebrow">ابزارها</span>
+        <h2 id="tools-title">سه چیزی که پیش از خرید باید قطعی شود</h2>
+      </header>
+      <ol class="tool-steps">
+        <li>
+          <h3>
+            <a href="/hs-code/">کد تعرفهٔ کالا</a>
+          </h3>
+          <p>
+            تا کد تعرفه قطعی نشود، نه ماخذ حقوق ورودی معلوم است و نه مجوزهای لازم. جدول فصل‌های HS و قواعد طبقه‌بندی را
+            ببینید.
+          </p>
+        </li>
+        <li>
+          <h3>
+            <a href="/official-sources/">مجوز دستگاهی و مرجع استعلام</a>
+          </h3>
+          <p>
+            بعضی کالاها پیش از ثبت سفارش به مجوز بهداشت، استاندارد، تجهیزات پزشکی یا مخابرات نیاز دارند. فهرست سامانه‌های
+            رسمی هر مجوز یک‌جا جمع شده است.
+          </p>
+        </li>
+        <li>
+          <h3>
+            <a href="/customs-exchange-rate/">نرخ ارز مبنای محاسبه</a>
+          </h3>
+          <p>
+            ارزش گمرکی با نرخ ارز روز اظهار محاسبه می‌شود، نه با نرخی که هنگام خرید دیده‌اید. قاعدهٔ محاسبه و مرجع اعلام نرخ
+            را ببینید.
+          </p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="origin-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="eyebrow">مبدأ</span>
+        <h2 id="origin-title">همان کالا از کدام کشور می‌آید؟</h2>
+        <p class="lead">مسیر حمل و ریسک اسناد به مبدأ بستگی دارد؛ صفحهٔ هر مبدأ جدا نوشته شده است.</p>
+      </header>
+      <ul class="ports-list">
+        {
+          origins.map((o) => (
+            <li>
+              <a href={`/imports/${o.id}/`}>{o.data.navTitle}</a>
+            </li>
+          ))
+        }
+        <li>
+          <a href="/imports/">همهٔ مبدأها</a>
+        </li>
+        <li>
+          <a href="/customs/">گمرکات و بنادر</a>
+        </li>
+        <li>
+          <a href="/guides/">راهنماهای تخصصی</a>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <CtaBand
+    title="کالای خود را مشخص کرده‌اید؟"
+    text="شرح کالا، کد تعرفهٔ پیشنهادی فروشنده و مبدأ را بفرستید تا مجوزهای لازم، مسیر حمل و اجزای هزینهٔ همان پرونده را پیش از ثبت سفارش روشن کنیم."
+  />
+</BaseLayout>
+
+<style>
+  .goods-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 21rem), 1fr));
+    gap: 1.25rem;
+    list-style: none;
+    margin: 1.5rem 0 0;
+    padding: 0;
+  }
+  .goods-card {
+    display: grid;
+    align-content: start;
+    gap: 0.6rem;
+    padding: clamp(1.4rem, 3vw, 1.9rem);
+    border: 1px solid var(--rule);
+    border-top: 4px solid var(--petrol-600);
+    border-radius: var(--radius-m);
+    background: var(--white);
+  }
+  .goods-card__product {
+    font-size: var(--step--1);
+    font-weight: 700;
+    color: var(--petrol-600);
+  }
+  .goods-card h3 {
+    font-size: var(--step-1);
+  }
+  .goods-card h3 a {
+    color: var(--navy-900);
+    text-decoration-color: var(--petrol-300);
+    text-underline-offset: 4px;
+  }
+  .goods-card p {
+    margin: 0;
+    color: var(--slate-700);
+    line-height: 1.85;
+    font-size: var(--step--1);
+  }
+  .goods-card__hs {
+    list-style: none;
+    margin: 0.4rem 0 0;
+    padding: 0.75rem 0 0;
+    border-top: 1px dashed var(--rule-strong);
+    display: grid;
+    gap: 0.4rem;
+  }
+  .goods-card__hs li {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.5rem;
+    align-items: baseline;
+    font-size: 0.8rem;
+  }
+  .goods-card__hs code {
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-weight: 700;
+    color: var(--navy-800);
+    background: var(--mist-100);
+    border-radius: 4px;
+    padding: 0.05rem 0.35rem;
+  }
+  .goods-card__hs span {
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+  .tool-steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+    gap: 1.5rem;
+    list-style: none;
+    margin: 1.5rem 0 0;
+    padding: 0;
+  }
+  .tool-steps li {
+    padding-top: 1.1rem;
+    border-top: 2px solid var(--navy-900);
+  }
+  .tool-steps h3 {
+    font-size: var(--step-1);
+    margin-bottom: 0.5rem;
+  }
+  .tool-steps p {
+    margin: 0;
+    color: var(--slate-700);
+    line-height: 1.85;
+  }
+  .ports-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin: 1.25rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .ports-list a {
+    display: inline-block;
+    padding: 0.45rem 1rem;
+    font-weight: 700;
+    font-size: var(--step--1);
+    color: var(--navy-800);
+    background: var(--white);
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    text-decoration: none;
+  }
+  .ports-list a:hover {
+    border-color: var(--petrol-300);
+    color: var(--petrol-600);
+  }
+</style>

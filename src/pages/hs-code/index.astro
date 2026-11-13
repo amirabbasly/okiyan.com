@@ -1,0 +1,633 @@
+---
+/**
+ * /hs-code/ — tariff-heading reference.
+ *
+ * Commercial intent: someone who needs a code before they can get a licence or a
+ * duty rate. The table is rendered server-side (fully crawlable); the browser
+ * script only filters what is already there, so the page works without JS.
+ *
+ * What this page never prints: an 8-digit national tariff line, a duty percentage
+ * or a price. Those live in the yearly book of export–import regulations and are
+ * published by the authorities — see /official-sources/.
+ */
+import { getCollection } from 'astro:content';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import PageHero from '~/components/layout/PageHero.astro';
+import CtaBand from '~/components/ui/CtaBand.astro';
+import AnswerBlock from '~/components/ui/AnswerBlock.astro';
+import Faq from '~/components/ui/Faq.astro';
+import Icon from '~/components/ui/Icon.astro';
+import ClusterNav from '~/components/ui/ClusterNav.astro';
+import { breadcrumbLd, faqLd, itemListLd } from '~/lib/schema';
+import { hsSections, hsChapters, girRules } from '~/data/hs';
+import { toFa } from '~/lib/format';
+
+const goods = (await getCollection('goods')).sort((a, b) => a.data.order - b.data.order);
+const path = '/hs-code/';
+const crumbs = [
+  { name: 'خانه', path: '/' },
+  { name: 'ابزارها', path: '/tools/' },
+  { name: 'کد تعرفه (HS)', path },
+];
+
+const answer =
+  'کد تعرفه یا HS، کد بین‌المللی طبقه‌بندی کالا است که ساختار آن را سازمان جهانی گمرک تعیین می‌کند: شش رقم اول در همهٔ کشورها یکسان است و رقم‌های بعدی، توسعهٔ ملی همان کشور است. در ایران کد ملی هشت رقمی است و ماخذ حقوق ورودی هر کد، هر سال در کتاب مقررات صادرات و واردات منتشر می‌شود. جدول زیر، ۲۱ بخش و فصل‌های نظام هماهنگ را با سرفصل‌های پرکاربرد واردات نشان می‌دهد.';
+
+const faqs = [
+  {
+    q: 'کد تعرفه (HS) چیست و چه کسی آن را تعیین می‌کند؟',
+    a: 'نظام هماهنگ (Harmonized System) یک نامگذاری بین‌المللی برای طبقه‌بندی کالا است که سازمان جهانی گمرک آن را نگه‌داری می‌کند. شش رقم اول کد در همهٔ کشورهای عضو یکسان است؛ رقم‌های هفتم و هشتم توسعهٔ ملی‌اند و هر کشور آن‌ها را تعیین می‌کند.',
+  },
+  {
+    q: 'ساختار یک کد هشت‌رقمی چطور خوانده می‌شود؟',
+    a: 'دو رقم اول، فصل کالا است؛ چهار رقم اول، سرفصل؛ شش رقم اول، زیربخش بین‌المللی؛ و هشت رقم، کد ملی. هرچه به سمت راست می‌رویم، وصف کالا دقیق‌تر می‌شود. برای مثال در ۱۰۰۶.۳۰، فصل ۱۰ غلات است، سرفصل ۱۰۰۶ برنج و زیربخش ۳۰ برنج نیمه‌سفید یا سفیدشده.',
+  },
+  {
+    q: 'ماخذ حقوق ورودی را از کجا پیدا کنم؟',
+    a: 'ماخذ هر کد ملی، هر سال در کتاب مقررات صادرات و واردات منتشر می‌شود که مرجع رسمی آن، وزارت صنعت، معدن و تجارت است. این صفحه عمداً هیچ ماخذی را چاپ نمی‌کند، چون عدد چاپ‌شده در یک صفحهٔ ایستا می‌تواند با اصلاحیهٔ همان سال از اعتبار بیفتد.',
+  },
+  {
+    q: 'اگر کالای من در دو سرفصل جا بگیرد چه؟',
+    a: 'قواعد عمومی تفسیر نظام هماهنگ، همین حالت را حل می‌کند: نخست وصف خاص‌تر، سپس ماهیت اساسی کالا، و در نهایت سرفصلی که در ترتیب عددی آخرین است. در عمل، وقتی دو سرفصل محتمل است، بهتر است نظر کارشناسی گمرک یا یک اظهارکنندهٔ رسمی گرفته شود.',
+  },
+  {
+    q: 'کد تعرفه را فروشنده می‌دهد یا خریدار؟',
+    a: 'معمولاً فروشنده یک کد پیشنهادی می‌دهد، ولی مسئولیت طبقه‌بندی در اظهارنامه با اظهارکننده است. اگر کد پیشنهادی فروشنده با طبقه‌بندی گمرک بخواند، پرونده روان می‌رود؛ اگر نخواند، اصلاح اظهارنامه هم هزینه دارد و هم زمان.',
+  },
+  {
+    q: 'کد اشتباه چه عواقبی دارد؟',
+    a: 'دست‌کم سه اثر دارد: محاسبهٔ نادرست حقوق ورودی، نبود یا اشتباه بودن مجوز دستگاهی، و احتمال طرح موضوع تخلف در اظهار. اگر پیش از اظهار متوجه اشتباه شدید، اصلاح آن ساده است؛ پس از ارزیابی کالا، ساده نیست.',
+  },
+];
+---
+
+<BaseLayout
+  title="کد تعرفه (HS): جدول فصل‌ها و قواعد طبقه‌بندی کالا"
+  description="جدول ۲۱ بخش و فصل‌های نظام هماهنگ (HS) با سرفصل‌های پرکاربرد واردات، ساختار کد هشت‌رقمی و قواعد عمومی تفسیر؛ به همراه مرجع استعلام ماخذ حقوق ورودی."
+  jsonLd={
+    [
+      breadcrumbLd(crumbs, Astro.site),
+      itemListLd(
+        {
+          name: 'صفحات کالا بر پایهٔ کد تعرفه',
+          path,
+          items: goods.map((g) => ({ name: g.data.navTitle, path: `/goods/${g.id}/` })),
+        },
+        Astro.site,
+      ),
+      faqLd(faqs, path, Astro.site),
+    ].filter((x) => x !== null)
+  }
+>
+  <PageHero
+    eyebrow="ابزار مرجع"
+    title="کد تعرفهٔ کالا (HS)"
+    lead="پیش از آنکه ماخذ حقوق ورودی یا مجوز دستگاهی معنا داشته باشد، کد کالا باید قطعی شود. این صفحه، ساختار نظام هماهنگ، فصل‌ها و قواعد طبقه‌بندی را یک‌جا دارد."
+    crumbs={crumbs}
+  >
+    <div class="hero-actions">
+      <a class="btn" href="#chapters">
+        جدول فصل‌ها
+        <Icon name="arrow" class="btn__icon" />
+      </a>
+      <a class="btn btn--ghost" href="/goods/">صفحات کالا</a>
+    </div>
+  </PageHero>
+
+  <AnswerBlock text={answer} />
+
+  <section class="section" aria-labelledby="structure-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="eyebrow">ساختار</span>
+        <h2 id="structure-title">یک کد هشت‌رقمی چطور خوانده می‌شود</h2>
+        <p class="lead">
+          چهار رقم اول تا شش رقم اول، بین‌المللی است و در همهٔ کشورهای عضو یکسان. دو رقم آخر، توسعهٔ ملی است و فقط در کتاب
+          مقررات همان کشور معنا دارد.
+        </p>
+      </header>
+      <ol class="anatomy">
+        <li>
+          <span class="anatomy__n">۱–۲</span>
+          <h3>فصل</h3>
+          <p>گروه بزرگ کالا؛ مثلاً فصل ۱۰ غلات و فصل ۸۵ تجهیزات الکتریکی.</p>
+        </li>
+        <li>
+          <span class="anatomy__n">۱–۴</span>
+          <h3>سرفصل</h3>
+          <p>وصف حقوقی کالا؛ مثلاً ۱۰۰۶ برنج یا ۸۵۱۷ تجهیزات ارتباطی.</p>
+        </li>
+        <li>
+          <span class="anatomy__n">۱–۶</span>
+          <h3>زیربخش بین‌المللی</h3>
+          <p>تفکیک دقیق‌تر که در همهٔ کشورها یکسان است؛ مثلاً ۱۰۰۶.۳۰ برنج سفیدشده.</p>
+        </li>
+        <li>
+          <span class="anatomy__n">۱–۸</span>
+          <h3>کد ملی</h3>
+          <p>توسعهٔ ملی کشور مقصد. ماخذ حقوق ورودی به همین رقم گره خورده است.</p>
+        </li>
+      </ol>
+      <div class="notice">
+        <Icon name="info" />
+        <p>
+          <strong>این صفحه ماخذ حقوق ورودی چاپ نمی‌کند.</strong> ماخذ هر کد ملی با اصلاحیهٔ سالانهٔ کتاب مقررات صادرات و
+          واردات تغییر می‌کند و عدد چاپ‌شده در یک صفحهٔ ایستا، خیلی زود از اعتبار می‌افتد. مرجع استعلام در
+          <a href="/official-sources/">فهرست سامانه‌های رسمی</a> آمده است و مبنای محاسبهٔ ارزش کالا در
+          <a href="/customs-exchange-rate/">نرخ ارز گمرکی</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt" id="chapters" aria-labelledby="chapters-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="eyebrow">جدول مرجع</span>
+        <h2 id="chapters-title">{toFa(hsChapters.length)} فصل نظام هماهنگ</h2>
+        <p class="lead">
+          نام فصل یا سرفصل مورد نظر را بنویسید تا جدول فیلتر شود. سرفصل‌های پرکاربرد واردات، زیر هر فصل باز شده‌اند و صفحهٔ
+          کالای مرتبط، همان‌جا لینک شده است.
+        </p>
+      </header>
+
+      <div class="hs-filter" data-hs-filter>
+        <label for="hs-q" class="sr-only">جست‌وجو در فصل‌ها و سرفصل‌ها</label>
+        <input id="hs-q" type="search" placeholder="مثلاً برنج، ۸۵۱۷، ژنراتور یا منسوجات…" autocomplete="off" data-hs-input />
+        <p class="hs-filter__count" data-hs-count aria-live="polite">
+          همهٔ {toFa(hsChapters.length)} فصل نمایش داده می‌شود.
+        </p>
+      </div>
+
+      <div class="hs-table-wrap">
+        <table class="hs-table">
+          <caption class="sr-only">بخش‌ها و فصل‌های نظام هماهنگ با سرفصل‌های پرکاربرد واردات</caption>
+          <thead>
+            <tr>
+              <th scope="col">بخش</th>
+              <th scope="col">فصل</th>
+              <th scope="col">عنوان فصل</th>
+              <th scope="col">سرفصل‌های پرکاربرد</th>
+            </tr>
+          </thead>
+          <tbody data-hs-body>
+            {
+              hsChapters.map((c) => {
+                const section = hsSections.find((s) => Number(c.code) >= s.range[0] && Number(c.code) <= s.range[1]);
+                const goodsPage = goods.find((g) => g.id === c.goods);
+                return (
+                  <tr data-hs-row data-text={`${c.code} ${c.title} ${(c.headings ?? []).map((h) => `${h.code} ${h.label}`).join(' ')}`}>
+                    <td class="hs-table__section">
+                      {section ? (
+                        <>
+                          <span class="hs-table__rn">{section.n}</span>
+                          <span class="hs-table__st">{section.title}</span>
+                        </>
+                      ) : (
+                        '—'
+                      )}
+                    </td>
+                    <td class="hs-table__code">
+                      <code dir="ltr">{c.code}</code>
+                    </td>
+                    <td>
+                      {c.title}
+                      {goodsPage && (
+                        <a class="hs-table__link" href={`/goods/${goodsPage.id}/`}>
+                          {goodsPage.data.navTitle}
+                          <Icon name="arrow" />
+                        </a>
+                      )}
+                    </td>
+                    <td>
+                      {c.headings && c.headings.length > 0 ? (
+                        <ul class="hs-headings">
+                          {c.headings.map((h) => (
+                            <li>
+                              <code dir="ltr">{h.code}</code>
+                              <span>{h.label}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <span class="hs-table__muted">—</span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })
+            }
+          </tbody>
+        </table>
+      </div>
+      <p class="hs-empty" data-hs-empty hidden>موردی با این عبارت پیدا نشد. عبارت کوتاه‌تر یا نام فصل را امتحان کنید.</p>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="gir-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="eyebrow">قواعد عمومی تفسیر</span>
+        <h2 id="gir-title">وقتی یک کالا در دو سرفصل جا می‌گیرد</h2>
+        <p class="lead">
+          شش قاعدهٔ عمومی تفسیر، ترتیب تصمیم را مشخص می‌کند. بیشتر اختلاف‌های طبقه‌بندی، از ندانستن همین ترتیب شروع می‌شود.
+        </p>
+      </header>
+      <ol class="gir">
+        {
+          girRules.map((r) => (
+            <li class="reveal">
+              <span class="gir__n">{r.n}</span>
+              <h3>{r.title}</h3>
+              <p>{r.text}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="section section--alt" aria-labelledby="goods-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="eyebrow">صفحات کالا</span>
+        <h2 id="goods-title">کد را پیدا کردید؟ حالا مجوزها را ببینید</h2>
+        <p class="lead">
+          برای هر گروه کالایی، سرفصل‌های مرتبط، مجوزهای دستگاهی و عوامل هزینه را جدا نوشته‌ایم.
+        </p>
+      </header>
+      <ul class="goods-chips">
+        {
+          goods.map((g) => (
+            <li>
+              <a href={`/goods/${g.id}/`}>
+                <strong>{g.data.product}</strong>
+                <span>{g.data.hs.slice(0, 2).map((h) => h.code).join(' · ')}</span>
+              </a>
+            </li>
+          ))
+        }
+        <li>
+          <a href="/goods/">
+            <strong>همهٔ کالاها</strong>
+            <span>فهرست کامل</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="faq-title">
+    <div class="container split split--wide">
+      <header class="stack reveal" style="--stack: 1rem">
+        <span class="eyebrow">پرسش‌های رایج</span>
+        <h2 id="faq-title">دربارهٔ کد تعرفه</h2>
+        <p class="lead">اگر کد کالای شما روشن نشد، شرح کالا را بفرستید تا گروه تعرفه‌ای آن را مشخص کنیم.</p>
+        <a class="btn btn--ghost" href="/contact/">ارسال شرح کالا</a>
+      </header>
+      <Faq items={faqs} />
+    </div>
+  </section>
+
+  <div class="container">
+    <ClusterNav
+      siblings={[
+        { href: '/customs-exchange-rate/', label: 'نرخ ارز گمرکی و ارزش کالا' },
+        { href: '/price-calculator/', label: 'ماشین‌حساب هزینهٔ ترخیص' },
+        { href: '/official-sources/', label: 'فهرست سامانه‌های رسمی' },
+        ...goods.slice(0, 4).map((g) => ({ href: `/goods/${g.id}/`, label: g.data.navTitle })),
+      ]}
+    />
+
+    <section class="sources" aria-labelledby="sources-title">
+      <h2 id="sources-title">منابع و مراجع</h2>
+      <ol>
+        <li>
+          <a href="https://www.wcoomd.org/" rel="noopener" target="_blank">
+            سازمان جهانی گمرک
+            <Icon name="external" /><span class="sr-only">(در پنجرهٔ جدید)</span>
+          </a>
+          <span class="muted"> — WCO</span>
+          <p class="muted">ساختار نظام هماهنگ و متن قواعد عمومی تفسیر.</p>
+        </li>
+        <li>
+          <a href="https://www.ntsw.ir/" rel="noopener" target="_blank">
+            سامانه جامع تجارت
+            <Icon name="external" /><span class="sr-only">(در پنجرهٔ جدید)</span>
+          </a>
+          <span class="muted"> — وزارت صنعت، معدن و تجارت</span>
+          <p class="muted">کتاب مقررات صادرات و واردات، ثبت سفارش و استعلام گروه کالایی.</p>
+        </li>
+        <li>
+          <a href="https://www.irica.ir/" rel="noopener" target="_blank">
+            گمرک جمهوری اسلامی ایران
+            <Icon name="external" /><span class="sr-only">(در پنجرهٔ جدید)</span>
+          </a>
+          <span class="muted"> — گمرک ج.ا.ا.</span>
+          <p class="muted">رویهٔ اظهار، طبقه‌بندی و نظر کارشناسی.</p>
+        </li>
+      </ol>
+    </section>
+  </div>
+
+  <CtaBand
+    title="کد تعرفهٔ کالای شما روشن نیست؟"
+    text="شرح کالا، برگهٔ فنی یا کد پیشنهادی فروشنده را بفرستید؛ گروه تعرفه‌ای، مجوزهای دستگاهی و مسیر اظهار را پیش از خرید بررسی می‌کنیم."
+  />
+</BaseLayout>
+
+<script>
+  /**
+   * Filter the server-rendered chapter table. No data is fetched: the rows are
+   * already in the HTML, so the page is complete without JavaScript and this
+   * only hides rows. Persian/Latin digits are normalised before matching.
+   */
+  const FA = '۰۱۲۳۴۵۶۷۸۹';
+  const AR = '٠١٢٣٤٥٦٧٨٩';
+  const toLatin = (s: string) =>
+    s
+      .replace(/[۰-۹]/g, (d) => String(FA.indexOf(d)))
+      .replace(/[٠-٩]/g, (d) => String(AR.indexOf(d)))
+      .replace(/\u200c/g, ' ')
+      .replace(/\u0643/g, 'ک')
+      .replace(/\u064a/g, 'ی')
+      .toLowerCase()
+      .trim();
+
+  const root = document.querySelector<HTMLElement>('[data-hs-filter]');
+  const body = document.querySelector<HTMLElement>('[data-hs-body]');
+  if (root && body) {
+    const input = root.querySelector<HTMLInputElement>('[data-hs-input]');
+    const count = root.querySelector<HTMLElement>('[data-hs-count]');
+    const empty = document.querySelector<HTMLElement>('[data-hs-empty]');
+    const rows = Array.from(body.querySelectorAll<HTMLElement>('[data-hs-row]'));
+    const fmt = new Intl.NumberFormat('fa-IR');
+
+    input?.addEventListener('input', () => {
+      const q = toLatin(input.value);
+      let shown = 0;
+      for (const row of rows) {
+        const hit = !q || toLatin(row.dataset.text ?? '').includes(q);
+        row.hidden = !hit;
+        if (hit) shown++;
+      }
+      if (count) {
+        count.textContent = q
+          ? `${fmt.format(shown)} فصل از ${fmt.format(rows.length)} فصل با عبارت «${input.value.trim()}» هم‌خوان است.`
+          : `همهٔ ${fmt.format(rows.length)} فصل نمایش داده می‌شود.`;
+      }
+      if (empty) empty.hidden = shown > 0;
+    });
+  }
+</script>
+
+<style>
+  .anatomy {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+    gap: 1.25rem;
+    list-style: none;
+    margin: 1.5rem 0 0;
+    padding: 0;
+  }
+  .anatomy li {
+    padding: 1.2rem 1.3rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-m);
+    background: var(--white);
+  }
+  .anatomy__n {
+    display: inline-block;
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: var(--step--1);
+    font-weight: 700;
+    color: var(--petrol-600);
+    background: var(--mist-100);
+    border-radius: 4px;
+    padding: 0.1rem 0.45rem;
+    margin-bottom: 0.6rem;
+  }
+  .anatomy h3 {
+    font-size: var(--step-0);
+    margin-bottom: 0.35rem;
+  }
+  .anatomy p {
+    margin: 0;
+    font-size: var(--step--1);
+    color: var(--slate-700);
+    line-height: 1.8;
+  }
+  .hs-filter {
+    display: grid;
+    gap: 0.6rem;
+    margin: 1.5rem 0 1rem;
+  }
+  .hs-filter input {
+    width: 100%;
+    min-height: 3rem;
+    padding: 0.5rem 0.9rem;
+    border: 1.5px solid var(--rule-strong);
+    border-radius: var(--radius-s);
+    background: var(--white);
+    font: inherit;
+    font-size: var(--step-0);
+    color: var(--navy-900);
+  }
+  .hs-filter__count {
+    margin: 0;
+    font-size: var(--step--1);
+    color: var(--text-muted);
+  }
+  .hs-table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-m);
+    background: var(--white);
+  }
+  .hs-table {
+    width: 100%;
+    min-width: 46rem;
+    border-collapse: collapse;
+    font-size: var(--step--1);
+  }
+  .hs-table th,
+  .hs-table td {
+    padding: 0.7rem 0.85rem;
+    border-bottom: 1px solid var(--rule);
+    text-align: start;
+    vertical-align: top;
+    line-height: 1.75;
+  }
+  .hs-table thead th {
+    background: var(--mist-100);
+    font-size: 0.8rem;
+    letter-spacing: 0.02em;
+    color: var(--navy-800);
+    position: sticky;
+    top: 0;
+  }
+  .hs-table tbody tr:hover {
+    background: var(--mist-50);
+  }
+  .hs-table__section {
+    min-width: 12rem;
+  }
+  .hs-table__rn {
+    display: block;
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-weight: 700;
+    color: var(--petrol-600);
+  }
+  .hs-table__st {
+    display: block;
+    color: var(--text-muted);
+    font-size: 0.78rem;
+  }
+  .hs-table__code code {
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-weight: 700;
+    color: var(--navy-900);
+  }
+  .hs-table__muted {
+    color: var(--rule-strong);
+  }
+  .hs-table__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-inline-start: 0.5rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--petrol-600);
+    text-decoration: none;
+    border-bottom: 1px solid var(--petrol-300);
+  }
+  .hs-table__link :global(svg) {
+    inline-size: 0.85em;
+    block-size: 0.85em;
+  }
+  .hs-headings {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.3rem;
+  }
+  .hs-headings li {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.5rem;
+    align-items: baseline;
+  }
+  .hs-headings code {
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--navy-800);
+    background: var(--mist-100);
+    border-radius: 4px;
+    padding: 0.05rem 0.3rem;
+  }
+  .hs-headings span {
+    color: var(--slate-700);
+  }
+  .hs-empty {
+    margin: 1rem 0 0;
+    color: var(--text-muted);
+    font-size: var(--step--1);
+  }
+  .gir {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+    gap: 1.25rem;
+    list-style: none;
+    margin: 1.5rem 0 0;
+    padding: 0;
+  }
+  .gir li {
+    padding: 1.2rem 1.3rem;
+    border-top: 2px solid var(--navy-900);
+    background: var(--white);
+    border-inline: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    border-end-start-radius: var(--radius-s);
+    border-end-end-radius: var(--radius-s);
+  }
+  .gir__n {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--petrol-600);
+    margin-bottom: 0.4rem;
+  }
+  .gir h3 {
+    font-size: var(--step-0);
+    margin-bottom: 0.4rem;
+  }
+  .gir p {
+    margin: 0;
+    font-size: var(--step--1);
+    color: var(--slate-700);
+    line-height: 1.85;
+  }
+  .goods-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    list-style: none;
+    margin: 1.5rem 0 0;
+    padding: 0;
+  }
+  .goods-chips a {
+    display: grid;
+    gap: 0.1rem;
+    padding: 0.55rem 1rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-s);
+    background: var(--white);
+    text-decoration: none;
+  }
+  .goods-chips a:hover {
+    border-color: var(--petrol-300);
+  }
+  .goods-chips strong {
+    font-size: var(--step--1);
+    color: var(--navy-900);
+  }
+  .goods-chips span {
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 0.72rem;
+    color: var(--text-muted);
+  }
+  .sources {
+    padding-block: clamp(2rem, 4vw, 3rem);
+  }
+  .sources h2 {
+    font-size: var(--step-2);
+    margin-bottom: 1rem;
+  }
+  .sources ol {
+    padding-inline-start: 1.3rem;
+    display: grid;
+    gap: 0.9rem;
+    font-size: var(--step--1);
+    margin: 0;
+  }
+  .sources a {
+    font-weight: 700;
+    color: var(--navy-800);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+  .sources a :global(svg) {
+    inline-size: 0.95em;
+    block-size: 0.95em;
+  }
+  .sources p {
+    margin: 0.2rem 0 0;
+  }
+  .muted {
+    color: var(--text-muted);
+  }
+</style>

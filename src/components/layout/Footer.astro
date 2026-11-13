@@ -13,6 +13,12 @@ const FOOTER_GUIDES = ['customs-clearance-cost', 'customs-clearance-documents', 
 const guides = (await getCollection('guides'))
   .filter((g) => FOOTER_GUIDES.includes(g.id))
   .sort((a, b) => FOOTER_GUIDES.indexOf(a.id) - FOOTER_GUIDES.indexOf(b.id));
+// Commodity pages are the transactional layer of the site, so the footer hands
+// them one visible row instead of burying them behind a hub. Capped so the footer
+// keeps the same height as the collection grows.
+const goods = (await getCollection('goods'))
+  .sort((a, b) => a.data.order - b.data.order)
+  .slice(0, 6);
 const year = persianYear();
 ---
 
@@ -124,6 +130,25 @@ const year = persianYear();
     </ul>
   </div>
 
+  <div class="container site-footer__goods">
+    <h2 id="footer-goods">کالاهای هدف</h2>
+    <ul aria-labelledby="footer-goods">
+      {
+        goods.map((g) => (
+          <li>
+            <a href={`/goods/${g.id}/`}>{g.data.product}</a>
+          </li>
+        ))
+      }
+      <li>
+        <a href="/goods/">همهٔ کالاها</a>
+      </li>
+      <li>
+        <a href="/tools/">ابزارها و مرجع‌ها</a>
+      </li>
+    </ul>
+  </div>
+
   <p class="site-footer__mark" aria-hidden="true">{site.wordmarkLatin}</p>
 
   <div class="container site-footer__base">
@@ -184,6 +209,37 @@ const year = persianYear();
   .site-footer__offices ul {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 1.25rem 2.5rem;
+  }
+  /* One visible row of commodity links: the transactional layer of the site gets
+     a footer entry point without adding a column to the grid above. */
+  .site-footer__goods {
+    margin-top: clamp(2.25rem, 4vw, 3.25rem);
+    padding-top: clamp(1.5rem, 3vw, 2rem);
+    border-top: 1px solid rgb(232 236 238 / 0.12);
+  }
+  .site-footer__goods h2 {
+    margin-bottom: 0.75rem;
+  }
+  .site-footer__goods ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .site-footer__goods a {
+    display: inline-block;
+    padding: 0.35rem 0.85rem;
+    border: 1px solid rgb(143 180 201 / 0.35);
+    border-radius: 999px;
+    font-size: 0.8rem;
+    color: var(--mist-100);
+  }
+  .site-footer__goods a:hover {
+    border-color: var(--petrol-300);
+  }
+  @media (max-width: 640px) {
+    .site-footer__goods ul {
+      gap: 0.4rem;
+    }
   }
   .office {
     display: grid;
