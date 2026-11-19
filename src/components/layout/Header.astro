@@ -85,7 +85,11 @@ const headerPhones = companyPhones.filter((p) => p.kind === 'mobile').slice(0, 1
         site.contact.phone && (
           <span class="site-header__phones">
             <a href={`tel:${site.contact.phone}`} class="site-header__phone site-header__phone--landline">
-              <Icon name="phone" />
+              <span class="site-header__agent">
+                {/* default avatar: swap the file for a real staff photo later */}
+                <img src="/img/support-avatar-160.png" alt="" width="80" height="80" />
+                <span class="site-header__agent-dot" aria-hidden="true"></span>
+              </span>
               <span class="sr-only">تلفن دفتر</span>
               <span dir="ltr">{site.contact.phoneDisplay ?? site.contact.phone}</span>
             </a>
@@ -530,6 +534,39 @@ const headerPhones = companyPhones.filter((p) => p.kind === 'mobile').slice(0, 1
     inline-size: 1rem;
     block-size: 1rem;
     color: var(--petrol-500);
+  }
+  /* the landline reads like a person you can call right now: avatar + live dot */
+  .site-header__phone--landline {
+    gap: 0.6rem;
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--navy-900);
+  }
+  .site-header__agent {
+    position: relative;
+    flex: none;
+    inline-size: 2.5rem;
+    block-size: 2.5rem;
+  }
+  .site-header__agent img {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid var(--white);
+    box-shadow:
+      0 0 0 1px rgb(2 56 126 / 0.16),
+      0 8px 16px -10px rgb(0 18 48 / 0.45);
+  }
+  .site-header__agent-dot {
+    position: absolute;
+    top: 0;
+    left: 0;
+    inline-size: 0.72rem;
+    block-size: 0.72rem;
+    border-radius: 50%;
+    background: #22c55e;
+    border: 2px solid var(--white);
   }
   .site-header__phone:hover span {
     text-decoration: underline;

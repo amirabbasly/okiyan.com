@@ -277,11 +277,32 @@ const faqs = [
   <!-- ============ PRINCIPLES ============ -->
   <section class="section section--alt section--grain section--glow" aria-labelledby="principles-title">
     <div class="container principles">
-      <header class="section-head principles__head reveal">
-        <span class="eyebrow">روش کار</span>
-        <h2 id="principles-title">چیزی که از همکاری با ما انتظار دارید</h2>
-        <p class="lead">در کار گمرکی، بیشتر هزینه‌های پیش‌بینی‌نشده از ابهام می‌آید. روش کار ما برای کم کردن همین ابهام است.</p>
-      </header>
+      <div class="principles__top">
+        <header class="section-head principles__head reveal">
+          <span class="eyebrow">روش کار</span>
+          <h2 id="principles-title">چیزی که از همکاری با ما انتظار دارید</h2>
+          <p class="lead">در کار گمرکی، بیشتر هزینه‌های پیش‌بینی‌نشده از ابهام می‌آید. روش کار ما برای کم کردن همین ابهام است.</p>
+        </header>
+
+        <!-- Introduction video slot: the source is intentionally EMPTY.
+             Drop the file path into data-video-src (e.g. /video/team.mp4) and
+             the play button loads and plays it; until then the poster preview
+             below is what visitors see. -->
+        <figure class="prin-video reveal">
+          <video
+            class="prin-video__player"
+            poster="/img/team-video-poster-960.webp"
+            preload="none"
+            playsinline
+            data-video-src=""
+          ></video>
+          <button class="prin-video__play" type="button" aria-label="پخش ویدیوی معرفی">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M9 6.5v11l9-5.5z" />
+            </svg>
+          </button>
+        </figure>
+      </div>
       <ol class="principles__list">
         {
           principles.map((p, i) => (
@@ -394,6 +415,23 @@ const faqs = [
 
   <CtaBand />
 </BaseLayout>
+
+<script>
+  /* Intro video: the source slot stays empty in the markup (data-video-src).
+     As soon as a path is filled in, the play button loads and plays it. */
+  const prinVideo = document.querySelector('.prin-video');
+  if (prinVideo) {
+    const player = prinVideo.querySelector('video');
+    const play = prinVideo.querySelector('.prin-video__play');
+    play?.addEventListener('click', () => {
+      const src = player?.dataset.videoSrc;
+      if (!player || !src) return;
+      if (!player.currentSrc) player.src = src;
+      player.play();
+      prinVideo.classList.add('is-playing');
+    });
+  }
+</script>
 
 <style>
   /* ---------- Header overlay (H1 + CTA over the journey scene) ---------- */
@@ -649,6 +687,61 @@ const faqs = [
   }
   .principles__head {
     max-width: 62ch;
+  }
+  /* head right, intro-video card in the empty left half of the row */
+  .principles__top {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 27rem);
+    gap: clamp(1.5rem, 3vw, 3rem);
+    align-items: center;
+  }
+  .prin-video {
+    position: relative;
+    margin: 0;
+    overflow: hidden;
+    aspect-ratio: 16 / 10;
+    border-radius: 1.4rem;
+    border: 1px solid rgb(2 56 126 / 0.16);
+    background: var(--navy-900);
+    box-shadow: 0 30px 60px -34px rgb(0 18 48 / 0.55);
+  }
+  .prin-video__player {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+  }
+  .prin-video__play {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    inline-size: 4.6rem;
+    block-size: 4.6rem;
+    border: 0;
+    border-radius: 50%;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    background: rgb(254 93 2 / 0.94);
+    color: var(--white);
+    box-shadow:
+      0 0 0 10px rgb(254 93 2 / 0.22),
+      0 18px 34px -16px rgb(0 8 24 / 0.6);
+    transition:
+      transform var(--dur-med) var(--ease-out),
+      background-color var(--dur-med) ease;
+  }
+  .prin-video__play svg {
+    inline-size: 2.1rem;
+    block-size: 2.1rem;
+    fill: currentColor;
+  }
+  .prin-video__play:hover {
+    transform: scale(1.07);
+    background: #ff7a29;
+  }
+  .prin-video.is-playing .prin-video__play {
+    display: none;
   }
   /* four step-cards in a row: navy media panel, number badge on the seam,
      paper body — the structure of the reference, in the logo palette */
@@ -955,6 +1048,12 @@ const faqs = [
   @media (max-width: 980px) {
     .faq-wrap {
       grid-template-columns: 1fr;
+    }
+    .principles__top {
+      grid-template-columns: 1fr;
+    }
+    .prin-video {
+      max-inline-size: 34rem;
     }
     .principles__list {
       grid-template-columns: 1fr 1fr;
