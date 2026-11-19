@@ -340,21 +340,62 @@ const faqs = [
           {prepare.map((item) => <li>{item}</li>)}
         </ul>
       </div>
-      <aside class="prepare__card reveal" aria-labelledby="prepare-card-title">
-        <span class="prepare__seal" aria-hidden="true">
-          <Icon name="stamp" />
-        </span>
-        <p class="prepare__kicker">گام اول</p>
-        <h3 id="prepare-card-title">بررسی اولیهٔ پرونده</h3>
-        <p>فرم کوتاه مشاوره را تکمیل کنید. پس از بررسی، دربارهٔ مدارک لازم، هزینه‌های قابل انتظار و قدم بعدی با شما صحبت می‌کنیم.</p>
-        <a class="btn" href={contactCta.href}>
-          تکمیل فرم مشاوره
-          <Icon name="arrow" class="btn__icon" />
-        </a>
-        <a class="arrow-link" href="/guides/customs-clearance-documents/">
-          فهرست مدارک ترخیص کالا
-          <Icon name="arrow" />
-        </a>
+      <aside
+        class="prepare__card reveal"
+        aria-labelledby="prepare-card-title"
+        aria-roledescription="carousel"
+        aria-label="قدم‌های شروع همکاری"
+      >
+        <div class="prep-slider" data-prep-slider>
+          <article class="prep-slide is-active">
+            <span class="prepare__seal" aria-hidden="true">
+              <Icon name="stamp" />
+            </span>
+            <p class="prepare__kicker">گام اول</p>
+            <h3 id="prepare-card-title">بررسی اولیهٔ پرونده</h3>
+            <p>فرم کوتاه مشاوره را تکمیل کنید. پس از بررسی، دربارهٔ مدارک لازم، هزینه‌های قابل انتظار و قدم بعدی با شما صحبت می‌کنیم.</p>
+            <a class="btn" href={contactCta.href}>
+              تکمیل فرم مشاوره
+              <Icon name="arrow" class="btn__icon" />
+            </a>
+            <a class="arrow-link" href="/guides/customs-clearance-documents/">
+              فهرست مدارک ترخیص کالا
+              <Icon name="arrow" />
+            </a>
+          </article>
+          <article class="prep-slide">
+            <span class="prepare__seal" aria-hidden="true">
+              <Icon name="calc" />
+            </span>
+            <p class="prepare__kicker">گام دوم</p>
+            <h3>برآورد مکتوب و تفکیک‌شده</h3>
+            <p>پیش از هر تصمیم، برآورد هزینه را مکتوب و تفکیک‌شده می‌گیرید؛ اقلامی که هنوز قطعی نیستند جدا مشخص می‌شوند تا عدد غافلگیرتان نکند.</p>
+            <a class="arrow-link" href="/guides/customs-clearance-cost/">
+              راهنمای هزینه ترخیص کالا
+              <Icon name="arrow" />
+            </a>
+          </article>
+          <article class="prep-slide">
+            <span class="prepare__seal" aria-hidden="true">
+              <Icon name="route" />
+            </span>
+            <p class="prepare__kicker">گام سوم</p>
+            <h3>نقشهٔ قدم‌های بعدی</h3>
+            <p>مرز مسئولیت‌ها روشن می‌شود: چه کاری بر عهدهٔ ماست، چه چیزی را صاحب کالا فراهم می‌کند و کدام تصمیم با گمرک یا دستگاه صادرکنندهٔ مجوز است.</p>
+            <a class="arrow-link" href="/about/">
+              دربارهٔ روش کار ما
+              <Icon name="arrow" />
+            </a>
+          </article>
+        </div>
+        <div class="prep-nav">
+          <button class="prep-nav__btn" type="button" data-prep-prev aria-label="اسلاید قبلی">
+            <Icon name="arrow" />
+          </button>
+          <button class="prep-nav__btn" type="button" data-prep-next aria-label="اسلاید بعدی">
+            <Icon name="arrow" />
+          </button>
+        </div>
       </aside>
     </div>
   </section>
@@ -419,6 +460,29 @@ const faqs = [
 <script>
   /* Intro video: the source slot stays empty in the markup (data-video-src).
      As soon as a path is filled in, the play button loads and plays it. */
+  /* prepare slider: buttons page through, the peeking slice marks what's next */
+  const prepSlider = document.querySelector('[data-prep-slider]');
+  if (prepSlider) {
+    const slides = [...prepSlider.querySelectorAll('.prep-slide')];
+    const step = () => slides[0].getBoundingClientRect().width + 14.4;
+    document.querySelector('[data-prep-next]')?.addEventListener('click', () => {
+      prepSlider.scrollBy({ left: step(), behavior: 'smooth' });
+    });
+    document.querySelector('[data-prep-prev]')?.addEventListener('click', () => {
+      prepSlider.scrollBy({ left: -step(), behavior: 'smooth' });
+    });
+    let ticking = false;
+    prepSlider.addEventListener('scroll', () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const i = Math.round(prepSlider.scrollLeft / step());
+        slides.forEach((el, k) => el.classList.toggle('is-active', k === i));
+        ticking = false;
+      });
+    });
+  }
+
   const prinVideo = document.querySelector('.prin-video');
   if (prinVideo) {
     const player = prinVideo.querySelector('video');
@@ -743,6 +807,32 @@ const faqs = [
   .prin-video.is-playing .prin-video__play {
     display: none;
   }
+  /* a quick nudge every 3s so the eye finds the video */
+  @keyframes prin-attn {
+    0%,
+    86%,
+    100% {
+      transform: none;
+    }
+    88% {
+      transform: translate(-6px, 0) rotate(-0.5deg);
+    }
+    90% {
+      transform: translate(6px, 0) rotate(0.5deg);
+    }
+    92% {
+      transform: translate(-4px, 0);
+    }
+    94% {
+      transform: translate(4px, 0);
+    }
+    96% {
+      transform: translate(-2px, 0);
+    }
+  }
+  .prin-video:not(.is-playing) {
+    animation: prin-attn 3s ease-in-out infinite;
+  }
   /* four step-cards in a row: navy media panel, number badge on the seam,
      paper body — the structure of the reference, in the logo palette */
   .principles__list {
@@ -865,23 +955,85 @@ const faqs = [
     margin-top: 0.5rem;
   }
   /* The card reads as a paper file laid on the navy desk */
+  /* horizontal slider: the next slide keeps a slice of itself visible */
+  .prep-slider {
+    display: flex;
+    gap: 0.9rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    margin: -0.4rem;
+    padding: 0.4rem;
+  }
+  .prep-slider::-webkit-scrollbar {
+    display: none;
+  }
+  .prep-slide {
+    flex: 0 0 88%;
+    scroll-snap-align: start;
+    display: grid;
+    gap: 0.8rem;
+    justify-items: start;
+    align-content: start;
+    padding: 1.3rem 1.4rem 1.4rem;
+    border: 1px solid var(--rule);
+    border-radius: 0.9rem;
+    background: var(--white);
+    opacity: 0.45;
+    transition: opacity var(--dur-med) ease;
+  }
+  .prep-slide.is-active {
+    opacity: 1;
+  }
+  .prep-nav {
+    display: flex;
+    gap: 0.6rem;
+    justify-content: flex-end;
+    margin-top: 0.9rem;
+  }
+  .prep-nav__btn {
+    display: grid;
+    place-items: center;
+    inline-size: 2.6rem;
+    block-size: 2.6rem;
+    border-radius: 50%;
+    border: 1px solid var(--rule-strong);
+    background: var(--white);
+    color: var(--navy-900);
+    cursor: pointer;
+    transition:
+      background-color var(--dur-med) ease,
+      color var(--dur-med) ease,
+      border-color var(--dur-med) ease;
+  }
+  .prep-nav__btn:hover {
+    background: var(--petrol-600);
+    border-color: var(--petrol-600);
+    color: var(--navy-950);
+  }
+  .prep-nav__btn :global(svg) {
+    inline-size: 1.1rem;
+    block-size: 1.1rem;
+  }
+  .prep-nav__btn[data-prep-prev] :global(svg) {
+    transform: rotate(180deg);
+  }
   .prepare__card {
     position: relative;
     display: grid;
     gap: 1.1rem;
     justify-items: start;
-    padding: clamp(1.75rem, 4vw, 2.75rem);
-    padding-top: clamp(2.25rem, 4vw, 3rem);
+    padding: clamp(1.1rem, 2.5vw, 1.6rem);
     border-radius: var(--radius-l);
     background:
       linear-gradient(var(--petrol-600), var(--petrol-600)) top / 100% 6px no-repeat,
       var(--grain),
-      var(--white);
+      var(--paper-alt);
     color: var(--slate-700);
     box-shadow:
       0 50px 80px -40px rgb(0 0 0 / 0.65),
       0 0 0 1px rgb(232 236 238 / 0.08);
-    transform: rotate(-1.2deg);
   }
   .prepare__card h3 {
     color: var(--navy-900);
