@@ -40,6 +40,15 @@ const principles = [
   },
 ];
 
+/** one icon per principle card, matching its promise */
+const PRIN_ICONS = ['search', 'shield', 'info', 'doc'] as const;
+
+/** honest reading time: words of the markdown body ÷ 200 w/m, hidden when unknown */
+const readMinutes = (g: { body?: string }) => {
+  const w = (g.body ?? '').trim().split(/\s+/).filter(Boolean).length;
+  return w ? Math.max(2, Math.round(w / 200)) : 0;
+};
+
 const prepare = [
   'شرح دقیق کالا و کاربرد آن (در صورت امکان کاتالوگ یا برگهٔ مشخصات فنی)',
   'کد تعرفهٔ پیشنهادی، اگر از قبل دارید',
@@ -311,32 +320,41 @@ const faqs = [
   </section>
 
   <!-- ============ GUIDES ============ -->
-  <section class="section section--alt" aria-labelledby="guides-title">
+  <section class="section section--dark guides-band" aria-labelledby="guides-title">
     <div class="container">
-      <header class="section-head guides-head reveal">
-        <span class="eyebrow">راهنماها</span>
-        <h2 id="guides-title">پیش از واردات، این‌ها را بدانید</h2>
-        <a class="arrow-link" href="/guides/">
+      <header class="guides-band__head reveal">
+        <div>
+          <span class="eyebrow">راهنماها</span>
+          <h2 id="guides-title">پیش از واردات، این‌ها را بدانید</h2>
+        </div>
+        <a class="btn btn--ghost" href="/guides/">
           همهٔ راهنماها
-          <Icon name="arrow" />
+          <Icon name="arrow" class="btn__icon" />
         </a>
       </header>
-      <ol class="guide-rows">
+      <ol class="guide-cards">
         {
           guides.map((g, i) => (
             <li class="reveal">
-              <div class="guide-row stretch">
-                <span class="guide-row__n" aria-hidden="true">
-                  {toFa(`0${i + 1}`)}
-                </span>
-                <span class="guide-row__body">
-                  <a class="guide-row__title stretch__link" href={`/guides/${g.id}/`}>
-                    {g.data.title}
-                  </a>
-                  <span class="guide-row__desc">{g.data.description}</span>
-                </span>
-                <Icon name="arrow" class="guide-row__arrow" />
-              </div>
+              <article class="guide-card">
+                <div class="guide-card__top">
+                  <span class="guide-card__tag">
+                    {g.data.relatedService === 'customs-clearance' ? 'راهنمای ترخیص' : 'راهنمای واردات'}
+                  </span>
+                  {readMinutes(g) > 0 && <span class="guide-card__min">{toFa(readMinutes(g))} دقیقه</span>}
+                </div>
+                <h3>
+                  <a href={`/guides/${g.id}/`}>{g.data.title}</a>
+                </h3>
+                <p>{g.data.description}</p>
+                <span class="guide-card__n" aria-hidden="true">{toFa(i + 1)}</span>
+                <a class="guide-card__more" href={`/guides/${g.id}/`}>
+                  مطالعه مقاله
+                  <span class="guide-card__go" aria-hidden="true">
+                    <Icon name="arrow" />
+                  </span>
+                </a>
+              </article>
             </li>
           ))
         }
@@ -613,58 +631,80 @@ const faqs = [
   .principles__head {
     max-width: 62ch;
   }
+  /* four step-cards in a row: navy media panel, number badge on the seam,
+     paper body — the structure of the reference, in the logo palette */
   .principles__list {
     list-style: none;
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.1rem;
     margin: 0;
     padding: 0;
   }
   .principles__list li {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    grid-template-areas:
-      'n h'
-      'p p';
-    gap: 0.45rem 0.85rem;
-    align-content: start;
-    padding: 1.05rem 1.25rem 1rem;
-    border-radius: 1.1rem;
+    justify-items: center;
+    overflow: hidden;
+    background: var(--white);
+    border: 1px solid rgb(2 56 126 / 0.14);
+    border-radius: 1rem;
+    box-shadow: 0 22px 44px -30px rgb(0 18 48 / 0.35);
     transition:
       transform var(--dur-med) var(--ease-out),
       box-shadow var(--dur-med) var(--ease-out),
       border-color var(--dur-med) ease;
   }
   .principles__list li:hover {
-    transform: translateY(-3px);
+    transform: translateY(-4px);
     border-color: rgb(254 93 2 / 0.5);
     box-shadow:
-      0 24px 46px -30px rgb(0 18 48 / 0.48),
-      0 0 0 1px rgb(254 93 2 / 0.26);
+      0 28px 52px -30px rgb(0 18 48 / 0.45),
+      0 0 0 1px rgb(254 93 2 / 0.28);
   }
-  .principles__n {
-    grid-area: n;
+  .prin__media {
+    position: relative;
     display: grid;
     place-items: center;
-    inline-size: 2rem;
-    block-size: 2rem;
-    border-radius: 0.6rem;
-    background: linear-gradient(140deg, #fe5d02, #e35400);
-    color: var(--white);
-    font-size: 0.95rem;
+    inline-size: 100%;
+    block-size: 8.75rem;
+    background:
+      radial-gradient(120% 90% at 82% 0%, rgb(254 93 2 / 0.28), transparent 58%),
+      linear-gradient(150deg, #1554a8, #012b64 72%);
+    color: var(--petrol-200);
+  }
+  .prin__media :global(svg) {
+    inline-size: 3rem;
+    block-size: 3rem;
+  }
+  .prin__n {
+    z-index: 1;
+    margin-top: -1.4rem;
+    display: grid;
+    place-items: center;
+    inline-size: 2.8rem;
+    block-size: 2.8rem;
+    border-radius: 50%;
+    background: var(--white);
+    border: 1px solid rgb(2 56 126 / 0.14);
+    box-shadow: 0 8px 18px -10px rgb(0 18 48 / 0.5);
+    color: #02387e;
+    font-size: 1.05rem;
     font-weight: 800;
   }
+  .prin__body {
+    display: grid;
+    gap: 0.5rem;
+    justify-items: center;
+    text-align: center;
+    padding: 0.35rem 1.1rem 1.35rem;
+  }
   .principles__list h3 {
-    grid-area: h;
-    align-self: center;
     font-size: var(--step-0);
     font-weight: 800;
   }
   .principles__list p {
-    grid-area: p;
     font-size: var(--step--1);
-    line-height: 1.8;
+    line-height: 1.85;
     color: var(--text-muted);
   }
 
@@ -753,64 +793,126 @@ const faqs = [
   }
 
   /* ---------- Guides ---------- */
-  .guides-head {
-    max-width: none;
-    grid-template-columns: 1fr auto;
-    align-items: end;
+  /* dark magazine band: head row + three article cards, logo palette */
+  .guides-band__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.25rem 2rem;
+    margin-bottom: clamp(1.5rem, 3vw, 2.25rem);
   }
-  .guides-head .eyebrow,
-  .guides-head h2 {
-    grid-column: 1;
-  }
-  .guides-head .arrow-link {
-    grid-column: 2;
-    grid-row: 2;
-    justify-self: end;
-  }
-  .guide-rows {
+  .guide-cards {
     list-style: none;
-    border-top: 2px solid var(--navy-900);
-  }
-  .guide-row {
     display: grid;
-    grid-template-columns: 4.5rem minmax(0, 1fr) auto;
-    gap: 1.5rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.1rem;
+    margin: 0;
+    padding: 0;
+  }
+  .guide-card {
+    position: relative;
+    overflow: hidden;
+    display: grid;
+    gap: 0.7rem;
+    align-content: start;
+    height: 100%;
+    padding: 1.3rem 1.4rem 1.15rem;
+    border-radius: 1rem;
+    border: 1px solid rgb(255 255 255 / 0.1);
+    background: linear-gradient(160deg, rgb(255 255 255 / 0.08), rgb(255 255 255 / 0.03) 70%);
+    transition:
+      transform var(--dur-med) var(--ease-out),
+      box-shadow var(--dur-med) var(--ease-out),
+      border-color var(--dur-med) ease;
+  }
+  .guide-card:hover {
+    transform: translateY(-4px);
+    border-color: rgb(254 93 2 / 0.5);
+    box-shadow: 0 26px 50px -30px rgb(0 8 24 / 0.8);
+  }
+  .guide-card__top {
+    display: flex;
     align-items: center;
-    padding: 1.75rem 0.5rem;
-    border-bottom: 1px solid var(--rule-strong);
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .guide-card__tag {
+    padding: 0.18rem 0.75rem;
+    border: 1px solid rgb(254 93 2 / 0.55);
+    border-radius: 999px;
+    color: var(--petrol-200);
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+  .guide-card__min {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+  .guide-card h3 {
+    font-size: var(--step-1);
+    line-height: 1.6;
+  }
+  .guide-card h3 a {
+    color: var(--white);
     text-decoration: none;
-    transition: background-color var(--dur-med) ease;
   }
-  .guide-row:hover {
-    background: var(--white);
+  .guide-card h3 a:hover {
+    text-decoration: underline;
+    text-decoration-color: var(--petrol-300);
   }
-  .guide-row__n {
-    font-size: var(--step-3);
-    font-weight: 800;
-    color: var(--petrol-500);
-    line-height: 1;
-  }
-  .guide-row__body {
-    display: grid;
-    gap: 0.3rem;
-  }
-  .guide-row__title {
-    font-size: var(--step-2);
-    font-weight: 800;
-    line-height: 1.5;
-  }
-  .guide-row__desc {
+  .guide-card p {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
     color: var(--text-muted);
     font-size: var(--step--1);
+    line-height: 1.9;
   }
-  .guide-row :global(.guide-row__arrow) {
-    inline-size: 1.6rem;
-    block-size: 1.6rem;
-    color: var(--petrol-600);
-    transition: transform var(--dur-med) var(--ease-out);
+  .guide-card__n {
+    position: absolute;
+    inset-inline-start: 1.1rem;
+    bottom: 3.6rem;
+    font-size: 5.5rem;
+    font-weight: 800;
+    line-height: 1;
+    color: rgb(255 255 255 / 0.05);
+    pointer-events: none;
   }
-  .guide-row:hover :global(.guide-row__arrow) {
-    transform: translateX(-6px);
+  .guide-card__more {
+    margin-top: auto;
+    padding-top: 0.85rem;
+    border-top: 1px solid rgb(255 255 255 / 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    color: var(--petrol-300);
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .guide-card__go {
+    display: grid;
+    place-items: center;
+    inline-size: 2.2rem;
+    block-size: 2.2rem;
+    border-radius: 50%;
+    border: 1px solid rgb(255 255 255 / 0.28);
+    color: var(--mist-100);
+    transition:
+      background-color var(--dur-med) ease,
+      color var(--dur-med) ease,
+      border-color var(--dur-med) ease;
+  }
+  .guide-card__go :global(svg) {
+    inline-size: 1rem;
+    block-size: 1rem;
+  }
+  .guide-card__more:hover .guide-card__go {
+    background: var(--petrol-600);
+    border-color: var(--petrol-600);
+    color: var(--navy-950);
   }
 
   .faq-wrap {
@@ -824,6 +926,9 @@ const faqs = [
   @media (max-width: 980px) {
     .faq-wrap {
       grid-template-columns: 1fr;
+    }
+    .principles__list {
+      grid-template-columns: 1fr 1fr;
     }
   }
   @media (max-width: 860px) {
@@ -840,27 +945,20 @@ const faqs = [
     .checklist--cols {
       grid-template-columns: 1fr;
     }
+    .principles__list {
+      grid-template-columns: 1fr;
+    }
     .prepare__card {
       transform: none;
     }
-    .principles__list,
     .service__list {
       grid-template-columns: 1fr;
     }
-    .guide-row {
-      grid-template-columns: 2.75rem minmax(0, 1fr);
-      gap: 1rem;
+    .principles__list {
+      grid-template-columns: 1fr 1fr;
     }
-    .guide-row :global(.guide-row__arrow) {
-      display: none;
-    }
-    .guides-head {
+    .guide-cards {
       grid-template-columns: 1fr;
-    }
-    .guides-head .arrow-link {
-      grid-column: 1;
-      grid-row: auto;
-      justify-self: start;
     }
   }
 </style>

@@ -1,4 +1,12 @@
 ---
+/**
+ * «پیش از هر تصمیم، مسیر را روشن کنید» — the closing conversion band.
+ *
+ * Structure follows the business's reference: one full-bleed dark band split by
+ * a diagonal; the photo panel (a ship seen from above, instead of the
+ * reference's car) sits on the left, the promise + actions on the right.
+ * The palette is the logo's: deep navy sweep, orange CTA, mist copy.
+ */
 import Icon from './Icon.astro';
 import { contactCta } from '~/config/site';
 export interface Props {
@@ -11,73 +19,120 @@ const {
 } = Astro.props;
 ---
 
-<section class="cta-band section section--alt section--grain" aria-labelledby="cta-title">
-  <div class="container cta-band__inner reveal">
-    <svg class="cta-band__route" viewBox="0 0 320 200" aria-hidden="true" focusable="false">
-      <path d="M300 30C240 40 230 120 170 128S70 100 20 170" fill="none" stroke="#ff9a57" stroke-width="2" stroke-dasharray="3 9" stroke-linecap="round"></path>
-      <circle cx="300" cy="30" r="7" fill="#ff9a57"></circle>
-      <circle cx="20" cy="170" r="7" fill="none" stroke="#012b64" stroke-width="2.5"></circle>
-      <rect x="150" y="112" width="34" height="22" rx="2" fill="#012b64" transform="rotate(-8 167 123)"></rect>
-      <rect x="156" y="118" width="22" height="9" rx="1.5" fill="#ff9a57" transform="rotate(-8 167 123)"></rect>
-    </svg>
-    <div class="stack" style="--stack: 1rem">
+<section class="cta-band" aria-labelledby="cta-title">
+  <div class="cta-band__media" aria-hidden="true">
+    <img src="/img/ship-topdown-1200.webp" alt="" width="1200" height="653" loading="lazy" />
+  </div>
+  <div class="container cta-band__wrap">
+    <div class="cta-band__copy reveal">
       <h2 id="cta-title">{title}</h2>
       <p class="lead">{text}</p>
-    </div>
-    <div class="cta-band__actions">
-      <a class="btn" href={contactCta.href}>
-        {contactCta.label}
-        <Icon name="arrow" class="btn__icon" />
-      </a>
-      <a class="arrow-link" href="/guides/">
-        ابتدا راهنماها را بخوانید
-        <Icon name="arrow" />
-      </a>
+      <div class="cta-band__actions">
+        <a class="btn btn--sun" href={contactCta.href}>
+          {contactCta.label}
+          <Icon name="arrow" class="btn__icon" />
+        </a>
+        <a class="arrow-link cta-band__more" href="/guides/">
+          ابتدا راهنماها را بخوانید
+          <Icon name="arrow" />
+        </a>
+      </div>
     </div>
   </div>
 </section>
 
 <style>
-  .cta-band__route {
-    position: absolute;
-    inset-inline-end: 1.75rem;
-    top: 1rem;
-    width: min(9rem, 22%);
-    height: auto;
-    opacity: 0.6;
-    pointer-events: none;
-  }
-  .cta-band__inner > :not(.cta-band__route) {
-    position: relative;
-  }
-  .cta-band__inner {
+  .cta-band {
     position: relative;
     overflow: hidden;
-    display: grid;
-    grid-template-columns: minmax(0, 1.6fr) auto;
-    align-items: end;
-    gap: 2rem 4rem;
-    padding: clamp(2rem, 5vw, 3.5rem);
-    border: 1px solid var(--rule);
-    border-radius: var(--radius-l);
     background:
-      radial-gradient(40rem 20rem at 0% 100%, rgb(143 180 201 / 0.12), transparent 70%),
-      var(--white);
+      radial-gradient(60rem 30rem at 88% 0%, rgb(254 93 2 / 0.14), transparent 60%),
+      linear-gradient(115deg, #001637 0%, #012b64 58%, #0d3f85 100%);
+    color: #c4cddb;
+  }
+  /* the diagonal photo panel, physically on the left like the reference */
+  .cta-band__media {
+    position: absolute;
+    inset-block: 0;
+    left: 0;
+    inline-size: min(44%, 42rem);
+    clip-path: polygon(0 0, 100% 0, 74% 100%, 0 100%);
+  }
+  .cta-band__media img {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+  .cta-band__media::after {
+    /* melt the photo edge into the navy sweep */
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(265deg, #012b64 2%, transparent 34%);
+  }
+  .cta-band__wrap {
+    position: relative;
+    display: flex;
+    justify-content: flex-start; /* RTL: the copy starts from the right edge */
+  }
+  .cta-band__copy {
+    display: grid;
+    justify-items: start;
+    gap: 1.1rem;
+    max-width: 42rem;
+    padding-block: clamp(3rem, 7vw, 5.25rem);
   }
   .cta-band h2 {
+    color: var(--white);
     font-size: var(--step-4);
   }
   .cta-band__actions {
-    display: grid;
-    gap: 1.1rem;
-    justify-items: start;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.75rem;
+    margin-top: 0.4rem;
   }
-  @media (max-width: 760px) {
-    .cta-band__inner {
-      grid-template-columns: 1fr;
+  /* the reference's solid orange CTA, with navy ink for contrast */
+  .btn--sun {
+    --btn-bg: var(--petrol-600);
+    --btn-border: var(--petrol-600);
+    --btn-fg: var(--navy-950);
+    box-shadow: 0 16px 34px -18px rgb(254 93 2 / 0.65);
+  }
+  .btn--sun:hover {
+    --btn-bg: #ff7a29;
+    --btn-border: #ff7a29;
+    --btn-fg: var(--navy-950);
+  }
+  .cta-band__more {
+    color: var(--mist-100);
+  }
+  .cta-band__more:hover {
+    color: var(--petrol-200);
+  }
+  @media (max-width: 1100px) {
+    .cta-band__media {
+      inline-size: 36%;
     }
-    .cta-band__route {
-      display: none;
+    .cta-band__copy {
+      max-width: 32rem;
+    }
+  }
+  @media (max-width: 860px) {
+    .cta-band__media {
+      position: relative;
+      inset-inline: 0;
+      inline-size: 100%;
+      block-size: 13rem;
+      clip-path: polygon(0 0, 100% 0, 100% 82%, 0 100%);
+    }
+    .cta-band__media::after {
+      background: linear-gradient(0deg, #012b64 4%, transparent 40%);
+    }
+    .cta-band__copy {
+      padding-block: 2.25rem 3rem;
     }
   }
 </style>

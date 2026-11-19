@@ -22,12 +22,12 @@ const goods = (await getCollection('goods'))
 const year = persianYear();
 ---
 
-<footer class="site-footer on-dark">
+<footer class="site-footer">
   <div class="container site-footer__grid">
     <div class="site-footer__brand">
-      <Logo tone="light" />
+      <Logo />
       <p>{site.description}</p>
-      <a class="btn btn--accent" href={contactCta.href}>
+      <a class="btn" href={contactCta.href}>
         {contactCta.label}
         <Icon name="arrow" class="btn__icon" />
       </a>
@@ -161,9 +161,14 @@ const year = persianYear();
 </footer>
 
 <style>
+  /* Light, logo-matched footer: the master lockup keeps its real navy+orange
+     on a paper sheet, exactly like the logo file's own background. */
   .site-footer {
-    background: var(--navy-900);
-    color: #c4cddb;
+    background:
+      radial-gradient(50rem 22rem at 100% 0%, rgb(254 93 2 / 0.07), transparent 62%),
+      var(--paper);
+    color: #4a5a72;
+    border-top: 1px solid rgb(2 56 126 / 0.12);
     padding-block: clamp(3.5rem, 3rem + 3vw, 6rem) 2rem;
     font-size: var(--step--1);
   }
@@ -180,8 +185,8 @@ const year = persianYear();
   }
   .site-footer h2 {
     font-size: 0.95rem;
-    font-weight: 700;
-    color: var(--petrol-200);
+    font-weight: 800;
+    color: #02387e;
     margin-bottom: 1rem;
   }
   .site-footer ul {
@@ -190,9 +195,9 @@ const year = persianYear();
     gap: 0.55rem;
   }
   .site-footer a:not(.btn) {
-    color: var(--mist-100);
+    color: #33435c;
     text-decoration: none;
-    background-image: linear-gradient(var(--petrol-300), var(--petrol-300));
+    background-image: linear-gradient(var(--petrol-600), var(--petrol-600));
     background-size: 0 1px;
     background-position: 100% 100%;
     background-repeat: no-repeat;
@@ -204,7 +209,7 @@ const year = persianYear();
   .site-footer__offices {
     margin-top: clamp(2.25rem, 4vw, 3.25rem);
     padding-top: clamp(1.5rem, 3vw, 2rem);
-    border-top: 1px solid rgb(232 236 238 / 0.12);
+    border-top: 1px solid rgb(2 56 126 / 0.12);
   }
   .site-footer__offices ul {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -215,7 +220,7 @@ const year = persianYear();
   .site-footer__goods {
     margin-top: clamp(2.25rem, 4vw, 3.25rem);
     padding-top: clamp(1.5rem, 3vw, 2rem);
-    border-top: 1px solid rgb(232 236 238 / 0.12);
+    border-top: 1px solid rgb(2 56 126 / 0.12);
   }
   .site-footer__goods h2 {
     margin-bottom: 0.75rem;
@@ -228,13 +233,14 @@ const year = persianYear();
   .site-footer__goods a {
     display: inline-block;
     padding: 0.35rem 0.85rem;
-    border: 1px solid rgb(143 180 201 / 0.35);
+    border: 1px solid rgb(2 56 126 / 0.28);
     border-radius: 999px;
     font-size: 0.8rem;
-    color: var(--mist-100);
+    color: #33435c;
   }
   .site-footer__goods a:hover {
-    border-color: var(--petrol-300);
+    border-color: var(--petrol-600);
+    color: var(--petrol-700);
   }
   @media (max-width: 640px) {
     .site-footer__goods ul {
@@ -246,24 +252,24 @@ const year = persianYear();
     gap: 0.3rem;
     align-content: start;
     padding-inline-start: 1rem;
-    border-inline-start: 2px solid rgb(143 180 201 / 0.35);
+    border-inline-start: 2px solid rgb(254 93 2 / 0.55);
   }
   .office__city {
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
     font-weight: 800;
-    color: var(--white);
+    color: var(--navy-900);
   }
   .office__city :global(svg) {
     inline-size: 1rem;
     block-size: 1rem;
-    color: var(--petrol-300);
+    color: var(--petrol-600);
   }
   .office__address {
     font-style: normal;
     line-height: 1.95;
-    color: #c4cddb;
+    color: #4a5a72;
   }
   .office__phones {
     display: flex;
@@ -282,7 +288,7 @@ const year = persianYear();
   .office__phone :global(svg) {
     inline-size: 0.95rem;
     block-size: 0.95rem;
-    color: var(--petrol-300);
+    color: var(--petrol-600);
   }
   @media (max-width: 900px) {
     .site-footer__offices ul {
@@ -306,7 +312,7 @@ const year = persianYear();
     line-height: 0.85;
     letter-spacing: 0.12em;
     color: transparent;
-    background: linear-gradient(180deg, rgb(143 180 201 / 0.16), rgb(143 180 201 / 0.02) 80%);
+    background: linear-gradient(180deg, rgb(2 56 126 / 0.14), rgb(2 56 126 / 0.02) 80%);
     -webkit-background-clip: text;
     background-clip: text;
     user-select: none;
@@ -325,8 +331,8 @@ const year = persianYear();
     gap: 1rem;
     margin-top: 0;
     padding-top: 1.5rem;
-    border-top: 1px solid rgb(232 236 238 / 0.12);
-    color: #9aa8bd;
+    border-top: 1px solid rgb(2 56 126 / 0.12);
+    color: #5a6a82;
   }
   .site-footer__base p {
     max-width: 48rem;

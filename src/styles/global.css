@@ -290,7 +290,7 @@ textarea {
   --text-muted: #b9c6db;
   --rule: rgb(210 228 255 / 0.16);
   --rule-strong: rgb(210 228 255 / 0.34);
-  --accent: var(--blue-300);
+  --accent: var(--petrol-300); /* eyebrows on dark read in the logo orange */
 }
 
 .stack > * + * {
