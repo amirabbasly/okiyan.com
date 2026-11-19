@@ -44,7 +44,7 @@ const marks: Record<ClientMark, string> = {
 // gap baked into the row's own width the track is exactly twice one row, so shifting
 // it by -50% is a seamless loop, and one row is wider than any screen — never a gap.
 // The second row is decorative (it only exists for the loop).
-const rowItems = [...clients, ...clients];
+const rowItems = [...clients, ...clients, ...clients, ...clients];
 ---
 
 <section

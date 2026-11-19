@@ -40,8 +40,13 @@ const principles = [
   },
 ];
 
-/** one icon per principle card, matching its promise */
-const PRIN_ICONS = ['search', 'shield', 'info', 'doc'] as const;
+/** one photograph per principle card, matching its promise */
+const PRIN_PHOTOS = [
+  { src: '/img/prin-review-640.webp', alt: 'بررسی اسناد و مدارک حمل پیش از برآورد هزینه' },
+  { src: '/img/prin-handshake-640.webp', alt: 'توافق و روشن بودن مرز مسئولیت‌ها میان دو طرف' },
+  { src: '/img/prin-risk-640.webp', alt: 'کارشناس گمرک در حال بازرسی کانتینرها و بررسی ریسک‌ها' },
+  { src: '/img/prin-report-640.webp', alt: 'گزارش مرحله‌به‌مرحلهٔ پرونده روی تبلت' },
+];
 
 /** honest reading time: words of the markdown body ÷ 200 w/m, hidden when unknown */
 const readMinutes = (g: { body?: string }) => {
@@ -202,7 +207,11 @@ const faqs = [
   />
 
   <!-- ============ CLIENTS ============ -->
-  <Clients />
+  <Clients
+    title="همکاران ما"
+    eyebrow="همکاران"
+    lead="از خودروسازی و موتورسیکلت تا اسباب‌بازی و کالای ساختمانی؛ برندها و شرکت‌هایی که در مسیر واردات و ترخیص کالا همراهشان بوده‌ایم."
+  />
 
   <!-- ============ SERVICES ============ -->
   <section class="section section--glow" id="services" aria-labelledby="services-title">
@@ -277,11 +286,21 @@ const faqs = [
         {
           principles.map((p, i) => (
             <li class="reveal">
-              <span class="principles__n" aria-hidden="true">
-                {toFa(i + 1)}
+              <span class="prin__media">
+                <img
+                  src={PRIN_PHOTOS[i].src}
+                  alt={PRIN_PHOTOS[i].alt}
+                  width="640"
+                  height="400"
+                  loading="lazy"
+                  decoding="async"
+                />
               </span>
-              <h3>{p.title}</h3>
-              <p>{p.text}</p>
+              <span class="prin__n" aria-hidden="true">{toFa(i + 1)}</span>
+              <div class="prin__body">
+                <h3>{p.title}</h3>
+                <p>{p.text}</p>
+              </div>
             </li>
           ))
         }
@@ -663,18 +682,28 @@ const faqs = [
   }
   .prin__media {
     position: relative;
-    display: grid;
-    place-items: center;
+    display: block;
     inline-size: 100%;
-    block-size: 8.75rem;
-    background:
-      radial-gradient(120% 90% at 82% 0%, rgb(254 93 2 / 0.28), transparent 58%),
-      linear-gradient(150deg, #1554a8, #012b64 72%);
-    color: var(--petrol-200);
+    block-size: 10.5rem;
+    overflow: hidden;
+    background: linear-gradient(150deg, #1554a8, #012b64 72%);
   }
-  .prin__media :global(svg) {
-    inline-size: 3rem;
-    block-size: 3rem;
+  .prin__media img {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+    object-position: center;
+    transition: transform var(--dur-med) var(--ease-out);
+  }
+  .principles__list li:hover .prin__media img {
+    transform: scale(1.05);
+  }
+  .prin__media::after {
+    /* brand glaze so four different photos read as one set */
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgb(2 56 126 / 0.12), rgb(1 22 52 / 0.42));
   }
   .prin__n {
     z-index: 1;

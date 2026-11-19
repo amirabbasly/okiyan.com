@@ -2,16 +2,10 @@
 /**
  * «پیش از هر تصمیم، مسیر را روشن کنید» — the closing conversion band.
  *
- * The band is a live, infinitely looping scene instead of a video file:
- *   - a seamless dark-water tile scrolls downwards forever (the ship reads as
- *     sailing forward),
- *   - the vertical container ship — keyed off its isolation sheet, the
- *     horizontal ship of the first render removed for good — rides the water
- *     with a slow bob,
- *   - there is no section background of its own: the scene IS the band,
- *     full-bleed, with only a readability scrim under the copy.
- * Two still layers + CSS keyframes loop perfectly and stay sharp at any size,
- * which a compressed video file could not; `prefers-reduced-motion` freezes it.
+ * A single, still, full-bleed cinematic frame: the vertical container ship
+ * shot from above on dark water (public/img/ship-cta-*.webp). No animation,
+ * no panel of its own — the photograph IS the band; a directional scrim keeps
+ * the copy readable over it and the logo-orange CTA closes the section.
  */
 import Icon from './Icon.astro';
 import { contactCta } from '~/config/site';
@@ -26,11 +20,11 @@ const {
 ---
 
 <section class="cta-band" aria-labelledby="cta-title">
-  <div class="cta-band__scene" aria-hidden="true">
-    <div class="cta-band__sea"></div>
-    <img class="cta-band__ship" src="/img/ship-vertical.webp" alt="" width="230" height="1400" />
-    <div class="cta-band__scrim"></div>
-  </div>
+  <picture aria-hidden="true">
+    <source srcset="/img/ship-cta-1600.webp" type="image/webp" />
+    <img class="cta-band__photo" src="/img/ship-cta-1600.webp" alt="" width="1600" height="900" />
+  </picture>
+  <div class="cta-band__scrim" aria-hidden="true"></div>
   <div class="container cta-band__wrap">
     <div class="cta-band__copy reveal">
       <h2 id="cta-title">{title}</h2>
@@ -55,43 +49,13 @@ const {
     overflow: hidden;
     color: #c4cddb;
   }
-  .cta-band__scene {
+  .cta-band__photo {
     position: absolute;
     inset: 0;
-  }
-  /* the water: one seamless tile, scrolled exactly one tile-height per cycle,
-     so the loop has no seam and no end */
-  .cta-band__sea {
-    position: absolute;
-    inset: 0;
-    background: url('/img/sea-tile.webp') repeat;
-    background-size: 232px 232px;
-    animation: sea-flow 14s linear infinite;
-    filter: brightness(0.9) saturate(1.05);
-  }
-  @keyframes sea-flow {
-    to {
-      background-position: 0 232px;
-    }
-  }
-  .cta-band__ship {
-    position: absolute;
-    left: 26%;
-    top: 50%;
-    translate: -50% -50%;
-    block-size: 132%;
-    inline-size: auto;
-    animation: ship-bob 9s ease-in-out infinite;
-    filter: drop-shadow(0 22px 44px rgb(0 4 14 / 0.55));
-  }
-  @keyframes ship-bob {
-    0%,
-    100% {
-      transform: translateY(-7px) rotate(-0.5deg);
-    }
-    50% {
-      transform: translateY(7px) rotate(0.5deg);
-    }
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+    object-position: center 42%;
   }
   /* readability only: darker under the copy (right in RTL), open over the ship */
   .cta-band__scrim {
@@ -99,10 +63,10 @@ const {
     inset: 0;
     background: linear-gradient(
       to left,
-      rgb(1 10 26 / 0.86),
-      rgb(1 10 26 / 0.62) 38%,
-      rgb(1 10 26 / 0.18) 66%,
-      rgb(1 10 26 / 0.34)
+      rgb(1 10 26 / 0.88),
+      rgb(1 10 26 / 0.66) 40%,
+      rgb(1 10 26 / 0.18) 68%,
+      rgb(1 10 26 / 0.3)
     );
   }
   .cta-band__wrap {
@@ -115,7 +79,7 @@ const {
     justify-items: start;
     gap: 1.1rem;
     max-width: 40rem;
-    padding-block: clamp(3.5rem, 8vw, 6rem);
+    padding-block: clamp(4rem, 9vw, 7rem);
   }
   .cta-band h2 {
     color: var(--white);
@@ -146,22 +110,14 @@ const {
     color: var(--petrol-200);
   }
   @media (max-width: 860px) {
-    .cta-band__ship {
-      left: 50%;
-      block-size: 118%;
-      opacity: 0.9;
+    .cta-band__photo {
+      object-position: 38% center;
     }
     .cta-band__scrim {
-      background: rgb(1 10 26 / 0.66);
+      background: rgb(1 10 26 / 0.72);
     }
     .cta-band__copy {
       padding-block: 3rem 3.5rem;
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .cta-band__sea,
-    .cta-band__ship {
-      animation: none;
     }
   }
 </style>
