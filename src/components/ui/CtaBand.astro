@@ -2,10 +2,16 @@
 /**
  * «پیش از هر تصمیم، مسیر را روشن کنید» — the closing conversion band.
  *
- * Structure follows the business's reference: one full-bleed dark band split by
- * a diagonal; the photo panel (a ship seen from above, instead of the
- * reference's car) sits on the left, the promise + actions on the right.
- * The palette is the logo's: deep navy sweep, orange CTA, mist copy.
+ * The band is a live, infinitely looping scene instead of a video file:
+ *   - a seamless dark-water tile scrolls downwards forever (the ship reads as
+ *     sailing forward),
+ *   - the vertical container ship — keyed off its isolation sheet, the
+ *     horizontal ship of the first render removed for good — rides the water
+ *     with a slow bob,
+ *   - there is no section background of its own: the scene IS the band,
+ *     full-bleed, with only a readability scrim under the copy.
+ * Two still layers + CSS keyframes loop perfectly and stay sharp at any size,
+ * which a compressed video file could not; `prefers-reduced-motion` freezes it.
  */
 import Icon from './Icon.astro';
 import { contactCta } from '~/config/site';
@@ -20,8 +26,10 @@ const {
 ---
 
 <section class="cta-band" aria-labelledby="cta-title">
-  <div class="cta-band__media" aria-hidden="true">
-    <img src="/img/ship-topdown-1200.webp" alt="" width="1200" height="653" loading="lazy" />
+  <div class="cta-band__scene" aria-hidden="true">
+    <div class="cta-band__sea"></div>
+    <img class="cta-band__ship" src="/img/ship-vertical.webp" alt="" width="230" height="1400" />
+    <div class="cta-band__scrim"></div>
   </div>
   <div class="container cta-band__wrap">
     <div class="cta-band__copy reveal">
@@ -45,31 +53,57 @@ const {
   .cta-band {
     position: relative;
     overflow: hidden;
-    background:
-      radial-gradient(60rem 30rem at 88% 0%, rgb(254 93 2 / 0.14), transparent 60%),
-      linear-gradient(115deg, #001637 0%, #012b64 58%, #0d3f85 100%);
     color: #c4cddb;
   }
-  /* the diagonal photo panel, physically on the left like the reference */
-  .cta-band__media {
-    position: absolute;
-    inset-block: 0;
-    left: 0;
-    inline-size: min(44%, 42rem);
-    clip-path: polygon(0 0, 100% 0, 74% 100%, 0 100%);
-  }
-  .cta-band__media img {
-    inline-size: 100%;
-    block-size: 100%;
-    object-fit: cover;
-    object-position: center;
-  }
-  .cta-band__media::after {
-    /* melt the photo edge into the navy sweep */
-    content: '';
+  .cta-band__scene {
     position: absolute;
     inset: 0;
-    background: linear-gradient(265deg, #012b64 2%, transparent 34%);
+  }
+  /* the water: one seamless tile, scrolled exactly one tile-height per cycle,
+     so the loop has no seam and no end */
+  .cta-band__sea {
+    position: absolute;
+    inset: 0;
+    background: url('/img/sea-tile.webp') repeat;
+    background-size: 232px 232px;
+    animation: sea-flow 14s linear infinite;
+    filter: brightness(0.9) saturate(1.05);
+  }
+  @keyframes sea-flow {
+    to {
+      background-position: 0 232px;
+    }
+  }
+  .cta-band__ship {
+    position: absolute;
+    left: 26%;
+    top: 50%;
+    translate: -50% -50%;
+    block-size: 132%;
+    inline-size: auto;
+    animation: ship-bob 9s ease-in-out infinite;
+    filter: drop-shadow(0 22px 44px rgb(0 4 14 / 0.55));
+  }
+  @keyframes ship-bob {
+    0%,
+    100% {
+      transform: translateY(-7px) rotate(-0.5deg);
+    }
+    50% {
+      transform: translateY(7px) rotate(0.5deg);
+    }
+  }
+  /* readability only: darker under the copy (right in RTL), open over the ship */
+  .cta-band__scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to left,
+      rgb(1 10 26 / 0.86),
+      rgb(1 10 26 / 0.62) 38%,
+      rgb(1 10 26 / 0.18) 66%,
+      rgb(1 10 26 / 0.34)
+    );
   }
   .cta-band__wrap {
     position: relative;
@@ -80,8 +114,8 @@ const {
     display: grid;
     justify-items: start;
     gap: 1.1rem;
-    max-width: 42rem;
-    padding-block: clamp(3rem, 7vw, 5.25rem);
+    max-width: 40rem;
+    padding-block: clamp(3.5rem, 8vw, 6rem);
   }
   .cta-band h2 {
     color: var(--white);
@@ -94,7 +128,6 @@ const {
     gap: 1rem 1.75rem;
     margin-top: 0.4rem;
   }
-  /* the reference's solid orange CTA, with navy ink for contrast */
   .btn--sun {
     --btn-bg: var(--petrol-600);
     --btn-border: var(--petrol-600);
@@ -112,27 +145,23 @@ const {
   .cta-band__more:hover {
     color: var(--petrol-200);
   }
-  @media (max-width: 1100px) {
-    .cta-band__media {
-      inline-size: 36%;
+  @media (max-width: 860px) {
+    .cta-band__ship {
+      left: 50%;
+      block-size: 118%;
+      opacity: 0.9;
+    }
+    .cta-band__scrim {
+      background: rgb(1 10 26 / 0.66);
     }
     .cta-band__copy {
-      max-width: 32rem;
+      padding-block: 3rem 3.5rem;
     }
   }
-  @media (max-width: 860px) {
-    .cta-band__media {
-      position: relative;
-      inset-inline: 0;
-      inline-size: 100%;
-      block-size: 13rem;
-      clip-path: polygon(0 0, 100% 0, 100% 82%, 0 100%);
-    }
-    .cta-band__media::after {
-      background: linear-gradient(0deg, #012b64 4%, transparent 40%);
-    }
-    .cta-band__copy {
-      padding-block: 2.25rem 3rem;
+  @media (prefers-reduced-motion: reduce) {
+    .cta-band__sea,
+    .cta-band__ship {
+      animation: none;
     }
   }
 </style>
