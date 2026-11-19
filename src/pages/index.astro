@@ -973,9 +973,13 @@ const faqs = [
   /* the card and its arrows sit side by side: arrows live OUTSIDE the box */
   .prepare__slot {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
+    /* RTL: column 1 is the right edge — the arrows live there, OUTSIDE the box */
+    grid-template-columns: auto minmax(0, 1fr);
     gap: 0.9rem;
     align-items: center;
+  }
+  .prep-nav {
+    order: -1;
   }
   .prep-slider {
     display: flex;
@@ -1244,6 +1248,7 @@ const faqs = [
       grid-template-columns: 1fr;
     }
     .prep-nav {
+      order: 2;
       grid-auto-flow: column;
       justify-content: center;
     }

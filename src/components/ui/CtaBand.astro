@@ -63,6 +63,9 @@ const {
     border-radius: clamp(1.25rem, 2.4vw, 2.25rem);
     border: 1px solid rgb(2 56 126 / 0.2);
     box-shadow: 0 44px 88px -48px rgb(0 18 48 / 0.6);
+    /* breathing room between the copy and the frame's right edge; the photo
+       is absolute, so it still runs edge to edge under the padding */
+    padding-inline: clamp(1.5rem, 4vw, 4.5rem);
   }
   .cta-band__photo {
     position: absolute;
