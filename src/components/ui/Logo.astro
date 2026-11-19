@@ -1,6 +1,5 @@
 ---
 import { site } from '~/config/site';
-import Mark from './Mark.astro';
 export interface Props {
   tone?: 'dark' | 'light';
 }
@@ -8,7 +7,7 @@ const { tone = 'dark' } = Astro.props;
 ---
 
 <span class:list={['logo', `logo--${tone}`]}>
-  <Mark class="logo__mark" tone={tone === 'light' ? 'on-dark' : 'color'} />
+  <img class="logo__mark" src="/img/logo-globe.png" alt="" width="909" height="568" />
   <span class="logo__text">
     <span class="logo__fa">{site.name}</span>
     <span class="logo__en" lang="en">{site.wordmarkLatin}</span>
@@ -26,9 +25,11 @@ const { tone = 'dark' } = Astro.props;
     color: var(--white);
   }
   .logo :global(.logo__mark) {
-    inline-size: 2.6rem;
-    block-size: 2.6rem;
+    /* the globe-scene emblem: transparent outside its orbit ellipse */
+    inline-size: auto;
+    block-size: 2.7rem;
     flex: none;
+    filter: drop-shadow(0 3px 8px rgb(4 16 31 / 0.35));
   }
   .logo__text {
     display: grid;

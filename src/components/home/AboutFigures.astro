@@ -3,9 +3,9 @@
  * «از بندر تا انبار، مسیر کالا روشن باشد» — built to the reference photo.
  *
  * The band itself is white; a navy crescent panel sits on the RTL-left and one
- * big arc is its right-hand edge. The globe is a real-geography dot sphere
- * sitting inside that panel and cropped by it, so the sphere reads against
- * white only through the arc, exactly like the photo.
+ * big arc is its right-hand edge. The brand globe scene (orbit rings, ship,
+ * truck, plane) sits inside that panel and is cropped by it, its own night-sky
+ * background melting into the panel sweep via a radial mask.
  *
  * Geometry, measured off the reference (share of the band's width):
  *   panel edge ~36% at the top, ~46% at mid, ~48% at the bottom
@@ -18,7 +18,6 @@
  * ۱۵ سال سابقه (تأسیس ۱۳۹۳).
  */
 import Icon from '~/components/ui/Icon.astro';
-import GlobeArt from '~/components/home/GlobeArt.astro';
 import { toFaNumber } from '~/lib/format';
 
 export interface Figure {
@@ -53,7 +52,7 @@ const spoken = (f: Figure) =>
 <section class="about-band" id="about" aria-labelledby="about-title">
   <div class="about-band__crescent" aria-hidden="true">
     <div class="about-band__globe">
-      <GlobeArt class="about-band__globe-art" rotate={16} period={80} />
+      <img class="about-band__globe-art" src="/img/globe-scene.webp" alt="" width="983" height="654" />
     </div>
   </div>
 
@@ -118,7 +117,8 @@ const spoken = (f: Figure) =>
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(120% 120% at 8% 34%, #0b559c 0%, #073a6d 40%, #052547 72%, #04182e 100%);
+      radial-gradient(90% 60% at 70% 8%, rgb(225 137 49 / 0.18), transparent 60%),
+      radial-gradient(120% 120% at 8% 34%, #274b7c 0%, #123158 40%, #071e3a 72%, #04101f 100%);
     clip-path: ellipse(24% 112% at 24% 100%);
     z-index: 0;
     /* the globe is a child, so the same arc trims it, exactly like the photo */
@@ -136,7 +136,10 @@ const spoken = (f: Figure) =>
   }
   .about-band__globe-art {
     inline-size: 100%;
-    opacity: 0.95;
+    block-size: auto;
+    /* melt the photo's rectangular edge into the crescent's own night sky */
+    mask-image: radial-gradient(78% 78% at 50% 50%, #000 62%, transparent 98%);
+    filter: saturate(1.05);
   }
 
   .about-band__grid {

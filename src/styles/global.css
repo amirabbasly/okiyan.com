@@ -5,15 +5,16 @@
 
 :root {
   /* Palette — OKIYAN brand colours (marked ★) and tints derived from them */
-  --navy-950: #000f28;
-  --navy-900: #001b42; /* ★ سرمه‌ای عمیق — deep navy */
-  --navy-800: #052547;
-  --petrol-700: #06406e;
-  --petrol-600: #005793; /* ★ آبی نفتی — petrol blue; the accent */
-  --petrol-500: #0a6ea8;
-  --petrol-300: #8fb4c9; /* accent on dark backgrounds */
-  --petrol-200: #b9d1de;
-  --petrol-100: #dde9ef;
+  /* Palette measured off the brand globe mark: deep space navy + orbit amber. */
+  --navy-950: #04101f;
+  --navy-900: #071c36; /* ★ سرمه‌ای لوگو — logo navy */
+  --navy-800: #0e2b4d;
+  --petrol-700: #9a5a10; /* amber dark enough for text on paper */
+  --petrol-600: #e18931; /* ★ کهربایی لوگو — logo amber; the accent */
+  --petrol-500: #c96f1d;
+  --petrol-300: #eab069; /* accent on dark backgrounds */
+  --petrol-200: #f4cf9d;
+  --petrol-100: #fae7cd;
   /* ★ فیروزه‌ای — the bright aqua accent used by the header rule and the
      primary CTA. Kept separate from the petrol scale so the calm navy/petrol
      palette of the content stays intact and only the primary action glows. */
@@ -32,8 +33,8 @@
   --ink-700: var(--navy-800);
   --blue-700: var(--petrol-600);
   --blue-300: #6fbfe8;
-  --paper: #fafbff;
-  --paper-alt: #eef2fa;
+  --paper: #fbf9f5;
+  --paper-alt: #f4eee3;
 
   --silver-400: #a3aec2; /* ★ نقره‌ای خنثی — neutral silver (decoration, not body text) */
   --mist-300: #cdd6e6;
@@ -53,7 +54,7 @@
   --text-muted: var(--slate-600);
   --rule: rgb(0 27 66 / 0.14);
   --rule-strong: rgb(0 27 66 / 0.28);
-  --accent: var(--blue-700);
+  --accent: var(--petrol-700);
   --focus: #0a6ea8;
 
   /* Type */
@@ -260,10 +261,31 @@ textarea {
 .section--grain {
   background-image: var(--grain);
 }
+/* The header, the homepage hero slider and the inner-page hero band keep the
+   previous blue identity on purpose; everything below them follows the logo. */
+.site-header,
+.hero-slider,
+.page-hero {
+  --navy-950: #000f28;
+  --navy-900: #001b42;
+  --navy-800: #052547;
+  --petrol-700: #06406e;
+  --petrol-600: #005793;
+  --petrol-500: #0a6ea8;
+  --petrol-300: #8fb4c9;
+  --petrol-200: #b9d1de;
+  --petrol-100: #dde9ef;
+  --paper: #fafbff;
+  --paper-alt: #eef2fa;
+  --accent: var(--petrol-600);
+}
+
 .section--dark {
   background-color: var(--ink-900);
   /* the same sweep as the about band's panel */
-  background-image: radial-gradient(120% 132% at 8% 0%, #0a5078 0%, #06407a 26%, #04295c 58%, #001b42 82%, #021438 100%);
+  background-image:
+    radial-gradient(90% 55% at 88% 0%, rgb(225 137 49 / 0.16), transparent 62%),
+    radial-gradient(120% 132% at 8% 0%, #14406b 0%, #0d2b4d 30%, #071c36 64%, #04101f 100%);
   color: var(--mist-100);
   --text-muted: #b9c6db;
   --rule: rgb(210 228 255 / 0.16);
@@ -359,6 +381,7 @@ textarea {
 .btn:hover {
   --btn-bg: var(--petrol-600);
   --btn-border: var(--petrol-600);
+  --btn-fg: var(--navy-950);
   box-shadow: 0 10px 24px -14px rgb(13 26 44 / 0.6);
 }
 .btn:active {
@@ -499,7 +522,7 @@ textarea {
   font-weight: 700;
 }
 .prose a {
-  color: var(--petrol-600);
+  color: var(--petrol-700);
   font-weight: 600;
   text-decoration-color: var(--petrol-300);
   text-decoration-thickness: 2px;
@@ -588,7 +611,7 @@ textarea {
   border-radius: var(--radius-s);
   background: repeating-linear-gradient(-45deg, transparent 0 8px, rgb(143 180 201 / 0.07) 8px 16px);
   font-size: var(--step--1);
-  color: var(--petrol-600);
+  color: var(--petrol-700);
 }
 .section--dark .placeholder {
   color: var(--petrol-200);
@@ -732,7 +755,7 @@ textarea {
   background: var(--mist-100);
   font-size: 0.8rem;
   font-weight: 700;
-  color: var(--petrol-600);
+  color: var(--petrol-700);
 }
 .stats {
   display: grid;
@@ -757,7 +780,7 @@ textarea {
   font-size: var(--step-4);
   font-weight: 800;
   line-height: 1.1;
-  color: var(--petrol-600);
+  color: var(--petrol-700);
 }
 .section--dark .stats dd {
   color: var(--petrol-200);
@@ -842,10 +865,10 @@ textarea {
 }
 .print-bar__btn:hover {
   border-color: var(--petrol-500);
-  color: var(--petrol-600);
+  color: var(--petrol-700);
 }
 .print-bar__btn--solid:hover {
-  color: var(--white);
+  color: var(--navy-950);
   background: var(--petrol-600);
   border-color: var(--petrol-600);
 }
@@ -901,5 +924,83 @@ textarea {
   body:has(.print-bar) .chk {
     break-inside: avoid;
     border-color: #999;
+  }
+}
+
+/* ---------- Living boxes: lift + amber edge-glow on hover ----------
+   The logo palette is navy + orbit amber; cards answer to the pointer so the
+   page reads alive instead of flat. Transitions only — no layout shift. */
+.origin-card,
+.goods-card,
+.tool-card,
+.src-grid li,
+.src-list li,
+.policy__col,
+.permit-box,
+.cost-box,
+.guide__summary,
+.calc__form,
+.anatomy li,
+.chain li,
+.gir li,
+.rate-cards li,
+.tile,
+.excluded li,
+.office,
+.goods-chips a,
+.ports-list a {
+  transition:
+    transform var(--dur-med) var(--ease-out),
+    box-shadow var(--dur-med) var(--ease-out),
+    border-color var(--dur-med) ease,
+    background-color var(--dur-med) ease;
+}
+.origin-card:hover,
+.goods-card:hover,
+.tool-card:hover,
+.src-grid li:hover,
+.policy__col:hover,
+.permit-box:hover,
+.cost-box:hover,
+.anatomy li:hover,
+.chain li:hover,
+.gir li:hover,
+.rate-cards li:hover,
+.tile:hover {
+  transform: translateY(-4px);
+  border-color: rgb(225 137 49 / 0.55);
+  box-shadow:
+    0 22px 44px -26px rgb(7 28 54 / 0.45),
+    0 0 0 1px rgb(225 137 49 / 0.28);
+}
+.goods-chips a:hover,
+.ports-list a:hover {
+  transform: translateY(-2px);
+  border-color: rgb(225 137 49 / 0.6);
+  box-shadow: 0 10px 22px -14px rgb(225 137 49 / 0.55);
+}
+.faq__item summary:hover,
+.faq__q:hover {
+  color: var(--petrol-700);
+}
+.section--dark .faq__item summary:hover {
+  color: var(--petrol-200);
+}
+@media (prefers-reduced-motion: reduce) {
+  .origin-card:hover,
+  .goods-card:hover,
+  .tool-card:hover,
+  .src-grid li:hover,
+  .policy__col:hover,
+  .permit-box:hover,
+  .cost-box:hover,
+  .anatomy li:hover,
+  .chain li:hover,
+  .gir li:hover,
+  .rate-cards li:hover,
+  .tile:hover,
+  .goods-chips a:hover,
+  .ports-list a:hover {
+    transform: none;
   }
 }
