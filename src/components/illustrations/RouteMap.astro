@@ -32,21 +32,21 @@ const ports = [
 >
   <defs>
     <linearGradient id={`sea-${variant}`} x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#0e2b4d"></stop>
-      <stop offset="1" stop-color="#071c36"></stop>
+      <stop offset="0" stop-color="#02387e"></stop>
+      <stop offset="1" stop-color="#012b64"></stop>
     </linearGradient>
     <marker id={`arr-${variant}`} viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
-      <path d="M0 0L10 5L0 10z" fill="#fae7cd"></path>
+      <path d="M0 0L10 5L0 10z" fill="#ffe3d0"></path>
     </marker>
     <marker id={`arr-old-${variant}`} viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse">
-      <path d="M0 0L10 5L0 10z" fill="#eab069"></path>
+      <path d="M0 0L10 5L0 10z" fill="#ff9a57"></path>
     </marker>
   </defs>
 
   <rect width="720" height="440" fill={`url(#sea-${variant})`}></rect>
 
   <!-- water texture -->
-  <g fill="none" stroke="#eab069" stroke-linecap="round" stroke-opacity="0.13" stroke-width="2">
+  <g fill="none" stroke="#ff9a57" stroke-linecap="round" stroke-opacity="0.13" stroke-width="2">
     <path d="M92 276c16-8 30-8 46 0s30 8 46 0"></path>
     <path d="M300 292c16-8 30-8 46 0s30 8 46 0"></path>
     <path d="M148 306c16-8 30-8 46 0"></path>
@@ -59,7 +59,7 @@ const ports = [
   <path
     d="M0 206c40-8 76 2 120-6 44-8 80 0 124-10 44-10 82 3 128-6 42-8 80 7 124-2 40-8 72-32 108-44 32-10 68-22 116-28"
     fill="none"
-    stroke="#0e2b4d"
+    stroke="#02387e"
     stroke-opacity="0.18"
     stroke-width="2"></path>
 
@@ -70,7 +70,7 @@ const ports = [
   <path
     d="M0 340c60-6 108-18 160-26 46-7 76 4 108 16 32 12 62 18 98 22 38 4 64-6 90-16 30-12 56-36 80-54l20-20c12-10 22-16 34-12 16 6 28 22 38 42 14 26 36 40 62 48 26 8 46 12 66 14"
     fill="none"
-    stroke="#0e2b4d"
+    stroke="#02387e"
     stroke-opacity="0.18"
     stroke-width="2"></path>
   <!-- close the land off along the bottom edge -->
@@ -82,18 +82,18 @@ const ports = [
     <text x="96" y="404" text-anchor="middle">امارات</text>
     <text x="656" y="352" text-anchor="middle">عمان</text>
   </g>
-  <text x="430" y="212" fill="#eab069" fill-opacity="0.8" font-size="14" font-weight="600" direction="rtl" text-anchor="middle">
+  <text x="430" y="212" fill="#ff9a57" fill-opacity="0.8" font-size="14" font-weight="600" direction="rtl" text-anchor="middle">
     خلیج فارس
   </text>
 
   {
     direct ? (
-      <g fill="none" stroke="#fae7cd" stroke-width="3.4" stroke-dasharray="9 8" stroke-linecap="round">
+      <g fill="none" stroke="#ffe3d0" stroke-width="3.4" stroke-dasharray="9 8" stroke-linecap="round">
         <path d="M232 328C204 292 186 250 178 220" marker-end={`url(#arr-${variant})`} />
         <path d="M232 328C330 312 498 218 588 166" marker-end={`url(#arr-${variant})`} />
       </g>
     ) : (
-      <g fill="none" stroke="#eab069" stroke-opacity="0.6" stroke-width="2.6" stroke-dasharray="4 7" stroke-linecap="round">
+      <g fill="none" stroke="#ff9a57" stroke-opacity="0.6" stroke-width="2.6" stroke-dasharray="4 7" stroke-linecap="round">
         <path d="M232 328C320 326 452 300 552 275" marker-end={`url(#arr-old-${variant})`} />
         <path d="M566 252C574 224 590 190 598 168" marker-end={`url(#arr-old-${variant})`} />
       </g>
@@ -105,9 +105,9 @@ const ports = [
       .filter((p) => !direct || p.name !== 'خصب')
       .map((p) => (
         <g>
-          <circle cx={p.x} cy={p.y} r="6.5" fill="#0e2b4d" stroke="#fae7cd" stroke-width="2.4" />
-          <circle cx={p.x} cy={p.y} r="2.1" fill="#fae7cd" />
-          <rect x={p.x + p.dx - p.w / 2} y={p.y + p.dy - 17} width={p.w} height="23" rx="5.5" fill="#0e2b4d" fill-opacity="0.94" />
+          <circle cx={p.x} cy={p.y} r="6.5" fill="#02387e" stroke="#ffe3d0" stroke-width="2.4" />
+          <circle cx={p.x} cy={p.y} r="2.1" fill="#ffe3d0" />
+          <rect x={p.x + p.dx - p.w / 2} y={p.y + p.dy - 17} width={p.w} height="23" rx="5.5" fill="#02387e" fill-opacity="0.94" />
           <text
             x={p.x + p.dx}
             y={p.y + p.dy}
@@ -122,7 +122,7 @@ const ports = [
   }
 
   <g>
-    <rect x="424" y="22" width="272" height="32" rx="16" fill={direct ? '#9a5a10' : '#31465b'} stroke={direct ? '#fae7cd' : '#eab069'} stroke-opacity="0.5"></rect>
+    <rect x="424" y="22" width="272" height="32" rx="16" fill={direct ? '#b23f00' : '#31465b'} stroke={direct ? '#ffe3d0' : '#ff9a57'} stroke-opacity="0.5"></rect>
     <text x="560" y="43" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="700" direction="rtl">
       {direct ? 'مسیر مستقیم از دبی' : 'مسیر قدیمی از طریق خصب'}
     </text>

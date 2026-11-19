@@ -6,15 +6,15 @@
 :root {
   /* Palette — OKIYAN brand colours (marked ★) and tints derived from them */
   /* Palette measured off the brand globe mark: deep space navy + orbit amber. */
-  --navy-950: #04101f;
-  --navy-900: #071c36; /* ★ سرمه‌ای لوگو — logo navy */
-  --navy-800: #0e2b4d;
-  --petrol-700: #9a5a10; /* amber dark enough for text on paper */
-  --petrol-600: #e18931; /* ★ کهربایی لوگو — logo amber; the accent */
-  --petrol-500: #c96f1d;
-  --petrol-300: #eab069; /* accent on dark backgrounds */
-  --petrol-200: #f4cf9d;
-  --petrol-100: #fae7cd;
+  --navy-950: #001637;
+  --navy-900: #012b64; /* ★ سرمه‌ای لوگو — logo navy */
+  --navy-800: #02387e;
+  --petrol-700: #b23f00; /* amber dark enough for text on paper */
+  --petrol-600: #fe5d02; /* ★ کهربایی لوگو — logo amber; the accent */
+  --petrol-500: #e35400;
+  --petrol-300: #ff9a57; /* accent on dark backgrounds */
+  --petrol-200: #ffc29b;
+  --petrol-100: #ffe3d0;
   /* ★ فیروزه‌ای — the bright aqua accent used by the header rule and the
      primary CTA. Kept separate from the petrol scale so the calm navy/petrol
      palette of the content stays intact and only the primary action glows. */
@@ -284,8 +284,8 @@ textarea {
   background-color: var(--ink-900);
   /* the same sweep as the about band's panel */
   background-image:
-    radial-gradient(90% 55% at 88% 0%, rgb(225 137 49 / 0.16), transparent 62%),
-    radial-gradient(120% 132% at 8% 0%, #14406b 0%, #0d2b4d 30%, #071c36 64%, #04101f 100%);
+    radial-gradient(90% 55% at 88% 0%, rgb(254 93 2 / 0.16), transparent 62%),
+    radial-gradient(120% 132% at 8% 0%, #1554a8 0%, #0d3f85 30%, #012b64 64%, #001637 100%);
   color: var(--mist-100);
   --text-muted: #b9c6db;
   --rule: rgb(210 228 255 / 0.16);
@@ -645,7 +645,7 @@ textarea {
   margin-top: 0.4rem;
   border-radius: 50%;
   background:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M5.5 10.5l3 3 6-7' fill='none' stroke='%230a1c38' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M5.5 10.5l3 3 6-7' fill='none' stroke='%23001637' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
       center / 0.9rem no-repeat,
     var(--petrol-200);
 }
@@ -968,16 +968,16 @@ textarea {
 .rate-cards li:hover,
 .tile:hover {
   transform: translateY(-4px);
-  border-color: rgb(225 137 49 / 0.55);
+  border-color: rgb(254 93 2 / 0.55);
   box-shadow:
-    0 22px 44px -26px rgb(7 28 54 / 0.45),
-    0 0 0 1px rgb(225 137 49 / 0.28);
+    0 22px 44px -26px rgb(0 22 55 / 0.45),
+    0 0 0 1px rgb(254 93 2 / 0.28);
 }
 .goods-chips a:hover,
 .ports-list a:hover {
   transform: translateY(-2px);
-  border-color: rgb(225 137 49 / 0.6);
-  box-shadow: 0 10px 22px -14px rgb(225 137 49 / 0.55);
+  border-color: rgb(254 93 2 / 0.6);
+  box-shadow: 0 10px 22px -14px rgb(254 93 2 / 0.55);
 }
 .faq__item summary:hover,
 .faq__q:hover {

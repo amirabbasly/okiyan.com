@@ -6,11 +6,11 @@
  */
 /** Brand colours (see the palette in src/styles/global.css). */
 export const BRAND = {
-  navy: '#162c47', // سرمه‌ای عمیق
-  petrol: '#234d66', // آبی نفتی
-  petrolLight: '#8fb4c9', // petrol tint for dark backgrounds
+  navy: '#02387e', // ★ سرمه‌ای لوگو — measured from the master logo file
+  petrol: '#fe5d02', // ★ نارنجی لوگو — the accent crescent
+  petrolLight: '#ff9a57', // orange tint for dark backgrounds
   silver: '#a8b0ba', // نقره‌ای خنثی
-  mist: '#e8ecee', // خاکستری روشن
+  mist: '#eef3f8', // خاکستری روشن
   white: '#ffffff', // سفید
 } as const;
 

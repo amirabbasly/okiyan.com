@@ -196,7 +196,7 @@ const faqs = [
   <Clients />
 
   <!-- ============ SERVICES ============ -->
-  <section class="section" id="services" aria-labelledby="services-title">
+  <section class="section section--glow" id="services" aria-labelledby="services-title">
     <div class="container">
       <header class="section-head section-head--split reveal">
         <div>
@@ -212,7 +212,7 @@ const faqs = [
       <div class="services">
         {
           homepageServices.map((s, i) => (
-            <article class="service reveal" aria-labelledby={`service-${i}`}>
+            <article class="service glass reveal" aria-labelledby={`service-${i}`}>
               <div class="service__top" aria-hidden="true">
                 <p class="service__num">{toFa(`0${i + 1}`)}</p>
                 <span class="service__icon">
@@ -223,7 +223,7 @@ const faqs = [
                 <a href={s.href}>{s.name}</a>
               </h3>
               <p class="service__summary">{s.summary}</p>
-              <ul class="checklist">
+              <ul class="checklist service__list">
                 {s.includes.map((item) => (
                   <li>{item}</li>
                 ))}
@@ -238,7 +238,7 @@ const faqs = [
         }
       </div>
 
-      <nav class="routes" aria-labelledby="routes-title">
+      <nav class="routes glass reveal" aria-labelledby="routes-title">
         <p class="routes__label" id="routes-title">مسیرهای مرتبط</p>
         <ul class="routes__list">
           {
@@ -257,7 +257,7 @@ const faqs = [
   </section>
 
   <!-- ============ PRINCIPLES ============ -->
-  <section class="section section--alt section--grain" aria-labelledby="principles-title">
+  <section class="section section--alt section--grain section--glow" aria-labelledby="principles-title">
     <div class="container principles">
       <header class="section-head principles__head reveal">
         <span class="eyebrow">روش کار</span>
@@ -441,29 +441,70 @@ const faqs = [
     text-decoration-color: var(--petrol-300);
     text-decoration-thickness: 2px;
   }
+  /* frosted-glass surface: the two sections below sit on soft logo-coloured
+     glows, so the blur has something to refract */
+  .glass {
+    background: rgb(255 255 255 / 0.62);
+    -webkit-backdrop-filter: blur(14px) saturate(1.25);
+    backdrop-filter: blur(14px) saturate(1.25);
+    border: 1px solid rgb(2 56 126 / 0.16);
+    border-radius: 1.25rem;
+    box-shadow: 0 26px 52px -36px rgb(0 18 48 / 0.42);
+  }
+  .section--glow {
+    position: relative;
+  }
+  .section--glow::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(44rem 28rem at 90% -8%, rgb(254 93 2 / 0.12), transparent 62%),
+      radial-gradient(40rem 26rem at 4% 106%, rgb(2 56 126 / 0.13), transparent 60%);
+  }
+  .section--glow > .container {
+    position: relative;
+  }
+
   .services {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    border-top: 2px solid var(--navy-900);
+    gap: 1.15rem;
   }
   .service {
     display: grid;
-    gap: 1.2rem;
+    gap: 0.8rem;
     align-content: start;
-    padding: 2.25rem 0 0.5rem;
+    padding: 1.5rem 1.6rem 1.3rem;
+    transition:
+      transform var(--dur-med) var(--ease-out),
+      box-shadow var(--dur-med) var(--ease-out),
+      border-color var(--dur-med) ease;
   }
-  /* two columns: a rule between them, and one between the two rows */
-  .service:nth-child(odd) {
-    padding-inline-end: clamp(1.5rem, 4vw, 4rem);
+  .service:hover {
+    transform: translateY(-4px);
+    border-color: rgb(254 93 2 / 0.55);
+    box-shadow:
+      0 30px 58px -34px rgb(0 18 48 / 0.5),
+      0 0 0 1px rgb(254 93 2 / 0.3);
   }
-  .service:nth-child(even) {
-    padding-inline-start: clamp(1.5rem, 4vw, 4rem);
-    border-inline-start: 1px solid var(--rule);
+  /* the checklist reads as two tight columns inside the glass box */
+  .service__list {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.4rem 1.1rem;
   }
-  .service:nth-child(n + 3) {
-    margin-top: 2rem;
-    padding-top: 2.25rem;
-    border-top: 1px solid var(--rule);
+  .service__list li {
+    grid-template-columns: 1.1rem 1fr;
+    gap: 0.5rem;
+    font-size: var(--step--1);
+    line-height: 1.7;
+  }
+  .service__list li::before {
+    inline-size: 1rem;
+    block-size: 1rem;
+    margin-top: 0.3rem;
+    background-size: 0.72rem, 1rem;
   }
   .service__top {
     display: flex;
@@ -471,53 +512,35 @@ const faqs = [
     justify-content: space-between;
   }
   .service__num {
-    font-size: var(--step-4);
+    font-size: var(--step-3);
     font-weight: 800;
     line-height: 1;
-    color: var(--petrol-500);
+    color: rgb(2 56 126 / 0.3);
   }
   .service__icon {
     display: grid;
     place-items: center;
-    inline-size: 3.5rem;
-    block-size: 3.5rem;
-    border-radius: 1rem;
-    background: var(--navy-900);
+    inline-size: 3.1rem;
+    block-size: 3.1rem;
+    border-radius: 0.9rem;
+    background: linear-gradient(140deg, #1554a8, #012b64);
     color: var(--petrol-200);
-    box-shadow: 0 14px 30px -18px rgb(13 26 44 / 0.7);
+    box-shadow: 0 14px 30px -18px rgb(0 18 48 / 0.7);
     transition: transform var(--dur-med) var(--ease-out);
   }
   .service:nth-child(even) .service__icon {
-    background: var(--petrol-600);
+    background: linear-gradient(140deg, #fe5d02, #e35400);
     color: var(--white);
   }
   .service__icon :global(svg) {
     inline-size: 1.7rem;
     block-size: 1.7rem;
   }
-  .service {
-    position: relative;
-    transition: background-color var(--dur-med) ease;
-  }
-  .service::before {
-    /* accent rule that draws in on hover */
-    content: '';
-    position: absolute;
-    top: -2px;
-    inset-inline-start: 0;
-    height: 2px;
-    width: 0;
-    background: var(--petrol-600);
-    transition: width 500ms var(--ease-out);
-  }
-  .service:hover::before {
-    width: 100%;
-  }
   .service:hover .service__icon {
     transform: translateY(-3px) rotate(-4deg);
   }
   .service h3 {
-    font-size: var(--step-3);
+    font-size: var(--step-2);
   }
   .service h3 a {
     text-decoration: none;
@@ -533,8 +556,8 @@ const faqs = [
   .service__fit {
     font-size: var(--step--1);
     color: var(--text-muted);
-    padding-top: 1rem;
-    border-top: 1px dashed var(--rule-strong);
+    padding-top: 0.7rem;
+    border-top: 1px dashed rgb(2 56 126 / 0.22);
   }
 
   /* ---------- Related routes (the two paths lead here) ---------- */
@@ -542,10 +565,9 @@ const faqs = [
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 0.75rem 1.5rem;
-    margin-top: clamp(1.75rem, 1.2rem + 2vw, 2.75rem);
-    padding-top: 1.25rem;
-    border-top: 1px solid var(--rule);
+    gap: 0.6rem 1.5rem;
+    margin-top: 1.15rem;
+    padding: 0.8rem 1.3rem;
   }
   .routes__label {
     font-size: var(--step--1);
@@ -586,42 +608,63 @@ const faqs = [
   /* ---------- Principles ---------- */
   .principles {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
-    gap: 2rem 4rem;
+    gap: 1.5rem;
   }
   .principles__head {
-    align-self: start;
-    position: sticky;
-    top: calc(var(--header-h) + 2rem);
+    max-width: 62ch;
   }
   .principles__list {
     list-style: none;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 0 2.5rem;
+    gap: 1rem;
+    margin: 0;
+    padding: 0;
   }
   .principles__list li {
     display: grid;
-    gap: 0.6rem;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas:
+      'n h'
+      'p p';
+    gap: 0.45rem 0.85rem;
     align-content: start;
-    padding-block: 1.75rem;
-    border-top: 1px solid var(--rule-strong);
+    padding: 1.05rem 1.25rem 1rem;
+    border-radius: 1.1rem;
+    transition:
+      transform var(--dur-med) var(--ease-out),
+      box-shadow var(--dur-med) var(--ease-out),
+      border-color var(--dur-med) ease;
+  }
+  .principles__list li:hover {
+    transform: translateY(-3px);
+    border-color: rgb(254 93 2 / 0.5);
+    box-shadow:
+      0 24px 46px -30px rgb(0 18 48 / 0.48),
+      0 0 0 1px rgb(254 93 2 / 0.26);
   }
   .principles__n {
+    grid-area: n;
     display: grid;
     place-items: center;
-    inline-size: 2.4rem;
-    block-size: 2.4rem;
-    border-radius: 50%;
-    background: var(--navy-900);
-    color: var(--petrol-200);
+    inline-size: 2rem;
+    block-size: 2rem;
+    border-radius: 0.6rem;
+    background: linear-gradient(140deg, #fe5d02, #e35400);
+    color: var(--white);
+    font-size: 0.95rem;
     font-weight: 800;
   }
   .principles__list h3 {
-    font-size: var(--step-1);
+    grid-area: h;
+    align-self: center;
+    font-size: var(--step-0);
     font-weight: 800;
   }
   .principles__list p {
+    grid-area: p;
+    font-size: var(--step--1);
+    line-height: 1.8;
     color: var(--text-muted);
   }
 
@@ -779,12 +822,8 @@ const faqs = [
 
   /* ---------- Responsive ---------- */
   @media (max-width: 980px) {
-    .principles,
     .faq-wrap {
       grid-template-columns: 1fr;
-    }
-    .principles__head {
-      position: static;
     }
   }
   @media (max-width: 860px) {
@@ -796,21 +835,6 @@ const faqs = [
     .prepare {
       grid-template-columns: 1fr;
     }
-    .service:nth-child(odd) {
-      padding-inline-end: 0;
-    }
-    .service:nth-child(even) {
-      padding-inline-start: 0;
-      border-inline-start: 0;
-    }
-    .service:nth-child(n + 2) {
-      margin-top: 1.5rem;
-      padding-top: 2.25rem;
-      border-top: 1px solid var(--rule);
-    }
-    .service:nth-child(n + 3) {
-      margin-top: 1.5rem;
-    }
   }
   @media (max-width: 640px) {
     .checklist--cols {
@@ -819,7 +843,8 @@ const faqs = [
     .prepare__card {
       transform: none;
     }
-    .principles__list {
+    .principles__list,
+    .service__list {
       grid-template-columns: 1fr;
     }
     .guide-row {
