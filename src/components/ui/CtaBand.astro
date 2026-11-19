@@ -52,6 +52,10 @@ const {
     color: #c4cddb;
     padding-block: clamp(1.5rem, 3vw, 3rem);
   }
+  /* the frame is deliberately wider than the reading container */
+  .cta-band .container {
+    width: min(100% - 2 * var(--gutter), 96rem);
+  }
   /* not full-bleed any more: the frame is a rounded panel inside the container */
   .cta-band__frame {
     position: relative;

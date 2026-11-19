@@ -340,8 +340,9 @@ const faqs = [
           {prepare.map((item) => <li>{item}</li>)}
         </ul>
       </div>
+      <div class="prepare__slot reveal">
       <aside
-        class="prepare__card reveal"
+        class="prepare__card"
         aria-labelledby="prepare-card-title"
         aria-roledescription="carousel"
         aria-label="قدم‌های شروع همکاری"
@@ -388,15 +389,16 @@ const faqs = [
             </a>
           </article>
         </div>
-        <div class="prep-nav">
-          <button class="prep-nav__btn" type="button" data-prep-prev aria-label="اسلاید قبلی">
-            <Icon name="arrow" />
-          </button>
-          <button class="prep-nav__btn" type="button" data-prep-next aria-label="اسلاید بعدی">
-            <Icon name="arrow" />
-          </button>
-        </div>
       </aside>
+      <div class="prep-nav">
+        <button class="prep-nav__btn" type="button" data-prep-prev aria-label="اسلاید قبلی">
+          <Icon name="arrow" />
+        </button>
+        <button class="prep-nav__btn" type="button" data-prep-next aria-label="اسلاید بعدی">
+          <Icon name="arrow" />
+        </button>
+      </div>
+      </div>
     </div>
   </section>
 
@@ -464,20 +466,32 @@ const faqs = [
   const prepSlider = document.querySelector('[data-prep-slider]');
   if (prepSlider) {
     const slides = [...prepSlider.querySelectorAll('.prep-slide')];
-    const step = () => slides[0].getBoundingClientRect().width + 14.4;
-    document.querySelector('[data-prep-next]')?.addEventListener('click', () => {
-      prepSlider.scrollBy({ left: step(), behavior: 'smooth' });
-    });
-    document.querySelector('[data-prep-prev]')?.addEventListener('click', () => {
-      prepSlider.scrollBy({ left: -step(), behavior: 'smooth' });
-    });
+    const origin = () => slides[0].offsetLeft;
+    let idx = 0;
+    /* page to a slide by its exact offset, so the box always settles flush */
+    const go = (i) => {
+      idx = Math.max(0, Math.min(slides.length - 1, i));
+      prepSlider.scrollTo({ left: slides[idx].offsetLeft - origin(), behavior: 'smooth' });
+    };
+    document.querySelector('[data-prep-next]')?.addEventListener('click', () => go(idx + 1));
+    document.querySelector('[data-prep-prev]')?.addEventListener('click', () => go(idx - 1));
     let ticking = false;
     prepSlider.addEventListener('scroll', () => {
       if (ticking) return;
       ticking = true;
       requestAnimationFrame(() => {
-        const i = Math.round(prepSlider.scrollLeft / step());
-        slides.forEach((el, k) => el.classList.toggle('is-active', k === i));
+        const pos = prepSlider.scrollLeft + origin();
+        let best = 0;
+        let bd = Infinity;
+        slides.forEach((el, k) => {
+          const d = Math.abs(el.offsetLeft - pos);
+          if (d < bd) {
+            bd = d;
+            best = k;
+          }
+        });
+        idx = best;
+        slides.forEach((el, k) => el.classList.toggle('is-active', k === best));
         ticking = false;
       });
     });
@@ -956,6 +970,13 @@ const faqs = [
   }
   /* The card reads as a paper file laid on the navy desk */
   /* horizontal slider: the next slide keeps a slice of itself visible */
+  /* the card and its arrows sit side by side: arrows live OUTSIDE the box */
+  .prepare__slot {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.9rem;
+    align-items: center;
+  }
   .prep-slider {
     display: flex;
     gap: 0.9rem;
@@ -963,14 +984,13 @@ const faqs = [
     scroll-snap-type: x mandatory;
     scroll-behavior: smooth;
     scrollbar-width: none;
-    margin: -0.4rem;
-    padding: 0.4rem;
   }
   .prep-slider::-webkit-scrollbar {
     display: none;
   }
   .prep-slide {
-    flex: 0 0 88%;
+    /* one slide fills the box; a fixed slice of the next one peeks */
+    flex: 0 0 calc(100% - 3.4rem);
     scroll-snap-align: start;
     display: grid;
     gap: 0.8rem;
@@ -987,10 +1007,8 @@ const faqs = [
     opacity: 1;
   }
   .prep-nav {
-    display: flex;
+    display: grid;
     gap: 0.6rem;
-    justify-content: flex-end;
-    margin-top: 0.9rem;
   }
   .prep-nav__btn {
     display: grid;
@@ -1222,6 +1240,13 @@ const faqs = [
     }
   }
   @media (max-width: 640px) {
+    .prepare__slot {
+      grid-template-columns: 1fr;
+    }
+    .prep-nav {
+      grid-auto-flow: column;
+      justify-content: center;
+    }
     .checklist--cols {
       grid-template-columns: 1fr;
     }
