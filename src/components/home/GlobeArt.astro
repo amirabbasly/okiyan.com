@@ -157,7 +157,6 @@ const dotPath = decode()
     if (!canvas || !ctx) return;
 
     const points = decode();
-    const reduce = matchMedia('(prefers-reduced-motion: reduce)');
     const period = Number(root.dataset.period) || 70;
     const start = Number(root.dataset.rotate) || 16;
     let raf = 0;
@@ -288,7 +287,7 @@ const dotPath = decode()
     };
 
     const play = () => {
-      if (raf || reduce.matches) return;
+      if (raf) return;
       raf = requestAnimationFrame(frame);
     };
     const pause = () => {
@@ -297,13 +296,13 @@ const dotPath = decode()
       t0 = 0;
     };
 
-    // paint one frame first, then reveal the canvas over the SVG
+    // paint one frame first, then reveal the canvas over the SVG and turn
     t0 = performance.now();
     draw(start, t0);
     root.classList.add('is-active');
+    play();
 
-    if (reduce.matches) return;
-
+    /* pause only while the sphere is far off-screen or the tab is hidden */
     const io = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
