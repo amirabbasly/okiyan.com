@@ -1,17 +1,14 @@
 ---
 /**
- * «درباره ما» — the reference's composition with the copy pulled to the left.
+ * «از بندر تا انبار، مسیر کالا روشن باشد» — the responsive composition:
  *
- * Desktop, RTL:  [ figures, stacked · far right ]  [ copy · centre ]  [ globe · left, cropped ]
- * The whole block is deliberately NOT centred: the grid is capped and pushed
- * toward the inline-end (visually left), and the globe spills past the band's
- * left edge, so the composition leans left the way the reference does.
+ *   desktop  [ globe photo · left half, full-bleed with a half-circle arc on
+ *              its right edge ] [ copy · centre of the page ] [ figures · right ]
+ *   tablet   photo keeps the left column (arc unchanged), copy above figures
+ *   phone    photo dome on top, copy centred, figures stacked
  *
- * Phones: copy and globe stay in one row — copy on the right, globe on the
- * left — and the figures follow underneath, each on its own line.
- *
- * Figures are the site's own verified numbers: ۲۰۰۰ محموله · ۵۰۰ میلیون یورو ·
- * ۱۵ سال سابقه (تأسیس ۱۳۹۳).
+ * The band's background is plain white; the photo carries the colour.
+ * Figures are the site's own verified numbers.
  */
 import Icon from '~/components/ui/Icon.astro';
 import { toFaNumber } from '~/lib/format';
@@ -46,8 +43,24 @@ const spoken = (f: Figure) =>
 ---
 
 <section class="about-band" id="about" aria-labelledby="about-title">
-  <div class="container about-band__grid">
-    <!-- figures — far right column, stacked -->
+  <div class="about-band__grid">
+    <!-- globe — left, full to the band's edges, half-circle arc on its right -->
+    <div class="af-photo" aria-hidden="true">
+      <img class="af-photo__img" src="/img/globe-scene.webp" alt="" width="983" height="654" />
+    </div>
+
+    <!-- copy — centre of the page -->
+    <div class="af-copy">
+      <span class="eyebrow">درباره ما</span>
+      <h2 id="about-title" class="af-copy__title">{title}</h2>
+      <p class="af-copy__lead">{lead}</p>
+      <a class="btn btn--ghost af-copy__cta" href={href}>
+        {cta}
+        <Icon name="arrow" class="btn__icon" />
+      </a>
+    </div>
+
+    <!-- figures — right column, stacked -->
     <ul class="af-figs">
       {
         figures.map((f) => (
@@ -70,23 +83,6 @@ const spoken = (f: Figure) =>
         ))
       }
     </ul>
-
-    <!-- copy — middle column -->
-    <div class="af-copy">
-      <span class="eyebrow">درباره ما</span>
-      <h2 id="about-title" class="af-copy__title">{title}</h2>
-      <p class="af-copy__lead">{lead}</p>
-      <a class="btn btn--ghost af-copy__cta" href={href}>
-        {cta}
-        <Icon name="arrow" class="btn__icon" />
-      </a>
-    </div>
-
-    <!-- globe — left column, animated and cropped by the band edge -->
-    <div class="af-art" aria-hidden="true">
-      {/* the real-geography globe scene, cropped by the band's left edge */}
-      <img class="af-art__img" src="/img/globe-scene.webp" alt="" width="983" height="654" />
-    </div>
   </div>
 </section>
 
@@ -96,57 +92,110 @@ const spoken = (f: Figure) =>
 
 <style>
   .about-band {
-    position: relative;
-    isolation: isolate;
-    padding-block: clamp(1.8rem, 1.3rem + 2.4vw, 3rem);
-    color: var(--mist-100);
-    background:
-      radial-gradient(46rem 26rem at 8% 6%, rgb(0 176 200 / 0.16), transparent 62%),
-      radial-gradient(38rem 26rem at 96% 96%, rgb(35 77 102 / 0.5), transparent 68%),
-      linear-gradient(118deg, #0e2136 0%, #14304a 52%, #0f2a42 100%);
+    background: var(--white);
+    border-block: 1px solid var(--rule);
     overflow: hidden;
   }
-
   .about-band__grid {
     display: grid;
-    /* RTL: figures · copy · globe */
-    grid-template-columns: minmax(0, 0.7fr) minmax(0, 1fr) minmax(0, 1.28fr);
-    gap: clamp(1rem, 0.6rem + 2.2vw, 2.5rem);
-    align-items: center;
-    /* the block leans left: capped width, pushed to the inline-end edge
-       (inline-end is the visual left in RTL), so the empty space sits on the right */
-    max-inline-size: 64rem;
-    margin-inline-start: auto;
-    margin-inline-end: 0;
+    /* RTL: the first area sits on the right — figures right, copy centre,
+       photo left */
+    grid-template-areas: 'figs copy photo';
+    grid-template-columns: minmax(0, 0.66fr) minmax(0, 1.1fr) minmax(0, 1fr);
+    align-items: stretch;
   }
 
-  /* ---------- figures: vertical stack, far right ---------- */
-  .af-figs {
+  /* ---------- photo: full left half, half-circle arc on its right ---------- */
+  .af-photo {
+    grid-area: photo;
+    position: relative;
+    min-block-size: clamp(20rem, 30vw, 29rem);
+    overflow: hidden;
+    /* left/top/bottom stay flush with the band; the right edge is one arc */
+    border-radius: 0 clamp(3.5rem, 8vw, 9rem) clamp(3.5rem, 8vw, 9rem) 0 / 0 50% 50% 0;
+  }
+  .af-photo__img {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  /* ---------- copy: centred in the middle of the page ---------- */
+  .af-copy {
+    grid-area: copy;
     display: grid;
-    gap: clamp(0.8rem, 0.6rem + 0.7vw, 1.25rem);
+    justify-items: center;
+    align-content: center;
+    gap: 0.55rem;
+    text-align: center;
+    padding: clamp(2.2rem, 4vw, 3.6rem) clamp(1.2rem, 2.5vw, 2.6rem);
+  }
+  .af-copy .eyebrow {
+    color: var(--petrol-600);
+  }
+  .af-copy .eyebrow::before {
+    background: var(--petrol-600);
+  }
+  .af-copy__title {
     margin: 0;
-    padding: 0;
-    padding-inline-end: clamp(0.9rem, 0.5rem + 1.2vw, 1.5rem);
-    border-inline-end: 1px solid rgb(143 180 201 / 0.22);
+    font-size: clamp(1.4rem, 1.12rem + 1.15vw, 1.95rem);
+    font-weight: 800;
+    color: var(--navy-900);
+    letter-spacing: -0.01em;
+    line-height: 1.4;
+    text-wrap: balance;
+  }
+  .af-copy__lead {
+    margin: 0;
+    max-inline-size: 46ch;
+    font-size: clamp(0.82rem, 0.78rem + 0.16vw, 0.92rem);
+    line-height: 1.9;
+    color: var(--slate-600);
+  }
+  .af-copy__cta {
+    margin-top: 0.35rem;
+    border-radius: 999px;
+    border-color: var(--navy-800);
+    color: var(--navy-800);
+  }
+  .af-copy__cta:hover {
+    background: var(--navy-800);
+    color: var(--white);
+  }
+
+  /* ---------- figures: stacked on the right ---------- */
+  .af-figs {
+    grid-area: figs;
+    display: grid;
+    align-content: center;
+    gap: clamp(0.9rem, 0.7rem + 0.8vw, 1.4rem);
+    margin: 0;
+    padding: clamp(2.2rem, 4vw, 3.6rem) clamp(1.5rem, 3vw, 3rem);
+    /* the divider faces the copy (the figures' left edge in RTL) */
+    border-inline-end: 1px solid var(--rule);
     list-style: none;
   }
   .af-fig {
     display: grid;
-    /* RTL: icon at the outer (right) edge, numbers to its left */
     grid-template-columns: auto minmax(0, 1fr);
     align-items: center;
-    gap: 0.6rem;
+    gap: 0.7rem;
   }
   .af-fig__icon {
     display: grid;
     place-items: center;
-    inline-size: 2.1rem;
-    block-size: 2.1rem;
-    color: var(--aqua-300);
+    inline-size: 2.2rem;
+    block-size: 2.2rem;
+    border-radius: 0.7rem;
+    background: var(--mist-100, #e9eef8);
+    color: var(--petrol-600);
   }
   .af-fig__icon :global(svg) {
-    inline-size: 1.45rem;
-    block-size: 1.45rem;
+    inline-size: 1.4rem;
+    block-size: 1.4rem;
   }
   .af-fig__body {
     display: grid;
@@ -157,11 +206,11 @@ const spoken = (f: Figure) =>
     display: flex;
     align-items: baseline;
     gap: 0.12rem;
-    color: var(--white);
+    color: var(--navy-950);
     white-space: nowrap;
   }
   .af-fig__num {
-    font-size: clamp(1.2rem, 1rem + 0.7vw, 1.55rem);
+    font-size: clamp(1.25rem, 1.05rem + 0.8vw, 1.6rem);
     font-weight: 800;
     line-height: 1.25;
     font-variant-numeric: tabular-nums;
@@ -169,149 +218,99 @@ const spoken = (f: Figure) =>
   .af-fig__plus {
     font-size: 1rem;
     font-weight: 800;
-    color: var(--aqua-300);
+    color: var(--petrol-600);
   }
   .af-fig__unit {
     font-size: clamp(0.78rem, 0.72rem + 0.2vw, 0.9rem);
     font-weight: 700;
-    color: rgb(232 236 238 / 0.92);
+    color: var(--navy-800);
   }
   .af-fig__label {
-    font-size: 0.72rem;
-    line-height: 1.55;
-    color: rgb(232 236 238 / 0.66);
+    font-size: 0.76rem;
+    line-height: 1.6;
+    color: var(--slate-600);
   }
 
-  /* ---------- copy ---------- */
-  .af-copy {
-    display: grid;
-    gap: 0.6rem;
-    justify-items: center;
-    text-align: center;
-  }
-  .af-copy .eyebrow {
-    color: var(--aqua-300);
-  }
-  .af-copy .eyebrow::before {
-    background: var(--aqua-500);
-  }
-  .af-copy__title {
-    margin: 0;
-    font-size: clamp(1.45rem, 1.15rem + 1.35vw, 2.1rem);
-    font-weight: 800;
-    color: var(--white);
-    letter-spacing: -0.01em;
-    line-height: 1.4;
-    text-wrap: balance;
-  }
-  .af-copy__lead {
-    margin: 0;
-    max-inline-size: 42ch;
-    font-size: clamp(0.82rem, 0.78rem + 0.18vw, 0.92rem);
-    line-height: 1.95;
-    color: rgb(232 236 238 / 0.78);
-  }
-  .af-copy__cta {
-    margin-top: 0.25rem;
-    border-radius: 999px;
-    border-color: rgb(232 236 238 / 0.42);
-    color: var(--white);
-  }
-  .af-copy__cta:hover {
-    background: var(--white);
-    color: var(--navy-950);
-    border-color: var(--white);
-  }
-
-  /* ---------- globe ---------- */
-  .af-art {
-    position: relative;
-    min-inline-size: 0;
-    /* spill past the band's left edge so the sphere is cropped, as in the reference */
-    margin-inline-end: clamp(-4rem, -3vw, -1rem);
-  }
-  .af-art__img {
-    display: block;
-    inline-size: 118%;
-    max-inline-size: none;
-    block-size: auto;
-    margin-inline-end: -18%;
-    /* the scene's night sky melts into the band instead of showing a seam */
-    -webkit-mask-image: radial-gradient(120% 115% at 42% 50%, #000 58%, transparent 96%);
-    mask-image: radial-gradient(120% 115% at 42% 50%, #000 58%, transparent 96%);
-    filter: drop-shadow(0 18px 42px rgb(0 176 200 / 0.22));
-  }
-
-  /* ---------- tablet: copy and globe keep their row, figures below ---------- */
+  /* ---------- tablet: photo keeps the left, copy above figures ---------- */
   @media (max-width: 1024px) {
     .about-band__grid {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 0.72fr);
       grid-template-areas:
-        'copy art'
-        'figs figs';
-      gap: 1.1rem 1rem;
-      max-inline-size: 46rem;
-      /* centred again on narrow screens: there is no room to lean */
-      margin-inline: auto;
-      align-items: center;
+        'copy photo'
+        'figs photo';
+      grid-template-columns: minmax(0, 1fr) minmax(0, 0.82fr);
+    }
+    .af-photo {
+      min-block-size: 100%;
     }
     .af-copy {
-      grid-area: copy;
       justify-items: start;
       text-align: start;
-    }
-    .af-art {
-      grid-area: art;
-      margin-inline-end: clamp(-3rem, -4vw, -1rem);
-    }
-    .af-art__img {
-      inline-size: 132%;
-      margin-inline-end: -32%;
+      padding: clamp(2rem, 4vw, 3rem) clamp(1.5rem, 3vw, 3rem) 1.2rem;
     }
     .af-figs {
-      grid-area: figs;
-      grid-template-columns: 1fr;
-      gap: 0.9rem;
-      padding-inline-end: 0;
-      padding-block-start: 1.1rem;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      align-content: start;
       border-inline-end: 0;
-      border-block-start: 1px solid rgb(143 180 201 / 0.22);
+      border-block-start: 1px solid var(--rule);
+      margin-inline: clamp(1.5rem, 3vw, 3rem);
+      padding: 1.2rem 0 clamp(2rem, 4vw, 3rem);
+    }
+    .af-fig {
+      grid-template-columns: 1fr;
+      justify-items: center;
+      text-align: center;
+      gap: 0.4rem;
+    }
+    .af-fig__value {
+      justify-content: center;
     }
   }
 
-  /* ---------- phone: same row, tighter ---------- */
-  @media (max-width: 620px) {
-    .about-band {
-      padding-block: 1.4rem;
-    }
+  /* ---------- phone: dome on top, copy centred, figures stacked ---------- */
+  @media (max-width: 640px) {
     .about-band__grid {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 0.62fr);
-      gap: 0.75rem 0.5rem;
+      grid-template-areas:
+        'photo'
+        'copy'
+        'figs';
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .af-photo {
+      min-block-size: 15rem;
+      /* the arc moves to the bottom edge: a dome over the copy */
+      border-radius: 0 0 50% 50% / 0 0 999px 999px;
+    }
+    .af-copy {
+      justify-items: center;
+      text-align: center;
+      padding: 1.6rem 1.25rem 1.4rem;
     }
     .af-copy__title {
-      font-size: 1.18rem;
-      line-height: 1.5;
+      font-size: 1.16rem;
+      line-height: 1.55;
     }
     .af-copy__lead {
-      font-size: 0.78rem;
+      font-size: 0.8rem;
       line-height: 1.85;
     }
     .af-copy__cta {
       font-size: 0.78rem;
-      padding: 0.5rem 0.9rem;
+      padding: 0.5rem 1rem;
     }
-    .af-art__img {
-      inline-size: 150%;
-      margin-inline-end: -50%;
+    .af-figs {
+      grid-template-columns: 1fr;
+      gap: 0.8rem;
+      margin-inline: 1.25rem;
+      padding: 1.1rem 0 1.8rem;
     }
     .af-fig {
-      gap: 0.5rem;
+      grid-template-columns: auto minmax(0, 1fr);
+      justify-items: start;
+      text-align: start;
+      gap: 0.6rem;
     }
-    .af-fig__num {
-      font-size: 1.15rem;
-    }
-    .af-fig__label {
-      font-size: 0.7rem;
+    .af-fig__value {
+      justify-content: start;
     }
   }
 </style>
