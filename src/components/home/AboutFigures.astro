@@ -52,8 +52,9 @@ const spoken = (f: Figure) =>
 <section class="about-band" id="about" aria-labelledby="about-title">
   <img class="about-band__photo" src="/img/globe-scene.webp" alt="" width="983" height="654" />
 
-  <div class="about-band__panel">
-    <div class="about-band__grid">
+  <div class="about-band__panel" aria-hidden="true"></div>
+
+  <div class="about-band__grid">
     <!-- figures — far right column, stacked -->
     <ul class="af-figs">
       {
@@ -87,10 +88,9 @@ const spoken = (f: Figure) =>
         {cta}
         <Icon name="arrow" class="btn__icon" />
       </a>
-        </div>
-      </div>
     </div>
-  </section>
+  </div>
+</section>
 
 <script>
   import '~/scripts/counters';
@@ -116,33 +116,32 @@ const spoken = (f: Figure) =>
     object-position: center;
   }
 
-  /* The white sheet lives in the RIGHT half only; its left edge is the same
-     big arc as before (an ellipse centred below the band), now mirrored:
-     ~50% of the width at the bottom, ~67% at the top. */
+  /* The white sheet hugs the right side; its left edge is one big arc.
+     Pure backdrop — the content grid flows in the band itself, so the band
+     always has its natural height (the old nesting made every child absolute
+     and collapsed the whole section to zero height on desktop). */
   .about-band__panel {
     position: absolute;
     inset-block: 0;
     right: 0;
     z-index: 1;
-    inline-size: 57%;
+    inline-size: 70%;
     background: var(--white);
-    clip-path: ellipse(34% 116% at 84% 100%);
-    display: flex;
-    align-items: center;
-    padding-block: clamp(2.2rem, 4vw, 3.4rem);
+    clip-path: ellipse(100% 150% at 112% 50%);
   }
 
   .about-band__grid {
     position: relative;
     z-index: 2;
     display: grid;
-    /* copy on the right, figures beside the arc; the end padding keeps every
-       line clear of the curve */
+    /* copy on the right, figures beside the arc; the end padding keeps the
+       whole cluster on the white sheet and clear of the curve */
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
     gap: clamp(1.2rem, 0.8rem + 2vw, 2.4rem);
     inline-size: 100%;
-    padding-inline: clamp(1.5rem, 3vw, 3rem) clamp(3rem, 5.5vw, 5.5rem);
+    padding-block: clamp(2.5rem, 5vw, 4.2rem);
+    padding-inline: clamp(1.5rem, 3vw, 3rem) 41%;
   }
 
   /* ---------- copy ---------- */
@@ -251,15 +250,16 @@ const spoken = (f: Figure) =>
     color: var(--slate-600);
   }
 
-  /* ---------- tablet: one column inside the panel ---------- */
+  /* ---------- tablet: one column on the sheet ---------- */
   @media (max-width: 1024px) {
     .about-band__panel {
-      inline-size: 68%;
+      inline-size: 80%;
+      clip-path: ellipse(100% 150% at 110% 50%);
     }
     .about-band__grid {
       grid-template-columns: 1fr;
       gap: 1.4rem;
-      padding-inline-end: clamp(2rem, 4vw, 3.5rem);
+      padding-inline-end: 34%;
     }
     .af-copy {
       grid-column: 1;
@@ -288,18 +288,19 @@ const spoken = (f: Figure) =>
 
   /* ---------- phone: photo strip on top, sheet below ---------- */
   @media (max-width: 640px) {
+    .about-band {
+      background: var(--white);
+    }
     .about-band__photo {
       position: relative;
       block-size: 15rem;
     }
     .about-band__panel {
-      position: static;
-      inline-size: 100%;
-      clip-path: none;
-      padding-block: 2rem 2.25rem;
+      display: none;
     }
     .about-band__grid {
       padding-inline: 1.25rem;
+      padding-block: 2rem 2.25rem;
     }
     .af-copy__title {
       font-size: 1.1rem;
