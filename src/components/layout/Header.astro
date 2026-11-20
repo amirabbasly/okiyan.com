@@ -313,14 +313,17 @@ const row2 = nav.filter((i) => rowOf(i) === 2);
     grid-row: 1;
     padding-block: 0.45rem 0.4rem;
   }
-  .site-header__call {
+  .site-header__actions {
     grid-column: 3;
     grid-row: 1;
     justify-self: end;
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
     padding-block: 0.45rem 0.4rem;
   }
   .site-nav--services,
-  .site-header__actions {
+  .site-header__call {
     grid-row: 2;
     border-top: 1px solid rgb(0 176 200 / 0.2);
     padding-block: 0.35rem 0.5rem;
@@ -328,12 +331,9 @@ const row2 = nav.filter((i) => rowOf(i) === 2);
   .site-nav--services {
     grid-column: 2;
   }
-  .site-header__actions {
+  .site-header__call {
     grid-column: 3;
     justify-self: end;
-    display: flex;
-    align-items: center;
-    gap: 0.9rem;
   }
 
   /* ---------- row 1: plain links with hairline dot separators ---------- */

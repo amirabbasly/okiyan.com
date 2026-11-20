@@ -234,6 +234,7 @@ export const nav: NavItem[] = [
   { href: '/container-import/', label: 'واردات کانتینری' , row: 2, icon: 'cube' },
   { href: '/export-services/', label: 'صادرات' , row: 2, icon: 'globe' },
   { href: '/guides/', label: 'بلاگ' },
+  { href: '/team/', label: 'تیم ما' },
   {
     label: 'درباره ما',
     feature: {
