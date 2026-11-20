@@ -5,6 +5,7 @@ import Icon from '~/components/ui/Icon.astro';
 import Faq from '~/components/ui/Faq.astro';
 import CtaBand from '~/components/ui/CtaBand.astro';
 import HeroSlider from '~/components/home/HeroSlider.astro';
+import GlobeArt from '~/components/home/GlobeArt.astro';
 import ActivityCategories from '~/components/home/ActivityCategories.astro';
 import AboutFigures from '~/components/home/AboutFigures.astro';
 import Clients from '~/components/ui/Clients.astro';
@@ -214,63 +215,70 @@ const faqs = [
   />
 
   <!-- ============ SERVICES ============ -->
-  <section class="section section--glow" id="services" aria-labelledby="services-title">
-    <div class="container">
-      <header class="section-head section-head--split reveal">
-        <div>
+  <section class="svc-band" id="services" aria-labelledby="services-title">
+    <!-- the turning globe, half sunk into the band's curved top edge -->
+    <div class="svc-dome" aria-hidden="true">
+      <GlobeArt />
+    </div>
+    <svg class="svc-band__curve" viewBox="0 0 1440 140" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+      <path d="M0 0C360 0 480 140 720 140C960 140 1080 0 1440 0V140H0Z" fill="currentColor" />
+    </svg>
+    <div class="svc-band__panel">
+      <div class="container">
+        <header class="svc-head reveal">
           <span class="eyebrow">خدمات</span>
           <h2 id="services-title">دو مسیر، دو نقطهٔ شروع متفاوت</h2>
-        </div>
-        <p class="lead">
-          اگر هنوز در حال تصمیم‌گیری برای خرید هستید، مسیر <a href="/import-services/">واردات کالا</a> از مرحلهٔ برنامه‌ریزی همراه شماست؛
-          اگر کالا در راه گمرک است، مسیر <a href="/customs-clearance/">ترخیص کالا</a> از بررسی اسناد تا خروج کالا را پیش می‌بریم.
-        </p>
-      </header>
+          <p class="lead">
+            اگر هنوز در حال تصمیم‌گیری برای خرید هستید، مسیر <a href="/import-services/">واردات کالا</a> از مرحلهٔ برنامه‌ریزی همراه شماست؛
+            اگر کالا در راه گمرک است، مسیر <a href="/customs-clearance/">ترخیص کالا</a> از بررسی اسناد تا خروج کالا را پیش می‌بریم.
+          </p>
+        </header>
 
-      <div class="services">
-        {
-          homepageServices.map((s, i) => (
-            <article class="service glass reveal" aria-labelledby={`service-${i}`}>
-              <div class="service__top" aria-hidden="true">
-                <p class="service__num">{toFa(`0${i + 1}`)}</p>
-                <span class="service__icon">
+        <div class="services">
+          {
+            homepageServices.map((s, i) => (
+              <article class="service reveal" aria-labelledby={`service-${i}`}>
+                <div class="service__body">
+                  <p class="service__num" aria-hidden="true">{toFa(`0${i + 1}`)}</p>
+                  <h3 id={`service-${i}`}>
+                    <a href={s.href}>{s.name}</a>
+                  </h3>
+                  <p class="service__summary">{s.summary}</p>
+                  <ul class="checklist service__list">
+                    {s.includes.map((item) => (
+                      <li>{item}</li>
+                    ))}
+                  </ul>
+                  <p class="service__fit">{s.fit}</p>
+                  <a class="arrow-link" href={s.href} aria-label={`جزئیات خدمات ${s.name}`}>
+                    جزئیات خدمت
+                    <Icon name="arrow" />
+                  </a>
+                </div>
+                <span class="service__icon" aria-hidden="true">
                   <Icon name={s.icon} />
                 </span>
-              </div>
-              <h3 id={`service-${i}`}>
-                <a href={s.href}>{s.name}</a>
-              </h3>
-              <p class="service__summary">{s.summary}</p>
-              <ul class="checklist service__list">
-                {s.includes.map((item) => (
-                  <li>{item}</li>
-                ))}
-              </ul>
-              <p class="service__fit">{s.fit}</p>
-              <a class="arrow-link" href={s.href} aria-label={`جزئیات خدمات ${s.name}`}>
-                جزئیات خدمت
-                <Icon name="arrow" />
-              </a>
-            </article>
-          ))
-        }
-      </div>
-
-      <nav class="routes glass reveal" aria-labelledby="routes-title">
-        <p class="routes__label" id="routes-title">مسیرهای مرتبط</p>
-        <ul class="routes__list">
-          {
-            relatedServices.map((r) => (
-              <li>
-                <a class="routes__link" href={r.href}>
-                  <span>{r.name}</span>
-                  <Icon name="arrow" />
-                </a>
-              </li>
+              </article>
             ))
           }
-        </ul>
-      </nav>
+        </div>
+
+        <nav class="routes reveal" aria-labelledby="routes-title">
+          <p class="routes__label" id="routes-title">مسیرهای مرتبط</p>
+          <ul class="routes__list">
+            {
+              relatedServices.map((r) => (
+                <li>
+                  <a class="routes__link" href={r.href}>
+                    <span>{r.name}</span>
+                    <Icon name="arrow" />
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+      </div>
     </div>
   </section>
 
@@ -674,32 +682,129 @@ const faqs = [
     position: relative;
   }
 
+  /* ---------- Services band: turning globe sunk in a curved top ---------- */
+  .svc-band {
+    position: relative;
+    isolation: isolate;
+    background: var(--white);
+  }
+  .svc-dome {
+    position: absolute;
+    z-index: 0;
+    top: clamp(0.6rem, 1.4vw, 1.4rem);
+    right: 50%;
+    translate: 50% 0;
+    inline-size: clamp(15rem, 26vw, 21rem);
+    aspect-ratio: 1;
+    pointer-events: none;
+  }
+  .svc-dome :global(svg),
+  .svc-dome :global(canvas) {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+  }
+  /* the band's top edge: one wide valley the globe sits in */
+  .svc-band__curve {
+    position: relative;
+    z-index: 1;
+    display: block;
+    inline-size: 100%;
+    block-size: clamp(4.5rem, 9vw, 8rem);
+    margin-top: clamp(4.6rem, 8vw, 7.2rem);
+    color: #16324a;
+  }
+  .svc-band__panel {
+    position: relative;
+    z-index: 1;
+    background: linear-gradient(180deg, #16324a 0%, #102a41 100%);
+    padding-block: clamp(2.5rem, 5vw, 4.5rem) clamp(3rem, 6vw, 5.5rem);
+    color: #c4d2e2;
+  }
+  .svc-head {
+    display: grid;
+    justify-items: center;
+    gap: 0.7rem;
+    text-align: center;
+    max-inline-size: 64ch;
+    margin-inline: auto;
+    margin-bottom: clamp(2rem, 4vw, 3.4rem);
+  }
+  .svc-head .eyebrow {
+    color: var(--petrol-300);
+  }
+  .svc-head .eyebrow::before {
+    background: var(--petrol-300);
+  }
+  .svc-head h2 {
+    color: var(--white);
+  }
+  .svc-head .lead {
+    color: #b9c8da;
+  }
+  .svc-head .lead a {
+    color: var(--petrol-200);
+    font-weight: 700;
+  }
+
   .services {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.15rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.2rem;
   }
+  /* text on the right, the outline icon on the left — like the reference */
   .service {
     display: grid;
-    gap: 0.8rem;
-    align-content: start;
-    padding: 1.5rem 1.6rem 1.3rem;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 1.3rem;
+    align-items: start;
+    padding: 1.6rem 1.7rem 1.5rem;
+    border: 1px solid rgb(232 236 238 / 0.14);
+    border-radius: 1rem;
+    background: rgb(255 255 255 / 0.045);
     transition:
       transform var(--dur-med) var(--ease-out),
-      box-shadow var(--dur-med) var(--ease-out),
+      background-color var(--dur-med) ease,
       border-color var(--dur-med) ease;
   }
   .service:hover {
     transform: translateY(-4px);
-    border-color: rgb(254 93 2 / 0.55);
-    box-shadow:
-      0 30px 58px -34px rgb(0 18 48 / 0.5),
-      0 0 0 1px rgb(254 93 2 / 0.3);
+    border-color: rgb(0 176 200 / 0.45);
+    background: rgb(255 255 255 / 0.07);
   }
-  /* the checklist reads as two tight columns inside the glass box */
+  .service__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    min-inline-size: 0;
+  }
+  .service__num {
+    margin: 0;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    color: rgb(143 180 201 / 0.85);
+  }
+  .service h3 {
+    font-size: var(--step-2);
+  }
+  .service h3 a {
+    color: var(--white);
+    text-decoration: none;
+  }
+  .service h3 a:hover {
+    text-decoration: underline;
+    text-decoration-color: var(--petrol-300);
+  }
+  .service__summary {
+    font-size: var(--step-1);
+    color: #b9c8da;
+  }
+  /* the checklist reads as two tight columns inside the box */
   .service__list {
     grid-template-columns: 1fr 1fr;
     gap: 0.4rem 1.1rem;
+    color: #c4d2e2;
   }
   .service__list li {
     grid-template-columns: 1.1rem 1fr;
@@ -713,58 +818,32 @@ const faqs = [
     margin-top: 0.3rem;
     background-size: 0.72rem, 1rem;
   }
-  .service__top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  .service__fit {
+    font-size: var(--step--1);
+    color: #9fb2c8;
+    padding-top: 0.75rem;
+    border-top: 1px dashed rgb(232 236 238 / 0.2);
   }
-  .service__num {
-    font-size: var(--step-3);
-    font-weight: 800;
-    line-height: 1;
-    color: rgb(2 56 126 / 0.3);
+  .service .arrow-link {
+    margin-top: auto;
+    padding-top: 0.9rem;
+    color: var(--petrol-200);
+    font-weight: 700;
+  }
+  .service .arrow-link:hover {
+    color: var(--white);
   }
   .service__icon {
     display: grid;
     place-items: center;
-    inline-size: 3.1rem;
-    block-size: 3.1rem;
-    border-radius: 0.9rem;
-    background: linear-gradient(140deg, #1554a8, #012b64);
-    color: var(--petrol-200);
-    box-shadow: 0 14px 30px -18px rgb(0 18 48 / 0.7);
-    transition: transform var(--dur-med) var(--ease-out);
-  }
-  .service:nth-child(even) .service__icon {
-    background: linear-gradient(140deg, #fe5d02, #e35400);
+    inline-size: 3.6rem;
+    block-size: 3.6rem;
     color: var(--white);
+    filter: drop-shadow(0 10px 22px rgb(0 0 0 / 0.45));
   }
   .service__icon :global(svg) {
-    inline-size: 1.7rem;
-    block-size: 1.7rem;
-  }
-  .service:hover .service__icon {
-    transform: translateY(-3px) rotate(-4deg);
-  }
-  .service h3 {
-    font-size: var(--step-2);
-  }
-  .service h3 a {
-    text-decoration: none;
-  }
-  .service h3 a:hover {
-    text-decoration: underline;
-    text-decoration-color: var(--petrol-300);
-  }
-  .service__summary {
-    font-size: var(--step-1);
-    color: var(--slate-700);
-  }
-  .service__fit {
-    font-size: var(--step--1);
-    color: var(--text-muted);
-    padding-top: 0.7rem;
-    border-top: 1px dashed rgb(2 56 126 / 0.22);
+    inline-size: 2.6rem;
+    block-size: 2.6rem;
   }
 
   /* ---------- Related routes (the two paths lead here) ---------- */
@@ -773,14 +852,17 @@ const faqs = [
     flex-wrap: wrap;
     align-items: center;
     gap: 0.6rem 1.5rem;
-    margin-top: 1.15rem;
-    padding: 0.8rem 1.3rem;
+    margin-top: 1.4rem;
+    padding: 0.9rem 1.4rem;
+    border: 1px solid rgb(232 236 238 / 0.14);
+    border-radius: 1rem;
+    background: rgb(255 255 255 / 0.045);
   }
   .routes__label {
     font-size: var(--step--1);
     font-weight: 700;
     letter-spacing: 0.02em;
-    color: var(--text-muted);
+    color: #9fb2c8;
   }
   .routes__list {
     display: flex;
@@ -795,7 +877,7 @@ const faqs = [
     align-items: center;
     gap: 0.45rem;
     font-weight: 600;
-    color: var(--navy-800);
+    color: #d5e0ec;
     text-decoration: none;
     border-bottom: 1px solid transparent;
     transition:
@@ -808,8 +890,16 @@ const faqs = [
     flex: none;
   }
   .routes__link:hover {
-    color: var(--petrol-600);
+    color: var(--petrol-200);
     border-bottom-color: currentColor;
+  }
+  @media (max-width: 860px) {
+    .services {
+      grid-template-columns: 1fr;
+    }
+    .service__list {
+      grid-template-columns: 1fr;
+    }
   }
 
   /* ---------- Principles ---------- */
