@@ -341,19 +341,14 @@ const faqs = [
         </ul>
       </div>
       <div class="prepare__slot reveal">
-      <aside
-        class="prepare__card"
-        aria-labelledby="prepare-card-title"
-        aria-roledescription="carousel"
-        aria-label="قدم‌های شروع همکاری"
-      >
-        <div class="prep-slider" data-prep-slider>
-          <article class="prep-slide is-active">
-            <span class="prepare__seal" aria-hidden="true">
-              <Icon name="stamp" />
-            </span>
+      <aside class="prepare__card" aria-roledescription="carousel" aria-label="قدم‌های شروع همکاری">
+        <span class="prepare__seal" aria-hidden="true">
+          <Icon name="stamp" />
+        </span>
+        <div class="prep-stage" data-prep-stage role="group" tabindex="0" aria-label="قدم‌های شروع همکاری">
+          <article class="prep-slide is-active" role="group" aria-roledescription="اسلاید" aria-label="گام ۱ از ۳">
             <p class="prepare__kicker">گام اول</p>
-            <h3 id="prepare-card-title">بررسی اولیهٔ پرونده</h3>
+            <h3>بررسی اولیهٔ پرونده</h3>
             <p>فرم کوتاه مشاوره را تکمیل کنید. پس از بررسی، دربارهٔ مدارک لازم، هزینه‌های قابل انتظار و قدم بعدی با شما صحبت می‌کنیم.</p>
             <a class="btn" href={contactCta.href}>
               تکمیل فرم مشاوره
@@ -364,10 +359,14 @@ const faqs = [
               <Icon name="arrow" />
             </a>
           </article>
-          <article class="prep-slide">
-            <span class="prepare__seal" aria-hidden="true">
-              <Icon name="calc" />
-            </span>
+          <article
+            class="prep-slide"
+            role="group"
+            aria-roledescription="اسلاید"
+            aria-label="گام ۲ از ۳"
+            aria-hidden="true"
+            inert
+          >
             <p class="prepare__kicker">گام دوم</p>
             <h3>برآورد مکتوب و تفکیک‌شده</h3>
             <p>پیش از هر تصمیم، برآورد هزینه را مکتوب و تفکیک‌شده می‌گیرید؛ اقلامی که هنوز قطعی نیستند جدا مشخص می‌شوند تا عدد غافلگیرتان نکند.</p>
@@ -376,10 +375,14 @@ const faqs = [
               <Icon name="arrow" />
             </a>
           </article>
-          <article class="prep-slide">
-            <span class="prepare__seal" aria-hidden="true">
-              <Icon name="route" />
-            </span>
+          <article
+            class="prep-slide"
+            role="group"
+            aria-roledescription="اسلاید"
+            aria-label="گام ۳ از ۳"
+            aria-hidden="true"
+            inert
+          >
             <p class="prepare__kicker">گام سوم</p>
             <h3>نقشهٔ قدم‌های بعدی</h3>
             <p>مرز مسئولیت‌ها روشن می‌شود: چه کاری بر عهدهٔ ماست، چه چیزی را صاحب کالا فراهم می‌کند و کدام تصمیم با گمرک یا دستگاه صادرکنندهٔ مجوز است.</p>
@@ -394,6 +397,7 @@ const faqs = [
         <button class="prep-nav__btn" type="button" data-prep-prev aria-label="اسلاید قبلی">
           <Icon name="arrow" />
         </button>
+        <span class="prep-nav__count" data-prep-count aria-hidden="true">{toFa(1)} / {toFa(3)}</span>
         <button class="prep-nav__btn" type="button" data-prep-next aria-label="اسلاید بعدی">
           <Icon name="arrow" />
         </button>
@@ -463,38 +467,88 @@ const faqs = [
   /* Intro video: the source slot stays empty in the markup (data-video-src).
      As soon as a path is filled in, the play button loads and plays it. */
   /* prepare slider: buttons page through, the peeking slice marks what's next */
-  const prepSlider = document.querySelector('[data-prep-slider]');
-  if (prepSlider) {
-    const slides = [...prepSlider.querySelectorAll('.prep-slide')];
-    const origin = () => slides[0].offsetLeft;
+  /* ---- prepare deck: the front box hands over to the one waiting beside it ---- */
+  const stage = document.querySelector<HTMLElement>('[data-prep-stage]');
+  if (stage) {
+    const slides = Array.from(stage.querySelectorAll<HTMLElement>('.prep-slide'));
+    const counter = document.querySelector<HTMLElement>('[data-prep-count]');
+    const total = slides.length;
+    const HANDOVER = 700; /* matches the transform transition */
+    const fa = (n: number) => String(n).replace(/[0-9]/g, (d) => '۰۱۲۳۴۵۶۷۸۹'[Number(d)]);
     let idx = 0;
-    /* page to a slide by its exact offset, so the box always settles flush */
-    const go = (i) => {
-      idx = Math.max(0, Math.min(slides.length - 1, i));
-      prepSlider.scrollTo({ left: slides[idx].offsetLeft - origin(), behavior: 'smooth' });
-    };
-    document.querySelector('[data-prep-next]')?.addEventListener('click', () => go(idx + 1));
-    document.querySelector('[data-prep-prev]')?.addEventListener('click', () => go(idx - 1));
-    let ticking = false;
-    prepSlider.addEventListener('scroll', () => {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(() => {
-        const pos = prepSlider.scrollLeft + origin();
-        let best = 0;
-        let bd = Infinity;
-        slides.forEach((el, k) => {
-          const d = Math.abs(el.offsetLeft - pos);
-          if (d < bd) {
-            bd = d;
-            best = k;
-          }
-        });
-        idx = best;
-        slides.forEach((el, k) => el.classList.toggle('is-active', k === best));
-        ticking = false;
+    let busy = false;
+
+    /** one box in front, the following one peeking; the rest stay out of sight */
+    const paint = (skip?: HTMLElement) => {
+      slides.forEach((el, k) => {
+        if (el === skip) {
+          el.inert = true;
+          el.setAttribute('aria-hidden', 'true');
+          return;
+        }
+        const rel = (k - idx + total) % total;
+        el.classList.toggle('is-active', rel === 0);
+        el.classList.toggle('is-next', rel === 1);
+        el.inert = rel !== 0;
+        el.setAttribute('aria-hidden', rel === 0 ? 'false' : 'true');
       });
+      if (counter) counter.textContent = `${fa(idx + 1)} / ${fa(total)}`;
+    };
+
+    const go = (step: number) => {
+      if (busy || total < 2) return;
+      busy = true;
+      const out = slides[idx];
+      idx = (idx + step + total) % total;
+      /* the old box drifts out while the new one rises into its place */
+      out.classList.remove('is-active');
+      out.classList.add('is-out');
+      paint(out);
+      window.setTimeout(() => {
+        out.classList.remove('is-out');
+        paint();
+        busy = false;
+      }, HANDOVER);
+    };
+
+    document.querySelector('[data-prep-next]')?.addEventListener('click', () => go(1));
+    document.querySelector('[data-prep-prev]')?.addEventListener('click', () => go(-1));
+
+    /* swipe and arrow keys page the deck too */
+    let startX = 0;
+    let startY = 0;
+    stage.addEventListener('pointerdown', (e) => {
+      startX = e.clientX;
+      startY = e.clientY;
     });
+    stage.addEventListener('pointerup', (e) => {
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return;
+      go(dx < 0 ? 1 : -1); /* RTL: dragging left reveals the next box */
+    });
+    stage.addEventListener('keydown', (e) => {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      e.preventDefault();
+      go(e.key === 'ArrowLeft' ? 1 : -1);
+    });
+
+    /* the deck rises as the band scrolls into view */
+    if ('IntersectionObserver' in window && matchMedia('(prefers-reduced-motion: no-preference)').matches) {
+      const io = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (!entry.isIntersecting) continue;
+            stage.classList.add('is-entering');
+            window.setTimeout(() => stage.classList.remove('is-entering'), 1080);
+            io.disconnect();
+          }
+        },
+        { threshold: 0.3 },
+      );
+      io.observe(stage);
+    }
+    paint();
   }
 
   const prinVideo = document.querySelector('.prin-video');
@@ -968,51 +1022,110 @@ const faqs = [
     gap: 1rem 2rem;
     margin-top: 0.5rem;
   }
-  /* The card reads as a paper file laid on the navy desk */
-  /* horizontal slider: the next slide keeps a slice of itself visible */
-  /* the card and its arrows sit side by side: arrows live OUTSIDE the box */
+  /* The card reads as a paper file laid on the navy desk. Its arrows stand
+     outside it, on the right (column 1 in RTL). */
   .prepare__slot {
     display: grid;
-    /* RTL: column 1 is the right edge — the arrows live there, OUTSIDE the box */
     grid-template-columns: auto minmax(0, 1fr);
     gap: 0.9rem;
     align-items: center;
   }
   .prep-nav {
     order: -1;
+    display: grid;
+    gap: 0.45rem;
+    justify-items: center;
   }
-  .prep-slider {
-    display: flex;
-    gap: 0.9rem;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scroll-behavior: smooth;
-    scrollbar-width: none;
+  .prep-nav__count {
+    font-size: 0.76rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    color: #93a7c0;
+    font-variant-numeric: tabular-nums;
   }
-  .prep-slider::-webkit-scrollbar {
-    display: none;
+
+  /* ---------- The deck ----------
+     Every box lives in the SAME cell, so the card keeps one constant height and
+     nothing ever has to be re-measured: the front box sits flush in the card,
+     the next one waits beside it with a slice showing, and a slide change is a
+     relay — the front box drifts out and up while the waiting box rises into
+     its place in the same breath. */
+  .prep-stage {
+    --prep-peek: 3.4rem;
+    --prep-ease: cubic-bezier(0.22, 0.78, 0.24, 1);
+    display: grid;
+    inline-size: 100%;
+    /* a box may travel past the card while handing over; keep it inside */
+    overflow-x: clip;
+  }
+  .prep-stage:focus-visible {
+    outline: 2px solid var(--petrol-300);
+    outline-offset: 6px;
+    border-radius: 0.9rem;
   }
   .prep-slide {
-    /* one slide fills the box; a fixed slice of the next one peeks */
-    flex: 0 0 calc(100% - 3.4rem);
-    scroll-snap-align: start;
+    grid-area: 1 / 1;
+    justify-self: start; /* RTL: flush with the card's right edge */
+    inline-size: calc(100% - var(--prep-peek));
+    min-inline-size: 0;
     display: grid;
     gap: 0.8rem;
     justify-items: start;
     align-content: start;
-    padding: 1.3rem 1.4rem 1.4rem;
+    padding: 1.4rem;
     border: 1px solid var(--rule);
     border-radius: 0.9rem;
     background: var(--white);
-    opacity: 0.45;
-    transition: opacity var(--dur-med) ease;
+    box-shadow: 0 26px 44px -32px rgb(0 12 30 / 0.55);
+    visibility: hidden;
+    opacity: 0;
+    /* the waiting slot: beside the front box, a little lower — so it rises in */
+    transform: translate(calc(-1 * var(--prep-peek)), 1.1rem) scale(0.97);
+    transition:
+      transform 680ms var(--prep-ease),
+      opacity 420ms ease;
   }
   .prep-slide.is-active {
+    z-index: 2;
+    visibility: visible;
     opacity: 1;
+    transform: none;
   }
-  .prep-nav {
-    display: grid;
-    gap: 0.6rem;
+  .prep-slide.is-next {
+    z-index: 1;
+    visibility: visible;
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  .prep-slide.is-out {
+    z-index: 3;
+    visibility: visible;
+    opacity: 0;
+    transform: translate(3.4rem, -0.6rem) scale(0.99);
+    pointer-events: none;
+    /* it fades before it reaches the card's edge, so the clip is never seen */
+    transition:
+      transform 680ms var(--prep-ease),
+      opacity 300ms ease;
+  }
+  /* scroll entrance: the deck rises into place as the band reaches the eye */
+  @keyframes prep-rise {
+    from {
+      opacity: 0;
+      transform: translate(0, 2.4rem) scale(0.95);
+    }
+  }
+  @keyframes prep-rise-peek {
+    from {
+      opacity: 0;
+      transform: translate(calc(-1 * var(--prep-peek)), 3rem) scale(0.93);
+    }
+  }
+  .prep-stage.is-entering .prep-slide.is-active {
+    animation: prep-rise 760ms var(--prep-ease) both;
+  }
+  .prep-stage.is-entering .prep-slide.is-next {
+    animation: prep-rise-peek 900ms var(--prep-ease) 120ms both;
   }
   .prep-nav__btn {
     display: grid;
@@ -1073,6 +1186,7 @@ const faqs = [
     position: absolute;
     top: -1.4rem;
     inset-inline-end: 1.5rem;
+    z-index: 4;
     display: grid;
     place-items: center;
     inline-size: 3.6rem;
@@ -1250,7 +1364,12 @@ const faqs = [
     .prep-nav {
       order: 2;
       grid-auto-flow: column;
+      align-items: center;
       justify-content: center;
+      gap: 0.9rem;
+    }
+    .prep-stage {
+      --prep-peek: 2.4rem;
     }
     .checklist--cols {
       grid-template-columns: 1fr;

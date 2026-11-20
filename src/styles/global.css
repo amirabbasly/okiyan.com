@@ -103,6 +103,21 @@ html {
   /* No rubber-band overscroll on the page itself: touchpad/touch bounce at the
      top or bottom edge could leave the page unresponsive to the reverse scroll. */
   overscroll-behavior-y: none;
+  /* The page never scrolls sideways. A few pixels of overflow are enough on a
+     phone to widen the layout viewport, and every position:fixed element is
+     placed against that widened box — which is what dragged the floating تماس
+     button off-screen until the visitor scrolled sideways to reach it. `clip`
+     (not `hidden`) keeps the sticky header and the fixed overlays working, and
+     inner scrollers — data tables, the marquee — keep their own overflow. */
+  overflow-x: hidden;
+}
+@supports (overflow: clip) {
+  html {
+    overflow-x: clip;
+  }
+  body {
+    overflow-x: clip;
+  }
 }
 
 @media (prefers-reduced-motion: no-preference) {
