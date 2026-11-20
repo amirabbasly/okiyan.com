@@ -89,6 +89,14 @@
   color-scheme: light;
 }
 
+/* The desktop header is a two-row bar; the sticky offsets, the mega panel top
+   and the pinned journey all read this height. */
+@media (min-width: 1080px) {
+  :root {
+    --header-h: 6.2rem;
+  }
+}
+
 /* ---------- Reset & base ---------- */
 *,
 *::before,

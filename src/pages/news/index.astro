@@ -1,0 +1,220 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import PageHero from '~/components/layout/PageHero.astro';
+import CtaBand from '~/components/ui/CtaBand.astro';
+import Icon from '~/components/ui/Icon.astro';
+import { breadcrumbLd } from '~/lib/schema';
+
+const crumbs = [
+  { name: 'خانه', path: '/' },
+  { name: 'اخبار بازرگانی و واردات خودرو', path: '/news/' },
+];
+
+/**
+ * Every brief carries its source and the date we re-checked it. No brief is
+ * published from rumour: if we cannot point at a document or a report, it does
+ * not go on the page.
+ */
+const briefs = [
+  {
+    title: 'واردات خودروی کارکرده در ۱۴۰۵: رویهٔ جدید ثبت سفارش بر پایهٔ ماده ۱۱',
+    date: 'مهر ۱۴۰۵',
+    text: 'بر پایهٔ گزارش‌های منتشرشده، در سال ۱۴۰۵ ثبت سفارش و واردات خودروهای کارکردهٔ مدل ۰۲۱ تا ۲۰۲۳ مجاز شده و برای آن رویهٔ جداگانه‌ای با عنوان «واردات خودرو کارکرده از محل ماده ۱۱ قانون ساماندهی صنعت خودرو» در سامانهٔ ثبت سفارش ایجاد شده است. یعنی پروندهٔ خودروی کارکرده مسیر و ضوابط خودش را دارد و با رویهٔ خودروی نو یکی نیست.',
+    source: { label: 'گزارش خبری باما', href: 'https://bama.ir/news/18132' },
+    related: { label: 'مسیر ثبت سفارش با ما', href: '/ready-orders/' },
+  },
+  {
+    title: 'بودجهٔ ۱۴۰۵: نرخ عمومی مالیات بر ارزش افزوده همان ۱۰٪ ماند',
+    date: 'بررسی: آذر ۱۴۰۴ · بازبینی: آبان ۱۴۰۵',
+    text: 'در جریان تصویب بودجهٔ ۱۴۰۵ عدد ۱۲٪ در جدول لایحه گزارش شد، اما متن نهایی قانون بودجه نرخ عمومی ارزش افزوده را تغییر نداد و همان ۱۰٪ ماند. این نرخ مبنای برآوردهای ما در ماشین‌حساب است و در دادهٔ نرخ هم با ذکر منبع و تاریخ بازبینی نگهداری می‌شود.',
+    source: { label: 'بررسی متن قانون بودجه ۱۴۰۵', href: 'https://zharfban.com/guides/vat-1405/' },
+    related: { label: 'ماشین‌حساب هزینهٔ واردات', href: '/price-calculator/' },
+  },
+  {
+    title: 'مبنای ارزش گمرکی: نرخ ETS سامانهٔ مبادلات الکترونیکی، نه نرخ ثابت',
+    date: 'از خرداد ۱۴۰۱ · بازبینی: آبان ۱۴۰۵',
+    text: 'بر پایهٔ بخشنامهٔ گمرک ایران، از ۱۴۰۱/۰۳/۰۹ مبنای ارزش گمرکی و حقوق ورودی نرخ ثابت نیست؛ نرخ ETS (میانگین نرخ نیمایی و بازار آزاد در سامانهٔ مبادلات الکترونیکی) است که هر روز ساعت ۹ منتشر می‌شود. برای همین در برآوردها هیچ عدد ثابتی به‌عنوان «نرخ روز» نشر نمی‌دهیم و فقط مکانیزم و منبع را می‌گوییم.',
+    source: { label: 'گزارش خبری بخشنامهٔ گمرک', href: 'https://www.mehrnews.com/news/5499042' },
+    related: { label: 'نرخ ارز گمرکی چگونه تعیین می‌شود؟', href: '/customs-exchange-rate/' },
+  },
+];
+
+const guides = [
+  { href: '/guides/customs-clearance-cost/', label: 'هزینهٔ ترخیص کالا از چه اجزایی ساخته می‌شود؟' },
+  { href: '/guides/customs-clearance-documents/', label: 'فهرست مدارک ترخیص کالا' },
+  { href: '/guides/import-process/', label: 'مراحل واردات کالا، قدم‌به‌قدم' },
+];
+---
+
+<BaseLayout
+  title="اخبار بازرگانی و واردات خودرو؛ مقررات با منبع | اوکیان"
+  description="تغییرات مقررات بازرگانی و واردات خودرو را خلاصه می‌کنیم، با ذکر منبع و تاریخ بازبینی: رویه‌های ثبت سفارش خودرو، نرخ ارزش افزوده و مبنای ارزش گمرکی."
+  jsonLd={[breadcrumbLd(crumbs, Astro.site)].filter((x) => x !== null)}
+>
+  <PageHero
+    eyebrow="اخبار"
+    title="اخبار بازرگانی و واردات خودرو"
+    lead="هر تغییر مقررات را خلاصه می‌کنیم و منبع و تاریخ بازبینی‌اش را کنارش می‌گذاریم؛ تا تصمیم‌تان به شایعه بسته نباشد."
+    crumbs={crumbs}
+  />
+
+  <section class="section" aria-labelledby="news-title">
+    <div class="container container--narrow">
+      <header class="section-head reveal">
+        <span class="eyebrow">بایگانی خبرها</span>
+        <h2 id="news-title">چه تغییراتی پرونده‌ها را عوض کرده است؟</h2>
+      </header>
+
+      <div class="news-list">
+        {
+          briefs.map((b) => (
+            <article class="news reveal">
+              <p class="news__date">
+                <Icon name="doc" />
+                {b.date}
+              </p>
+              <h3>{b.title}</h3>
+              <p>{b.text}</p>
+              <p class="news__meta">
+                <a href={b.source.href} rel="noopener noreferrer nofollow" target="_blank">
+                  منبع: {b.source.label}
+                </a>
+                <span aria-hidden="true">·</span>
+                <a href={b.related.href}>{b.related.label}</a>
+              </p>
+            </article>
+          ))
+        }
+      </div>
+
+      <div class="notice reveal" role="note">
+        <Icon name="shield" />
+        <p>
+          <strong>روش ما:</strong> خبری بدون سند یا گزارش قابل اشاره منتشر نمی‌شود؛ کنار هر مورد منبع و تاریخ بازبینی آمده و اعداد حساس (نرخ ارز، نرخ سود بازرگانی، تعرفهٔ خودرو) فقط به‌صورت مکانیزم و منبع نشر می‌شوند، نه یک عدد ثابت که تاریخ مصرف دارد.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt" aria-labelledby="news-guides-title">
+    <div class="container container--narrow">
+      <header class="section-head reveal">
+        <span class="eyebrow">ادامهٔ مسیر</span>
+        <h2 id="news-guides-title">خبر را به تصمیم وصل کنید</h2>
+        <p class="lead">هر خبر بالا یک سؤال عملی پشتش دارد؛ این راهنماها همان سؤال‌ها را باز می‌کنند.</p>
+      </header>
+      <ul class="news-guides reveal">
+        {
+          guides.map((g) => (
+            <li>
+              <a href={g.href}>
+                {g.label}
+                <Icon name="arrow" />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <CtaBand
+    title="تغییر مقررات، پروندهٔ شما را عوض می‌کند؟"
+    text="مشخصات کالا و مرحلهٔ فعلی پرونده را بفرستید؛ می‌گوییم تغییر اخیر چه اثری روی مسیر، مجوزها و هزینهٔ پروندهٔ شما دارد."
+  />
+</BaseLayout>
+
+<style>
+  .news-list {
+    display: grid;
+    gap: 1.1rem;
+  }
+  .news {
+    display: grid;
+    gap: 0.7rem;
+    justify-items: start;
+    padding: 1.4rem 1.5rem 1.3rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-m);
+    background: var(--white);
+    box-shadow: 0 20px 40px -34px rgb(13 26 44 / 0.4);
+  }
+  .news__date {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--slate-600);
+  }
+  .news__date :global(svg) {
+    inline-size: 1rem;
+    block-size: 1rem;
+    color: var(--petrol-600);
+  }
+  .news h3 {
+    font-size: var(--step-1);
+    line-height: 1.6;
+    color: var(--navy-900);
+  }
+  .news p:not(.news__date):not(.news__meta) {
+    color: var(--slate-700);
+    font-size: var(--step--1);
+    line-height: 1.95;
+  }
+  .news__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0;
+    font-size: 0.82rem;
+    font-weight: 700;
+  }
+  .news__meta a {
+    color: var(--navy-800);
+    text-decoration-color: var(--petrol-300);
+    text-underline-offset: 0.3em;
+  }
+  .news__meta a:hover {
+    color: var(--petrol-600);
+  }
+  .news__meta span {
+    color: var(--slate-600);
+  }
+  .news-guides {
+    list-style: none;
+    display: grid;
+    gap: 0.6rem;
+    margin: 0;
+    padding: 0;
+  }
+  .news-guides a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.9rem 1.1rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-m);
+    background: var(--white);
+    color: var(--navy-900);
+    font-weight: 700;
+    text-decoration: none;
+    transition:
+      border-color var(--dur-med) ease,
+      color var(--dur-med) ease,
+      transform var(--dur-med) var(--ease-out);
+  }
+  .news-guides a:hover {
+    border-color: var(--petrol-300);
+    color: var(--petrol-600);
+    transform: translateY(-2px);
+  }
+  .news-guides :global(svg) {
+    inline-size: 1.1rem;
+    block-size: 1.1rem;
+    flex: none;
+  }
+</style>
