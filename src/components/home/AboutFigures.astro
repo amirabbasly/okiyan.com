@@ -14,7 +14,6 @@
  * ۱۵ سال سابقه (تأسیس ۱۳۹۳).
  */
 import Icon from '~/components/ui/Icon.astro';
-import GlobeArt from '~/components/home/GlobeArt.astro';
 import { toFaNumber } from '~/lib/format';
 
 export interface Figure {
@@ -85,7 +84,8 @@ const spoken = (f: Figure) =>
 
     <!-- globe — left column, animated and cropped by the band edge -->
     <div class="af-art" aria-hidden="true">
-      <GlobeArt class="af-art__svg" />
+      {/* the real-geography globe scene, cropped by the band's left edge */}
+      <img class="af-art__img" src="/img/globe-scene.webp" alt="" width="983" height="654" />
     </div>
   </div>
 </section>
@@ -230,12 +230,15 @@ const spoken = (f: Figure) =>
     /* spill past the band's left edge so the sphere is cropped, as in the reference */
     margin-inline-end: clamp(-4rem, -3vw, -1rem);
   }
-  .af-art__svg {
+  .af-art__img {
     display: block;
     inline-size: 118%;
     max-inline-size: none;
     block-size: auto;
     margin-inline-end: -18%;
+    /* the scene's night sky melts into the band instead of showing a seam */
+    -webkit-mask-image: radial-gradient(120% 115% at 42% 50%, #000 58%, transparent 96%);
+    mask-image: radial-gradient(120% 115% at 42% 50%, #000 58%, transparent 96%);
     filter: drop-shadow(0 18px 42px rgb(0 176 200 / 0.22));
   }
 
@@ -261,7 +264,7 @@ const spoken = (f: Figure) =>
       grid-area: art;
       margin-inline-end: clamp(-3rem, -4vw, -1rem);
     }
-    .af-art__svg {
+    .af-art__img {
       inline-size: 132%;
       margin-inline-end: -32%;
     }
@@ -297,7 +300,7 @@ const spoken = (f: Figure) =>
       font-size: 0.78rem;
       padding: 0.5rem 0.9rem;
     }
-    .af-art__svg {
+    .af-art__img {
       inline-size: 150%;
       margin-inline-end: -50%;
     }
