@@ -1,4 +1,14 @@
 ---
+/**
+ * Desktop: a two-row bar — the structure of the first reference (logo spanning
+ * both rows on the right, a thin rule between the rows, the contact cluster on
+ * the left) with the text placement of the second one: plain links read from
+ * the right edge on row one beside the avatar + line number, the icon services
+ * cluster on the right of row two beside the navy CTA pill on the left.
+ *
+ * Below 1080px the rows collapse into one bar and the whole menu becomes a
+ * drawer that slides in from the RIGHT edge (native popover, no JS needed).
+ */
 import { nav, contactCta, site, isNavGroup, companyPhones } from '~/config/site';
 import Logo from '~/components/ui/Logo.astro';
 import Icon from '~/components/ui/Icon.astro';
@@ -6,21 +16,28 @@ import Icon from '~/components/ui/Icon.astro';
 const path = Astro.url.pathname;
 const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
 const groupCurrent = (children: Array<{ href: string }>) => children.some((c) => isCurrent(c.href));
-// The first mobile line is printed next to the office number in the header.
-const headerPhones = companyPhones.filter((p) => p.kind === 'mobile').slice(0, 1);
+// Both published lines ride in the header: the office line and the mobile line.
+const landline = companyPhones.find((p) => p.kind === 'landline') ?? null;
+const mobileLine = companyPhones.find((p) => p.kind === 'mobile') ?? null;
+
+/* row 1 = plain links & the company group; row 2 = the icon service links */
+const rowOf = (item: (typeof nav)[number]) => (item.row === 2 ? 2 : 1);
+const row1 = nav.filter((i) => rowOf(i) === 1);
+const row2 = nav.filter((i) => rowOf(i) === 2);
 ---
 
 <header class="site-header">
-  <div class="container site-header__inner">
+  <div class="container site-header__band">
     <a href="/" class="site-header__brand">
       <Logo />
       <span class="sr-only">— صفحه اصلی</span>
     </a>
 
-    <nav class="site-nav" aria-label="ناوبری اصلی">
+    <!-- ============ row 1: plain links, read from the right edge ============ -->
+    <nav class="site-nav site-nav--primary" aria-label="ناوبری اصلی">
       <ul>
         {
-          nav.map((item, i) =>
+          row1.map((item, i) =>
             isNavGroup(item) ? (
               <li class="nav-group" data-nav-group>
                 <button
@@ -30,6 +47,7 @@ const headerPhones = companyPhones.filter((p) => p.kind === 'mobile').slice(0, 1
                   aria-controls={`nav-group-${i}`}
                 >
                   {item.label}
+                  {item.badge && <span class="nav-badge">{item.badge}</span>}
                   <Icon name="chevron" />
                 </button>
                 <div class="nav-group__panel" id={`nav-group-${i}`}>
@@ -71,6 +89,7 @@ const headerPhones = companyPhones.filter((p) => p.kind === 'mobile').slice(0, 1
               <li>
                 <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
                   {item.label}
+                  {item.badge && <span class="nav-badge">{item.badge}</span>}
                 </a>
               </li>
             ),
@@ -79,32 +98,104 @@ const headerPhones = companyPhones.filter((p) => p.kind === 'mobile').slice(0, 1
       </ul>
     </nav>
 
-    <!-- Brand and actions grow equally, so the dark capsule stays centred. -->
-    <div class="site-header__actions">
-      {
-        site.contact.phone && (
-          <span class="site-header__phones">
-            <a href={`tel:${site.contact.phone}`} class="site-header__phone site-header__phone--landline">
-              <Icon name="phone" />
-              <span class="sr-only">تلفن دفتر</span>
-              <span dir="ltr">{site.contact.phoneDisplay ?? site.contact.phone}</span>
-            </a>
-            {headerPhones.map((p) => (
-              <a href={`tel:${p.e164}`} class="site-header__phone site-header__phone--mobile">
-                <Icon name="phone" />
-                <span class="sr-only">تلفن همراه</span>
-                <span dir="ltr">{p.display}</span>
-              </a>
-            ))}
-          </span>
-        )
-      }
-      <a href={contactCta.href} class="btn site-header__cta" aria-current={isCurrent(contactCta.href) ? 'page' : undefined}>
-        {contactCta.label}
-        <Icon name="arrow" class="btn__icon" />
-      </a>
+    <!-- ============ row 2: the services, icon first, clustered right ============ -->
+    <nav class="site-nav site-nav--services" aria-label="خدمات">
+      <ul>
+        {
+          row2.map((item, i) =>
+            isNavGroup(item) ? (
+              <li class="nav-group" data-nav-group>
+                <button
+                  type="button"
+                  class:list={['nav-group__btn', 'site-nav__svc', { 'is-current': groupCurrent(item.children) }]}
+                  aria-expanded="false"
+                  aria-controls={`nav-svc-${i}`}
+                >
+                  <span class="site-nav__icon" aria-hidden="true">
+                    <Icon name={item.icon ?? 'briefcase'} />
+                  </span>
+                  {item.label}
+                  <Icon name="chevron" />
+                </button>
+                <div class="nav-group__panel" id={`nav-svc-${i}`}>
+                  <div class="mega container">
+                    <ul class="mega__links">
+                      {item.children.map((c) => (
+                        <li>
+                          <a class="mega__link" href={c.href} aria-current={isCurrent(c.href) ? 'page' : undefined}>
+                            {c.icon && (
+                              <span class="mega__icon" aria-hidden="true">
+                                <Icon name={c.icon} />
+                              </span>
+                            )}
+                            <span class="mega__text">
+                              <span class="mega__label">{c.label}</span>
+                              {c.hint && <span class="mega__hint">{c.hint}</span>}
+                            </span>
+                            <Icon name="arrow" class="mega__arrow" />
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                    {
+                      item.feature && (
+                        <aside class="mega__feature" aria-label={item.feature.title}>
+                          <p class="mega__feature-title">{item.feature.title}</p>
+                          <p class="mega__feature-text">{item.feature.text}</p>
+                          <a class="btn mega__feature-cta" href={item.feature.href}>
+                            {item.feature.ctaLabel}
+                            <Icon name="arrow" class="btn__icon" />
+                          </a>
+                        </aside>
+                      )
+                    }
+                  </div>
+                </div>
+              </li>
+            ) : (
+              <li>
+                <a class="site-nav__svc" href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+                  <span class="site-nav__icon" aria-hidden="true">
+                    <Icon name={item.icon ?? 'route'} />
+                  </span>
+                  {item.label}
+                </a>
+              </li>
+            ),
+          )
+        }
+      </ul>
+    </nav>
 
-      <!-- Native popover: works without JavaScript, closes with Esc / outside click. -->
+    <!-- row 1 left: the answered line, then the conversion pill -->
+    <div class="site-header__actions">
+      <div class="site-header__phones">
+        {
+          landline && (
+            <a href={`tel:${landline.e164}`} class="site-header__call">
+              <span class="sr-only">تلفن دفتر تهران</span>
+              <span class="site-header__num" dir="ltr">{landline.display}</span>
+              <span class="site-header__agent">
+                {/* default avatar: swap the file for a real staff photo later */}
+                <img src="/img/support-avatar-160.png" alt="" width="80" height="80" />
+                <span class="site-header__agent-dot" aria-hidden="true"></span>
+              </span>
+            </a>
+          )
+        }
+        {
+          mobileLine && (
+            <a href={`tel:${mobileLine.e164}`} class="site-header__call site-header__call--mobile">
+              <span class="sr-only">تلفن همراه</span>
+              <span class="site-header__num" dir="ltr">{mobileLine.display}</span>
+            </a>
+          )
+        }
+      </div>
+      <a href={contactCta.href} class="btn site-header__cta" aria-current={isCurrent(contactCta.href) ? 'page' : undefined}>
+        <Icon name="headset" class="site-header__cta-icon" />
+        {contactCta.label}
+      </a>
       <button class="menu-toggle" type="button" popovertarget="mobile-menu" aria-controls="mobile-menu">
         <Icon name="menu" />
         <span>منو</span>
@@ -112,6 +203,7 @@ const headerPhones = companyPhones.filter((p) => p.kind === 'mobile').slice(0, 1
     </div>
   </div>
 
+  <!-- Drawer: slides in from the right edge, closes with Esc / outside click. -->
   <div id="mobile-menu" class="mobile-menu" popover>
     <div class="mobile-menu__top">
       <Logo />
@@ -142,6 +234,7 @@ const headerPhones = companyPhones.filter((p) => p.kind === 'mobile').slice(0, 1
               <li>
                 <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
                   {item.label}
+                  {item.badge && <span class="nav-badge">{item.badge}</span>}
                 </a>
               </li>
             ),
@@ -149,14 +242,24 @@ const headerPhones = companyPhones.filter((p) => p.kind === 'mobile').slice(0, 1
         }
       </ul>
     </nav>
-    {
-      site.contact.phone && (
-        <a href={`tel:${site.contact.phone}`} class="btn btn--ghost mobile-menu__call">
-          <Icon name="phone" class="btn__icon" />
-          تماس: <span dir="ltr">{site.contact.phoneDisplay ?? site.contact.phone}</span>
-        </a>
-      )
-    }
+    <div class="mobile-menu__calls">
+      {
+        landline && (
+          <a href={`tel:${landline.e164}`} class="btn btn--ghost mobile-menu__call">
+            <Icon name="phone" class="btn__icon" />
+            تهران: <span dir="ltr">{landline.display}</span>
+          </a>
+        )
+      }
+      {
+        mobileLine && (
+          <a href={`tel:${mobileLine.e164}`} class="btn btn--ghost mobile-menu__call">
+            <Icon name="phone" class="btn__icon" />
+            همراه: <span dir="ltr">{mobileLine.display}</span>
+          </a>
+        )
+      }
+    </div>
     <a href={contactCta.href} class="btn mobile-menu__cta">
       {contactCta.label}
       <Icon name="arrow" class="btn__icon" />
@@ -199,147 +302,268 @@ const headerPhones = companyPhones.filter((p) => p.kind === 'mobile').slice(0, 1
     position: sticky;
     top: 0;
     z-index: 50;
-    /* Solid (no backdrop-filter): cheaper to composite while scrolling and overscrolling. */
+    /* Solid (no backdrop-filter): cheaper to composite while scrolling. */
     background: var(--white);
-    /* The reference bar ends in a thin aqua rule rather than a grey border. */
     border-bottom: 1px solid rgb(0 176 200 / 0.28);
     box-shadow: 0 1px 0 rgb(0 176 200 / 0.1);
+    /* the logo-orange, which the pinned header blue must not swallow */
+    --svc: #fe5d02;
   }
-  .site-header__inner {
-    display: flex;
+
+  /* ---------- the two-row band ----------
+     logo | rows | side cluster; the rule between the rows stops before the
+     logo column, exactly like the first reference. */
+  .site-header__band {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-rows: auto auto;
+    column-gap: clamp(0.8rem, 1.8vw, 2.2rem);
     align-items: center;
-    gap: clamp(0.9rem, 1.6vw, 1.6rem);
-    min-height: var(--header-h);
-    /* A band of its own: a touch wider than the page column so the brand, the
-       seven-item capsule and the phone/CTA cluster never fight for space. */
-    inline-size: min(100% - 2 * var(--gutter), 82rem);
   }
   .site-header__brand {
-    /* Brand and actions split the free space around the capsule. A slightly smaller
-       share for the brand pulls the capsule a few percent towards the logo side
-       (right in RTL); both edges stay put, so nothing else is re-placed. */
-    flex: 0.84 1 0;
+    grid-column: 1;
+    grid-row: 1 / 3;
+    align-self: center;
     text-decoration: none;
     border-radius: var(--radius-s);
+  }
+  .site-nav--primary {
+    grid-column: 2;
+    grid-row: 1;
   }
   .site-header__actions {
-    flex: 1 1 0;
+    grid-column: 3;
+    grid-row: 1;
+    justify-self: end;
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    gap: 1.5rem;
+    gap: 0.8rem;
   }
-  /* ----- Nav: light bar, aqua underline on the current item -----
-     Matches the reference: labels sit directly on the white header, the active
-     one is marked by a short aqua rule underneath, and the dropdowns open in a
-     floating white card instead of a full-bleed dark slab. */
-  .site-nav {
-    flex: 1 1 auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  /* the rule between the rows hangs under row one, so it still spans both
+     middle columns now that row two's left corner is empty */
+  .site-nav--primary,
+  .site-header__actions {
+    padding-block: 0.45rem 0.4rem;
+    border-bottom: 1px solid rgb(0 176 200 / 0.2);
   }
-  .site-nav > ul {
+  .site-nav--services {
+    grid-column: 2;
+    grid-row: 2;
+    padding-block: 0.35rem 0.5rem;
+  }
+
+  /* ---------- row 1: plain links with hairline dot separators ---------- */
+  .site-nav--primary > ul {
     display: flex;
     align-items: center;
-    gap: clamp(0.1rem, 0.6vw, 0.55rem);
+    margin: 0;
     padding: 0;
     list-style: none;
-    border-radius: 0;
-    border: 0;
-    background: none;
-    box-shadow: none;
   }
-  .site-nav > ul > li {
+  .site-nav--primary > ul > li {
     display: flex;
     align-items: center;
   }
-  /* Only the top-level items carry these styles; the mega panel links are styled
-     on their own below. */
-  .site-nav > ul > li > a {
+  .site-nav--primary > ul > li + li {
     position: relative;
-    display: block;
-    padding: 0.5rem 0.55rem;
-    font-weight: 600;
-    font-size: 0.9rem;
-    line-height: 1.6;
-    white-space: nowrap;
-    color: var(--navy-800);
-    text-decoration: none;
-    border-radius: var(--radius-s);
-    transition:
-      color var(--dur-fast) ease,
-      background-color var(--dur-fast) ease;
+    margin-inline-start: clamp(0.55rem, 1vw, 1.05rem);
+    padding-inline-start: clamp(0.55rem, 1vw, 1.05rem);
   }
-  .site-nav > ul > li > a:hover {
-    color: var(--navy-950);
-    background: var(--mist-50);
-  }
-  .site-nav > ul > li > a[aria-current='page'] {
-    color: var(--navy-950);
-    font-weight: 700;
-  }
-  .site-nav > ul > li > a[aria-current='page']::after,
-  .nav-group__btn.is-current::after {
+  .site-nav--primary > ul > li + li::before {
     content: '';
     position: absolute;
-    inset-inline: 0.55rem;
-    bottom: 0.1rem;
-    height: 2px;
-    border-radius: 2px;
-    background: var(--aqua, #00b0c8);
+    inset-inline-start: 0;
+    top: 50%;
+    inline-size: 3px;
+    block-size: 3px;
+    margin-top: -1.5px;
+    border-radius: 50%;
+    background: rgb(5 37 71 / 0.26);
   }
-  /* ----- Dropdown groups ----- */
-  .nav-group {
-    position: relative;
-  }
-  .nav-group__btn {
-    position: relative;
-    display: inline-flex;
+  .site-nav--primary > ul > li > a,
+  .site-nav--primary .nav-group__btn {
+    display: flex;
     align-items: center;
-    gap: 0.25rem;
-    padding: 0.5rem 0.55rem;
+    gap: 0.45rem;
+    padding: 0.28rem 0.1rem;
     border: 0;
-    border-radius: var(--radius-s);
-    background: transparent;
+    background: none;
     font: inherit;
+    font-size: 0.84rem;
     font-weight: 600;
-    font-size: 0.9rem;
-    line-height: 1.6;
-    white-space: nowrap;
-    color: var(--navy-800);
+    color: var(--navy-900);
+    text-decoration: none;
     cursor: pointer;
-    transition:
-      color var(--dur-fast) ease,
-      background-color var(--dur-fast) ease;
+    border-radius: var(--radius-s);
   }
-  .nav-group__btn :global(svg) {
-    inline-size: 1rem;
-    block-size: 1rem;
-    transition: transform var(--dur-fast) ease;
+  .site-nav--primary > ul > li > a:hover,
+  .site-nav--primary .nav-group__btn:hover {
+    color: var(--petrol-600);
   }
-  .nav-group__btn:hover,
-  .nav-group__btn[aria-expanded='true'] {
-    color: var(--navy-950);
-    background: var(--mist-50);
+  .site-nav--primary > ul > li > a[aria-current='page'],
+  .site-nav--primary .nav-group__btn.is-current {
+    color: var(--petrol-600);
+    font-weight: 800;
+  }
+  .site-nav--primary :global(svg) {
+    inline-size: 0.95rem;
+    block-size: 0.95rem;
+    color: var(--petrol-500);
+    transition: transform var(--dur-med) var(--ease-out);
   }
   .nav-group__btn[aria-expanded='true'] :global(svg) {
     transform: rotate(180deg);
   }
-  .nav-group__btn.is-current {
-    color: var(--navy-950);
+
+  /* the «جدید» flag */
+  .nav-badge {
+    padding: 0.02rem 0.5rem 0.06rem;
+    border-radius: 999px;
+    background: #e11d48;
+    color: var(--white);
+    font-size: 0.62rem;
+    font-weight: 800;
+    line-height: 1.7;
+  }
+
+  /* ---------- row 1 left: avatar + answered line ---------- */
+  .site-header__phones {
+    display: inline-flex;
+    align-items: center;
+    /* a hairline between the numbers and the pill that closes the cluster */
+    padding-inline-end: 0.7rem;
+    border-inline-end: 1px solid rgb(5 37 71 / 0.14);
+  }
+  .site-header__call {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    border-radius: var(--radius-s);
+  }
+  /* a hairline between the office line and the mobile line beside it */
+  .site-header__call--mobile {
+    padding-inline-start: 0.65rem;
+    border-inline-start: 1px solid rgb(5 37 71 / 0.14);
+  }
+  .site-header__num {
+    font-size: 0.88rem;
+    font-weight: 800;
+    letter-spacing: 0;
+    color: var(--aqua-600);
+    white-space: nowrap;
+  }
+  .site-header__call:hover .site-header__num {
+    text-decoration: underline;
+    text-decoration-color: var(--aqua-500);
+    text-underline-offset: 0.3em;
+  }
+  .site-header__agent {
+    position: relative;
+    flex: none;
+    inline-size: 2.15rem;
+    block-size: 2.15rem;
+  }
+  .site-header__agent img {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid var(--white);
+    box-shadow:
+      0 0 0 1px rgb(5 37 71 / 0.16),
+      0 8px 16px -10px rgb(0 18 48 / 0.45);
+  }
+  .site-header__agent-dot {
+    position: absolute;
+    top: 0;
+    left: 0;
+    inline-size: 0.72rem;
+    block-size: 0.72rem;
+    border-radius: 50%;
+    background: #22c55e;
+    border: 2px solid var(--white);
+  }
+
+  /* ---------- row 2: icon services, clustered from the right ---------- */
+  .site-nav--services > ul {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.8rem, 1.6vw, 1.8rem);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .site-nav__svc {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.22rem 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    font-size: 0.86rem;
     font-weight: 700;
+    color: var(--navy-900);
+    text-decoration: none;
+    cursor: pointer;
+    border-radius: var(--radius-s);
   }
-  .nav-group__btn.is-current::after {
-    inset-inline: 0.55rem 1.4rem;
+  .site-nav__svc:hover {
+    color: var(--petrol-600);
   }
-  /* ----- Mega dropdown -----
-     A floating white card under the bar. It keeps the menu readable over any
-     page background and stays visually quiet, like the reference. */
+  .site-nav__svc[aria-current='page'],
+  .site-nav__svc.is-current {
+    color: var(--petrol-600);
+  }
+  .site-nav__icon {
+    display: grid;
+    place-items: center;
+    color: var(--svc);
+  }
+  .site-nav__icon :global(svg) {
+    inline-size: 1.35rem;
+    block-size: 1.35rem;
+  }
+  .site-nav--services :global(svg:not(.site-nav__icon svg)) {
+    inline-size: 0.9rem;
+    block-size: 0.9rem;
+    color: var(--petrol-500);
+  }
+  .site-nav--services .nav-group__btn :global(svg) {
+    transition: transform var(--dur-med) var(--ease-out);
+  }
+
+  /* ---------- row 2 left: the navy pill ---------- */
+  .site-header__cta {
+    --btn-bg: var(--navy-900);
+    --btn-border: var(--navy-900);
+    --btn-fg: var(--white);
+    gap: 0.45rem;
+    min-height: 2.4rem;
+    padding-inline: 1.05rem;
+    border-radius: 999px;
+    font-size: 0.84rem;
+    font-weight: 800;
+    white-space: nowrap;
+    box-shadow: 0 12px 24px -16px rgb(0 18 48 / 0.8);
+  }
+  .site-header__cta:hover {
+    --btn-bg: var(--navy-800);
+    --btn-border: var(--navy-800);
+  }
+  .site-header__cta-icon {
+    inline-size: 1.15rem;
+    block-size: 1.15rem;
+  }
+
+  /* ---------- Mega dropdown (both rows) ----------
+     A floating white card under the whole bar. */
+  .nav-group {
+    position: relative;
+  }
   .nav-group__panel {
     display: none;
-    /* Fixed to the viewport and centred, not anchored to the button: a panel
-       this wide would otherwise run off the edge for the first/last item. */
     position: fixed;
     inset-inline: 0;
     margin-inline: auto;
@@ -401,6 +625,8 @@ const headerPhones = companyPhones.filter((p) => p.kind === 'mobile').slice(0, 1
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
     gap: 0.65rem;
+    margin: 0;
+    padding: 0;
   }
   .mega__link {
     display: grid;
@@ -431,9 +657,6 @@ const headerPhones = companyPhones.filter((p) => p.kind === 'mobile').slice(0, 1
     background: var(--aqua-100);
     border-color: var(--aqua-300);
     color: var(--navy-950);
-  }
-  .mega__link[aria-current='page']::after {
-    display: none;
   }
   .mega__icon {
     display: grid;
@@ -471,7 +694,6 @@ const headerPhones = companyPhones.filter((p) => p.kind === 'mobile').slice(0, 1
   .mega__link:hover :global(.mega__arrow) {
     transform: translateX(-4px);
   }
-
   .mega__feature {
     display: grid;
     gap: 0.7rem;
@@ -505,110 +727,7 @@ const headerPhones = companyPhones.filter((p) => p.kind === 'mobile').slice(0, 1
     }
   }
 
-  .site-header__phones {
-    display: flex;
-    align-items: center;
-    gap: 0.7rem;
-    min-width: 0;
-  }
-  .site-header__phones > a + a {
-    padding-inline-start: 0.7rem;
-    border-inline-start: 1px solid var(--rule);
-  }
-  .site-header__phone {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    font-weight: 700;
-    font-size: 0.86rem;
-    color: var(--navy-900);
-    text-decoration: none;
-    white-space: nowrap;
-    border-radius: var(--radius-s);
-  }
-  .site-header__phone :global(svg) {
-    inline-size: 1rem;
-    block-size: 1rem;
-    color: var(--petrol-500);
-  }
-  .site-header__phone:hover span {
-    text-decoration: underline;
-    text-decoration-color: var(--petrol-500);
-    text-underline-offset: 0.3em;
-  }
-  .mobile-menu__call {
-    align-self: stretch;
-  }
-  /* Seven top-level items need room. From 1440px up both numbers show. Between
-     1100 and 1439 the mobile line stays and the landline steps aside — one number
-     occupies the same footprint as before, so nothing else has to move (a 1440px
-     screen with a scrollbar is 1425px, which is why the mobile line was invisible
-     on most laptops). Below 1100 the numbers give way to the menu. */
-  @media (max-width: 1439px) {
-    .site-header__phone--landline {
-      display: none;
-    }
-    /* no landline on the left any more, so the mobile line drops its divider */
-    .site-header__phone--mobile {
-      padding-inline-start: 0;
-      border-inline-start: 0;
-    }
-  }
-  @media (max-width: 1099px) {
-    .site-header__phones {
-      display: none;
-    }
-  }
-  @media (max-width: 1700px) {
-    .site-nav > ul > li > a,
-    .nav-group__btn {
-      font-size: 0.82rem;
-      padding-inline: 0.5rem;
-    }
-  }
-  @media (max-width: 1200px) {
-    .site-nav > ul > li > a,
-    .nav-group__btn {
-      font-size: 0.8rem;
-      padding-inline: 0.45rem;
-    }
-  }
-  @media (max-width: 1120px) {
-    .site-header__inner {
-      gap: 1rem;
-    }
-    .site-nav > ul {
-      padding: 0.24rem;
-    }
-    .site-nav > ul > li > a,
-    .nav-group__btn {
-      font-size: 0.8rem;
-      padding-inline: 0.5rem;
-    }
-  }
-  @media (max-width: 1040px) {
-    .site-header__cta {
-      display: none;
-    }
-  }
-  .site-header__cta {
-    flex: none;
-    gap: 0.4rem;
-    min-height: 2.6rem;
-    padding-inline: 1.05rem;
-    font-size: 0.92rem;
-    line-height: 1.2;
-    white-space: nowrap;
-    box-shadow: 0 10px 20px -16px rgb(13 26 44 / 0.7);
-  }
-  .site-header__cta .btn__icon {
-    inline-size: 0.95rem;
-    block-size: 0.95rem;
-  }
-  .site-header__cta:hover {
-    box-shadow: 0 12px 22px -14px rgb(13 26 44 / 0.75);
-  }
-
+  /* ---------- toggles ---------- */
   .menu-toggle,
   .menu-close {
     display: none;
@@ -628,30 +747,59 @@ const headerPhones = companyPhones.filter((p) => p.kind === 'mobile').slice(0, 1
     block-size: 1.3rem;
   }
 
+  /* ---------- the drawer: enters from the right edge ---------- */
   .mobile-menu {
     position: fixed;
-    inset: 0;
-    width: 100%;
-    max-width: none;
+    inset-block: 0;
+    inset-inline-start: 0; /* RTL: the right edge */
+    inline-size: min(23rem, 88vw);
     height: 100%;
     max-height: none;
     margin: 0;
-    padding: 1rem var(--gutter) 2rem;
+    padding: 1rem 1.15rem 2rem;
     border: 0;
+    border-inline-end: 1px solid var(--rule);
     background: var(--white) var(--grain);
     color: var(--text);
     overflow-y: auto;
+    overscroll-behavior: contain;
   }
   .mobile-menu:popover-open {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1.4rem;
+  }
+  .mobile-menu::backdrop {
+    background: rgb(0 15 40 / 0.46);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .mobile-menu {
+      transition:
+        transform 340ms var(--ease-out),
+        overlay 340ms allow-discrete,
+        display 340ms allow-discrete;
+      /* parked off the right edge; opening slides it right-to-left */
+      transform: translateX(100%);
+    }
+    .mobile-menu:popover-open {
+      transform: none;
+    }
+    .mobile-menu::backdrop {
+      transition:
+        opacity 340ms ease,
+        overlay 340ms allow-discrete,
+        display 340ms allow-discrete;
+      opacity: 0;
+    }
+    .mobile-menu:popover-open::backdrop {
+      opacity: 1;
+    }
   }
   .mobile-menu__top {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    min-height: calc(var(--header-h) - 1rem);
+    min-height: calc(var(--header-h) - 1.4rem);
   }
   .mobile-menu .menu-close {
     display: inline-flex;
@@ -661,16 +809,20 @@ const headerPhones = companyPhones.filter((p) => p.kind === 'mobile').slice(0, 1
   .mobile-menu ul {
     list-style: none;
     border-top: 1px solid var(--rule);
+    margin: 0;
+    padding: 0;
   }
   .mobile-menu li a {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 1rem 0.25rem;
+    gap: 0.6rem;
+    padding: 0.95rem 0.25rem;
     border-bottom: 1px solid var(--rule);
-    font-size: var(--step-2);
+    font-size: var(--step-1);
     font-weight: 800;
     text-decoration: none;
+    color: var(--navy-900);
   }
   .mobile-menu li a[aria-current='page'] {
     color: var(--petrol-600);
@@ -696,39 +848,97 @@ const headerPhones = companyPhones.filter((p) => p.kind === 'mobile').slice(0, 1
   .mobile-menu .mobile-menu__group li:last-child a {
     border-bottom: 0;
   }
+  .mobile-menu__calls {
+    display: grid;
+    gap: 0.6rem;
+  }
+  .mobile-menu__call {
+    align-self: stretch;
+    justify-content: center;
+  }
   .mobile-menu__cta {
     align-self: stretch;
   }
 
-  @media (prefers-reduced-motion: no-preference) {
-    .mobile-menu {
-      transition:
-        opacity 220ms var(--ease-out),
-        transform 220ms var(--ease-out),
-        overlay 220ms allow-discrete,
-        display 220ms allow-discrete;
-      opacity: 0;
-      transform: translateY(-8px);
+  @media (max-width: 1279px) {
+    .site-nav--primary > ul > li > a,
+    .site-nav--primary .nav-group__btn {
+      font-size: 0.76rem;
     }
-    .mobile-menu:popover-open {
-      opacity: 1;
-      transform: none;
+    .site-nav--primary > ul > li + li {
+      margin-inline-start: 0.45rem;
+      padding-inline-start: 0.45rem;
     }
-    @starting-style {
-      .mobile-menu:popover-open {
-        opacity: 0;
-        transform: translateY(-8px);
-      }
+    .site-nav__svc {
+      font-size: 0.78rem;
+      gap: 0.35rem;
+    }
+    .site-nav__icon :global(svg) {
+      inline-size: 1.15rem;
+      block-size: 1.15rem;
+    }
+    .site-header__num {
+      font-size: 0.78rem;
+    }
+    .site-header__agent {
+      inline-size: 1.9rem;
+      block-size: 1.9rem;
+    }
+    .site-header__cta {
+      min-height: 2.2rem;
+      padding-inline: 0.85rem;
+      font-size: 0.76rem;
+    }
+    .site-header__phones {
+      padding-inline-end: 0.55rem;
+    }
+    .site-header__call--mobile {
+      padding-inline-start: 0.5rem;
+    }
+    .site-header__actions {
+      gap: 0.55rem;
     }
   }
 
-  @media (max-width: 860px) {
-    .site-nav,
-    .site-header__cta {
+  /* ---------- collapse: one bar + drawer ---------- */
+  @media (max-width: 1079px) {
+    .site-header__band {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+      min-height: var(--header-h);
+    }
+    .site-nav--primary,
+    .site-nav--services {
       display: none;
+    }
+    .site-header__actions {
+      margin-inline-start: auto;
+      border-bottom: 0;
+      padding-block: 0;
+      gap: 0.6rem;
     }
     .menu-toggle {
       display: inline-flex;
+    }
+  }
+  /* Smaller bars keep both lines, just tighter; the avatar steps aside. */
+  @media (max-width: 719px) {
+    .site-header__agent {
+      display: none;
+    }
+    .site-header__num {
+      font-size: 0.72rem;
+    }
+    .site-header__cta {
+      padding-inline: 0.8rem;
+      font-size: 0.72rem;
+    }
+  }
+  /* On phone widths both lines live on in the drawer; the bar keeps the pill. */
+  @media (max-width: 559px) {
+    .site-header__phones {
+      display: none;
     }
   }
 </style>

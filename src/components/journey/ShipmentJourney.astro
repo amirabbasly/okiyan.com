@@ -78,6 +78,15 @@ const pad = (n: number) => toFa(String(n).padStart(2, '0'));
 <style>
   /* ================= Layout ================= */
   .hj {
+    /* Pinned to the journey's own colours, independent of the round-25
+       palette change, so the pin and its artwork are untouched. */
+    /* logo palette: the journey stage sits below the hero, so it follows the
+       brand navy + orbit amber like the rest of the page */
+    --navy-950: #001637;
+    --navy-900: #012b64;
+    --navy-800: #02387e;
+    --petrol-600: #fe5d02;
+    --petrol-500: #e35400;
     /* Scroll distance for the five stages. `vh` first, `svh` where supported, so a
        browser without `svh` still gets the full track height (otherwise the whole
        journey would collapse into one tiny scroll). */

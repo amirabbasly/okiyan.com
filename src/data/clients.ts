@@ -32,17 +32,11 @@ export interface Client {
  * mark sits on the same visual baseline; replace a file to update a brand.
  */
 export const clients: Client[] = [
-  { name: 'پخش خزر', logo: '/clients/khazar.png' },
-  { name: 'سرمایه‌گذاری ایران و شرق', logo: '/clients/iran-shargh.png' },
-  { name: 'DMBoard', logo: '/clients/dmboard.png' },
-  { name: 'پویا', logo: '/clients/pooya.png' },
-  { name: 'هاتی', logo: '/clients/hati.png' },
-  { name: 'سان', logo: '/clients/san.png' },
-  { name: 'لیان', logo: '/clients/lian.png' },
-  { name: 'مهستان', logo: '/clients/mahestan.png' },
-  { name: 'پیکان', logo: '/clients/peykan.png' },
-  { name: 'زی‌لند', logo: '/clients/ziland.png' },
-  { name: 'ZOOMIT', logo: '/clients/zoomit.png' },
-  { name: 'پارس‌ای‌اچ', logo: '/clients/parseh.png' },
-  { name: 'کالای ایرانی', logo: '/clients/kalaa-irani.png' },
+  { name: 'نادین خودرو', logo: '/clients/nadin-khodro.png' },
+  { name: 'موتور بنلی', logo: '/clients/benelli.png' },
+  { name: 'نیک‌رون موتور', logo: '/clients/nikrun-motor.png' },
+  { name: 'سیکا تریدینگ', logo: '/clients/lian-sika.png' },
+  { name: 'کیا — کوشا خودرو', logo: '/clients/kia-kousha.png' },
+  { name: 'کویر موتور', logo: '/clients/kavir-motor.png' },
+  { name: 'LEGO', logo: '/clients/lego.png' },
 ];

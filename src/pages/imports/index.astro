@@ -9,6 +9,7 @@ import { breadcrumbLd, itemListLd } from '~/lib/schema';
 
 const origins = (await getCollection('origins')).sort((a, b) => a.data.order - b.data.order);
 const offices = (await getCollection('customs')).sort((a, b) => a.data.order - b.data.order);
+const goods = (await getCollection('goods')).sort((a, b) => a.data.order - b.data.order);
 
 const crumbs = [
   { name: 'خانه', path: '/' },
@@ -20,8 +21,8 @@ const answer =
 ---
 
 <BaseLayout
-  title="واردات بر اساس مبدأ: چین، دبی و ترکیه"
-  description="واردات کالا به ایران از چین، دبی و ترکیه: مسیر حمل، اسناد، اینکوترمز، ریسک‌های هر مبدأ و نکاتی که پیش از بارگیری باید روشن شود."
+  title="واردات بر اساس مبدأ: چین، هند، آلمان، ترکیه و دبی"
+  description="واردات کالا به ایران از چین، هند، آلمان، ترکیه و دبی: مسیر حمل، اسناد، اینکوترمز، ریسک‌های هر مبدأ و کالاهای رایج همان مسیر."
   jsonLd={[
     breadcrumbLd(crumbs, Astro.site),
     itemListLd(
@@ -71,6 +72,31 @@ const answer =
                   <li>{c}</li>
                 ))}
               </ul>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section--tight" aria-labelledby="goods-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="eyebrow">کالا</span>
+        <h2 id="goods-title">همان مسیر، برای کدام کالا؟</h2>
+        <p class="lead">
+          مبدأ، نیمی از پرونده است؛ نیم دیگر، خود کالا است: کد تعرفه، مجوز دستگاهی و عوامل هزینه. برای هر گروه کالایی یک
+          صفحهٔ جدا نوشته‌ایم — <a href="/goods/">فهرست کامل کالاها</a>.
+        </p>
+      </header>
+      <ul class="goods-chips">
+        {
+          goods.map((g) => (
+            <li>
+              <a href={`/goods/${g.id}/`}>
+                <strong>{g.data.product}</strong>
+                <span>{g.data.hs.slice(0, 2).map((h) => h.code).join(' · ')}</span>
+              </a>
             </li>
           ))
         }
@@ -188,6 +214,38 @@ const answer =
     border-radius: 999px;
     background: var(--mist-100);
     color: var(--navy-800);
+  }
+  .section--tight {
+    padding-block: clamp(1.5rem, 3vw, 2.5rem);
+  }
+  .goods-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    list-style: none;
+    margin: 1.5rem 0 0;
+    padding: 0;
+  }
+  .goods-chips a {
+    display: grid;
+    gap: 0.1rem;
+    padding: 0.55rem 1rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-s);
+    background: var(--white);
+    text-decoration: none;
+  }
+  .goods-chips a:hover {
+    border-color: var(--petrol-300);
+  }
+  .goods-chips strong {
+    font-size: var(--step--1);
+    color: var(--navy-900);
+  }
+  .goods-chips span {
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 0.72rem;
+    color: var(--text-muted);
   }
   .common-steps {
     display: grid;

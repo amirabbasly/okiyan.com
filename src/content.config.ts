@@ -150,4 +150,67 @@ const origins = defineCollection({
   }),
 });
 
-export const collections = { guides, customs, origins };
+/**
+ * Commodity pages: «واردات برنج»، «ترخیص قطعات خودرو»، «واردات ماشین‌آلات صنعتی».
+ *
+ * Each page answers a transactional/commercial query about ONE kind of cargo:
+ * which tariff headings it usually falls under, which device licences it needs,
+ * what the clearance path looks like and where files of this type get stuck.
+ *
+ * Hard rule for this collection: no rate, price, percentage or deadline is
+ * stated as fact unless it is a stable, citable rule of the HS nomenclature or
+ * of a named law. Anything that a yearly amendment can change is described as a
+ * *mechanism* (who decides it, where it is published) and left to the visitor's
+ * own file — see /hs-code/ and /customs-exchange-rate/.
+ */
+const goods = defineCollection({
+  loader: glob({ pattern: "**/*.md", base: "./src/content/goods" }),
+  schema: z.object({
+    title: z.string(),
+    seoTitle: z.string().max(70).optional(),
+    navTitle: z.string(),
+    description: z.string().max(170),
+    order: z.number(),
+    publishDate: z.coerce.date(),
+    updatedDate: z.coerce.date().optional(),
+    /** The commodity itself, shown as the card eyebrow («برنج», «قطعات خودرو»). */
+    product: z.string(),
+    /** Search intent this page is written for; drives the hub grouping. */
+    intent: z.enum(["transactional", "commercial"]).default("transactional"),
+    /**
+     * Tariff headings this commodity usually falls under. Codes are the
+     * international HS heading (4 digits) — stable across editions — never an
+     * 8-digit national line, which changes with each year's book.
+     */
+    hs: z.array(z.object({ code: z.string(), label: z.string() })).default([]),
+    /** Device licences / permits this cargo typically needs, as plain statements. */
+    permits: z.array(z.string()).default([]),
+    /** Cost components that are specific to this cargo (not general clearance). */
+    costDrivers: z.array(z.string()).default([]),
+    /** Origin-country pages relevant here (entry ids of the `origins` collection). */
+    relatedOrigins: z.array(z.string()).default([]),
+    /** Customs offices this cargo usually enters through (entry ids). */
+    relatedOffices: z.array(z.string()).default([]),
+    relatedGuides: z.array(z.string()).default([]),
+    summary: z.array(z.string()).min(2).max(5),
+    answer: z.string().max(600).default(""),
+    keywords: z.array(z.string()).default([]),
+    faq: z
+      .array(z.object({ q: z.string(), a: z.string() }))
+      .max(10)
+      .default([]),
+    sources: z
+      .array(
+        z.object({
+          title: z.string(),
+          publisher: z.string(),
+          url: z.url(),
+          note: z.string().optional(),
+        }),
+      )
+      .default([]),
+    reviewNotes: z.array(z.string()).default([]),
+  }),
+});
+
+export const collections = { guides, customs, origins, goods };

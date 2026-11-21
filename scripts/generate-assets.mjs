@@ -118,31 +118,31 @@ async function og() {
   const bg = `
 <svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
   <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0" stop-color="#1d3a5a"/><stop offset="1" stop-color="#0d1a2c"/></linearGradient>
+    <linearGradient id="g" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0" stop-color="#0d3f85"/><stop offset="1" stop-color="#001637"/></linearGradient>
     <radialGradient id="glow" cx=".2" cy=".1" r=".6"><stop offset="0" stop-color="${ACCENT}" stop-opacity=".1"/><stop offset="1" stop-color="${ACCENT}" stop-opacity="0"/></radialGradient>
   </defs>
   <rect width="${W}" height="${H}" fill="url(#g)"/>
   <rect width="${W}" height="${H}" fill="url(#glow)"/>
   ${grid}
-  <path d="M520 110C440 260 300 230 240 330S120 470 70 540" fill="none" stroke="#b9d1de" stroke-opacity=".45" stroke-width="3" stroke-dasharray="4 14" stroke-linecap="round"/>
+  <path d="M520 110C440 260 300 230 240 330S120 470 70 540" fill="none" stroke="#ffc29b" stroke-opacity=".45" stroke-width="3" stroke-dasharray="4 14" stroke-linecap="round"/>
   <path d="M520 110C440 260 300 230 240 330" fill="none" stroke="${ACCENT}" stroke-width="5" stroke-linecap="round"/>
   <path d="M520 110C470 10 260 20 160 150" fill="none" stroke="${IVORY}" stroke-opacity=".4" stroke-width="2.5" stroke-dasharray="1 10" stroke-linecap="round"/>
   <g transform="translate(359 44) rotate(175) scale(1.9)"><circle r="17" fill="${NAVY}" fill-opacity=".6"/><path d="M17 0C17 -1.6 15.6 -2.4 13 -2.4L5 -2.4L-3 -14H-7L-2.5 -2.4H-10L-13.5 -7H-16L-14 -1.4V1.4L-16 7H-13.5L-10 2.4H-2.5L-7 14H-3L5 2.4H13C15.6 2.4 17 1.6 17 0Z" fill="${IVORY}"/></g>
   <circle cx="520" cy="110" r="14" fill="${ACCENT}"/>
   <circle cx="70" cy="540" r="14" fill="none" stroke="${IVORY}" stroke-width="4"/>
   <g transform="translate(250 318) rotate(-18)">
-    <path d="M-70 -12H66L56 12H-58Z" fill="#dde2e6"/>
+    <path d="M-70 -12H66L56 12H-58Z" fill="#e8ecee"/>
     <rect x="-46" y="-40" width="48" height="28" rx="2" fill="${ACCENT}"/>
-    <rect x="6" y="-40" width="30" height="28" rx="2" fill="#2e6282"/>
+    <rect x="6" y="-40" width="30" height="28" rx="2" fill="#02387e"/>
     <rect x="40" y="-50" width="20" height="38" rx="2" fill="#e8ecee"/>
   </g>
   <rect x="640" y="470" width="480" height="4" rx="2" fill="${ACCENT}"/>
-  <svg x="1010" y="58" width="112" height="112" viewBox="0 0 1000 1000">${mark(112, { left: IVORY, right: ACCENT, pad: 0 }).replace(/^<svg[^>]*>|<\/svg>$/g, '')}</svg>
+  <!-- the photo mark is composited on top, see below -->
 </svg>`;
 
   const name = await text('اوکیان', { size: 104 });
   const line1 = await text('ترخیص کالا و واردات،', { size: 54, weight: 800 });
-  const line2 = await text('با مسیر روشن', { size: 54, weight: 800, color: '#b9d1de' });
+  const line2 = await text('با مسیر روشن', { size: 54, weight: 800, color: '#ffc29b' });
   const sub = await text('بررسی اسناد، برآورد شفاف هزینه، پیگیری تا تحویل', { size: 30, weight: 400, color: '#c5cbd2' });
   const right = 1120;
   const composites = [
@@ -151,31 +151,18 @@ async function og() {
     { input: line2.buf, top: 402, left: right - line2.meta.width },
     { input: sub.buf, top: 500, left: right - sub.meta.width },
   ];
+  const markBuf = await sharp(pub('img/logo-mark-light.png')).resize(150).png().toBuffer();
+  const markMeta = await sharp(markBuf).metadata();
+  composites.push({ input: markBuf, top: 44, left: W - 44 - markMeta.width });
   await mkdir(pub('og'), { recursive: true });
   await sharp(Buffer.from(bg)).composite(composites).png({ compressionLevel: 9 }).toFile(pub('og/default.png'));
 }
 
 async function icons() {
-  // SVG favicon switches to the on-dark colours in dark browser themes.
-  await writeFile(pub('favicon.svg'), mark(32, { pad: 0.02, darkMode: true }).trim());
-  await sharp(Buffer.from(mark(180, { bg: '#ffffff', pad: 0.16 }))).resize(180, 180).png().toFile(pub('apple-touch-icon.png'));
-  // Organization logo for search engines: the mark on white.
-  await sharp(Buffer.from(mark(512, { bg: '#ffffff', pad: 0.1 }))).resize(512, 512).png().toFile(pub('logo.png'));
-  // favicon.ico: a single 32×32 PNG wrapped in an ICO container
-  const png = await sharp(Buffer.from(mark(32, { pad: 0.02 }))).resize(32, 32).png().toBuffer();
-  const header = Buffer.alloc(22);
-  header.writeUInt16LE(0, 0);
-  header.writeUInt16LE(1, 2);
-  header.writeUInt16LE(1, 4);
-  header.writeUInt8(32, 6);
-  header.writeUInt8(32, 7);
-  header.writeUInt8(0, 8);
-  header.writeUInt8(0, 9);
-  header.writeUInt16LE(1, 10);
-  header.writeUInt16LE(32, 12);
-  header.writeUInt32LE(png.length, 14);
-  header.writeUInt32LE(22, 18);
-  await writeFile(pub('favicon.ico'), Buffer.concat([header, png]));
+  // The master logo file is the source of truth now: favicons, touch icon,
+  // Organization logo and the transparent lockups all come from it.
+  const { makeBrandAssets } = await import('./make-brand-logo.mjs');
+  await makeBrandAssets();
 }
 
 await mkdir(pub(''), { recursive: true });

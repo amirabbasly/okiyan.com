@@ -3,8 +3,8 @@ import { readdirSync, readFileSync } from "node:fs";
 
 /**
  * Map content collection → URL prefix.
- * Guides live at /guides/<id>/, customs offices at /customs/<id>/ and
- * origin-country pages at /imports/<id>/.
+ * Guides live at /guides/<id>/, customs offices at /customs/<id>/,
+ * origin-country pages at /imports/<id>/ and commodity pages at /goods/<id>/.
  */
 const collections = [
   {
@@ -18,6 +18,10 @@ const collections = [
   {
     dir: new URL("../src/content/origins/", import.meta.url),
     prefix: "/imports/",
+  },
+  {
+    dir: new URL("../src/content/goods/", import.meta.url),
+    prefix: "/goods/",
   },
 ];
 

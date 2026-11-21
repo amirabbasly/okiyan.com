@@ -1,0 +1,415 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import CtaBand from '~/components/ui/CtaBand.astro';
+import Icon from '~/components/ui/Icon.astro';
+import { breadcrumbLd } from '~/lib/schema';
+import { contactChannels } from '~/config/site';
+
+/** channel → icon name that exists in ui/Icon.astro */
+const channelIcon: Record<string, string> = {
+  phone: 'phone',
+  whatsapp: 'chat',
+  telegram: 'send',
+  email: 'mail',
+};
+
+const crumbs = [
+  { name: 'خانه', path: '/' },
+  { name: 'تیم ما', path: '/team/' },
+];
+
+const channels = contactChannels();
+
+/**
+ * The page follows the reference layout: a navy band with the family title,
+ * a founder card overlapping its bottom edge, then a four-up wall of the
+ * people who carry a file. Names and faces are published only with each
+ * member's own consent, so until then every portrait is a marked slot and
+ * each card leads with the role — nothing here is invented.
+ */
+const roles = [
+  {
+    badge: 'اسناد و بررسی',
+    title: 'کارشناس بررسی اسناد',
+    text: 'پیش از هر عددی، مشخصات کالا، پیش‌فاکتور و اسناد حمل را می‌بیند و کسری‌ها را همان‌جا فهرست می‌کند.',
+  },
+  {
+    badge: 'تعرفه و مجوز',
+    title: 'کارشناس تعرفه و مجوز',
+    text: 'کد تعرفهٔ پیشنهادی، نیاز به مجوز و محدودیت‌های ثبت سفارش را روشن می‌کند و برآورد هزینه را مکتوب می‌دهد.',
+  },
+  {
+    badge: 'حمل و مسیر',
+    title: 'هماهنگ‌کنندهٔ حمل',
+    text: 'مسیر و شرایط حمل را با شرایط تحویل و اسناد تطبیق می‌دهد تا زنجیرهٔ حمل با پرونده هم‌زمان بماند.',
+  },
+  {
+    badge: 'گمرک و پرونده',
+    title: 'رابط گمرک و پیگیری پرونده',
+    text: 'مراحل ترخیص را پیگیری می‌کند و در هر مرحله می‌گوید پرونده کجاست و اقدام بعدی با کیست.',
+  },
+];
+---
+
+<BaseLayout
+  title="تیم ما؛ نقش‌هایی که پروندهٔ شما را جلو می‌برند | اوکیان"
+  description="پشت هر پروندهٔ اوکیان چهار نقش روشن است: بررسی اسناد، تعرفه و مجوز، هماهنگی حمل و رابط گمرک. می‌گوییم هر نقش چه چیزی را تحویل می‌دهد و مرزها کجاست."
+  jsonLd={[breadcrumbLd(crumbs, Astro.site)].filter((x) => x !== null)}
+>
+  <!-- navy band with the family title, like the reference -->
+  <section class="team-band">
+    <p class="team-band__eyebrow">تیم اوکیان | همراه پروندهٔ شما از بررسی تا تحویل</p>
+    <h1 class="team-band__title">خانوادهٔ اوکیان</h1>
+  </section>
+
+  <!-- founder card, overlapping the band's bottom edge -->
+  <section class="team-founder-wrap" aria-labelledby="founder-title">
+    <div class="team-founder reveal">
+      <div class="team-founder__text">
+        <p class="team-founder__eyebrow">بنیان‌گذار و مدیرعامل</p>
+        <h2 id="founder-title">مدیرعامل اوکیان</h2>
+        <p class="team-founder__role">مدیر مجموعهٔ بازرگانی اوکیان، از ۱۳۹۳</p>
+        <p class="team-founder__bio">
+          اوکیان کارش را از بنادر جنوبی و پرونده‌های ملوانی شروع کرد و امروز مسیر کامل واردات را پیش می‌برد: از بررسی اسناد پیش از حمل تا ثبت سفارش، ترخیص و تحویل در انبار. مرز مسئولیت‌ها در هر پرونده مکتوب می‌شود؛ هر قولی که تیم می‌دهد، پشت همان برگه ایستاده است.
+        </p>
+        {
+          channels.length > 0 && (
+            <ul class="team-founder__pills">
+              {channels.map((c) => (
+                <li>
+                  <a href={c.href} rel={c.channel === 'phone' ? undefined : 'noopener noreferrer'}>
+                    <Icon name={(channelIcon[c.channel] ?? 'phone') as never} />
+                    <span dir="auto">{c.channel === 'phone' ? c.value : c.label}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )
+        }
+      </div>
+      <div class="team-founder__photo" aria-hidden="true">
+        <svg viewBox="0 0 120 140" aria-hidden="true" focusable="false">
+          <circle cx="60" cy="46" r="26" fill="currentColor" opacity="0.55" />
+          <path d="M14 140c4-38 22-56 46-56s42 18 46 56Z" fill="currentColor" opacity="0.55" />
+        </svg>
+        <span class="team-founder__slot">جای عکس مدیرعامل</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- the wall: one card per role, photo slot + badge + name + line -->
+  <section class="section section--alt team-wall" aria-labelledby="team-title">
+    <div class="container">
+      <h2 id="team-title" class="sr-only">نقش‌های تیم اوکیان</h2>
+      <ul class="team-grid">
+        {
+          roles.map((r) => (
+            <li class="team-card reveal">
+              <div class="team-card__photo" aria-hidden="true">
+                <svg viewBox="0 0 120 140" aria-hidden="true" focusable="false">
+                  <circle cx="60" cy="46" r="26" fill="currentColor" opacity="0.5" />
+                  <path d="M14 140c4-38 22-56 46-56s42 18 46 56Z" fill="currentColor" opacity="0.5" />
+                </svg>
+                <span class="team-card__badge">{r.badge}</span>
+              </div>
+              <h3>{r.title}</h3>
+              <p>{r.text}</p>
+            </li>
+          ))
+        }
+      </ul>
+
+      <div class="notice reveal" role="note">
+        <Icon name="shield" />
+        <p>
+          <strong>نام‌ها و چهره‌ها:</strong> به‌زودی، با اجازهٔ خودِ اعضای تیم، روی همین کارت‌ها می‌نشینند. تا آن زمان هم هیچ پرونده‌ای بی‌نام نمی‌ماند: در برگهٔ شروع کار، نام مسئول پرونده و راه ارتباط مستقیم با او نوشته می‌شود؛ عکس و نام ساختگی پیش از آن منتشر نمی‌کنیم.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="team-more-title">
+    <div class="container container--narrow">
+      <header class="section-head reveal">
+        <span class="eyebrow">ادامه</span>
+        <h2 id="team-more-title">تیم را از کارش بشناسید</h2>
+        <p class="lead">روش کار، سوابق و شبکهٔ همکاران ما، تصویر کامل‌تری از این نقش‌ها می‌دهد.</p>
+      </header>
+      <ul class="team-links reveal">
+        <li>
+          <a href="/about/">
+            روش کار و مرز مسئولیت‌ها
+            <Icon name="arrow" />
+          </a>
+        </li>
+        <li>
+          <a href="/resume/">
+            سوابق و پرونده‌های منتخب
+            <Icon name="arrow" />
+          </a>
+        </li>
+        <li>
+          <a href="/partners/">
+            همکارانی که کنار این تیم می‌ایستند
+            <Icon name="arrow" />
+          </a>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <CtaBand
+    title="می‌خواهید بدانید پروندهٔ شما با کیست؟"
+    text="مشخصات کالا را بفرستید؛ در همان برگهٔ بررسی اولیه می‌نویسیم مسئول پروندهٔ شما کیست، هر مرحله چه چیزی تحویل می‌دهد و اقدام بعدی با کیست."
+  />
+</BaseLayout>
+
+<style>
+  /* ---------- navy band ---------- */
+  .team-band {
+    background: linear-gradient(180deg, #16324a 0%, #102a41 100%);
+    color: var(--white);
+    text-align: center;
+    padding: clamp(2.6rem, 5vw, 4rem) 1.25rem clamp(6.5rem, 10vw, 8.5rem);
+  }
+  .team-band__eyebrow {
+    margin: 0 0 0.6rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: #9fb2c8;
+  }
+  .team-band__title {
+    margin: 0;
+    font-size: clamp(1.6rem, 1.2rem + 1.8vw, 2.4rem);
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+
+  /* ---------- founder card overlapping the band ---------- */
+  .team-founder-wrap {
+    margin-top: calc(-1 * clamp(4.5rem, 8vw, 6.5rem));
+    padding-inline: var(--gutter);
+  }
+  .team-founder {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) clamp(12rem, 22vw, 17rem);
+    gap: clamp(1.4rem, 3vw, 2.6rem);
+    align-items: center;
+    max-inline-size: 62rem;
+    margin-inline: auto;
+    padding: clamp(1.5rem, 3vw, 2.4rem);
+    border-radius: 1.1rem;
+    background: var(--white);
+    box-shadow: 0 34px 70px -40px rgb(0 18 48 / 0.45);
+  }
+  .team-founder__text {
+    display: grid;
+    justify-items: start;
+    gap: 0.45rem;
+  }
+  .team-founder__eyebrow {
+    margin: 0;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--petrol-600);
+  }
+  .team-founder__text h2 {
+    margin: 0;
+    font-size: clamp(1.25rem, 1.05rem + 0.9vw, 1.7rem);
+    color: var(--navy-900);
+  }
+  .team-founder__role {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--navy-800);
+  }
+  .team-founder__bio {
+    margin: 0.3rem 0 0;
+    font-size: var(--step--1);
+    line-height: 1.95;
+    color: var(--slate-600);
+  }
+  .team-founder__pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0.6rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .team-founder__pills a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.4rem 0.9rem;
+    border-radius: 0.7rem;
+    background: var(--paper-alt, #eef2fa);
+    color: var(--navy-800);
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition:
+      background-color var(--dur-med) ease,
+      color var(--dur-med) ease;
+  }
+  .team-founder__pills a:hover {
+    background: var(--navy-800);
+    color: var(--white);
+  }
+  .team-founder__pills :global(svg) {
+    inline-size: 1rem;
+    block-size: 1rem;
+  }
+  .team-founder__photo {
+    position: relative;
+    display: grid;
+    place-items: center;
+    aspect-ratio: 4 / 5;
+    border-radius: 0.9rem;
+    overflow: hidden;
+    background: linear-gradient(160deg, #dfe6ef, #c3cedd);
+    color: #8fa1b8;
+  }
+  .team-founder__photo svg {
+    inline-size: 62%;
+    block-size: auto;
+  }
+  .team-founder__slot {
+    position: absolute;
+    bottom: 0.7rem;
+    inset-inline: 0;
+    text-align: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #5d7189;
+  }
+
+  /* ---------- the wall ---------- */
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.1rem;
+    margin: 0 0 1.6rem;
+    padding: 0;
+    list-style: none;
+  }
+  .team-card {
+    display: grid;
+    justify-items: center;
+    gap: 0.35rem;
+    padding: 0.7rem 0.7rem 1.1rem;
+    border-radius: 1rem;
+    background: var(--white);
+    box-shadow: 0 22px 44px -36px rgb(13 26 44 / 0.4);
+    text-align: center;
+    transition:
+      transform var(--dur-med) var(--ease-out),
+      box-shadow var(--dur-med) var(--ease-out);
+  }
+  .team-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 30px 54px -34px rgb(13 26 44 / 0.45);
+  }
+  .team-card__photo {
+    position: relative;
+    inline-size: 100%;
+    aspect-ratio: 3 / 4;
+    border-radius: 0.8rem;
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(165deg, #e6ebf2, #cdd7e3);
+    color: #93a5bb;
+  }
+  .team-card__photo svg {
+    inline-size: 58%;
+    block-size: auto;
+  }
+  .team-card__badge {
+    position: absolute;
+    bottom: 0.55rem;
+    inset-inline-start: 0.55rem;
+    padding: 0.14rem 0.6rem 0.18rem;
+    border-radius: 0.5rem;
+    background: var(--aqua-600, #0093a8);
+    color: var(--white);
+    font-size: 0.64rem;
+    font-weight: 800;
+  }
+  .team-card h3 {
+    margin: 0.35rem 0 0;
+    font-size: 0.95rem;
+    color: var(--navy-900);
+  }
+  .team-card p {
+    margin: 0;
+    font-size: 0.76rem;
+    line-height: 1.8;
+    color: var(--slate-600);
+  }
+  @media (max-width: 1024px) {
+    .team-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 760px) {
+    .team-founder {
+      grid-template-columns: 1fr;
+    }
+    .team-founder__photo {
+      order: -1;
+      max-inline-size: 16rem;
+      margin-inline: auto;
+    }
+    .team-founder__text {
+      justify-items: center;
+      text-align: center;
+    }
+    .team-founder__pills {
+      justify-content: center;
+    }
+  }
+  @media (max-width: 520px) {
+    .team-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ---------- keep reading ---------- */
+  .team-links {
+    list-style: none;
+    display: grid;
+    gap: 0.6rem;
+    margin: 0;
+    padding: 0;
+  }
+  .team-links a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.9rem 1.1rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-m);
+    background: var(--white);
+    color: var(--navy-900);
+    font-weight: 700;
+    text-decoration: none;
+    transition:
+      border-color var(--dur-med) ease,
+      color var(--dur-med) ease,
+      transform var(--dur-med) var(--ease-out);
+  }
+  .team-links a:hover {
+    border-color: var(--petrol-300);
+    color: var(--petrol-600);
+    transform: translateY(-2px);
+  }
+  .team-links :global(svg) {
+    inline-size: 1.1rem;
+    block-size: 1.1rem;
+    flex: none;
+  }
+</style>

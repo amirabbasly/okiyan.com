@@ -1,0 +1,428 @@
+---
+/**
+ * /official-sources/ — directory of the systems that actually decide an import file.
+ *
+ * E-E-A-T asset: instead of repeating regulations in our own words, we point at the
+ * authority that publishes each one, grouped by the job it does in a file. Every
+ * entry is a public institution; nothing here is a claim about OKIYAN.
+ */
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import PageHero from '~/components/layout/PageHero.astro';
+import CtaBand from '~/components/ui/CtaBand.astro';
+import AnswerBlock from '~/components/ui/AnswerBlock.astro';
+import Faq from '~/components/ui/Faq.astro';
+import Icon from '~/components/ui/Icon.astro';
+import ClusterNav from '~/components/ui/ClusterNav.astro';
+import { breadcrumbLd, faqLd, itemListLd } from '~/lib/schema';
+
+interface SourceGroup {
+  title: string;
+  note: string;
+  items: Array<{ name: string; org: string; url: string; job: string }>;
+}
+
+const groups: SourceGroup[] = [
+  {
+    title: 'ثبت سفارش و سیاست تجاری',
+    note: 'جایی که پیش از خرید باید پاسخ سؤال‌ها را گرفت: این کالا مجاز است؟ با چه گروه کالایی و چه منبع ارزی؟',
+    items: [
+      {
+        name: 'سامانه جامع تجارت',
+        org: 'وزارت صنعت، معدن و تجارت',
+        url: 'https://www.ntsw.ir/',
+        job: 'ثبت سفارش، تعیین گروه کالایی، استعلام مجوزهای دستگاهی و کتاب مقررات صادرات و واردات.',
+      },
+      {
+        name: 'سازمان توسعه تجارت ایران',
+        org: 'وزارت صنعت، معدن و تجارت',
+        url: 'https://tpo.ir/',
+        job: 'سیاست‌های تجاری، مقررات صادرات و واردات و آمار تجارت خارجی.',
+      },
+      {
+        name: 'اتاق بازرگانی، صنایع، معادن و کشاورزی ایران',
+        org: 'اتاق ایران',
+        url: 'https://iccima.ir/',
+        job: 'کارت بازرگانی، گواهی مبدأ و ضوابط مربوط به اسناد تجاری.',
+      },
+    ],
+  },
+  {
+    title: 'گمرک: اظهار، ارزش‌گذاری و ترخیص',
+    note: 'رویهٔ عملیاتی پرونده از اظهار تا پروانهٔ خروج، و بخشنامه‌هایی که همان رویه را تغییر می‌دهد.',
+    items: [
+      {
+        name: 'گمرک جمهوری اسلامی ایران',
+        org: 'IRICA',
+        url: 'https://www.irica.ir/',
+        job: 'بخشنامه‌ها، رویه‌های ترخیص، ارزش‌گذاری کالا و فهرست گمرکات اجرایی.',
+      },
+      {
+        name: 'سامانهٔ EPL گمرک',
+        org: 'پنجرهٔ واحد تجارت فرامرزی',
+        url: 'https://epl.irica.ir/',
+        job: 'اظهار الکترونیکی کالا، دوراظهاری و پیگیری وضعیت پرونده.',
+      },
+      {
+        name: 'سازمان بنادر و دریانوردی',
+        org: 'PMO',
+        url: 'https://pmo.ir/',
+        job: 'امور بنادر، ترخیصیه و ضوابط مربوط به تخلیه و بارگیری.',
+      },
+    ],
+  },
+  {
+    title: 'سلامت، غذا و تجهیزات پزشکی',
+    note: 'مجوزهایی که به کالا و ایمنی آن مربوط است و پیش از ترخیص باید صادر شده باشد.',
+    items: [
+      {
+        name: 'سازمان غذا و دارو',
+        org: 'وزارت بهداشت، درمان و آموزش پزشکی',
+        url: 'https://fda.gov.ir/',
+        job: 'مجوز بهداشت مواد غذایی، آرایشی و دارویی و ضوابط ورود کالای مرتبط با سلامت.',
+      },
+      {
+        name: 'اداره کل تجهیزات پزشکی',
+        org: 'زیرمجموعهٔ سازمان غذا و دارو',
+        url: 'https://imed.ir/',
+        job: 'ثبت برند و مدل، صدور مجوز ورود تجهیزات پزشکی، دندانپزشکی و آزمایشگاهی.',
+      },
+    ],
+  },
+  {
+    title: 'استاندارد، آزمون و انطباق',
+    note: 'فهرست کالاهای مشمول استاندارد اجباری و ضوابط نمونه‌برداری و آزمون.',
+    items: [
+      {
+        name: 'سازمان ملی استاندارد ایران',
+        org: 'INSO',
+        url: 'https://isiri.gov.ir/',
+        job: 'فهرست کالاهای مشمول استاندارد اجباری، استانداردهای ملی و ضوابط آزمون و برچسب‌گذاری.',
+      },
+    ],
+  },
+  {
+    title: 'کشاورزی، دامپزشکی و قرنطینه',
+    note: 'برای کالای گیاهی، دامی و نهاده‌های کشاورزی؛ گواهی بهداشت نباتی در مبدأ، با این مرجع‌ها معنا پیدا می‌کند.',
+    items: [
+      {
+        name: 'وزارت جهاد کشاورزی',
+        org: 'سازمان حفظ نباتات و قرنطینه',
+        url: 'https://www.mafa.ir/',
+        job: 'قرنطینهٔ نباتی و دامپزشکی، گواهی بهداشت نباتی و مجوز بذر، کود و نهال.',
+      },
+    ],
+  },
+  {
+    title: 'مخابرات و فناوری',
+    note: 'تجهیزات دارای فرستنده و تلفن همراه، دو مجوز جدا از گمرک دارند.',
+    items: [
+      {
+        name: 'سامانهٔ همتا',
+        org: 'رجیستری تلفن همراه',
+        url: 'https://hamta.ntsw.ir/',
+        job: 'ثبت و استعلام شناسهٔ دستگاه تلفن همراه پس از ترخیص.',
+      },
+      {
+        name: 'سازمان تنظیم مقررات و ارتباطات رادیویی',
+        org: 'وزارت ارتباطات',
+        url: 'https://cra.ir/',
+        job: 'تأییدیهٔ نوع و مقررات رادیویی برای تجهیزات دارای فرستنده.',
+      },
+    ],
+  },
+  {
+    title: 'ارز و پرداخت',
+    note: 'نرخ ارز مبنای محاسبهٔ ارزش گمرکی، و ضوابط تأمین ارز برای ثبت سفارش.',
+    items: [
+      {
+        name: 'بانک مرکزی جمهوری اسلامی ایران',
+        org: 'CBI',
+        url: 'https://www.cbi.ir/',
+        job: 'اعلام نرخ ارز، ضوابط ارزی و مقررات تأمین ارز واردات.',
+      },
+    ],
+  },
+  {
+    title: 'مرجع بین‌المللی',
+    note: 'ساختار طبقه‌بندی و قواعدی که فراتر از یک کشور اعتبار دارد.',
+    items: [
+      {
+        name: 'سازمان جهانی گمرک',
+        org: 'WCO',
+        url: 'https://www.wcoomd.org/',
+        job: 'نظام هماهنگ (HS)، قواعد عمومی تفسیر و کنوانسیون‌های گمرکی.',
+      },
+    ],
+  },
+];
+
+const allItems = groups.flatMap((g) => g.items);
+const path = '/official-sources/';
+const crumbs = [
+  { name: 'خانه', path: '/' },
+  { name: 'ابزارها', path: '/tools/' },
+  { name: 'سامانه‌های رسمی', path },
+];
+
+const answer = `یک پروندهٔ واردات، به‌طور میانگین با چهار تا شش دستگاه درگیر است: وزارت صمت برای ثبت سفارش، گمرک برای اظهار و ارزش‌گذاری، یک دستگاه مجوزدهنده برای خود کالا، سازمان استاندارد برای انطباق، بانک مرکزی برای نرخ ارز و در بعضی کالاها مرجع مخابرات یا کشاورزی. این صفحه، مرجع رسمی هرکدام را با کاری که در پرونده انجام می‌دهد فهرست می‌کند تا استعلام از جای درست انجام شود؛ ${allItems.length} مرجع در ${groups.length} گروه.`;
+
+const faqs = [
+  {
+    q: 'استعلام مجوز را از کدام مرجع بگیریم؟',
+    a: 'از دستگاهی که مجوز را صادر می‌کند، نه از واسطه. اگر کالا غذایی یا آرایشی است، سازمان غذا و دارو؛ اگر تجهیزات پزشکی است، اداره کل تجهیزات پزشکی؛ اگر مشمول استاندارد اجباری است، سازمان ملی استاندارد؛ و اگر تجهیزات دارای فرستنده است، سازمان تنظیم مقررات و ارتباطات رادیویی.',
+  },
+  {
+    q: 'ثبت سفارش کجا انجام می‌شود؟',
+    a: 'در سامانه جامع تجارت، زیر نظر وزارت صنعت، معدن و تجارت. همان‌جا گروه کالایی، منبع تأمین ارز و مجوزهای لازم برای همان کالا مشخص می‌شود.',
+  },
+  {
+    q: 'اظهار کالا در کدام سامانه ثبت می‌شود؟',
+    a: 'در سامانهٔ EPL گمرک، که پنجرهٔ اظهار الکترونیکی و پیگیری پرونده است. اسناد، ارزش کالا و کد تعرفه در همان اظهارنامه ثبت می‌شود و مبنای ارزیابی و کارشناسی است.',
+  },
+  {
+    q: 'چرا به‌جای نقل مقررات، به مرجع آن لینک داده‌اید؟',
+    a: 'چون مقررات تغییر می‌کند و نقل یک بخشنامه در یک صفحهٔ ایستا، می‌تواند پس از چند ماه گمراه‌کننده باشد. کاری که پایدار می‌ماند، شناختن مرجع درست است؛ متن به‌روز همیشه در همان مرجع است.',
+  },
+  {
+    q: 'برای یک پروندهٔ مشخص، کدام استعلام را اول بگیریم؟',
+    a: 'اول کد تعرفه و گروه کالایی، چون مجوزها به آن گره خورده است. دوم مجوز دستگاهی، چون پیش از خرید باید قطعی شود. سوم وضعیت ارز و روش پرداخت، چون تقویم تحویل را می‌سازد.',
+  },
+];
+---
+
+<BaseLayout
+  title="سامانه‌های رسمی واردات و گمرک: مرجع هر مجوز و استعلام"
+  description="فهرست سامانه‌ها و نهادهای رسمی که پروندهٔ واردات به آن‌ها گره خورده است: ثبت سفارش، گمرک و اظهار، مجوز بهداشت و استاندارد، قرنطینه، رجیستری و نرخ ارز."
+  jsonLd={
+    [
+      breadcrumbLd(crumbs, Astro.site),
+      itemListLd({ name: 'سامانه‌های رسمی واردات', path, items: [] }, Astro.site),
+      faqLd(faqs, path, Astro.site),
+    ].filter((x) => x !== null)
+  }
+>
+  <PageHero
+    eyebrow="مرجع‌ها"
+    title="سامانه‌ها و نهادهای رسمی در پروندهٔ واردات"
+    lead="هر مجوز یک صادرکننده دارد و هر استعلام یک مرجع. این صفحه، مرجع رسمی هر کدام را با کاری که در پرونده انجام می‌دهد فهرست می‌کند."
+    crumbs={crumbs}
+  >
+    <div class="hero-actions">
+      <a class="btn" href="#groups">
+        فهرست مرجع‌ها
+        <Icon name="arrow" class="btn__icon" />
+      </a>
+      <a class="btn btn--ghost" href="/guides/import-permits/">راهنمای مجوزها</a>
+    </div>
+  </PageHero>
+
+  <AnswerBlock text={answer} />
+
+  <section class="section" id="groups" aria-labelledby="groups-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="eyebrow">دسته‌بندی بر پایهٔ کارکرد</span>
+        <h2 id="groups-title">{allItems.length} مرجع، در {groups.length} گروه</h2>
+        <p class="lead">
+          ترتیب گروه‌ها، همان ترتیبی است که در یک پروندهٔ واقعی به آن‌ها نیاز پیدا می‌کنید: از ثبت سفارش پیش از خرید، تا
+          رجیستری پس از ترخیص.
+        </p>
+      </header>
+
+      <div class="src-groups">
+        {
+          groups.map((g) => (
+            <section class="src-group reveal" aria-label={g.title}>
+              <header class="src-group__head">
+                <h3>{g.title}</h3>
+                <p>{g.note}</p>
+              </header>
+              <ul class="src-list">
+                {g.items.map((i) => (
+                  <li>
+                    <h4>
+                      <a href={i.url} rel="noopener" target="_blank">
+                        {i.name}
+                        <Icon name="external" />
+                        <span class="sr-only">(در پنجرهٔ جدید)</span>
+                      </a>
+                    </h4>
+                    <p class="src-list__org">{i.org}</p>
+                    <p class="src-list__job">{i.job}</p>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt" aria-labelledby="order-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="eyebrow">ترتیب استعلام</span>
+        <h2 id="order-title">در یک پرونده، کدام استعلام اول انجام می‌شود</h2>
+      </header>
+      <ol class="order-steps">
+        <li>
+          <h3>کد تعرفه و گروه کالایی</h3>
+          <p>
+            تا کد کالا قطعی نشود، نه مجوز معلوم است و نه ماخذ. جدول فصل‌ها در <a href="/hs-code/">کد تعرفه (HS)</a> و قواعد
+            طبقه‌بندی در همان صفحه آمده است.
+          </p>
+        </li>
+        <li>
+          <h3>مجوز دستگاهی</h3>
+          <p>
+            مجوز را پیش از خرید بگیرید. برای بعضی کالاها — به‌ویژه تجهیزات پزشکی — مجوز به برند و مدل گره خورده است و خرید
+            بدون آن، سرمایه را قفل می‌کند.
+          </p>
+        </li>
+        <li>
+          <h3>ثبت سفارش و منبع ارز</h3>
+          <p>
+            در سامانه جامع تجارت، با تعیین گروه کالایی و منبع تأمین ارز. روش پرداخت و تخصیص ارز، تقویم تحویل را می‌سازد.
+          </p>
+        </li>
+        <li>
+          <h3>اظهار و ترخیص</h3>
+          <p>
+            در سامانهٔ EPL گمرک. ارزش کالا بر پایهٔ نرخ ارز روز اظهار محاسبه می‌شود؛ قاعدهٔ آن در
+            <a href="/customs-exchange-rate/">نرخ ارز گمرکی</a> آمده است.
+          </p>
+        </li>
+        <li>
+          <h3>پس از ترخیص</h3>
+          <p>برای بعضی کالاها یک مرحلهٔ بعد از گمرک هم هست؛ مثل رجیستری تلفن همراه یا شماره‌گذاری وسیلهٔ نقلیه.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="faq-title">
+    <div class="container split split--wide">
+      <header class="stack reveal" style="--stack: 1rem">
+        <span class="eyebrow">پرسش‌های رایج</span>
+        <h2 id="faq-title">دربارهٔ استعلام‌های رسمی</h2>
+        <p class="lead">اگر نمی‌دانید کدام مرجع به کالای شما مربوط است، شرح کالا را بفرستید تا مسیر استعلام را مشخص کنیم.</p>
+        <a class="btn btn--ghost" href="/contact/">ارسال شرح کالا</a>
+      </header>
+      <Faq items={faqs} />
+    </div>
+  </section>
+
+  <div class="container">
+    <ClusterNav
+      siblings={[
+        { href: '/hs-code/', label: 'کد تعرفه (HS)' },
+        { href: '/customs-exchange-rate/', label: 'نرخ ارز گمرکی' },
+        { href: '/price-calculator/', label: 'ماشین‌حساب هزینهٔ ترخیص' },
+        { href: '/guides/import-permits/', label: 'مجوزهای واردات' },
+        { href: '/guides/customs-clearance-documents/', label: 'مدارک ترخیص کالا' },
+      ]}
+    />
+  </div>
+
+  <CtaBand
+    title="نمی‌دانید از کدام مرجع استعلام بگیرید؟"
+    text="شرح کالا و مبدأ را بفرستید؛ می‌گوییم کدام مجوز لازم است، از کدام مرجع گرفته می‌شود و پیش از خرید باید چه چیزی قطعی شود."
+  />
+</BaseLayout>
+
+<style>
+  .src-groups {
+    display: grid;
+    gap: 1.5rem;
+    margin: 1.5rem 0 0;
+  }
+  .src-group {
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-m);
+    background: var(--white);
+    overflow: hidden;
+  }
+  .src-group__head {
+    padding: 1.1rem 1.4rem;
+    background: var(--mist-100);
+    border-bottom: 1px solid var(--rule);
+  }
+  .src-group__head h3 {
+    font-size: var(--step-1);
+    margin-bottom: 0.25rem;
+  }
+  .src-group__head p {
+    margin: 0;
+    font-size: var(--step--1);
+    color: var(--text-muted);
+    line-height: 1.8;
+  }
+  .src-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  }
+  .src-list li {
+    padding: 1.1rem 1.4rem;
+    border-inline-end: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .src-list li:last-child {
+    border-inline-end: 0;
+  }
+  .src-list h4 {
+    font-size: var(--step-0);
+    margin-bottom: 0.2rem;
+  }
+  .src-list a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: var(--navy-900);
+    text-decoration-color: var(--petrol-300);
+    text-underline-offset: 4px;
+  }
+  .src-list a :global(svg) {
+    inline-size: 0.85em;
+    block-size: 0.85em;
+    color: var(--petrol-600);
+  }
+  .src-list__org {
+    margin: 0 0 0.5rem;
+    font-size: 0.78rem;
+    color: var(--petrol-600);
+    font-weight: 700;
+  }
+  .src-list__job {
+    margin: 0;
+    font-size: var(--step--1);
+    color: var(--slate-700);
+    line-height: 1.85;
+  }
+  .order-steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+    gap: 1.25rem;
+    list-style: none;
+    margin: 1.5rem 0 0;
+    padding: 0;
+    counter-reset: none;
+  }
+  .order-steps li {
+    padding-top: 1.1rem;
+    border-top: 2px solid var(--navy-900);
+  }
+  .order-steps h3 {
+    font-size: var(--step-0);
+    margin-bottom: 0.4rem;
+  }
+  .order-steps p {
+    margin: 0;
+    font-size: var(--step--1);
+    color: var(--slate-700);
+    line-height: 1.85;
+  }
+</style>

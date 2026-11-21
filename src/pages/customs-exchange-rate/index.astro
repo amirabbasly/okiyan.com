@@ -1,0 +1,329 @@
+---
+/**
+ * /customs-exchange-rate/ — how the customs value is built.
+ *
+ * Commercial + informational intent: «نرخ ارز گمرکی». The page states the RULE and
+ * the official place to read the number, and deliberately publishes no figure:
+ * a rate printed in a static page is stale the day after it is written, and a
+ * stale rate used in a real file costs money.
+ */
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import PageHero from '~/components/layout/PageHero.astro';
+import CtaBand from '~/components/ui/CtaBand.astro';
+import AnswerBlock from '~/components/ui/AnswerBlock.astro';
+import Faq from '~/components/ui/Faq.astro';
+import Icon from '~/components/ui/Icon.astro';
+import ClusterNav from '~/components/ui/ClusterNav.astro';
+import { breadcrumbLd, faqLd } from '~/lib/schema';
+
+const path = '/customs-exchange-rate/';
+const crumbs = [
+  { name: 'خانه', path: '/' },
+  { name: 'ابزارها', path: '/tools/' },
+  { name: 'نرخ ارز گمرکی', path },
+];
+
+const answer =
+  'ارزش گمرکی کالا، مبنای محاسبهٔ حقوق ورودی و مالیات بر ارزش افزوده است و از جمع بهای خرید، هزینهٔ حمل و بیمه تا نخستین نقطهٔ ورود کالا به کشور به دست می‌آید. این جمع، با نرخ ارز اعلامی بانک مرکزی در روز اظهار به ریال تبدیل می‌شود؛ یعنی نرخ روز ترخیص ملاک است، نه نرخی که هنگام خرید یا ثبت سفارش دیده‌اید. مرجع اعلام نرخ، بانک مرکزی و گمرک جمهوری اسلامی ایران است.';
+
+const faqs = [
+  {
+    q: 'ارزش گمرکی کالا چطور محاسبه می‌شود؟',
+    a: 'از جمع سه قلم: بهای خرید کالا بر پایهٔ سیاهه، هزینهٔ حمل تا نخستین نقطهٔ ورود به کشور، و هزینهٔ بیمهٔ همان مسیر. این جمع، به‌اصطلاح مبنای CIF است و با نرخ ارز اعلامی در روز اظهار به ریال تبدیل می‌شود.',
+  },
+  {
+    q: 'نرخ ارز گمرکی را کجا ببینم؟',
+    a: 'در تارنمای بانک مرکزی جمهوری اسلامی ایران و در اطلاعیه‌های گمرک. نرخ، روزانه اعلام می‌شود و برای محاسبهٔ همان روز اظهار معتبر است؛ برای همین استعلام لحظه‌ای از مرجع رسمی، جای خواندن یک عدد چاپ‌شده در یک صفحهٔ اینترنتی را نمی‌گیرد.',
+  },
+  {
+    q: 'چرا این صفحه عددی منتشر نمی‌کند؟',
+    a: 'چون نرخ، روزانه تغییر می‌کند و یک عدد چاپ‌شده در صفحهٔ ایستا، فردا گمراه‌کننده است. چیزی که پایدار است، قاعدهٔ محاسبه و مرجع اعلام نرخ است؛ هر دو در همین صفحه آمده‌اند. در ماشین‌حساب هزینه هم نرخ را خودتان وارد می‌کنید تا نتیجه با نرخ روزِ پروندهٔ شما حساب شود.',
+  },
+  {
+    q: 'حقوق ورودی از چه مبنایی حساب می‌شود؟',
+    a: 'ماخذ حقوق ورودی، درصدی است که در کتاب مقررات صادرات و واردات برای همان کد تعرفهٔ ملی تعیین شده و بر ارزش گمرکی کالا اعمال می‌شود. مالیات و عوارض ارزش افزوده هم بر جمع ارزش گمرکی و حقوق ورودی حساب می‌شود.',
+  },
+  {
+    q: 'اگر شرط تحویل EXW یا FOB باشد چه فرق می‌کند؟',
+    a: 'در مبنای ارزش گمرکی، هزینهٔ حمل و بیمه تا نخستین نقطهٔ ورود باید لحاظ شود. اگر سیاهه با شرطی تنظیم شده که این هزینه‌ها را در بر ندارد، آن هزینه‌ها باید جدا مستند و به بهای خرید اضافه شود؛ در غیر این صورت ارزش‌گذاری به بحث می‌افتد.',
+  },
+  {
+    q: 'اشتباه رایج در اعلام ارزش کالا چیست؟',
+    a: 'استفاده از نرخ ارز روز خرید به‌جای روز اظهار؛ ندیدن هزینهٔ حمل و بیمه در سیاهه؛ تفکیک نکردن اقلام غیرمرتبط در یک سیاهه؛ و نبود مستندات پرداخت که ارزش اعلام‌شده را اثبات کند.',
+  },
+];
+---
+
+<BaseLayout
+  title="نرخ ارز گمرکی و ارزش گمرکی کالا: قاعده و مرجع استعلام"
+  description="ارزش گمرکی کالا چطور محاسبه می‌شود، نرخ ارز مبنای محاسبه در روز اظهار کدام است، مرجع رسمی اعلام نرخ کجاست و چرا عدد چاپ‌شده در صفحهٔ ایستا اعتبار ندارد."
+  jsonLd={[breadcrumbLd(crumbs, Astro.site), faqLd(faqs, path, Astro.site)].filter((x) => x !== null)}
+>
+  <PageHero
+    eyebrow="ابزار مرجع"
+    title="نرخ ارز گمرکی و ارزش گمرکی کالا"
+    lead="بیشترین اختلاف‌های پروندهٔ واردات، از یک عدد شروع می‌شود: نرخی که ارزش کالا با آن به ریال تبدیل می‌شود. قاعده‌اش ساده است، ولی همان‌جا بیشترین اشتباه رخ می‌دهد."
+    crumbs={crumbs}
+  >
+    <div class="hero-actions">
+      <a class="btn" href="/price-calculator/">
+        ماشین‌حساب هزینه
+        <Icon name="arrow" class="btn__icon" />
+      </a>
+      <a class="btn btn--ghost" href="/official-sources/">مرجع‌های رسمی</a>
+    </div>
+  </PageHero>
+
+  <AnswerBlock text={answer} />
+
+  <section class="section" aria-labelledby="chain-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="eyebrow">زنجیرهٔ محاسبه</span>
+        <h2 id="chain-title">از سیاههٔ خرید تا پروانهٔ خروج</h2>
+        <p class="lead">
+          پنج گام، به همین ترتیب. هر گام از گام قبلی می‌آید و اشتباه در گام اول، تا آخر زنجیره بزرگ می‌شود.
+        </p>
+      </header>
+      <ol class="chain">
+        <li class="reveal">
+          <span class="chain__n">۱</span>
+          <h3>بهای خرید</h3>
+          <p>مبلغ سیاههٔ خرید، مطابق قرارداد و با شرط تحویل مشخص. این عدد باید با مستندات پرداخت بخواند.</p>
+        </li>
+        <li class="reveal">
+          <span class="chain__n">۲</span>
+          <h3>حمل و بیمه تا نخستین نقطهٔ ورود</h3>
+          <p>کرایهٔ حمل بین‌المللی و حق بیمهٔ همان مسیر. اگر شرط تحویل این دو را پوشش نمی‌دهد، باید جدا مستند و اضافه شود.</p>
+        </li>
+        <li class="reveal">
+          <span class="chain__n">۳</span>
+          <h3>نرخ ارز روز اظهار</h3>
+          <p>نرخ اعلامی بانک مرکزی در روز اظهار، جمع سه قلم بالا را به ریال تبدیل می‌کند و ارزش گمرکی ساخته می‌شود.</p>
+        </li>
+        <li class="reveal">
+          <span class="chain__n">۴</span>
+          <h3>حقوق ورودی</h3>
+          <p>ماخذ کد تعرفهٔ ملی، بر ارزش گمرکی اعمال می‌شود. ماخذ در کتاب مقررات همان سال منتشر می‌شود.</p>
+        </li>
+        <li class="reveal">
+          <span class="chain__n">۵</span>
+          <h3>مالیات و عوارض ارزش افزوده</h3>
+          <p>بر جمع ارزش گمرکی و حقوق ورودی، با نرخ مصوب همان سال حساب می‌شود. سپس سایر عوارض و هزینه‌های بندری و انبارداری اضافه می‌شود.</p>
+        </li>
+      </ol>
+
+      <div class="notice">
+        <Icon name="info" />
+        <p>
+          <strong>چرا اینجا عددی نمی‌بینید:</strong> نرخ ارز، روزانه اعلام می‌شود و ماخذ حقوق ورودی با اصلاحیهٔ سالانهٔ کتاب
+          مقررات عوض می‌شود. عدد چاپ‌شده در یک صفحهٔ ایستا، فردا اعتبار ندارد و استفاده از آن در یک پروندهٔ واقعی، هزینهٔ
+          واقعی دارد. برای همین این صفحه قاعده و مرجع را می‌دهد و عدد را به
+          <a href="/price-calculator/">ماشین‌حساب هزینه</a> واگذار می‌کند، جایی که نرخ روزِ پروندهٔ خودتان را وارد می‌کنید.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt" aria-labelledby="source-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="eyebrow">مرجع استعلام</span>
+        <h2 id="source-title">عدد را از کجا بگیرید</h2>
+      </header>
+      <ul class="src-grid">
+        <li>
+          <h3>
+            <a href="https://www.cbi.ir/" rel="noopener" target="_blank">بانک مرکزی جمهوری اسلامی ایران<Icon name="external" /></a>
+          </h3>
+          <p>مرجع اعلام نرخ ارز. نرخی که مبنای محاسبهٔ ارزش گمرکی است، از اعلام رسمی این مرجع می‌آید.</p>
+        </li>
+        <li>
+          <h3>
+            <a href="https://www.irica.ir/" rel="noopener" target="_blank">گمرک جمهوری اسلامی ایران<Icon name="external" /></a>
+          </h3>
+          <p>رویهٔ ارزش‌گذاری، بخشنامه‌ها و رویهٔ رسیدگی به اختلاف ارزش. استعلام کتبی از گمرک، قابل استنادترین شکل آن است.</p>
+        </li>
+        <li>
+          <h3>
+            <a href="https://www.ntsw.ir/" rel="noopener" target="_blank">سامانه جامع تجارت<Icon name="external" /></a>
+          </h3>
+          <p>ثبت سفارش، گروه کالایی و منبع تأمین ارز. ارز تخصیص‌یافته و ارز آزاد، دو مسیر متفاوت در پرونده می‌سازند.</p>
+        </li>
+        <li>
+          <h3>
+            <a href="https://www.wcoomd.org/" rel="noopener" target="_blank">سازمان جهانی گمرک<Icon name="external" /></a>
+          </h3>
+          <p>ساختار نظام هماهنگ و قواعد ارزش‌گذاری بین‌المللی که مبنای روش‌های ارزش‌گذاری ملی است.</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="mistakes-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="eyebrow">اشتباه‌های پرتکرار</span>
+        <h2 id="mistakes-title">چهار جایی که ارزش کالا به بحث می‌افتد</h2>
+      </header>
+      <ol class="mistakes">
+        <li>
+          <h3>نرخ روز خرید به‌جای نرخ روز اظهار</h3>
+          <p>
+            برآورد اولیه با نرخ روز خرید، برای برنامه‌ریزی خوب است؛ ولی مبنای محاسبهٔ نهایی، نرخ روز اظهار است. فاصلهٔ
+            زمانی بین خرید و ترخیص، همین اختلاف را می‌سازد.
+          </p>
+        </li>
+        <li>
+          <h3>ندیدن حمل و بیمه در سیاهه</h3>
+          <p>
+            اگر شرط تحویل EXW یا FOB باشد، هزینهٔ حمل و بیمه تا نخستین نقطهٔ ورود در سیاهه نیست و باید جدا مستند شود.
+          </p>
+        </li>
+        <li>
+          <h3>یک سیاهه برای چند کالای بی‌ربط</h3>
+          <p>
+            وقتی یک سیاهه، چند کالا با تعرفه‌های متفاوت را پوشش می‌دهد، تفکیک ارزش بین اقلام سخت می‌شود و بحث
+            ارزش‌گذاری طول می‌کشد.
+          </p>
+        </li>
+        <li>
+          <h3>نبود مستندات پرداخت</h3>
+          <p>
+            ارزش اعلام‌شده باید قابل اثبات باشد. اگر مسیر پرداخت مستند نباشد، اعلام ارزش با پرسش روبه‌رو می‌شود. دربارهٔ
+            این موضوع، <a href="/guides/payment-and-currency-risk/">ریسک پرداخت و ارز</a> را بخوانید.
+          </p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="section section--alt" aria-labelledby="faq-title">
+    <div class="container split split--wide">
+      <header class="stack reveal" style="--stack: 1rem">
+        <span class="eyebrow">پرسش‌های رایج</span>
+        <h2 id="faq-title">دربارهٔ ارزش گمرکی و نرخ ارز</h2>
+        <p class="lead">برای پروندهٔ مشخص، ارزش کالا و اسناد را بفرستید تا مبنای محاسبه را بررسی کنیم.</p>
+        <a class="btn btn--ghost" href="/contact/">ارسال اسناد پرونده</a>
+      </header>
+      <Faq items={faqs} />
+    </div>
+  </section>
+
+  <div class="container">
+    <ClusterNav
+      siblings={[
+        { href: '/hs-code/', label: 'کد تعرفه (HS)' },
+        { href: '/price-calculator/', label: 'ماشین‌حساب هزینهٔ ترخیص' },
+        { href: '/official-sources/', label: 'فهرست سامانه‌های رسمی' },
+        { href: '/guides/customs-valuation/', label: 'ارزش‌گذاری گمرکی' },
+        { href: '/guides/customs-clearance-cost/', label: 'هزینهٔ ترخیص کالا' },
+      ]}
+    />
+  </div>
+
+  <CtaBand
+    title="برآورد دقیق برای پروندهٔ خودتان"
+    text="ارزش کالا، شرط تحویل، کد تعرفه و مبدأ را بفرستید؛ مبنای محاسبهٔ ارزش گمرکی و اجزای هزینه را برای همان پرونده روشن می‌کنیم."
+  />
+</BaseLayout>
+
+<style>
+  .chain {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+    gap: 1.25rem;
+    list-style: none;
+    margin: 1.5rem 0 0;
+    padding: 0;
+  }
+  .chain li {
+    padding: 1.2rem 1.3rem;
+    border: 1px solid var(--rule);
+    border-top: 3px solid var(--petrol-600);
+    border-radius: var(--radius-m);
+    background: var(--white);
+  }
+  .chain__n {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 1.8rem;
+    block-size: 1.8rem;
+    border-radius: 50%;
+    background: var(--mist-100);
+    color: var(--petrol-600);
+    font-weight: 800;
+    margin-bottom: 0.6rem;
+  }
+  .chain h3 {
+    font-size: var(--step-0);
+    margin-bottom: 0.35rem;
+  }
+  .chain p {
+    margin: 0;
+    font-size: var(--step--1);
+    color: var(--slate-700);
+    line-height: 1.85;
+  }
+  .src-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+    gap: 1.25rem;
+    list-style: none;
+    margin: 1.5rem 0 0;
+    padding: 0;
+  }
+  .src-grid li {
+    padding: 1.2rem 1.3rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-m);
+    background: var(--white);
+  }
+  .src-grid h3 {
+    font-size: var(--step-0);
+    margin-bottom: 0.4rem;
+  }
+  .src-grid a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: var(--navy-900);
+    text-decoration-color: var(--petrol-300);
+    text-underline-offset: 4px;
+  }
+  .src-grid a :global(svg) {
+    inline-size: 0.9em;
+    block-size: 0.9em;
+    color: var(--petrol-600);
+  }
+  .src-grid p {
+    margin: 0;
+    font-size: var(--step--1);
+    color: var(--slate-700);
+    line-height: 1.85;
+  }
+  .mistakes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+    gap: 1.25rem;
+    list-style: none;
+    margin: 1.5rem 0 0;
+    padding: 0;
+    counter-reset: none;
+  }
+  .mistakes li {
+    padding-top: 1.1rem;
+    border-top: 2px solid var(--navy-900);
+  }
+  .mistakes h3 {
+    font-size: var(--step-0);
+    margin-bottom: 0.4rem;
+  }
+  .mistakes p {
+    margin: 0;
+    font-size: var(--step--1);
+    color: var(--slate-700);
+    line-height: 1.85;
+  }
+</style>

@@ -21,6 +21,9 @@ export const GET: APIRoute = async ({ site: base }) => {
   const origins = (await getCollection("origins")).sort(
     (a, b) => a.data.order - b.data.order,
   );
+  const goods = (await getCollection("goods")).sort(
+    (a, b) => a.data.order - b.data.order,
+  );
 
   const link = (name: string, path: string, description: string) =>
     `- [${name}](${absoluteUrl(path, base)}): ${description}`;
@@ -66,6 +69,19 @@ export const GET: APIRoute = async ({ site: base }) => {
       "تأمین‌کننده، قرارداد خرید، ثبت سفارش و بازرسی پیش از حمل.",
     ),
     "",
+    "## واردات بر اساس کالا",
+    "",
+    ...goods.map((g) =>
+      link(
+        g.data.title,
+        `/goods/${g.id}/`,
+        `${g.data.description} سرفصل‌های تعرفه: ${g.data.hs
+          .slice(0, 4)
+          .map((h) => h.code)
+          .join("، ")}.`,
+      ),
+    ),
+    "",
     "## واردات بر اساس مبدأ",
     "",
     ...origins.map((o) => link(o.data.title, `/imports/${o.id}/`, o.data.description)),
@@ -82,8 +98,41 @@ export const GET: APIRoute = async ({ site: base }) => {
       link(o.data.title, `/customs/${o.id}/`, o.data.description),
     ),
     "",
+    "## ابزارها و صفحات مرجع",
+    "",
+    link(
+      "کد تعرفه (HS)",
+      "/hs-code/",
+      "جدول ۲۱ بخش و ۹۷ فصل نظام هماهنگ با سرفصل‌های پرکاربرد واردات، ساختار کد هشت‌رقمی و قواعد عمومی تفسیر. این صفحه هیچ ماخذ حقوق ورودی چاپ نمی‌کند.",
+    ),
+    link(
+      "نرخ ارز گمرکی و ارزش گمرکی",
+      "/customs-exchange-rate/",
+      "زنجیرهٔ محاسبهٔ ارزش گمرکی از سیاهه تا پروانهٔ خروج؛ نرخ ارز اعلامی بانک مرکزی در روز اظهار مبنای محاسبه است و این صفحه عدد منتشر نمی‌کند.",
+    ),
+    link(
+      "ماشین‌حساب هزینهٔ ترخیص",
+      "/price-calculator/",
+      "فرمول پنج قلم هزینه (ارزش گمرکی، حقوق ورودی، ارزش افزوده، بندری و انبارداری، کارمزد) بدون هیچ نرخ پیش‌فرض؛ نرخ‌ها را کاربر وارد می‌کند.",
+    ),
+    link(
+      "سامانه‌های رسمی",
+      "/official-sources/",
+      "مرجع رسمی هر مجوز و استعلام: ثبت سفارش، گمرک و اظهار، بهداشت و تجهیزات پزشکی، استاندارد، قرنطینه، رجیستری و نرخ ارز.",
+    ),
+    "",
     "## صفحات مرجع",
     "",
+    link(
+      "همهٔ ابزارها",
+      "/tools/",
+      "فهرست ابزارهای پروندهٔ واردات و سیاست محتوایی آن‌ها.",
+    ),
+    link(
+      "واردات بر اساس کالا",
+      "/goods/",
+      "فهرست صفحات کالایی: تعرفه، مجوزها و عوامل هزینهٔ هر گروه.",
+    ),
     link(
       "فهرست گمرکات",
       "/customs/",
@@ -109,6 +158,7 @@ export const GET: APIRoute = async ({ site: base }) => {
     "",
     "- محتوای راهنماها آموزشی است و جای مشاورهٔ حقوقی پروندهٔ مشخص را نمی‌گیرد.",
     "- اعداد و مبالغ نهایی هر پرونده به ارزش گمرکی، کد تعرفه و شرایط همان محموله بستگی دارد؛ در متن صفحات، مبناها توضیح داده شده است.",
+    "- این سایت عمداً هیچ ماخذ حقوق ورودی، نرخ ارز یا نرخ مالیات چاپ نمی‌کند. مرجع رسمی هر عدد در صفحهٔ /official-sources/ فهرست شده است.",
     `- آخرین به‌روزرسانی محتوای راهنماها: ${guides
       .map((g) =>
         (g.data.updatedDate ?? g.data.publishDate).toISOString().slice(0, 10),

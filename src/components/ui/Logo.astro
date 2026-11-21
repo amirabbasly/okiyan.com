@@ -1,6 +1,5 @@
 ---
 import { site } from '~/config/site';
-import Mark from './Mark.astro';
 export interface Props {
   tone?: 'dark' | 'light';
 }
@@ -8,11 +7,13 @@ const { tone = 'dark' } = Astro.props;
 ---
 
 <span class:list={['logo', `logo--${tone}`]}>
-  <Mark class="logo__mark" tone={tone === 'light' ? 'on-dark' : 'color'} />
-  <span class="logo__text">
-    <span class="logo__fa">{site.name}</span>
-    <span class="logo__en" lang="en">{site.wordmarkLatin}</span>
-  </span>
+  <img
+    class="logo__lockup"
+    src={tone === 'light' ? '/img/logo-lockup-light.png' : '/img/logo-lockup.png'}
+    alt={`${site.name} — ${site.wordmarkLatin}`}
+    width="480"
+    height="167"
+  />
 </span>
 
 <style>
@@ -25,26 +26,13 @@ const { tone = 'dark' } = Astro.props;
   .logo--light {
     color: var(--white);
   }
-  .logo :global(.logo__mark) {
-    inline-size: 2.6rem;
-    block-size: 2.6rem;
+  .logo :global(.logo__lockup) {
+    /* the master lockup: crescent mark + OKIYAN wordmark, transparent sheet */
+    block-size: 2.55rem;
+    inline-size: auto;
     flex: none;
   }
-  .logo__text {
-    display: grid;
-    line-height: 1.1;
-  }
-  .logo__fa {
-    font-weight: 800;
-    font-size: 1.4rem;
-  }
-  .logo__en {
-    /* echoes the geometric, widely tracked OKIYAN.COM wordmark of the logo */
-    font-size: 0.6rem;
-    font-weight: 700;
-    letter-spacing: 0.24em;
-    opacity: 0.75;
-    direction: ltr;
-    text-align: end;
+  .logo--light :global(.logo__lockup) {
+    filter: drop-shadow(0 2px 10px rgb(0 12 30 / 0.5));
   }
 </style>

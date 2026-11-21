@@ -164,6 +164,10 @@ export interface NavLink {
   hint?: string;
   /** Icon shown in the mega menu (a subset of src/components/ui/Icon.astro). */
   icon?: NavIcon;
+  /** A small flag printed after the label, e.g. «جدید». */
+  badge?: string;
+  /** Header row: 1 = the plain text row, 2 = the icon service row. */
+  row?: 1 | 2;
 }
 /** Icon names used by the navigation — must exist in src/components/ui/Icon.astro. */
 export type NavIcon =
@@ -189,14 +193,24 @@ export interface NavGroup {
   label: string;
   feature?: NavFeature;
   children: NavLink[];
+  /** A small flag printed after the label, e.g. «جدید». */
+  badge?: string;
+  /** Icon for the service row of the header. */
+  icon?: NavIcon;
+  /** Header row: 1 = the plain text row, 2 = the icon service row. */
+  row?: 1 | 2;
 }
 export type NavItem = NavLink | NavGroup;
 export const isNavGroup = (item: NavItem): item is NavGroup => 'children' in item;
 
 /** Primary navigation (header, mobile menu, footer). Keep URLs in sync with src/pages. */
 export const nav: NavItem[] = [
+  { href: '/ready-orders/', label: 'ثبت سفارش‌های آماده' },
+  { href: '/news/', label: 'اخبار بازرگانی و واردات خودرو', badge: 'جدید' },
   {
     label: 'خدمات',
+    row: 2,
+    icon: 'briefcase',
     feature: {
       title: 'کدام خدمت به کار شما می‌آید؟',
       text: 'مشخصات کالا و مرحلهٔ محموله را بفرستید تا مسیر درست، مدارک لازم و هزینه‌های قابل انتظار را مشخص کنیم.',
@@ -215,11 +229,12 @@ export const nav: NavItem[] = [
       { href: '/export-services/', label: 'صادرات کالا', hint: 'از مجوز و گواهی مبدأ تا بارنامه و تحویل', icon: 'globe' },
     ],
   },
-  { href: '/sailor-import/', label: 'واردات ملوانی' },
-  { href: '/customs-clearance/', label: 'ترخیص' },
-  { href: '/container-import/', label: 'واردات کانتینری' },
-  { href: '/export-services/', label: 'صادرات' },
+  { href: '/sailor-import/', label: 'واردات ملوانی' , row: 2, icon: 'ship' },
+  { href: '/customs-clearance/', label: 'ترخیص' , row: 2, icon: 'stamp' },
+  { href: '/container-import/', label: 'واردات کانتینری' , row: 2, icon: 'cube' },
+  { href: '/export-services/', label: 'صادرات' , row: 2, icon: 'globe' },
   { href: '/guides/', label: 'بلاگ' },
+  { href: '/team/', label: 'تیم ما' },
   {
     label: 'درباره ما',
     feature: {

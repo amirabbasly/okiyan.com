@@ -1,0 +1,112 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import PageHero from '~/components/layout/PageHero.astro';
+import CtaBand from '~/components/ui/CtaBand.astro';
+import Icon from '~/components/ui/Icon.astro';
+import Steps from '~/components/ui/Steps.astro';
+import AnswerBlock from '~/components/ui/AnswerBlock.astro';
+import { breadcrumbLd, serviceLd } from '~/lib/schema';
+
+const crumbs = [
+  { name: 'خانه', path: '/' },
+  { name: 'ثبت سفارش‌های آماده', path: '/ready-orders/' },
+];
+
+const steps = [
+  {
+    title: 'بررسی کالا و تعرفه',
+    text: 'مشخصات کالا، کد تعرفهٔ پیشنهادی و شرط تحویل را می‌بینیم؛ نیاز به مجوز و محدودیت‌های ثبت سفارش پیش از هر اقدامی روشن می‌شود.',
+    note: 'خروجی: یک برگ بررسی مکتوب با اقلام قطعی و اقلام نیازمند استعلام.',
+  },
+  {
+    title: 'فهرست کردن مجوزها و مدارک',
+    text: 'مشخص می‌کنیم کدام مجوزها لازم است، از چه دستگاهی گرفته می‌شود و چه مدرکی از فروشنده باید در پرونده باشد؛ کسری‌ها پیش از ثبت اعلام می‌شود.',
+  },
+  {
+    title: 'ثبت سفارش و پیگیری پرونده',
+    text: 'پرونده با همان فهرست جلو می‌رود: ثبت اطلاعات کالا و ارزش، بارگذاری مدارک و پیگیری وضعیت تا روشن شدن نتیجه؛ هر تغییر وضعیت به شما اعلام می‌شود.',
+  },
+  {
+    title: 'اتصال به حمل و ترخیص',
+    text: 'پس از روشن شدن ثبت سفارش، مسیر حمل، برآورد هزینه و مدارک ترخیص به همان پرونده وصل می‌شود تا از ثبت تا خروج کالا یک رشتهٔ واحد باشد.',
+    note: 'اگر فقط ثبت سفارش را می‌خواهید، همان جا تحویل می‌گیرید؛ ادامهٔ مسیر اختیاری است.',
+  },
+];
+
+const need = [
+  'مشخصات کالا و کاربرد آن، در صورت امکان کاتالوگ یا برگهٔ مشخصات فنی',
+  'کد تعرفهٔ پیشنهادی، اگر از قبل دارید؛ اگر ندارید خودمان پیشنهاد می‌دهیم',
+  'پیش‌فاکتور فروشنده با ارزش، مقدار و شرط تحویل',
+  'کشور مبدأ و مسیر حملی که در نظر دارید',
+  'اطلاعات شرکت متقاضی و کارت بازرگانی مرتبط با موضوع کالا',
+];
+---
+
+<BaseLayout
+  title="ثبت سفارش‌های آماده؛ بررسی و ثبت سفارش کالا | اوکیان"
+  description="پیش از حمل، ثبت سفارش را درست شروع کنید: بررسی تعرفه و مجوزها، فهرست مدارک، ثبت و پیگیری پرونده. اوکیان کسری‌های پرونده را پیش از ثبت روشن می‌کند."
+  jsonLd={[
+    breadcrumbLd(crumbs, Astro.site),
+    serviceLd(
+      {
+        name: 'ثبت سفارش کالا',
+        description: 'بررسی کالا و تعرفه، فهرست مجوزها و مدارک، ثبت سفارش و پیگیری پرونده تا روشن شدن نتیجه.',
+        path: '/ready-orders/',
+        serviceType: 'ثبت سفارش کالا',
+      },
+      Astro.site,
+    ),
+  ].filter((x) => x !== null)}
+>
+  <PageHero
+    eyebrow="خدمات بازرگانی"
+    title="ثبت سفارش‌های آماده"
+    lead="ثبت سفارش نقطهٔ شروع پرونده است، نه یک فرم. اول کالا و مجوزها را بررسی می‌کنیم، بعد ثبت می‌کنیم و تا روشن شدن نتیجه پیگیری می‌کنیم."
+    crumbs={crumbs}
+  >
+    <div class="hero-actions">
+      <a class="btn" href="/contact/">
+        فرستادن مشخصات کالا
+        <Icon name="arrow" class="btn__icon" />
+      </a>
+      <a class="btn btn--ghost" href="/customs-clearance/required-documents/">مدارک ترخیص</a>
+    </div>
+  </PageHero>
+
+  <AnswerBlock text="ثبت سفارش یعنی اعلام رسمی کالایی که قصد وارداتش را دارید: چه کالایی، با چه تعرفه‌ای، به چه ارزشی و از چه مسیری. بخش زیادی از توقف‌های بعدی — مجوز ناقص، تعرفهٔ اشتباه، ارزش غیرقابل دفاع — ریشه در همین مرحله دارد. برای همین پرونده‌های آماده را پیش از ثبت بررسی می‌کنیم و کسری‌ها را همان‌جا روشن می‌کنیم، نه در گمرک." />
+
+  <section class="section" aria-labelledby="ro-steps-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="eyebrow">مسیر کار</span>
+        <h2 id="ro-steps-title">ثبت سفارش با ما چه مسیری دارد؟</h2>
+        <p class="lead">چهار قدم، هر قدم با یک خروجی مکتوب؛ تا همیشه بدانید پرونده کجاست و قدم بعد با کیست.</p>
+      </header>
+      <Steps items={steps} />
+    </div>
+  </section>
+
+  <section class="section section--alt" aria-labelledby="ro-need-title">
+    <div class="container container--narrow">
+      <header class="section-head reveal">
+        <span class="eyebrow">پیش از ثبت</span>
+        <h2 id="ro-need-title">این اطلاعات را آماده کنید</h2>
+        <p class="lead">هر موردی که الان ندارید مانع شروع نیست؛ همان را که دارید بفرستید، بقیه را در بررسی اولیه فهرست می‌کنیم.</p>
+      </header>
+      <ul class="checklist reveal">
+        {need.map((item) => <li>{item}</li>)}
+      </ul>
+      <div class="notice reveal" role="note">
+        <Icon name="doc" />
+        <p>
+          <strong>مرز مسئولیت‌ها:</strong> فراهم کردن کارت بازرگانی، پیش‌فاکتور واقعی فروشنده و تصمیم‌های تجاری (انتخاب فروشنده، مقدار، شرط تحویل) با صاحب کالاست؛ بررسی تعرفه و مجوز، فهرست مدارک، ثبت و پیگیری پرونده با ما. این مرز را پیش از شروع مکتوب می‌کنیم.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <CtaBand
+    title="پروندهٔ آماده دارید یا از صفر شروع می‌کنید؟"
+    text="مشخصات کالا و هر مدرکی که دارید بفرستید؛ پس از بررسی می‌گوییم ثبت سفارش چه کسری‌هایی دارد، چه مجوزهایی لازم است و قدم بعدی چیست."
+  />
+</BaseLayout>
