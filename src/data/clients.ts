@@ -32,10 +32,11 @@ export interface Client {
  * mark sits on the same visual baseline; replace a file to update a brand.
  */
 export const clients: Client[] = [
-  { name: 'کیا — کوشا خودرو', logo: '/clients/kia-kousha.png' },
-  { name: 'آئودی — نادین خودرو', logo: '/clients/audi-nadin.png' },
+  { name: 'نادین خودرو', logo: '/clients/nadin-khodro.png' },
   { name: 'موتور بنلی', logo: '/clients/benelli.png' },
-  { name: 'LEGO', logo: '/clients/lego.png' },
-  { name: 'بازرگانی لیان سیکا', logo: '/clients/lian-sika.png' },
+  { name: 'نیک‌رون موتور', logo: '/clients/nikrun-motor.png' },
+  { name: 'سیکا تریدینگ', logo: '/clients/lian-sika.png' },
+  { name: 'کیا — کوشا خودرو', logo: '/clients/kia-kousha.png' },
   { name: 'کویر موتور', logo: '/clients/kavir-motor.png' },
+  { name: 'LEGO', logo: '/clients/lego.png' },
 ];
