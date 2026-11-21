@@ -195,16 +195,19 @@ export function stageOf(p: number) {
   return { stage, t: clamp(p * STAGE_COUNT - stage) };
 }
 
-/** Window in which the sky changes: right after the shipment passes stage 2. */
-const NIGHT_FROM = 0.4;
-const NIGHT_TO = 0.52;
-/** Dawn: the sky clears again while the truck rolls up to the customs gate, so the
- *  journey ends in daylight (the truck arrives at ~0.94, after the sun is back). */
-const DAWN_FROM = 0.78;
-const DAWN_TO = 0.9;
+/** Dusk: the sky turns while the origin crane lifts the container out of the yard
+ *  and sets it onto the ship (the load runs ~0.2→0.28), so the loading happens
+ *  after dark — the journey opens in daylight and night falls over the quay. */
+const NIGHT_FROM = 0.14;
+const NIGHT_TO = 0.24;
+/** Dawn: the sun is back while the destination crane lowers the container off the
+ *  ship (~0.52→0.59), so the unload and everything after it — customs, delivery —
+ *  play in daylight again. */
+const DAWN_FROM = 0.5;
+const DAWN_TO = 0.6;
 
 export function skyState(p: number): SkyState {
-  // Night comes in after stage 2 and leaves again before the last stage ends.
+  // Day at the start, night over the loading, day again from the unload on.
   const nightIn = easeInOut(seg(clamp(p), NIGHT_FROM, NIGHT_TO));
   const night = Math.min(nightIn, 1 - easeInOut(seg(clamp(p), DAWN_FROM, DAWN_TO)));
   return {
